@@ -1,15 +1,93 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+# ---------------------------------------------------------------------------
+# Gradle
+# ---------------------------------------------------------------------------
+.gradle/
 build/
-/captures
-.externalNativeBuild
-.cxx
+
+# ---------------------------------------------------------------------------
+# Local / machine-specific configuration
+# ---------------------------------------------------------------------------
 local.properties
+*.local.properties
+.kotlin/
+
+# ---------------------------------------------------------------------------
+# Android build output
+# ---------------------------------------------------------------------------
+*.apk
+*.aab
+*.ap_
+*.aar
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+/captures
+output.json
+output-metadata.json
+lint-results*.html
+lint-results*.xml
+
+# Native builds
+.externalNativeBuild/
+.cxx/
+obj/
+
+# Signing material — never commit these
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# Firebase / Google services config (uncomment if it must stay out of VCS)
+# google-services.json
+
+# ---------------------------------------------------------------------------
+# IntelliJ / Android Studio
+# ---------------------------------------------------------------------------
+*.iml
+*.ipr
+*.iws
+.idea/*
+# ...except the settings that are genuinely shared by the team
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+
+# ---------------------------------------------------------------------------
+# Other IDEs / editors
+# ---------------------------------------------------------------------------
+.vscode/
+.fleet/
+.settings/
+.project
+.classpath
+
+# ---------------------------------------------------------------------------
+# Python (scripts/)
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---------------------------------------------------------------------------
+# OS cruft
+# ---------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---------------------------------------------------------------------------
+# Misc
+# ---------------------------------------------------------------------------
+*.log
+*.hprof
+*.swp
+*~
