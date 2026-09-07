@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_signed_in_as">Signed in as</string>
+    <string name="settings_no_email">—</string>
+    <string name="settings_logout">Log out</string>
+    <string name="settings_logout_title">Log out</string>
+    <string name="settings_logout_confirmation">Are you sure you want to log out?</string>
+    <string name="settings_logout_confirm">Log out</string>
+    <string name="settings_logout_cancel">Cancel</string>
+</resources>

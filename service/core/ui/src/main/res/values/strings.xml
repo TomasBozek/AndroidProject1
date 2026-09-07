@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Prefixed with `core_` (enforced by `resourcePrefix` in this module's build file) so that these
+  names cannot silently collide with, or be overridden by, a consuming app's own strings.
+-->
+<resources>
+    <string name="core_general_loading">Loading…</string>
+    <string name="core_general_error_title">Something went wrong</string>
+    <string name="core_general_dismiss">OK</string>
+    <string name="core_general_error_try_again_description">Something went wrong. Please try again.</string>
+    <string name="core_error_network_message">No internet connection. Check your network and try again.</string>
+    <string name="core_error_server">The server is unavailable right now.</string>
+</resources>
