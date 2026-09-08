@@ -20,6 +20,11 @@ robolectric = "4.16"
 junit = "4.13.2"
 
 [libraries]
+# The Gradle plugins themselves, so build-logic/ can compile against their DSL. Not for a module.
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+compose-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
@@ -85,4 +90,15 @@ testing = [
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# The convention plugins in build-logic/, an included build — hence "unspecified", which is what
+# Gradle calls a version resolved by composite-build substitution rather than from a repository.
+convention-android-application = { id = "convention.android.application", version = "unspecified" }
+convention-android-library = { id = "convention.android.library", version = "unspecified" }
+convention-android-library-compose = { id = "convention.android.library.compose", version = "unspecified" }
+convention-kotlin-jvm = { id = "convention.kotlin.jvm", version = "unspecified" }
+convention-feature-data = { id = "convention.feature.data", version = "unspecified" }
+convention-feature-di = { id = "convention.feature.di", version = "unspecified" }
+convention-feature-presentation = { id = "convention.feature.presentation", version = "unspecified" }

@@ -18,6 +18,49 @@ modelled on a layered Clean/MVI setup — single activity, type-safe Compose nav
   Compose artifacts come from the BOM without an explicit version.
 - AGP 9 applies Kotlin itself; there is no `kotlin-android` plugin. New plugins must be declared in the
   root `build.gradle.kts` with `apply false` before a module can `alias(...)` them.
+- **A module build file is a `plugins` block and its project dependencies. Nothing else.** SDK levels,
+  Java target, lint, the namespace and every shared library dependency live in the convention plugins
+  in `build-logic/` — see below.
+
+## Convention plugins
+
+`build-logic/` is an included build (`includeBuild` in `settings.gradle.kts`'s `pluginManagement`,
+not a module) holding the `convention.*` plugins every module applies. The rule is **library
+dependencies live in the plugin; project dependencies stay in the module**, so a typical build file
+is six lines:
+
+```kotlin
+plugins { alias(libs.plugins.convention.feature.presentation) }
+
+dependencies {
+    api(projects.core.ui)
+    api(projects.feature.auth.domain)
+}
+```
+
+| Plugin | Applies |
+|---|---|
+| `convention.android.library` | `com.android.library`, the SDK levels, Java target, the shared `lint.xml`, the derived namespace. No dependencies |
+| `convention.android.library.compose` | the above plus the Compose compiler plugin, `buildFeatures.compose`, the BOM and the `compose-core` bundle |
+| `convention.kotlin.jvm` | `org.jetbrains.kotlin.jvm`, Java target, JUnit and coroutines-test. Written for the `domain` modules; nothing applies it yet (plan item 1.2) |
+| `convention.feature.data` | android library plus coroutines |
+| `convention.feature.di` | android library plus the Koin BOM and bundle |
+| `convention.feature.presentation` | the compose library plus serialization, Koin, navigation, lifecycle, the `testing` bundle, Robolectric and `testFixtures(:service:core:ui)` |
+| `convention.android.application` | `:app`: `com.android.application`, the app identity, R8 on release, `lint.checkDependencies` |
+
+The **namespace is derived** from the project path and `basePackage` in `gradle.properties`:
+`:feature:auth:presentation` becomes `<base>.feature.auth.presentation`, `:service:core:ui` becomes
+`<base>.service.core.ui`, `:app` becomes `<base>`. A module that sets `namespace` itself keeps it —
+nothing does today. `init_project.py` therefore rewrites one property rather than one line per
+module, and `applicationId` comes from the same property.
+
+`ProjectConfig` in `build-logic/src/main/kotlin/` holds `minSdk`, `compileSdk`, `targetSdk`, the
+Java version and the app's version code and name. Changing `minSdk` is one edit.
+
+`service/` modules apply the same plugins, so `export_service.py` copies `build-logic/` along with
+them and prints the `includeBuild` line. `doctor.py` fails if a module build file sets `compileSdk`,
+`minSdk`, `targetSdk`, `compileOptions` or a `lint` block; `resourcePrefix` and `testFixtures` are
+exempt, because `:service:core:ui` genuinely owns both.
 
 ## Module structure
 
@@ -290,7 +333,9 @@ python3 scripts/init_project.py --package com.acme.app --name "My App" [--dry-ru
 Run once on a fresh clone, before writing anything of your own. Rewrites the base package in every
 source file (both the dotted and slash-separated forms — `scripts/test_scripts.py` holds the latter),
 moves the package directory in all 35 source sets, and renames `rootProject.name`, the Android theme,
-the launcher label and `_common.py:BASE_PACKAGE`. Refuses to run on a dirty tree without `--force`.
+the launcher label, `basePackage` in `gradle.properties` and `_common.py:BASE_PACKAGE`. Every module's
+namespace and the `applicationId` follow from that one property, so there is nothing per-module left
+to rename. Refuses to run on a dirty tree without `--force`.
 
 ```bash
 python3 scripts/create_feature.py userProfile --layers domain,presentation,di
@@ -347,9 +392,10 @@ python3 scripts/doctor.py
 
 Greps for the conventions in this file that no compiler enforces: `service/` portability, the
 Android-free domain layer, the `core_` resource prefix, the six-file screen unit, `XState.PREVIEW`, an
-`init` block that clears `loading`, cross-feature `presentation` dependencies, module registration in
-`settings.gradle.kts`, ViewModel/Koin/AppNavHost registration, the module tree above matching the
-`feature/` directories on disk, and hardcoded dependency coordinates.
+`init` block that clears `loading`, cross-feature `presentation` dependencies, a repository importing a
+data source implementation, module registration in `settings.gradle.kts`, ViewModel/Koin/AppNavHost
+registration, the module tree above matching the `feature/` directories on disk, a module build file
+repeating the shared Android configuration, and hardcoded dependency coordinates.
 Exits non-zero, so it can gate CI; `--list` prints the checks. Since there is no detekt/ktlint here,
 this is the only automated defence these rules have.
 
@@ -357,12 +403,14 @@ this is the only automated defence these rules have.
 python3 scripts/export_service.py --to ~/Projects/android/MyNewApp --package com.acme.myapp --sync-versions
 ```
 
-Copies `service/` into another project, rewriting `com.example.androidproject1` in sources, directory
-layout and namespaces, then prints the `includeServiceModule` block to paste into the target's
-`settings.gradle.kts`. The module list is read off disk, so adding `service/network` needs no edit here.
-`--sync-versions` resolves every `libs.*` accessor in the copied build files — version refs and bundle
-members included — and merges those entries into the target's `gradle/libs.versions.toml`, creating it
-if needed; an alias the target already defines differently is left alone and reported. Also supports
+Copies `service/` and `build-logic/` into another project, rewriting `com.example.androidproject1` in
+sources, directory layout and namespaces, then prints the `includeBuild` and `includeServiceModule`
+blocks to paste into the target's `settings.gradle.kts` and the `basePackage` line for its
+`gradle.properties`. The module list is read off disk, so adding `service/network` needs no edit here.
+`--sync-versions` resolves every `libs.*` accessor in the copied build files *and in the convention
+plugins* (which is where most of the dependencies now are, spelled `libs.findBundle("compose-core")`)
+— version refs and bundle members included — and merges those entries into the target's
+`gradle/libs.versions.toml`, creating it if needed; an alias the target already defines differently is left alone and reported. Also supports
 `--force` and `--modules`.
 
 ```bash
@@ -439,11 +487,13 @@ Build a single module, e.g. `./gradlew :feature:auth:presentation:assembleDebug`
   if that happens.
 - AGP is a pre-release (`9.5.0-alpha04`), so the `compileSdk { version = release(37) }` and
   `optimization { enable = false }` block DSL is AGP-9-only and will not work on AGP 8.x.
-- There are no convention plugins: every library module repeats its own `plugins`/`namespace`/`compileSdk`
-  block. This is deliberate but costly — changing `minSdk` means editing every module, and a `service/`
-  module copied into another project carries this one's SDK levels with it. If the module count grows,
-  move this into an included `build-logic` build; the build files are kept identical in shape so that
-  migration stays a find/replace.
+- The convention plugins declare AGP and the Kotlin plugins as `compileOnly`, so they compile against
+  the DSL but do not put it on the consuming build's classpath. That is why the root
+  `build.gradle.kts` still needs `alias(libs.plugins.android.library) apply false` and friends —
+  deleting those breaks every module with an unresolved plugin id.
+- `configureAndroid` is written against `CommonExtension`'s property getters (`extension.lint.…`)
+  rather than its `lint { }` block, because in AGP 9 the action forms are declared separately on
+  `LibraryExtension` and `ApplicationExtension`, not on the interface they share.
 - `observe`'s error is terminal — a `Flow` that has thrown can only be resubscribed, not
   resumed. A flow whose collector outlives the failure (session state, say) must pass `retries`, or one
   transient I/O error stops it emitting for as long as the collector lives. See

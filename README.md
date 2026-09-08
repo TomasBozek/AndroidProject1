@@ -28,6 +28,7 @@ It refuses to run on a dirty working tree, so `git checkout .` stays an escape h
 ## How it is laid out
 
 ```
+build-logic/                    the convention.* plugins — an included build, not a module
 service/core/{domain,data,ui}   the reusable architecture — knows nothing about this app
 core/{ui,di}                    this app's theme and its single Koin registration point
 app                             one activity, AppNavHost, MainViewModel
@@ -36,8 +37,23 @@ feature/<name>/{domain,data,presentation,di}
 
 The split between `service/` and `core/` is the one that matters. `service/` is portable: drop the
 directory into a new project, add three `includeServiceModule` lines, and you have the architecture
-without any of this app's identity. `scripts/export_service.py` does that copy and rewrites the
-package for you.
+without any of this app's identity. `scripts/export_service.py` does that copy, brings `build-logic/`
+along and rewrites the package for you.
+
+A module build file is a `plugins` block and its project dependencies, and nothing else:
+
+```kotlin
+plugins { alias(libs.plugins.convention.feature.presentation) }
+
+dependencies {
+    api(projects.core.ui)
+    api(projects.feature.auth.domain)
+}
+```
+
+SDK levels, the Java target, lint and every shared library dependency live in `build-logic/`. So does
+the namespace, derived from the project path and `basePackage` in `gradle.properties` — which is why
+`init_project.py` renames one property rather than one line per module.
 
 Layer direction, enforced by `doctor.py`:
 

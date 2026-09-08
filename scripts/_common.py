@@ -203,7 +203,13 @@ def feature_package(flat: str, layer: str, sub: str = "") -> str:
 
 
 def module_namespace(module_dir: Path, fallback: str) -> str:
-    """Reads `namespace = "..."` out of a module's build file, so `R` is resolved correctly."""
+    """
+    The Android namespace a module's `R` lives in.
+
+    Since the convention plugins landed, almost every build file leaves `namespace` unset and the
+    plugin derives it from the project path — which is what `fallback` is. An explicit `namespace`
+    still wins, both in Gradle and here.
+    """
     build_file = module_dir / "build.gradle.kts"
     if build_file.is_file():
         match = re.search(r'namespace\s*=\s*"([^"]+)"', build_file.read_text())

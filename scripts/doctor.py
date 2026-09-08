@@ -274,7 +274,8 @@ def check_modules_registered() -> list[str]:
     problems = []
     for build_file in build_files(REPO_ROOT):
         module = build_file.parent
-        if module == REPO_ROOT or "buildSrc" in module.parts:
+        # build-logic is an included build, not a module: it is wired in with includeBuild.
+        if module == REPO_ROOT or {"buildSrc", "build-logic"} & set(module.parts):
             continue
         relative = relative_to_repo(module)
         if relative not in included:
@@ -579,6 +580,33 @@ HARDCODED_COORDINATE = re.compile(
     r"^\s*(?:api|implementation|compileOnly|runtimeOnly|testImplementation|androidTestImplementation|debugImplementation)"
     r"\s*\(\s*(?:platform\(\s*)?\"[\w.\-]+:[\w.\-]+"
 )
+
+
+# Configuration a module must not set for itself: it belongs to a convention plugin in
+# build-logic/, and 24 copies of it were the reason `minSdk` used to be 24 edits.
+SHARED_ANDROID_CONFIG = re.compile(r"^\s*(compileSdk|minSdk|targetSdk|compileOptions|lint)\b\s*[({=]")
+
+# resourcePrefix and testFixtures are genuinely per module; :service:core:ui sets both.
+MODULE_OWNED_ANDROID_CONFIG = {"resourcePrefix", "testFixtures"}
+
+
+@check("no module build file repeats the shared Android configuration")
+def check_no_duplicated_android_config() -> list[str]:
+    """
+    The convention plugins only pay for themselves while the modules stay thin: one build file that
+    sets its own `compileSdk` drifts silently, and the next `minSdk` change misses it.
+    """
+    problems = []
+    for path in build_files(REPO_ROOT):
+        if path.parent == REPO_ROOT or "build-logic" in path.parts:
+            continue
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            match = SHARED_ANDROID_CONFIG.match(line)
+            if match and match.group(1) not in MODULE_OWNED_ANDROID_CONFIG:
+                problems.append(
+                    problem(path, number, f"sets {match.group(1)} — that belongs to a build-logic convention plugin")
+                )
+    return problems
 
 
 @check("no dependency version is hardcoded outside the version catalog")

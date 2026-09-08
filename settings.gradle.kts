@@ -1,4 +1,8 @@
 pluginManagement {
+    // The convention plugins the modules apply. An included build rather than `buildSrc`, so it
+    // has its own settings file and can be copied into another project alongside `service/` —
+    // see scripts/export_service.py.
+    includeBuild("build-logic")
     repositories {
         google {
             content {

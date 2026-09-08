@@ -500,7 +500,8 @@ class ScaffoldingTest(unittest.TestCase):
         self.run_script("init_project.py", "--package", "com.acme.tracker", "--name", "Field Tracker")
 
         self.assertIn('rootProject.name = "FieldTracker"', self.read("settings.gradle.kts"))
-        self.assertIn('applicationId = "com.acme.tracker"', self.read("app/build.gradle.kts"))
+        # The applicationId and every namespace derive from this one property — see build-logic/.
+        self.assertIn("basePackage=com.acme.tracker", self.read("gradle.properties"))
         # The Gradle name is safe in a theme; the launcher label is the human-readable one.
         self.assertIn("Theme.FieldTracker", self.read("app/src/main/res/values/themes.xml"))
         self.assertIn(">Field Tracker<", self.read("app/src/main/res/values/strings.xml"))
@@ -549,6 +550,10 @@ class ScaffoldingTest(unittest.TestCase):
 
         self.assertTrue((target / "service/core/ui/src/main/kotlin/com/acme/myapp/core/ui/component/Screen.kt").is_file())
 
+        # The service build files apply convention.* plugins, so build-logic/ has to come too.
+        self.assertTrue((target / "build-logic/settings.gradle.kts").is_file())
+        self.assertTrue((target / "build-logic/src/main/kotlin/AndroidLibraryConventionPlugin.kt").is_file())
+
         leftovers = [
             str(path.relative_to(target))
             for path in target.rglob("*")
@@ -561,6 +566,11 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("kotlinx-coroutines-core", catalog["libraries"])
         self.assertIn("compose-core", catalog["bundles"])
         self.assertIn("android-library", catalog["plugins"])
+        # All seven convention plugins, not just the two the service modules happen to apply.
+        self.assertIn("convention-feature-presentation", catalog["plugins"])
+        self.assertIn("convention-android-library", catalog["plugins"])
+        # Declared only inside a convention plugin, as libs.findLibrary("robolectric").
+        self.assertIn("robolectric", catalog["libraries"])
         # Version refs the copied build files rely on must come along too.
         self.assertIn("coroutines", catalog["versions"])
         self.assertIn("agp", catalog["versions"])

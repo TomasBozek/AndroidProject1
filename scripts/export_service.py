@@ -8,12 +8,16 @@ sit in `com.example.androidproject1.core.*` because that is this project's base 
 the version catalog entries its build files rely on. This script does the copy, the package
 rewrite and (with `--sync-versions`) the catalog merge in one step.
 
+`build-logic/` comes along with it: the service build files apply the `convention.*` plugins, so
+the modules do not compile without it.
+
     python3 scripts/export_service.py --to ~/Projects/android/MyNewApp --package com.acme.myapp
     python3 scripts/export_service.py --to ~/Projects/android/MyNewApp --sync-versions
 
-Afterwards, add the printed `includeServiceModule` block to the target's `settings.gradle.kts`
-(along with the `ModuleSuffix` / `includeModule` helpers if it does not have them yet), and only
-then create that project's own `core/` and `feature/`.
+Afterwards, add the printed `includeBuild` and `includeServiceModule` block to the target's
+`settings.gradle.kts` (along with the `ModuleSuffix` / `includeModule` helpers if it does not have
+them yet) and `basePackage` to its `gradle.properties`, and only then create that project's own
+`core/` and `feature/`.
 """
 
 from __future__ import annotations
@@ -36,6 +40,7 @@ from _common import (  # noqa: E402
 )
 
 SERVICE_DIR = REPO_ROOT / "service"
+BUILD_LOGIC_DIR = REPO_ROOT / "build-logic"
 
 # Directories that are build output or IDE state rather than source.
 SKIP_DIRS = {"build", ".gradle", ".kotlin", ".idea"}
@@ -207,6 +212,12 @@ def copy_module(
 
 ACCESSOR = re.compile(r"\blibs\.(?:(plugins|bundles)\.)?([A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*)")
 
+# How a convention plugin names the same thing: `libs.findBundle("compose-core")`. Since the shared
+# dependencies moved into build-logic/, this is where most of them are declared.
+FINDER = re.compile(r'\blibs\.find(Library|Bundle|Plugin)\(\s*"([A-Za-z0-9_.\-]+)"')
+
+FINDER_SECTION = {"Library": "libraries", "Bundle": "bundles", "Plugin": "plugins"}
+
 
 def catalog_entry_lines(text: str) -> dict[str, dict[str, str]]:
     """
@@ -248,10 +259,20 @@ def normalise(alias: str) -> str:
     return alias.replace("-", ".").replace("_", ".")
 
 
-def required_catalog_entries(build_files: list[Path], catalog: dict) -> dict[str, list[str]]:
+def accessors(text: str) -> list[tuple[str, str]]:
+    """Every catalog reference in a file, as (section, alias-as-written), in either spelling."""
+    found = [
+        ({"plugins": "plugins", "bundles": "bundles"}.get(kind, "libraries"), accessor)
+        for kind, accessor in ACCESSOR.findall(text)
+    ]
+    found += [(FINDER_SECTION[kind], accessor) for kind, accessor in FINDER.findall(text)]
+    return found
+
+
+def required_catalog_entries(sources: list[Path], catalog: dict) -> dict[str, list[str]]:
     """
-    Resolves every `libs.*` accessor used by the copied build files into catalog aliases, pulling
-    in the version refs they point at and the libraries a bundle is made of.
+    Resolves every `libs.*` accessor used by the copied files into catalog aliases, pulling in the
+    version refs they point at and the libraries a bundle is made of.
     """
     lookup = {
         section: {normalise(alias): alias for alias in catalog.get(section, {})}
@@ -268,12 +289,11 @@ def required_catalog_entries(build_files: list[Path], catalog: dict) -> dict[str
             if isinstance(ref, dict) and "ref" in ref:
                 needed["versions"].add(ref["ref"])
 
-    for path in build_files:
-        for kind, accessor in ACCESSOR.findall(path.read_text()):
-            section = {"plugins": "plugins", "bundles": "bundles"}.get(kind, "libraries")
+    for path in sources:
+        for section, accessor in accessors(path.read_text()):
             alias = lookup[section].get(normalise(accessor))
             if alias is None:
-                unresolved.add(f"libs.{kind + '.' if kind else ''}{accessor}")
+                unresolved.add(f"{section}: {accessor}")
                 continue
 
             if section == "plugins":
@@ -350,17 +370,52 @@ def merge_catalog(target_file: Path, needed: dict[str, list[str]], source_lines:
 def sync_versions(target_root: Path, modules: list[str], dry_run: bool) -> None:
     catalog = tomllib.loads(VERSION_CATALOG_FILE.read_text())
     source_lines = catalog_entry_lines(VERSION_CATALOG_FILE.read_text())
-    build_files = [
+    sources = [
         path
         for module in modules
         for path in iter_source_files(SERVICE_DIR / module)
         if path.name == "build.gradle.kts"
     ]
-    needed = required_catalog_entries(build_files, catalog)
+    # The convention plugins declare most of what the service modules depend on, so scanning only
+    # the build files would export a catalog that is missing half of it.
+    sources += [path for path in iter_source_files(BUILD_LOGIC_DIR) if path.suffix in {".kts", ".kt"}]
+    needed = required_catalog_entries(sources, catalog)
+    # Every `convention.*` alias ships with build-logic/, whether or not a service module happens to
+    # apply it: the target's own core/ and feature/ modules will want the rest of them.
+    needed["plugins"] = sorted(
+        set(needed["plugins"]) | {a for a in catalog.get("plugins", {}) if a.startswith("convention-")}
+    )
     merge_catalog(target_root / "gradle/libs.versions.toml", needed, source_lines, dry_run)
 
 
 # --------------------------------------------------------------------------------------------
+
+
+def copy_build_logic(target_root: Path, package: str, dry_run: bool, force: bool) -> int:
+    """
+    Copies the included build the service modules' `convention.*` plugin ids resolve to.
+
+    No package directories to move: the plugin classes live in the default package, and only the
+    `group` and a fallback or two name the base package at all.
+    """
+    destination_dir = target_root / "build-logic"
+    if destination_dir.exists() and not force:
+        sys.exit(f"{destination_dir} already exists. Re-run with --force to overwrite.")
+
+    count = 0
+    for path in iter_source_files(BUILD_LOGIC_DIR):
+        destination = destination_dir / path.relative_to(BUILD_LOGIC_DIR)
+        if dry_run:
+            print(f"  would write {destination}")
+        else:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if path.suffix in TEXT_SUFFIXES:
+                destination.write_text(rewrite_text(path.read_text(), package))
+            else:
+                shutil.copy2(path, destination)
+            print(f"  wrote {destination}")
+        count += 1
+    return count
 
 
 def settings_snippet(modules: list[str]) -> str:
@@ -397,6 +452,7 @@ def main() -> None:
         print("-- dry run, nothing will be written --")
 
     total = sum(copy_module(m, target_root, args.package, args.dry_run, args.force) for m in modules)
+    total += copy_build_logic(target_root, args.package, args.dry_run, args.force)
     print(f"\n{total} files.")
 
     if args.sync_versions:
@@ -404,8 +460,11 @@ def main() -> None:
     else:
         print("\nRe-run with --sync-versions to merge the required gradle/libs.versions.toml entries.")
 
-    print("\nAdd to the target's settings.gradle.kts:\n")
+    print("\nAdd to the target's settings.gradle.kts, inside pluginManagement { }:\n")
+    print('    includeBuild("build-logic")')
+    print("\nand at the top level:\n")
     print(settings_snippet(modules))
+    print(f"\nAdd to the target's gradle.properties:\n\n    basePackage={args.package}")
     print("\nThen create that project's own core/ (theme + Koin) and feature/ modules.")
 
 

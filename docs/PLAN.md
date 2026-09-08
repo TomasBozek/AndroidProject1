@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8 landed)
-**Gate at last run:** doctor 18/18 · test_scripts 37 · unit tests 61 · build green
-**Repo:** 24 Gradle modules · 5 sample features + `template` · 10 scripts
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8 and 1.1 landed)
+**Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 61 · build green
+**Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 1 / 8 | `█░░░░░░░░░` 13% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 2 / 8 | `███░░░░░░░` 25% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **15 / 67** | `██░░░░░░░░` 22% |
+| **Total** | | **16 / 67** | `██░░░░░░░░` 24% |
 
 **Now:** nothing in flight.
-**Next:** 1.1 (convention plugins), then the rest of Phase 1 in any order.
+**Next:** 1.4 (Java 11 to 17, now one edit), 1.2, then the rest of Phase 1 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -76,6 +76,8 @@ six slash commands). See git history for the details.
 | `coreModule(isDebug)` | `core/di/Koin.kt` | WARN-and-above logger in release |
 | `execute(loadingMessage = …)` | `BaseViewModel` | Wording for the overlay; survives overlapping calls |
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
+| `convention.*` plugins | `build-logic/src/main/kotlin/` | A module build file is a `plugins` block and its project dependencies, nothing else |
+| `ProjectConfig` | same | `minSdk`, `compileSdk`, `targetSdk`, Java version, app version. One edit each |
 
 **Gotchas already paid for:**
 
@@ -248,7 +250,7 @@ stops being a tax.
 Order: **1.8 first**, so the convention plugins in 1.1 are written for four layers and there are
 three fewer modules to convert. Then 1.1, then the rest in any order.
 
-- [ ] **1.1 Convention plugins in `build-logic/`** (L) · D4 decided: yes, config and dependencies
+- [x] **1.1 Convention plugins in `build-logic/`** (L) · 2026-09-08
   Why: 24 build files repeat the same `plugins` / `namespace` / `compileSdk` / `lint` block, and
   every presentation module repeats the same twelve dependency lines. `minSdk`, Java target and
   lint config are 24 edits. `export_service.py` ships this project's SDK levels into the next one.
@@ -286,6 +288,24 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   the `includeBuild` line. New `doctor.py` check: no module build file sets `compileSdk`,
   `minSdk`, `compileOptions` or a `lint` block. `feature/template` and every generator emit the
   new shape; `module_namespace()` in `_common.py` falls back to the derived value. Gate green.
+  Landed, with four differences:
+  - **Java stays at 11.** Item 1.4 says "one edit once 1.1 lands", which is only true if 1.1 does
+    not already make it. `ProjectConfig.JAVA_VERSION` is that one edit.
+  - **`convention.feature.data` and `convention.feature.di` are applied outside `feature/` too** —
+    to `:service:core:{domain,data}` and `:core:di`, whose shape is identical. Two near-duplicate
+    plugins would have been worse than two slightly misleading names.
+  - **The compose plugin adds the Compose BOM and bundle as `api`, not `implementation`**, because
+    `:core:ui` and `:service:core:ui` re-export them on purpose and would otherwise have to repeat
+    the same three lines. Item 1.5 revisits it.
+  - **`convention.feature.presentation` also adds Robolectric.** `create_screen.py --with-args`
+    generates a Robolectric test into any feature and edits no build file, so before this the
+    generator's promise held only in the two features that happened to declare it.
+  Also: the plugins apply AGP and the Kotlin plugins through the catalog
+  (`libs.findPlugin("android-library")`) rather than by literal id, which is what lets
+  `export_service.py --sync-versions` see them; and it exports every `convention.*` alias, not only
+  the two the service modules apply. The new doctor check is 19, "no module build file repeats the
+  shared Android configuration". No unit-test options were lifted into the plugin: no module set
+  any, so there was nothing to share.
 
 - [ ] **1.2 Domain modules are plain Kotlin JVM** (M)
   Why: `:service:core:domain` and every `feature/*/domain` are Android libraries that by rule
@@ -305,6 +325,7 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   Why: the daemon runs JDK 25, AGP 9 requires 17 to run, and 17 is the current baseline. One edit
   once 1.1 lands.
   Done: `compileOptions` and Kotlin `jvmTarget` at 17 in the convention plugin; build green.
+  The one edit is `ProjectConfig.JAVA_VERSION` in `build-logic/src/main/kotlin/ProjectConfig.kt`.
 
 - [ ] **1.5 `api` vs `implementation` hygiene** (S)
   Why: 43 `api(` lines in feature build files, most of them in `di` modules re-exporting layers,

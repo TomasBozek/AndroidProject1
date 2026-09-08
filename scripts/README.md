@@ -39,7 +39,7 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 | `delete_feature.py` | The inverse of `create_feature.py` | undoes all five |
 | `doctor.py` | 17 checks a compiler cannot make | — |
 | `test_scripts.py` | Tests for everything above | — |
-| `export_service.py` | Copies `service/` into a *different* project | prints the `settings.gradle.kts` block |
+| `export_service.py` | Copies `service/` and `build-logic/` into a *different* project | prints the `settings.gradle.kts` block |
 
 ### The two flags worth remembering
 
