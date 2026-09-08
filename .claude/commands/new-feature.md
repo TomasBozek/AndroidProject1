@@ -15,7 +15,8 @@ python3 scripts/create_feature.py $ARGUMENTS
 
 Run it with `--dry-run` first if the arguments look ambiguous. Then, in order:
 
-1. Replace the placeholder `val counter: Int` in `XState` and its `PREVIEW` with the real state.
+1. Replace the placeholder fields in `XState`, its `PREVIEW` and the three states in
+   `XStatePreviews` with the real ones. Keep all three — empty and long text are where layouts break.
    `PREVIEW` is not optional — it is the preview fixture and usually the `initialState`.
 2. Write `XScreen.kt`. Strings used only in the composable go through `stringResource(...)`; strings
    a ViewModel needs go into the state as `UiText`. Both live in the feature's own `strings.xml`,

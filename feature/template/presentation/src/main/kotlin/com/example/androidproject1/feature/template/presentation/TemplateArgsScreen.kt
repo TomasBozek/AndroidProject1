@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 import com.example.androidproject1.core.ui.component.AppScaffold
@@ -36,8 +37,10 @@ fun TemplateArgsScreen(
 
 @ScreenPreview
 @Composable
-private fun Preview() = ThemedScreenPreview {
+private fun Preview(
+    @PreviewParameter(TemplateArgsStatePreviews::class) state: TemplateArgsState,
+) = ThemedScreenPreview {
     TemplateArgsScreen(
-        state = TemplateArgsState.PREVIEW,
+        state = state,
     ) {}
 }

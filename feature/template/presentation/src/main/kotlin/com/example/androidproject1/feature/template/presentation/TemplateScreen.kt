@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 import com.example.androidproject1.core.ui.component.AppScaffold
@@ -27,7 +28,7 @@ fun TemplateScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AppText(
-                text = stringResource(R.string.template_title),
+                text = state.title.ifEmpty { stringResource(R.string.template_title) },
                 role = TextRole.Title,
             )
         }
@@ -36,8 +37,10 @@ fun TemplateScreen(
 
 @ScreenPreview
 @Composable
-private fun Preview() = ThemedScreenPreview {
+private fun Preview(
+    @PreviewParameter(TemplateStatePreviews::class) state: TemplateState,
+) = ThemedScreenPreview {
     TemplateScreen(
-        state = TemplateState.PREVIEW,
+        state = state,
     ) {}
 }

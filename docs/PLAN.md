@@ -18,13 +18,13 @@ human orientation. This file is the work list.
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% |
-| 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
+| 4 · Testing and quality | Regression coverage that costs nothing to keep | 1 / 4 | `███░░░░░░░` 25% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **39 / 70** | `██████░░░░` 56% |
+| **Total** | | **40 / 70** | `██████░░░░` 57% |
 
-**Now:** 4.2, then 4.1 — goldens are worth far more with 41 components than with ten screens.
+**Now:** 4.1 (Compose Preview Screenshot Testing).
 **Next:** 4.3 (which 3.6's testTags unblocked), then 4.4. 3.8 whenever D13 is answered. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** 3.8, on D13 — bundle Source Sans 3's files or use Downloadable Fonts.
@@ -847,10 +847,15 @@ new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
   `./gradlew updateDebugScreenshotTest` records, `validateDebugScreenshotTest` runs in CI;
   deliberately break one padding value and confirm it fails; goldens committed.
 
-- [ ] **4.2 Preview variants in the template** (S)
+- [x] **4.2 Preview variants in the template** (S) (2026-09-08)
   Why: Plan 1's C7. One preview per screen shows one state.
   Done: a `PreviewParameterProvider` for loaded / empty / long-text in `feature/template`, cloned by
   the generators, so every new screen ships three goldens.
+  **Landed:** `TemplateStatePreviews` and `TemplateArgsStatePreviews`, both cloned and renamed by
+  the generators — verified by generating a feature and reading the output. The template's state
+  gained a `title: String` so "empty" and "long text" have something to be; `counter` stays as the
+  second placeholder field. Three states × the four `@ScreenPreview` variants is twelve renders
+  per screen, which is what 4.1 will record.
 
 - [ ] **4.3 One Compose UI test as the pattern** (S)
   Why: Plan 1's H4. Nothing shows how to test a screen's behaviour end to end.

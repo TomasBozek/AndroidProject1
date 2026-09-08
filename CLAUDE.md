@@ -295,7 +295,9 @@ python3 scripts/create_feature.py userProfile
 
 Clones all five layers and registers them everywhere. Then, in order:
 
-1. Replace the placeholder `val counter: Int` in `UserProfileState` and its `PREVIEW` with the real state.
+1. Replace the placeholder `val title: String` / `val counter: Int` in `UserProfileState`, its
+   `PREVIEW` and the three states in `UserProfileStatePreviews` with the real ones. Keep all three:
+   empty is where layouts collapse and long text is where they overflow, and both are goldens.
    `PREVIEW` is not optional — it is the preview fixture and normally the `initialState`.
 2. Write `UserProfileScreen.kt`. Strings used only in the composable go through `stringResource(...)`;
    strings a ViewModel needs go into the state as `UiText` (`R.string.x.toUiText()`). Both live in
