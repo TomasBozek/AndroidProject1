@@ -631,6 +631,27 @@ def check_features_use_the_design_system() -> list[str]:
     return problems
 
 
+@check("every XState is @Immutable")
+def check_state_immutability() -> list[str]:
+    """Strong skipping covers most of it, but the annotation is what documents the intent.
+
+    A state holds lists — `List<Product>` is an unstable type to the compiler, so without this the
+    screen recomposes on every parent recomposition whether or not anything it shows has changed.
+    """
+    problems = []
+    for feature in feature_names():
+        for path in kotlin_files(presentation_dir(feature)):
+            if not path.name.endswith("State.kt"):
+                continue
+            text = path.read_text()
+            declaration = re.search(r"^data class (\w+State)", text, re.MULTILINE)
+            if declaration and "@Immutable" not in text:
+                problems.append(
+                    problem(path, None, f"`{declaration.group(1)}` is not annotated @Immutable")
+                )
+    return problems
+
+
 @check("every :core:ui component has a preview")
 def check_component_previews() -> list[str]:
     """A component nobody can look at is a component nobody trusts.

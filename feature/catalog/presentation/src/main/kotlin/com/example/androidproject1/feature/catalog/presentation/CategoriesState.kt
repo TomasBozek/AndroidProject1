@@ -1,7 +1,9 @@
 package com.example.androidproject1.feature.catalog.presentation
 
+import androidx.compose.runtime.Immutable
 import com.example.androidproject1.feature.catalog.domain.Category
 
+@Immutable
 data class CategoriesState(
     val categories: List<Category>,
 ) {

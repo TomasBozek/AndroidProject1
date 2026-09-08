@@ -1,7 +1,9 @@
 package com.example.androidproject1.feature.catalog.presentation
 
+import androidx.compose.runtime.Immutable
 import com.example.androidproject1.feature.catalog.domain.Product
 
+@Immutable
 data class ProductDetailState(
     val product: Product,
 ) {

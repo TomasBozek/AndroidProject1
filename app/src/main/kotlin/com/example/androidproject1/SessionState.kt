@@ -1,5 +1,7 @@
 package com.example.androidproject1
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Whether anyone is signed in, as far as the app knows.
  *
@@ -7,6 +9,7 @@ package com.example.androidproject1
  * before the stored session has been read once. The splash screen stays up while it holds, so no
  * flow is composed until the right one is known and nothing has to be swapped a frame later.
  */
+@Immutable
 sealed interface SessionState {
 
     /** The session has not been read yet. */

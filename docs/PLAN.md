@@ -7,7 +7,7 @@ human orientation. This file is the work list.
 ## Status
 
 **Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 half done — the design system landed)
-**Gate at last run:** doctor 22/22 · test_scripts 40 · ktlint clean · build green
+**Gate at last run:** doctor 23/23 · test_scripts 42 · ktlint clean · build green
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 **Design system:** 40 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
@@ -17,15 +17,15 @@ human orientation. This file is the work list.
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 6 / 10 | `██████░░░░` 60% |
+| 3 · Design system and accessibility | A theme and components worth copying | 7 / 10 | `███████░░░` 70% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **36 / 70** | `█████░░░░░` 51% |
+| **Total** | | **37 / 70** | `█████░░░░░` 53% |
 
-**Now:** 3.7 (`@Immutable` on every `XState`).
-**Next:** 3.6, then 3.5, 3.8. 4.1's screenshot tests are worth much more now than
+**Now:** 3.6 (accessibility pass).
+**Next:** 3.5, then 3.8, then Phase 4. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
@@ -794,12 +794,17 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   `AppFontFamily` pointing at them, APK size delta recorded here. Downloadable fonts considered
   and rejected or taken, with the reason.
 
-- [ ] **3.7 `@Immutable` on every `XState`** (S)
+- [x] **3.7 `@Immutable` on every `XState`** (S) (2026-09-08)
   Why: Plan 1's C5. States hold `List<Product>`. Strong skipping covers most of it since Kotlin
   2.0.20, but the annotation documents intent and lets the compiler skip more.
   Done: template and `create_component.py --state` emit `@Immutable`; `doctor.py` check 19 flags
   an `XState` without it. `kotlinx-collections-immutable` only if 4.1's screenshots or a profiler
   show a need.
+  **Landed:** check 23, not 19 — the numbering moved when 3.10 added two. Ten states annotated,
+  `feature/template`'s two among them, which is what makes every generated screen compliant from
+  birth; a test asserts that rather than trusting it. `SessionState` in `:app` got it too, since
+  it is read in composition like any other. `kotlinx-collections-immutable` was not needed and
+  stays out.
 
 ## Phase 4 · Testing and quality
 

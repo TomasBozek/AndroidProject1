@@ -623,6 +623,21 @@ class ScaffoldingTest(unittest.TestCase):
             self.assertIn(expected, result.stdout)
         screen.write_text(original)
 
+    def test_doctor_catches_a_state_that_is_not_immutable(self) -> None:
+        state = self.repo / f"feature/home/presentation/src/main/kotlin/{BASE_PATH}/feature/home/presentation/HomeState.kt"
+        state.write_text(state.read_text().replace("@Immutable\n", ""))
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("HomeState", result.stdout)
+        self.assertIn("@Immutable", result.stdout)
+
+    def test_generated_screens_are_immutable(self) -> None:
+        """A generated state must pass the check the moment it is written."""
+        self.run_script("create_feature.py", "userProfile")
+        self.run_script("create_screen.py", "userprofile", "UserProfileDetail")
+        self.assert_doctor_passes()
+
     def test_doctor_catches_a_component_without_a_preview(self) -> None:
         component = self.repo / f"core/ui/src/main/kotlin/{BASE_PATH}/core/ui/component/AppButton.kt"
         component.write_text(component.read_text().replace("@ComponentPreview", "@Suppress(\"unused\")"))
