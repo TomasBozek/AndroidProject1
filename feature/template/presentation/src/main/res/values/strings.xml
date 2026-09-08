@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="template_title">Template screen</string>
+    <string name="template_counter">Counter: %1$d</string>
+    <string name="template_increment">Increment</string>
     <string name="template_args_title">Template screen for %1$s</string>
 </resources>

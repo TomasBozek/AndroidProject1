@@ -7,7 +7,7 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 ## Status
 
-**Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 43 · ktlint clean · build green
+**Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 45 · ktlint clean · build green
 **Coverage:** 38 % lines — architecture and ViewModels tested; data layers 0 %, components 10 %
 **Repo:** 25 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
 
@@ -16,11 +16,12 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 6 | `░░░░░░░░░░` 0 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 0 / 14 | `░░░░░░░░░░` 0 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 0 / 7 | `░░░░░░░░░░` 0 % |
-| **Total** | | **0 / 32** | `░░░░░░░░░░` 0 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
+| **Total** | | **1 / 32** | `░░░░░░░░░░` 3 % |
 
-**Start now, one worktree each:** `core.1` · `ui.1` · `feat.1` · `qa.3`. None of the four waits
-on a question, and none touches another's files.
+**Start now, one worktree each:** `core.1` · `ui.1` · `feat.1`. None waits on a question, and
+none touches another's files. `qa.3` landed, so every screen generated from here ships a screen
+test; `feat.8` is now unblocked and retrofits the nine that predate it.
 **Waiting on you:** nothing. Every question is answered — D19–D29, taken 2026-09-09. `qa.1` and
 `qa.9` were dropped in the same pass; `qa.6` was parked in the backlog with its config intact and
 can be finished any time. The only thing between here and `core.1` is committing this file.
@@ -94,7 +95,14 @@ git worktree add ../<repo>-core.1 -b core.1-network
 ```
 
 Rebase on `main` before the PR. PR title is `<id> <title>`; rebase-merge, so `main` stays one
-commit per item. Branch protection with the three CI jobs required is `qa.9`.
+commit per item. Branch protection with the three CI jobs required was dropped — D25.
+
+`local.properties` is gitignored, so a fresh worktree has no SDK path and every Gradle task fails
+with "SDK location not found" before it compiles anything. Copy it in as the first thing you do:
+
+```bash
+cp ../<repo>/local.properties .
+```
 
 **Shared files.** These are edited by more than one track, always additively — a new line, never
 a rewrite. On a conflict keep both sides and run `doctor.py`; it checks every one of them.
@@ -400,8 +408,12 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   Why: `LoginScreenTest` is the pattern and nine screens do not follow it.
   Done: SignUp, Categories, Products, ProductDetail, Home, Settings, Permissions, Gallery and
   GalleryDetail, each in the shape `qa.3` generates — renders the fixed state, finds by tag,
-  asserts the event a tap emits.
-  Verify: `./gradlew test`; each test fails when its screen's tag is renamed on purpose.
+  asserts the event a tap emits. **Then tighten `doctor.py`**: `SCREEN_TEST_SUFFIXES` gains
+  `ScreenTest` and the unit check becomes eight files. `qa.3` left that out on purpose — until
+  these nine exist the check reports nine failures and reddens every worktree's gate — so it is
+  this item's own verification, and the last commit in it.
+  Verify: `./gradlew test`; `doctor.py` green only once all nine are written; each test fails when
+  its screen's tag is renamed on purpose.
 
 - [ ] **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.1–feat.8
   Why: D24 chose two locales, and Czech has four plural forms (one / few / many / other) against
@@ -428,14 +440,31 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
   all by `id:` and never by text; how to run them in `README.md`; CI left for later.
   Verify: `maestro test .maestro` passes on the emulator; a flow fails when its tag is renamed.
 
-- [ ] **qa.3 The template ships a screen test** · S · `stable`
+- [x] **qa.3 The template ships a screen test** (2026-09-09) · S · `stable`
   Why: the seven-file unit has a ViewModel test and no screen test, so every generated screen
   starts without one.
   Done: `TemplateScreenTest` and `TemplateArgsScreenTest` in `feature/template`, cloned by
-  `create_screen.py` and `create_feature.py`; the unit is eight files; `doctor.py`'s unit check
-  and `test_scripts.py` follow; `CLAUDE.md`'s screen table gains the row.
+  `create_screen.py` and `create_feature.py`; the unit is eight files; `test_scripts.py` follows;
+  `CLAUDE.md`'s screen table gains the row.
   Verify: generate a throwaway feature, its screen test runs and passes, `delete_feature.py`
   leaves the tree byte-identical.
+  **Landed:** two things differ from the line above. First, the template screen had **no
+  interactive element** — `TemplateEvent` was an empty interface — so there was no "what a tap
+  does" to clone. It gains a counter, an `IncrementClicked` event the ViewModel handles, and three
+  tags; every generated screen now starts from a worked example rather than an empty sealed
+  interface. Second, **`doctor.py` was deliberately not tightened.** Requiring `XScreenTest` of
+  every screen reports nine failures today — exactly `feat.8`'s nine — which would turn the gate
+  red in every parallel worktree; the check moves into `feat.8`, where it becomes that item's own
+  verification. A third change was forced: a test tag's stem is camelCase (`productReview_saveButton`)
+  while the resource beside it is snake_case, and the existing rules rewrote tags to
+  `product_review_saveButton` in the screen and mismatched them in the test. `_common.py` gains
+  `rewrite_test_tags`, called by both generators before the resource rules.
+  A fourth was a pre-existing bug this item tripped over: the pre-commit hook runs
+  `test_scripts.py`, git sets `GIT_DIR` and `GIT_INDEX_FILE` for every hook, and those leak into
+  the `git` calls the tests make inside their temp copy — `git init` initialising the real gitdir,
+  `git status` reporting the in-progress commit as a dirty tree so `init_project.py` refuses. Eight
+  tests failed under the hook and passed when run by hand. `test_scripts.py` now strips `GIT_*`
+  from every subprocess environment, so the hook works on exactly the commits it exists to check.
 
 - [ ] **qa.4 Generator output compiles in CI** · M · `stable`
   Why: was 7.15. `test_scripts.py` checks text; a template change that breaks generated code is

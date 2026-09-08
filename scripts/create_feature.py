@@ -40,6 +40,7 @@ from _common import (  # noqa: E402
     rewrite_relative_path,
     rewrite_resource_names,
     rewrite_source,
+    rewrite_test_tags,
     to_camel,
     to_flat,
     to_pascal,
@@ -177,6 +178,8 @@ def copy_layer(
             if source_file.name == "TemplateModule.kt":
                 text = strip_args_registration(text)
             text = rewrite_source(text, flat, pascal, camel)
+            # Before rewrite_resource_names: a tag's stem is camelCase, a resource's is snake_case.
+            text = rewrite_test_tags(text, camel)
             # `template_title` -> `user_profile_title`, in the Kotlin references and in strings.xml.
             text = rewrite_resource_names(text, snake)
             if source_file.name == "build.gradle.kts":

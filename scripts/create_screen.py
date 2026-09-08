@@ -39,6 +39,7 @@ from _common import (  # noqa: E402
     read_string_resources,
     register_destination,
     register_route_key_injection,
+    rewrite_test_tags,
     to_camel,
     to_flat,
     to_pascal,
@@ -63,7 +64,9 @@ TEMPLATE_ARGS_RESOURCE_PREFIX = "template_args"
 TEMPLATE_ARG_NAME = "templateId"
 
 SCREEN_SUFFIXES = ["Destination", "Screen", "State", "Event", "Navigation", "ViewModel"]
-TEST_SUFFIXES = ["ViewModelTest"]
+# Two tests per screen, and they answer different questions: a ViewModel test says what the
+# state becomes, a screen test says what is on screen and what a tap does.
+TEST_SUFFIXES = ["ViewModelTest", "ScreenTest"]
 
 ARG_TYPES = {
     "String": '"example"',
@@ -202,6 +205,11 @@ def rewrite(
 ) -> str:
     # The feature's package segment.
     text = text.replace(f"feature.{TEMPLATE_FEATURE}", f"feature.{feature}")
+
+    # Tags first. A tag's stem is camelCase and a resource's is snake_case, so the rules below
+    # would turn `template_saveButton` into `product_review_saveButton` and `templateArgs_idValue`
+    # into `productReviewArgs_idValue` — both wrong, and both silent.
+    text = rewrite_test_tags(text, screen_camel)
 
     # `TemplateArgs` and `templateArgs` first: replacing the shorter `Template` prefix ahead of
     # them would leave `ProductDetailArgsViewModel` behind.

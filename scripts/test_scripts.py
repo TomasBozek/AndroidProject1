@@ -14,6 +14,7 @@ Plain `unittest`, so there is no dependency to install.
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -34,6 +35,19 @@ TEMPLATE_PROJECT_NAME = "Android" + "Project1"
 IGNORED = shutil.ignore_patterns("build", ".gradle", ".git", ".idea", ".kotlin", "__pycache__", ".DS_Store")
 
 
+def hermetic_env() -> dict[str, str]:
+    """
+    The ambient environment minus git's own variables.
+
+    A git hook runs with GIT_DIR, GIT_INDEX_FILE and friends set, and in a worktree GIT_DIR is an
+    absolute path. Every `git` these tests run inside their temp copy would otherwise operate on
+    the real repository: `git init` initialising the wrong gitdir, `git status` reporting the
+    commit in progress as uncommitted changes and making init_project.py refuse. That is what made
+    the pre-commit hook fail on exactly the commits it exists to check.
+    """
+    return {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+
+
 class ScaffoldingTest(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -49,6 +63,7 @@ class ScaffoldingTest(unittest.TestCase):
             [sys.executable, str(self.repo / "scripts" / name), *args],
             capture_output=True,
             text=True,
+            env=hermetic_env(),
         )
         if expect_success and result.returncode != 0:
             self.fail(f"{name} {' '.join(args)} failed:\n{result.stdout}\n{result.stderr}")
@@ -323,6 +338,33 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("ProductReviewDestination(productId = \"example\")", test)
         self.assertNotIn("RobolectricTestRunner", test)
 
+    def test_create_screen_generates_a_screen_test(self) -> None:
+        self.run_script("create_screen.py", "catalog", "ProductReview")
+
+        test = (
+            self.repo / f"feature/catalog/presentation/src/test/kotlin/{BASE_PATH}"
+            "/feature/catalog/presentation/ProductReviewScreenTest.kt"
+        ).read_text()
+        # The half a ViewModel test cannot reach: what is on screen, and what a tap does.
+        self.assertIn("class ProductReviewScreenTest", test)
+        self.assertIn("RobolectricTestRunner", test)
+        self.assertNotIn("Template", test)
+
+    def test_a_generated_screen_and_its_test_agree_on_the_tag(self) -> None:
+        """A tag's stem is camelCase; the resource beside it is snake_case. They rewrite apart."""
+        self.run_script("create_screen.py", "catalog", "ProductReview")
+
+        base = self.repo / f"feature/catalog/presentation/src"
+        screen = (base / f"main/kotlin/{BASE_PATH}/feature/catalog/presentation/ProductReviewScreen.kt").read_text()
+        test = (base / f"test/kotlin/{BASE_PATH}/feature/catalog/presentation/ProductReviewScreenTest.kt").read_text()
+
+        # camelCase stem in both, so the test can actually find what the screen tags.
+        self.assertIn('testTag("productReview_incrementButton")', screen)
+        self.assertIn('onNodeWithTag("productReview_incrementButton")', test)
+        # ...while the string resource it sits next to stays snake_case.
+        self.assertIn("R.string.product_review_increment", screen)
+        self.assertNotIn("product_review_incrementButton", screen + test)
+
     def test_create_screen_with_args_defaults_to_a_single_id(self) -> None:
         self.run_script("create_screen.py", "catalog", "ProductReview", "--with-args")
 
@@ -373,6 +415,7 @@ class ScaffoldingTest(unittest.TestCase):
         for script in scripts:
             result = subprocess.run(
                 [sys.executable, str(script), "--help"], capture_output=True, text=True,
+                env=hermetic_env(),
             )
             self.assertEqual(0, result.returncode, f"{script.name} --help failed:\n{result.stderr}")
             self.assertIn(
@@ -386,7 +429,7 @@ class ScaffoldingTest(unittest.TestCase):
 
     def test_install_hooks_writes_an_executable_pre_commit_hook(self) -> None:
         import subprocess
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
+        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True, env=hermetic_env())
 
         self.run_script("install_hooks.py")
 
@@ -400,7 +443,7 @@ class ScaffoldingTest(unittest.TestCase):
 
     def test_install_hooks_is_idempotent_and_uninstalls(self) -> None:
         import subprocess
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
+        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True, env=hermetic_env())
 
         self.run_script("install_hooks.py")
         self.run_script("install_hooks.py")
@@ -411,7 +454,7 @@ class ScaffoldingTest(unittest.TestCase):
 
     def test_install_hooks_refuses_to_clobber_a_foreign_hook(self) -> None:
         import subprocess
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
+        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True, env=hermetic_env())
         hook = self.repo / ".git/hooks/pre-commit"
         hook.parent.mkdir(parents=True, exist_ok=True)
         hook.write_text("#!/bin/sh\necho mine\n")

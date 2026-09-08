@@ -133,6 +133,23 @@ def rewrite_resource_names(text: str, prefix: str) -> str:
     return re.sub(rf"\b{TEMPLATE_RESOURCE_PREFIX}_(\w+)", rf"{prefix}_\1", text)
 
 
+def rewrite_test_tags(text: str, camel_stem: str) -> str:
+    """
+    Rewrites a test tag's stem to the generated screen's — where the screen sets it with
+    `testTag`, and where its test finds it with `onNodeWithTag` or `hasTestTag`.
+
+    A tag is `<screenStem>_<element>` with a **camelCase** stem — `productReview_saveButton` —
+    while the string resource beside it is snake_case. Run this before `rewrite_resource_names`,
+    which would otherwise rewrite the tag to `product_review_saveButton` and quietly break the
+    convention that every screen test, screen reader and Maestro flow reads.
+    """
+    return re.sub(
+        rf'(testTag|onNodeWithTag|hasTestTag)\("(?:{TEMPLATE_FEATURE}Args|{TEMPLATE_FEATURE})_',
+        rf'\1("{camel_stem}_',
+        text,
+    )
+
+
 def rewrite_relative_path(relative: Path, flat: str, pascal: str) -> Path:
     """
     Maps a path inside the template module to the generated module. Only the

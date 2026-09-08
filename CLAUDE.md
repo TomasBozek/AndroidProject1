@@ -237,7 +237,7 @@ travels 3 dp. A blurred shadow makes it a floating card instead of a pressed one
 
 ## Screen structure (the unit of work)
 
-Every screen is seven files — six in one package, plus its test in the matching test package:
+Every screen is eight files — six in one package, plus its two tests in the matching test package:
 
 | File | Role |
 |---|---|
@@ -248,6 +248,7 @@ Every screen is seven files — six in one package, plus its test in the matchin
 | `XNavigation.kt` | `sealed interface XNavigation` — one-off navigation intents |
 | `XViewModel.kt` | `BaseViewModel<XState, XEvent, XNavigation>` |
 | `XViewModelTest.kt` | in `src/test/kotlin`; uses `MainDispatcherRule` + `FakeLogger`, both of which arrive with `testFixtures(projects.service.core.ui)` — the convention plugin already adds it |
+| `XScreenTest.kt` | in `src/test/kotlin`; renders the stateless screen with a fixed state, finds by `testTag` and asserts the event a tap emits. Robolectric, so `./gradlew test` covers it |
 
 `XState.PREVIEW` is required — it is the preview fixture and usually the value passed as
 `initialState`.
