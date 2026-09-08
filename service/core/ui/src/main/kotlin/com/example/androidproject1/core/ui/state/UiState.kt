@@ -11,14 +11,16 @@ import kotlinx.coroutines.flow.update
  * "couldn't load" layout.
  *
  * @property data the feature's own state; `null` until the ViewModel has produced it.
- * @property loading non-null while a blocking overlay should be shown.
+ * @property loading non-null while a blocking overlay should be shown. Defaults to `null`:
+ * a state that is already renderable shows no overlay. `BaseViewModel` passes it explicitly,
+ * deriving it from whether `initialState` was null.
  * @property alert non-null while a dialog should be shown over the content.
  * @property content non-null when a failure or empty state should be shown *instead of* the
  * content — see [ContentState].
  */
 data class UiState<Data>(
     val data: Data,
-    val loading: LoadingState? = LoadingState(),
+    val loading: LoadingState? = null,
     val alert: AlertState? = null,
     val content: ContentState? = null,
 )
