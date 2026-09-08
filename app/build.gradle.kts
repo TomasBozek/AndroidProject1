@@ -16,4 +16,7 @@ dependencies {
     // module gets the first line from `convention.feature.presentation`; :app is not one.
     testImplementation(testFixtures(projects.service.core.ui))
     testImplementation(testFixtures(projects.feature.auth.domain))
+
+    // The generated startup profile. The module that produces it never ships.
+    baselineProfile(projects.baselineprofile)
 }

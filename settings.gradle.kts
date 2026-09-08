@@ -126,3 +126,6 @@ includeFeatureModule(
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,
 )
+
+// Generates the startup profile committed into :app. Never shipped; see plan item 5.6.
+include(":baselineprofile")

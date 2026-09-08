@@ -1,4 +1,5 @@
 [versions]
+benchmark = "1.5.0-rc02"
 leakcanary = "2.14"
 kover = "0.9.9"
 coil = "3.1.0"
@@ -27,6 +28,9 @@ dependencyAnalysis = "3.19.1"
 ktlintGradle = "14.2.0"
 
 [libraries]
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
+androidx-test-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version = "2.3.0" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
@@ -100,6 +104,8 @@ testing = [
 ]
 
 [plugins]
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
+android-test = { id = "com.android.test", version.ref = "agp" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -112,6 +118,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 # The convention plugins in build-logic/, an included build — hence "unspecified", which is what
 # Gradle calls a version resolved by composite-build substitution rather than from a repository.
 convention-android-application = { id = "convention.android.application", version = "unspecified" }
+convention-android-test = { id = "convention.android.test", version = "unspecified" }
 convention-android-library = { id = "convention.android.library", version = "unspecified" }
 convention-android-library-compose = { id = "convention.android.library.compose", version = "unspecified" }
 convention-kotlin-jvm = { id = "convention.kotlin.jvm", version = "unspecified" }

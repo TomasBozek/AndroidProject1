@@ -267,8 +267,10 @@ def registered_modules() -> set[str]:
         paths.update(f"service/{name}/{layer}" for layer in layers(raw))
     for raw in CORE_BLOCK.findall(text):
         paths.update(f"core/{layer}" for layer in layers(raw))
-    if re.search(r'include\("?:app"?\)', text) or 'include(":app")' in text:
-        paths.add("app")
+    # Plain includes, for the modules that are not features, services or core layers — `:app`
+    # and `:baselineprofile`. Parsed rather than listed, so the next one needs no edit here.
+    for path in re.findall(r'include\(\s*"(:[\w:-]+)"\s*\)', text):
+        paths.add(path.removeprefix(":").replace(":", "/"))
     return paths
 
 

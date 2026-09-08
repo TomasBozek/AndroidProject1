@@ -9,7 +9,7 @@ human orientation. This file is the work list.
 **Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 done bar 3.8; Phase 4 started)
 **Gate at last run:** doctor 23/23 · test_scripts 43 · ktlint clean · build green · coverage 25.5%
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
-**Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
+**Repo:** 25 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 **Design system:** 41 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
 
 | Phase | Goal | Done | Progress |
@@ -19,10 +19,10 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 7 / 8 | `█████████░` 88% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 8 / 8 | `██████████` 100% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **50 / 70** | `███████░░░` 71% |
+| **Total** | | **51 / 70** | `███████░░░` 73% |
 
 **Now:** 5.8 (session stored encrypted), then 5.6.
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
@@ -37,7 +37,7 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 50 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 51 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
 | **Not started** | 17 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
@@ -1010,10 +1010,25 @@ Goal: a project started from this template can ship without adding infrastructur
   not the diff: a committed key is the one mistake a later commit cannot undo. No baseline was
   needed.
 
-- [ ] **5.6 Baseline profile and macrobenchmark** (M)
+- [x] **5.6 Baseline profile and macrobenchmark** (M) (2026-09-08)
   Why: startup time is a shipping concern and the module is boilerplate a template should carry.
   Done: `:baselineprofile` module generating the profile for the main flow; a startup benchmark;
   profile committed to `:app`.
+  **Landed:** `androidx.baselineprofile` **1.5.0-rc02**, not the 1.4.1 stable — 1.4.1 fails to
+  apply on AGP 9 (`Extension of type 'TestExtension' does not exist`), the same shape of problem
+  that parked 4.1, and here the rc fixes it. Profile generated on the emulator and committed:
+  6,164 rules in `app/src/devRelease/generated/baselineProfiles/`, covering `App.onCreate` through
+  `MainActivity.onCreate` to the first frame.
+  `StartupBenchmark` measures cold start with and without the profile, so the profile's value is a
+  number rather than a belief — but **run it on hardware**. An emulator shares a CPU with whatever
+  else is on the machine; the benchmark refuses to run on one unless errors are suppressed, and
+  that refusal is right.
+  The generator waits on `By.res("LoginScreen")` rather than sleeping, which is 3.6's `testTag`
+  convention doing a second job it was not designed for.
+  **Two things `doctor.py` caught, both correctly:** the new module repeated the shared Android
+  configuration, so there is now a `convention.android.test` plugin; and the settings check could
+  not see a plain `include(":baselineprofile")` — it understood only the three helpers and a
+  hardcoded `:app`. It parses plain includes now, so the next such module needs no edit.
 
 - [x] **5.7 Release build in CI** (S) (2026-09-08)
   Why: R8 is on but only `build` runs; a keep-rule regression shows up at release time.
