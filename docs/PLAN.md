@@ -15,14 +15,15 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 6 | `░░░░░░░░░░` 0 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 0 / 13 | `░░░░░░░░░░` 0 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 0 / 9 | `░░░░░░░░░░` 0 % |
-| **Total** | | **0 / 33** | `░░░░░░░░░░` 0 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 0 / 14 | `░░░░░░░░░░` 0 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 0 / 7 | `░░░░░░░░░░` 0 % |
+| **Total** | | **0 / 32** | `░░░░░░░░░░` 0 % |
 
 **Start now, one worktree each:** `core.1` · `ui.1` · `feat.1` · `qa.3`. None of the four waits
 on a question, and none touches another's files.
-**Waiting on you:** Q6 — the licence, now askable because D19 settled the repo as a template —
-and Q7, strike or swap a sample feature. Q3 and Q4 shape backlog items only. No track waits.
+**Waiting on you:** nothing. Every question is answered — D19–D29, taken 2026-09-09. `qa.1` and
+`qa.9` were dropped in the same pass; `qa.6` was parked in the backlog with its config intact and
+can be finished any time. The only thing between here and `core.1` is committing this file.
 
 Legend · size `S` under an hour, `M` half a day, `L` a day or more · risk `stable` known-good
 libraries, `plugin` adds a Gradle plugin (check its AGP range before writing code), `alpha`
@@ -30,21 +31,8 @@ pre-release library, `device` needs an emulator or hardware, `decision` waits on
 
 ## Questions
 
-No default; the dependent items wait, everything else proceeds.
-
-- **Q3 · Locales.** English only, or English and Czech? And is the spreadsheet-driven string
-  pipeline the reference project has wanted here — written fresh, not ported?
-- **Q4 · Theme from tokens, or the hand port?** The KSD project plans to generate `Tokens.kt`
-  from its DTCG token files with Style Dictionary. That keeps design and code in step at the cost
-  of Node tooling in an Android repo; the hand port is one file and already done.
-- **Q5 · Two facts left.** Has the Renovate GitHub app been installed on the repo? `git ls-remote
-  origin` shows only `main`, so it has never opened a PR. And can `main` get required status
-  checks (`qa.9`)? Both need the GitHub UI or `gh`, which is not installed here. The device half
-  is answered — D21.
-- **Q6 · Licence.** Apache-2.0 or MIT — D19 made this a template, so it needs one. The repo has
-  had no LICENSE file since the first commit; `qa.1` is one file and a README line once you pick.
-- **Q7 · The four sample features.** Favourites, cart, profile, search — each exists to prove one
-  capability the architecture has and no sample uses (see the app track). Strike or swap any.
+None open. Q1–Q7 were answered 2026-09-09 and became D19–D29; a new one goes here with the next
+number, and only its own items wait on it.
 
 ## Decisions
 
@@ -74,6 +62,14 @@ D1–D12 are Plan 2's, made 2026-09-08, and stand.
 | D19 | Q2 · Template or product | **Template.** The four generic sample features stand, `feature/template` and the generators keep earning their cost, `ui.4` / `ui.5` stay where they are |
 | D20 | Q1 · What the sample talks to | **Ktor `MockEngine` fixtures on the `dev` flavor.** No server to keep alive and CI runs it unchanged. The cost is that "offline" is a fixture told to fail, not a real network drop — `feat.5`'s Verify line says so rather than pretending otherwise |
 | D21 | Q5 · Hardware | **A physical device exists.** `qa.5` stays scheduled behind `shell.1` |
+| D22 | Q6 · Licence | **None.** The repo stays all rights reserved — `qa.1` struck. Reconcile with D19 if it is ever published: a template nobody may legally fork is a template in name only |
+| D23 | Q7 · Sample features | **All four stand** — favourites, cart, profile, search |
+| D24 | Q3 · Locales | **English and Czech, hand-written.** No spreadsheet pipeline: it would need a new script, which the scope rule forbids, and five features do not justify amending that rule. `feat.9` adds the `values-cs` files |
+| D25 | Q5 · Branch protection | **Not possible.** The repo is private on the free plan, so required checks cost money — `qa.9` struck. CI still reports on every PR; nothing enforces it |
+| D26 | Renovate | **Not now, not refused.** `renovate.json` stays in the repo, configured and ready; the GitHub app is simply not installed, so nothing runs. `qa.6` moves to the backlog rather than being dropped — dependency churn is most expensive while four worktrees are open, and the config costs nothing sitting there. Recorded honestly: Renovate is a GitHub bot, not a dependency — it ships no code — so this was about noise and timing, not the vendor rule below |
+| D27 | Vendor policy | **Prefer official and widely used.** Google, JetBrains and androidx first; then a large company with broad adoption. Anything else needs a line here, and if it ships in the APK, a first-party alternative that was actually tried. Written into `CLAUDE.md` so it survives this plan |
+| D29 | Q4 · Theme | **The hand port stands.** No Style Dictionary and no Node in this repo. The accepted cost is drift: a KSD token change is re-ported by hand, and nothing detects it. Promote the generator from the backlog the first time that actually hurts |
+| D28 | D27 applied, 2026-09-09 | **Stands:** Koin (the one shipping exception — 23 files deep, Hilt migration is a plan of its own), Coil (no first-party image loader exists), Roborazzi (D14 — Google's tool has been `0.0.1-alpha` for two years, alpha03 July 2024 → alpha16 July 2026, and duplicates previews rather than scanning them), Maestro (D15 — never enters the app or the build). **Goes:** mockk and `dependency-analysis` (`qa.10`); Chucker is never added |
 
 ## What Plan 2 taught
 
@@ -196,10 +192,12 @@ nothing here knows a feature.
   Done: module on Ktor **3.5.2** with `api(projects.service.core.domain)` only; `HttpClient` factory
   (JSON, timeouts, logging on debug) **taking its engine as a parameter**, which is what lets D20's
   `MockEngine` replace it on `dev`; HTTP status → `DomainError` table; bearer auth behind a
-  `TokenStore` interface with single-flight refresh; Chucker **4.3.1** on `debugImplementation`; `create_datasource.py --remote`
+  `TokenStore` interface with single-flight refresh; request logging through **Ktor's own `Logging`
+  plugin** rather than Chucker, per D28 — Android Studio's Network Inspector covers the rest;
+  `create_datasource.py --remote`
   emits the Ktor-backed variant (was 7.16); `export_service.py` picks the module up unedited.
   Verify: `MockEngine` tests for every row of the mapping table and for two parallel 401s causing
-  one refresh; a `test_scripts.py` case for `--remote`; Chucker absent from `prodRelease`.
+  one refresh; a `test_scripts.py` case for `--remote`; the `Logging` plugin absent from `prodRelease`.
 
 - [ ] **core.2 Offline-first combinator** · M · `stable`
   Why: was 6.2's first half. Cache-then-network is the shape every remote-backed screen needs.
@@ -264,6 +262,8 @@ destinations; no app-track item touches those while it is open.
   applied through `convention.android.library.compose`; `ComposablePreviewScanner` records every
   `@ComponentPreview` and `@ScreenPreview` without duplicating them; goldens committed;
   `verifyRoborazziDebug` in the CI build job.
+  Re-tested against D27 on 2026-09-09 and kept — see D28; both dependencies are build-only and
+  reach no release build.
   Verify: break one padding value on purpose and the verify task fails on that image only; restore.
 
 - [ ] **ui.3 Component behaviour tests** · M · `stable`
@@ -403,13 +403,24 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   asserts the event a tap emits.
   Verify: `./gradlew test`; each test fails when its screen's tag is renamed on purpose.
 
+- [ ] **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.1–feat.8
+  Why: D24 chose two locales, and Czech has four plural forms (one / few / many / other) against
+  English's two — so a second locale is what actually proves `toPluralUiText` rather than
+  decorating it. Last in the track on purpose: translating strings for features not yet written
+  is waste.
+  Done: `values-cs/strings.xml` in every `presentation` module, `:core:ui` and `:service:core:ui`
+  (whose `core_*` strings ship to consumers, so they carry the translation too); hand-written, no
+  pipeline; `%d` and `%s` positions preserved.
+  Verify: every `<string>` and `<plurals>` name in `values/` has a `values-cs/` counterpart;
+  the cart's "N items" reads correctly at 1, 2 and 5 under `cs`; no screen clips at Czech's
+  longer words.
+
 ## Track quality · tests, CI, release
 
 Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`,
 `baselineprofile/`.
 
-- [ ] **qa.1 LICENSE** · S · `decision` Q6
-  Done: the file, and the licence named in `README.md`.
+- [-] **qa.1 LICENSE** — dropped, D22. No licence wanted; the repo stays all rights reserved.
 
 - [ ] **qa.2 Maestro golden-path flows** · M · `device` D15
   Why: every device check so far went through `adb` by hand.
@@ -441,9 +452,8 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
   "Don't keep activities" four screens deep; a cold deep link; TalkBack through Login and Catalog.
   Verify: the numbers, and one line per check here.
 
-- [ ] **qa.6 Renovate runs** · S · `stable` Q5
-  Done: a Renovate PR has been opened against the repo, or the app is installed and one appears
-  within a week; `dependencyDashboard` on.
+- [-] **qa.6 Renovate runs** — parked, D26. Moved to the backlog, not dropped: `renovate.json`
+  stays and is finished work, so finishing the item later is one click plus a config line.
 
 - [ ] **qa.7 `resourcePrefix` per feature** · S · `stable`
   Why: was K4. `CLAUDE.md` asks for `user_profile_` prefixes and nothing enforces them.
@@ -457,20 +467,37 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
   in the compose convention plugin; the first report read and any unstable parameter fixed.
   Verify: the report lists every `XState` as stable.
 
-- [ ] **qa.9 Required checks on `main`** · S · `decision` Q5 D17
-  Done: the `secrets`, `conventions` and `build` jobs required for merge; direct pushes off.
-  Verify: a PR with a failing `doctor.py` cannot be merged.
+- [-] **qa.9 Required checks on `main`** — dropped, D25. Private repo on the free plan, so branch
+  protection is unavailable. D17's one-PR-per-item still holds by convention, unenforced.
+
+- [ ] **qa.10 Retire mockk and `dependency-analysis`** · S · `stable` D28
+  Why: mockk is in the `testing` bundle every module gets, for one usage in `UiTextTest.kt`;
+  `dependency-analysis` is advisory, one-maintainer, pinned behind this AGP, and `CLAUDE.md`
+  already documents which of its output to ignore.
+  Done: `UiTextTest.kt`'s one mock rewritten as a hand-written fake, matching the rest of the repo;
+  both entries gone from `libs.versions.toml`, the `testing` bundle and the root `build.gradle.kts`;
+  the `buildHealth` section removed from `CLAUDE.md` and `README.md`.
+  Verify: `./gradlew test` green; `doctor.py`'s hardcoded-coordinate check still passes.
 
 ## Backlog
 
 Parked, not scheduled. Promote by moving into a track with the next number.
 
+- Renovate (`qa.6`, parked by D26) — **the config is already written and stays in the repo.**
+  `renovate.json` groups androidx, kotlin, koin and AGP into one PR each and skips pre-releases,
+  and every version lives in `libs.versions.toml`, so the version-catalog manager is the only one
+  with anything to do. What is missing is only the GitHub app, at `github.com/apps/renovate`.
+  Promote it when Plan 3's items are done and a bump landing on `main` no longer rebases four
+  worktrees. Consider `"dependencyDashboardApproval": true` on the first run — Renovate then opens
+  nothing on its own and keeps one issue listing what is stale, which is the low-noise way in.
 - Feature-owned nav graphs (was 7.3) — the `--graph` grouping in `AppNavHost` does the job today.
 - Logger backend and remote config (the rest of 7.5).
 - `doctor.py --fix` (7.6) — only when a check's fix is mechanical. `create_service.py` (7.7) and
   `check_strings.py` (7.8) stay parked under the no-new-scripts rule.
-- Localisation pipeline (7.9) — waits on Q3. Per-app language picker with it.
-- Theme generated from KSD tokens — waits on Q4; replaces the `:core:designsystem` split (7.10).
+- Localisation pipeline (7.9) — parked by D24: two hand-written locales need no generator. The
+  per-app language picker is still worth having and is unblocked; promote it when someone wants it.
+- Theme generated from KSD tokens — parked by D29, not refused; promote it the first time a token
+  change has to be re-ported by hand. Replaces the `:core:designsystem` split (7.10).
 - ViewModel-readable permission state (7.13) — build inside the first feature that needs it.
 - Module graph rendered and layer rules asserted at build time (was K3).
 - WorkManager sync and Paging 3 — once `feat.5` has a server to sync with and a list longer than

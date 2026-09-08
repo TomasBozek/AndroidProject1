@@ -19,6 +19,15 @@ modelled on a layered Clean/MVI setup — single activity, type-safe Compose nav
   current — `renovate.json` groups androidx, kotlin, koin and AGP, and skips pre-releases.
 - Dependencies come from `gradle/libs.versions.toml` — never hardcode a version in a module build file.
   Compose artifacts come from the BOM without an explicit version.
+- **A new dependency has to earn its place.** Prefer Google, JetBrains and androidx; then a
+  library with a large company behind it and broad adoption. Anything else — a single maintainer,
+  a small vendor — needs a line in the Decisions table of [docs/PLAN.md](docs/PLAN.md), and if it
+  ships in the release APK, a first-party alternative that was actually tried and found wanting.
+  Build- and test-only tools are judged more leniently because they never reach production, but
+  they still get the line. The standing exceptions are **Koin**, which is 23 files deep and whose
+  replacement is a plan of its own, and **Coil**, because no first-party image loader exists.
+  Applies to what is already here as much as to what is added: an unused dependency is removed,
+  not kept for symmetry.
 - AGP 9 applies Kotlin itself; there is no `kotlin-android` plugin. New plugins must be declared in the
   root `build.gradle.kts` with `apply false` before a module can `alias(...)` them.
 - **A module build file is a `plugins` block and its project dependencies. Nothing else.** SDK levels,
