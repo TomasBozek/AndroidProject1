@@ -359,6 +359,12 @@ Add `python3 scripts/test_scripts.py` if you touched anything under `scripts/`.
 Prefer these over copying files by hand; they also perform the registration steps that are easy to
 forget. Every one of them supports `--dry-run`. `scripts/_common.py` holds the shared naming rules,
 paths and the idempotent file-editing helpers — put anything used by two scripts there.
+
+**Do not add a script.** This is an Android project: the Kotlin is the work, and `scripts/` exists
+only to make the repetitive parts of it fast. The ten below are the set. Change one when something
+else forces you to — a convention moved, a generated file's shape changed, a new `--graph` name —
+and treat that as part of the change that caused it. Anything that would be a new tool goes to the
+backlog in [docs/PLAN.md](docs/PLAN.md) instead.
 `scripts/README.md` documents them at the point of use, and every script's `--help` carries worked
 examples.
 

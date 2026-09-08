@@ -16,15 +16,27 @@ human orientation. This file is the work list.
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 4 / 8 | `█████░░░░░` 50% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
-| 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
+| 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
-| 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
-| 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
+| 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
+| 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
 | **Total** | | **26 / 67** | `████░░░░░░` 39% |
 
 **Now:** nothing in flight.
 **Next:** 2.4 (transitions), then 2.5, 2.6 and 2.7 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
+
+### Scope
+
+This is an Android project. The Kotlin is the work; `scripts/` exists to make the repetitive parts
+of it fast, and that is all it is for. So:
+
+- **No new scripts.** An item that would add one goes to the backlog instead. `doctor.py` and the
+  generators are the set.
+- **Existing scripts change only when something else forces them to** — a convention moved, a
+  generated file's shape changed, a new `--graph` name. That change is part of the item that caused
+  it, not an item of its own.
+- Items 4.5 and 6.3 were moved to the backlog on 2026-09-08 under this rule.
 
 ### How to keep this file current
 
@@ -659,11 +671,13 @@ new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
   Why: not a gate, a signal. Cheap to add and it shows which module the tests avoid.
   Done: Kover aggregated report uploaded as a CI artifact; no threshold.
 
-- [ ] **4.5 Generator output compiles** (M)
+- [-] **4.5 Generator output compiles** (M)
   Why: `test_scripts.py` checks text, not compilation, and the docs admit it. A template change
   that breaks generated code is found by the next user, not by CI.
   Done: an opt-in test (`--with-gradle`) that runs `create_feature.py` in the temp copy and then
   `./gradlew :feature:x:presentation:compileDebugKotlin`; run in CI only.
+  Moved to the backlog 2026-09-08 as 7.15: Python tooling is not where the effort goes (see the
+  note under Scope below).
 
 ## Phase 5 · Shipping baseline
 
@@ -726,10 +740,11 @@ against mock data.
   Done: `BaseRepository.observe(local, remote, updateLocal)`; one feature (catalog) converted;
   tests for cache hit, cache miss, remote failure with stale cache.
 
-- [ ] **6.3 `create_datasource.py --remote`** (S)
+- [-] **6.3 `create_datasource.py --remote`** (S)
   Why: once 6.1 exists, the generator should produce the network-backed variant, not only
   DataStore.
   Done: flag emits a Ktor-backed `DefaultRemoteXDataSource`; tested in `test_scripts.py`.
+  Moved to the backlog 2026-09-08 as 7.16, for the same reason as 4.5.
 
 - [-] **6.4 Navigation 3 spike** (M)
   Dropped 2026-09-08: D6 was decided without a spike. The migration is item 2.8.
@@ -751,6 +766,9 @@ Parked. Not scheduled, kept so they are not lost. Promote by moving to a phase a
 - [ ] **7.11 ADRs and a release process doc** (S) · Plan 1's M4, M5.
 - [ ] **7.12 Licence** (S) · Plan 1's N6/N8. The repo has no LICENSE file since the init commit.
 - [ ] **7.13 ViewModel-readable permission state** (S) · Plan 1's E6. Build when a feature needs it.
+- [ ] **7.15 Generator output compiles** (M) · was 4.5. An opt-in `test_scripts.py --with-gradle`
+  that runs `create_feature.py` in the temp copy and compiles the result.
+- [ ] **7.16 `create_datasource.py --remote`** (S) · was 6.3. Needs 6.1 first either way.
 - [ ] **7.14 Undecoded Plan 1 codes: C8, C9, C10, H7, I6, K3, K4** (?)
   Why: Plan 1 lists these by code only and the audit they refer to is not in the repo. Nobody can
   act on them.
