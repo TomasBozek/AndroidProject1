@@ -193,6 +193,9 @@ Every screen is seven files — six in one package, plus its test in the matchin
   Screens change the session and let it react — do not navigate between the auth and main flows
   directly.
 - Strings reachable from a ViewModel are `UiText` (`R.string.x.toUiText()`), so no Context is needed;
+  a quantity string is `R.plurals.x.toPluralUiText(count, count)` — named differently on purpose, so
+  `toUiText(count)` cannot silently resolve a string resource as a plural. The first `count` picks
+  the form, the second fills the `%d`;
   strings used only in a composable use `stringResource(...)`. Each feature's `presentation` module owns
   its `res/values/strings.xml` — no hardcoded literals. See `HomeState.greeting`.
 - **A screen without a `Scaffold` pads itself with `.safeDrawingPadding()`.** The activity is edge to

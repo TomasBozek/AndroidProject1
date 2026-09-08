@@ -6,24 +6,25 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2, 2.1, 2.3, 2.4 and 2.6 landed)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 65 · build green
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; Phase 2 all but 2.5)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 68 · build green
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 6 / 8 | `████████░░` 75% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 7 / 8 | `█████████░` 88% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **28 / 67** | `████░░░░░░` 42% |
+| **Total** | | **29 / 67** | `████░░░░░░` 43% |
 
 **Now:** nothing in flight.
-**Next:** 2.7 (small), then 2.5, the large one that closes Phase 2.
+**Next:** 2.5, the last of Phase 2 and a large one; then Phase 3, where 3.1 comes before 3.4
+and 3.2 before 3.4.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### Scope
@@ -579,10 +580,17 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   one: the second is that an id nobody handles is ignored rather than mistaken for an alert result.
   Nothing in the app raises an actionable snackbar yet, so this is API only.
 
-- [ ] **2.7 `UiText.Plural`** (S)
+- [x] **2.7 `UiText.Plural`** (S) · 2026-09-08
   Why: quantity strings are a week-one need and `UiText` cannot express them today.
   Done: `UiText.Plural(id, quantity, args)` resolving through `getQuantityString`; a `toUiText`
   overload; one test with a `Resources` fake or Robolectric.
+  Landed with one difference, and it matters: **the builder is `toPluralUiText`, not another
+  `toUiText` overload.** As an overload, `R.string.x.toUiText(count)` would bind to the plural one —
+  a non-vararg parameter beats a vararg — and a string resource would be read as a plural at
+  runtime, silently, in code that compiled yesterday. The name is longer and the trap is gone.
+  Tests use a mockk `Resources` rather than Robolectric, so `:service:core:ui` stays free of it
+  (see the Robolectric gotcha above). Three of them, including that the quantity is not also a
+  format argument — `getQuantityString` requires it twice and that surprises everyone once.
 
 - [x] **2.8 Migrate to Navigation 3** (L) · 2026-09-08
   Why: `Screen(onNavigation)` plus typed `@Serializable` routes already look like a Navigation 3
