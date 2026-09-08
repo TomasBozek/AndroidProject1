@@ -703,11 +703,18 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   Done: literals migrated; `doctor.py` check 18 flags a bare `.dp` literal in a feature screen
   (allow-list for `1.dp` dividers and hairlines).
 
-- [ ] **3.4 Component set** (M)
+- [~] **3.4 Component set** (M)
   Why: Plan 1's G4. Sample screens hand-roll buttons, text fields and headers.
   Done: `AppButton`, `AppTextField` (with error state), `AppTopBar`, `AppListItem`, `EmptyState`
   (wrapping `ContentMessage`), `Skeleton`, each generated with `create_component.py`, each with
   a `@ComponentPreview`; sample screens use them.
+  **In flight (2026-09-08):** the three the design system calls primitives are in —
+  `AppButton` (six kinds × three sizes, the edge-and-travel press, loading that does not change
+  the width), `AppTextField` (sunken ground, four states, an error that always carries text) and
+  `AppCheckbox` (row-sized target, indeterminate only for a group toggle). All three take their
+  colours as *roles*, never as values, so a re-brand does not touch them.
+  Still open: `AppTopBar`, `AppListItem`, `EmptyState`, `Skeleton`, and migrating the sample
+  screens onto the set. The last of those overlaps 3.3 and should land with it.
 
 - [ ] **3.5 `AppImage` over Coil 3** (S)
   Why: Plan 1's G5. Features should not import an image library directly.
