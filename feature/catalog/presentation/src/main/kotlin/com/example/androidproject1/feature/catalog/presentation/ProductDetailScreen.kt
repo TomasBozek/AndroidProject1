@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
@@ -28,13 +27,9 @@ fun ProductDetailScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         val product = state.product
-        if (product == null) {
-            Text(text = stringResource(R.string.product_detail_not_found))
-        } else {
-            Text(text = product.name, style = MaterialTheme.typography.headlineMedium)
-            Text(text = product.price.asPrice(), style = MaterialTheme.typography.titleLarge)
-            Text(text = product.description, style = MaterialTheme.typography.bodyLarge)
-        }
+        Text(text = product.name, style = MaterialTheme.typography.headlineMedium)
+        Text(text = product.price.asPrice(), style = MaterialTheme.typography.titleLarge)
+        Text(text = product.description, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

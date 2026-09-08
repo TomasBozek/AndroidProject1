@@ -35,7 +35,7 @@ class FakeCatalogRepository(
             id = "coffee",
             categoryId = "beverages",
             name = "Coffee",
-            price = 4.50,
+            price = 450,
             description = "Freshly ground, brewed to order.",
         )
 

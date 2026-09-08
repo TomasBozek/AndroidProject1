@@ -6,13 +6,13 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (0.10 landed)
+**Last updated:** 2026-09-08 (0.11 landed)
 **Gate at last run:** doctor 17/17 · test_scripts 37 · unit tests 58 · build green
 **Repo:** 27 Gradle modules · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
-| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 12 / 14 | `█████████░` 86% |
+| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 13 / 14 | `█████████░` 93% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 0 / 8 | `░░░░░░░░░░` 0% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
@@ -20,10 +20,10 @@ human orientation. This file is the work list.
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **12 / 67** | `██░░░░░░░░` 18% |
+| **Total** | | **13 / 67** | `██░░░░░░░░` 19% |
 
 **Now:** nothing in flight.
-**Next:** 0.11, 0.14 (the rest of Phase 0). Then 1.8, then 1.1.
+**Next:** 0.14 (the last of Phase 0). Then 1.8, then 1.1.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -204,11 +204,15 @@ easier to verify.
   Landed: no test substituted one yet — the only consumer, `DefaultLocalAuthDataSource`, has no
   unit test — so the one-line fake is documented in the interface's KDoc rather than written.
 
-- [ ] **0.11 Catalog sample uses the framework it demonstrates** (S)
+- [x] **0.11 Catalog sample uses the framework it demonstrates** (S) · 2026-09-08
   Why: `ProductDetail` renders "not found" as inline text while `Products` uses
   `ContentState.Empty`. `Product.price` is a `Double`; `asPrice()` hardcodes `$`.
   Done: a missing product shows `ContentState.Empty` with a "Go back" action; price is minor units
   (`Long`) formatted with `NumberFormat.getCurrencyInstance()`; tests updated.
+  Landed: with the not-found case moved into `ContentState`, `ProductDetailState.product` is no
+  longer nullable and the screen has one branch instead of two. The empty state carries its own
+  content id (`ProductDetailViewModel.CONTENT_NOT_FOUND`) so `onSystemEvent` can tell "go back"
+  from a retry of a failed load, and answers it with `UiCommand.NavigateBack`.
 
 - [x] **0.12 Retry works for more than one inline load at a time** (S) · 2026-09-08
   Why: `pendingRetry` is a single lambda slot. Two `ErrorDisplay.Inline` calls in flight and only

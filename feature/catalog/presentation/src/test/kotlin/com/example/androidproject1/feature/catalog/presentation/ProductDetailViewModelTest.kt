@@ -1,11 +1,16 @@
 package com.example.androidproject1.feature.catalog.presentation
 
 import androidx.lifecycle.SavedStateHandle
+import com.example.androidproject1.core.ui.event.SystemEvent
+import com.example.androidproject1.core.ui.event.UiCommand
+import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,11 +47,23 @@ class ProductDetailViewModelTest {
     }
 
     @Test
-    fun `a product that no longer exists renders as a null product`() = runTest {
+    fun `a product that no longer exists shows an empty content state`() = runTest {
         val state = viewModel(FakeCatalogRepository(), productId = "gone").state.value
 
-        // Success with no match, so this is a state the screen renders — not an error.
-        assertNull(state.data?.product)
-        assertNull(state.content)
+        // Success with no match, so it is Empty rather than Error — the same distinction
+        // ProductsViewModel draws for a category with no products.
+        val content = state.content
+        assertTrue(content is ContentState.Empty)
+        assertEquals(ProductDetailViewModel.CONTENT_NOT_FOUND, content?.id)
+        assertNull(state.data)
+    }
+
+    @Test
+    fun `the empty state's action leaves the screen`() = runTest {
+        val viewModel = viewModel(FakeCatalogRepository(), productId = "gone")
+
+        viewModel.onSystemEvent(SystemEvent.ContentAction(ProductDetailViewModel.CONTENT_NOT_FOUND))
+
+        assertEquals(UiCommand.NavigateBack, viewModel.command.first())
     }
 }
