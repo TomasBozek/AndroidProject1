@@ -47,7 +47,14 @@ data class AppColors(
     val textPrimary: Color,
     /** Labels and metadata. */
     val textSecondary: Color,
-    /** A missing value in a table — never an empty cell, never a zero. */
+    /**
+     * A missing value — the dash in a table, never an empty cell and never a zero.
+     *
+     * It measures 4.3:1 light and 3.8:1 dark, under the 4.5:1 threshold for body text, which is
+     * why it is scoped to a mark that carries no information of its own: the row's label is what
+     * says what is missing. Anything a person actually reads uses [textSecondary], including field
+     * placeholders — they were on this role until 3.6 measured them.
+     */
     val textTertiary: Color,
     val textDisabled: Color,
     /** Pay, confirm, OK. */

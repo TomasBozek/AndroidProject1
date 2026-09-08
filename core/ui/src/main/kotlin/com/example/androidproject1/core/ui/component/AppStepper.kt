@@ -9,8 +9,10 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.androidproject1.core.ui.R
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -36,7 +38,7 @@ fun AppStepper(
     ) {
         AppIconButton(
             icon = Icons.Filled.Clear,
-            contentDescription = "One fewer",
+            contentDescription = stringResource(R.string.app_stepper_decrement),
             onClick = { onValueChange((value - 1).coerceAtLeast(min)) },
             enabled = value > min,
         )
@@ -49,7 +51,7 @@ fun AppStepper(
         )
         AppIconButton(
             icon = Icons.Filled.Add,
-            contentDescription = "One more",
+            contentDescription = stringResource(R.string.app_stepper_increment),
             onClick = { onValueChange((value + 1).coerceAtMost(max)) },
             enabled = value < max,
         )

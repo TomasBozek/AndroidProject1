@@ -19,6 +19,7 @@ fun CategoriesScreen(
     onEvent: (CategoriesEvent) -> Unit,
 ) {
     AppScaffold(
+        screenId = "CategoriesScreen",
         // No up arrow: this is a tab root, and the bottom bar is what leaves it.
         topBar = { AppTopBar(title = stringResource(R.string.categories_title)) },
         contentPadding = false,

@@ -24,7 +24,7 @@ fun LoginScreen(
     state: LoginState,
     onEvent: (LoginEvent) -> Unit,
 ) {
-    AppScaffold {
+    AppScaffold(screenId = "LoginScreen") {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(

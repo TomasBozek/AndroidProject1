@@ -40,6 +40,7 @@ fun SettingsPermissionsScreen(
         onEvent(SettingsPermissionsEvent.PermissionsRead(declared))
     }
     AppScaffold(
+        screenId = "SettingsPermissionsScreen",
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.settings_permissions_title),

@@ -20,8 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.example.androidproject1.core.ui.R
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -59,7 +61,7 @@ fun AppSearchField(
         )
         Box(modifier = Modifier.weight(1f)) {
             if (value.isEmpty() && placeholder.isNotEmpty()) {
-                AppText(text = placeholder, role = TextRole.Tertiary)
+                AppText(text = placeholder, role = TextRole.Secondary)
             }
             BasicTextField(
                 value = value,
@@ -74,7 +76,7 @@ fun AppSearchField(
         if (value.isNotEmpty()) {
             AppIconButton(
                 icon = Icons.Filled.Close,
-                contentDescription = "Clear search",
+                contentDescription = stringResource(R.string.app_search_clear),
                 onClick = { onValueChange("") },
                 modifier = Modifier.size(32.dp),
             )

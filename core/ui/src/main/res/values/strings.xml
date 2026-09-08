@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Labels that belong to a component rather than to a screen. A component's own control — a back
+    arrow, a clear button, a stepper's two keys — carries the same name everywhere it appears, so
+    the string lives with the component and not in each feature that uses it.
+-->
 <resources>
-    <!-- Content description for the back arrow in AppTopBar. Every screen that shows one uses
-         this: the label is a property of the control, not of the screen. -->
     <string name="app_navigate_up">Navigate up</string>
+    <string name="app_search_clear">Clear search</string>
+    <string name="app_stepper_decrement">One fewer</string>
+    <string name="app_stepper_increment">One more</string>
 </resources>

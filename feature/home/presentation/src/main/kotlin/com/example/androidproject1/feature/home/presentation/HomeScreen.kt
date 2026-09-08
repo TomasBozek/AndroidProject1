@@ -18,7 +18,7 @@ fun HomeScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
 ) {
-    AppScaffold {
+    AppScaffold(screenId = "HomeScreen") {
         androidx.compose.foundation.layout.Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(

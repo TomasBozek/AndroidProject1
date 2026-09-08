@@ -31,6 +31,7 @@ fun GalleryDetailScreen(
 ) {
     val entry = galleryEntry(state.componentId)
     AppScaffold(
+        screenId = "GalleryDetailScreen",
         topBar = {
             AppTopBar(
                 title = state.name,

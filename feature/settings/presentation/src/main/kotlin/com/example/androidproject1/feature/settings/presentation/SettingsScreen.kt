@@ -23,6 +23,7 @@ fun SettingsScreen(
     onEvent: (SettingsEvent) -> Unit,
 ) {
     AppScaffold(
+        screenId = "SettingsScreen",
         // No up arrow: this is a tab root, and the bottom bar is what leaves it.
         topBar = { AppTopBar(title = stringResource(R.string.settings_title)) },
     ) {

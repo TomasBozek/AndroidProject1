@@ -17,15 +17,15 @@ human orientation. This file is the work list.
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 7 / 10 | `███████░░░` 70% |
+| 3 · Design system and accessibility | A theme and components worth copying | 8 / 10 | `████████░░` 80% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **37 / 70** | `█████░░░░░` 53% |
+| **Total** | | **38 / 70** | `█████░░░░░` 54% |
 
-**Now:** 3.6 (accessibility pass).
-**Next:** 3.5, then 3.8, then Phase 4. 4.1's screenshot tests are worth much more now than
+**Now:** 3.5 (`AppImage` over Coil 3).
+**Next:** 3.8, then Phase 4 — 4.2 before 4.1 so goldens are recorded once. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
@@ -750,11 +750,24 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   Done: one composable in `core/ui` with placeholder and error states; Coil is `implementation`
   in `core/ui` only; `doctor.py` flags `coil` imports in features.
 
-- [ ] **3.6 Accessibility pass** (M)
+- [x] **3.6 Accessibility pass** (M) (2026-09-08)
   Why: Plan 1's G7. Lint's `ContentDescription` and `ClickableViewAccessibility` are warnings.
   Done: every icon has a description or is marked decorative; 48 dp touch targets; a `testTag`
   convention documented and used by 4.3; a font-scale 1.5 variant in `@ScreenPreview`; the two
   lint rules raised to `error`.
+  **Landed:** the minimum target is owned by the components, not by the screens, so a screen
+  cannot get it wrong — `AppNavRail`'s destinations and `AppToast`'s action were the two that
+  measured short. `AppButton`'s 40 dp size stays below the floor on purpose: the design system
+  calls it mouse-only, and the range starts at 52 on touch. Three hardcoded English
+  `contentDescription`s moved into `:core:ui`'s own `strings.xml`, where a component's label
+  belongs. Both preview annotations gained a `fontScale = 1.5f` variant.
+  **Test identifiers came with it**, because the design system makes them the same string as the
+  accessibility label: `AppScaffold(screenId = "HomeScreen")` publishes tags as resource ids —
+  verified on the emulator, `uiautomator` reports `resource-id="HomeScreen"` — and CLAUDE.md
+  documents the `<screenStem>_<element>` convention for what is inside. 4.3 has what it needs.
+  **The contrast question from 3.1 is closed:** `textTertiary` is 4.3:1 light and 3.8:1 dark, so
+  it is now scoped to a mark that carries no information of its own — the missing-value dash.
+  Field placeholders were on it and moved to `textSecondary` (7.0:1 / 6.2:1).
 
 - [x] **3.9 A component gallery, in the app** (M) (2026-09-08)
   Why: 40 components with previews are only as good as the ability to look at them, and Android

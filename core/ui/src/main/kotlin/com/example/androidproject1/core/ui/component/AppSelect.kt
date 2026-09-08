@@ -69,7 +69,7 @@ fun AppSelect(
             ) {
                 AppText(
                     text = selected ?: placeholder,
-                    role = if (selected == null) TextRole.Tertiary else TextRole.Body,
+                    role = if (selected == null) TextRole.Secondary else TextRole.Body,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),

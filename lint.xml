@@ -13,9 +13,13 @@
     <issue id="FlowOperatorInvokedInComposition" severity="error" />
     <issue id="AutoboxingStateCreation" severity="error" />
 
-    <!-- Accessibility: see G7. Warnings for now, raise to error once the pass is done. -->
-    <issue id="ContentDescription" severity="warning" />
-    <issue id="ClickableViewAccessibility" severity="warning" />
+    <!--
+        Accessibility. Errors since 3.6: every icon in :core:ui either carries a description or
+        passes null deliberately, and the components own the minimum touch target so a screen
+        cannot get it wrong.
+    -->
+    <issue id="ContentDescription" severity="error" />
+    <issue id="ClickableViewAccessibility" severity="error" />
 
     <!-- Localisation: every user-facing string belongs in a feature's strings.xml. -->
     <issue id="HardcodedText" severity="error" />

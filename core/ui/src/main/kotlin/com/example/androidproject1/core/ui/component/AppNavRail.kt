@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,11 +52,13 @@ fun AppNavRail(
         items.forEachIndexed { index, item ->
             val selected = index == selectedIndex
             Column(
-                modifier = Modifier.selectable(
-                    selected = selected,
-                    role = Role.Tab,
-                    onClick = { onSelect(index) },
-                ),
+                modifier = Modifier
+                    .defaultMinSize(minHeight = AppTheme.density.minTouchTarget)
+                    .selectable(
+                        selected = selected,
+                        role = Role.Tab,
+                        onClick = { onSelect(index) },
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.xs),
             ) {

@@ -20,6 +20,7 @@ fun ProductsScreen(
     onEvent: (ProductsEvent) -> Unit,
 ) {
     AppScaffold(
+        screenId = "ProductsScreen",
         topBar = { AppTopBar(title = state.categoryName) },
         contentPadding = false,
     ) {

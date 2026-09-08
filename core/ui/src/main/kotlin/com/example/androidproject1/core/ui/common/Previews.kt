@@ -15,15 +15,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.theme.AppTheme
 
-/** Renders a full screen across a representative set of device sizes. */
+/**
+ * Renders a full screen across a representative set of device sizes.
+ *
+ * The large-font variant is not decoration: the system scale goes to 200 %, and a layout that only
+ * works at 100 % is a layout that breaks for a large share of the people using it. Catching it in
+ * the preview is cheaper than catching it in a report.
+ */
 @Preview(name = "Phone", showBackground = true, device = "id:pixel_7")
 @Preview(name = "Narrow phone", showBackground = true, widthDp = 360, heightDp = 740)
 @Preview(name = "Dark", showBackground = true, uiMode = 0x21)
+@Preview(name = "Large font", showBackground = true, fontScale = 1.5f)
 annotation class ScreenPreview
 
-/** Renders a single component, light and dark. */
+/** Renders a single component: light, dark, and at the font scale that breaks layouts. */
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", showBackground = true, uiMode = 0x21)
+@Preview(name = "Large font", showBackground = true, fontScale = 1.5f)
 annotation class ComponentPreview
 
 @Composable

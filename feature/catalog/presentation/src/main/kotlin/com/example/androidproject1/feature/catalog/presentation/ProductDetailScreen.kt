@@ -17,7 +17,7 @@ fun ProductDetailScreen(
     state: ProductDetailState,
     onEvent: (ProductDetailEvent) -> Unit,
 ) {
-    AppScaffold {
+    AppScaffold(screenId = "ProductDetailScreen") {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.sm),

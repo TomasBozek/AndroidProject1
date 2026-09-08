@@ -28,6 +28,7 @@ fun GalleryScreen(
     onEvent: (GalleryEvent) -> Unit,
 ) {
     AppScaffold(
+        screenId = "GalleryScreen",
         topBar = { AppTopBar(title = stringResource(R.string.gallery_title)) },
         contentPadding = false,
     ) {

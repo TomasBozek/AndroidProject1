@@ -20,7 +20,7 @@ fun TemplateArgsScreen(
 ) {
     // A screen composes components from :core:ui and nothing else — no Material widget, no colour,
     // no size. AppScaffold is the shell: base surface, system insets, an optional top bar.
-    AppScaffold {
+    AppScaffold(screenId = "TemplateArgsScreen") {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,

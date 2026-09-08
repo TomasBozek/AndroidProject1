@@ -24,7 +24,7 @@ fun SignUpScreen(
     state: SignUpState,
     onEvent: (SignUpEvent) -> Unit,
 ) {
-    AppScaffold {
+    AppScaffold(screenId = "SignUpScreen") {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(

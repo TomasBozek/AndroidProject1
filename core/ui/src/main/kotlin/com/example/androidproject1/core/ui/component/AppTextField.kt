@@ -119,7 +119,7 @@ fun AppTextField(
                             Text(
                                 text = placeholder,
                                 style = AppTheme.typography.bodyMd,
-                                color = colors.textTertiary,
+                                color = colors.textSecondary,
                             )
                         }
                         inner()

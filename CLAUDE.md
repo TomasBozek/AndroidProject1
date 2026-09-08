@@ -177,6 +177,23 @@ If a screen needs something the set does not have, **add it to `:core:ui` with
 component is browsable in the running app under Settings → Components, which is
 `:feature:gallery`; add the new one to `GalleryCatalog.kt` in the same change.
 
+### Test identifiers
+
+One id serves the screen reader, the test and the design registry, so there is one to keep in sync
+rather than three:
+
+- **A screen** is `<Domain><Purpose>Screen` and carries its own name — `AppScaffold(screenId =
+  "SettingsScreen")`. `AppScaffold` publishes tags as resource ids, so `assertVisible: id:
+  "SettingsScreen"` is the universal check that a flow is where it meant to be.
+- **An element** is `<screenStem>_<element>`: the screen's name in camelCase without `Screen`, an
+  underscore, then the element from a closed vocabulary — `Button`, `Field`, `Switch`, `Checkbox`,
+  `List`, `Item`, `Tile`, `Key`, `Dialog`, `Sheet`, `Tab`, `Badge`, `Value`. So
+  `Modifier.testTag("settings_permissionsButton")`.
+- **Find by id, never by text.** Copy changes and gets translated; a test that finds a button by
+  its label fails on a wording fix. Text is an assertion about content, not a way to reach a thing.
+- An icon with no visible label carries the same string as its `contentDescription` — which is why
+  accessibility here is a by-product of being testable rather than separate work.
+
 Elevation is not `Modifier.shadow`. A pressable surface uses `Modifier.keySurface(color, edge,
 shape, pressed)`: a hard bottom edge in the family's own colour that shortens on press, so the key
 travels 3 dp. A blurred shadow makes it a floating card instead of a pressed one.
