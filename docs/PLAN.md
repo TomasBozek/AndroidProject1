@@ -24,10 +24,11 @@ human orientation. This file is the work list.
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
 | **Total** | | **39 / 70** | `██████░░░░` 56% |
 
-**Now:** 3.8 (bundle the brand face) — the last of Phase 3.
-**Next:** 3.8, then Phase 4 — 4.2 before 4.1 so goldens are recorded once. 4.1's screenshot tests are worth much more now than
+**Now:** 4.2, then 4.1 — goldens are worth far more with 41 components than with ten screens.
+**Next:** 4.3 (which 3.6's testTags unblocked), then 4.4. 3.8 whenever D13 is answered. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
-**Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
+**Blocked on a decision:** 3.8, on D13 — bundle Source Sans 3's files or use Downloadable Fonts.
+Everything else in Phase 3 is done.
 
 ### Scope
 
@@ -177,6 +178,13 @@ All ten were made by Tomáš on 2026-09-08. Kept here so the reasoning stays wit
   than anything generated from a seed, and re-skinning it is still one file (`Ramp.kt`).
   **Outcome (2026-09-08): adopt it, three layers and all.** D10 stands for the *shape* of the
   result — standard Material 3, mapped from the roles — not for inventing a palette. Items 3.1, 3.2.
+- **D13 · Source Sans 3: bundle the files, or use Downloadable Fonts?** 3.2's scale runs on
+  `FontFamily.Default`, so the type is right and the face is not. Bundling four weights adds
+  roughly 300–500 kB to the APK and needs the TTFs fetched from Google Fonts into the repo;
+  Downloadable Fonts adds `ui-text-google-fonts` and no files at all, but needs Play Services and
+  renders nothing in a preview or a screenshot test without network — which matters more than
+  usual now that 4.1 is about to record 41 components' worth of goldens.
+  **Open.** Item 3.8. Everything else in Phase 3 is done, so this is the only thing holding it.
 - **D12 · Keep `dynamicColor`?** It was `true`, so the app took its colours from the wallpaper.
   The status roles (paid / open / void) carry meaning, and a wallpaper-derived scheme destroys them.
   **Outcome (2026-09-08): removed, not defaulted off.** A parameter nobody should pass is not an
@@ -809,7 +817,7 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   Its template now builds from `AppText`, and omits the import when the component lands in
   `:core:ui`, which is already that package.
 
-- [ ] **3.8 Bundle the brand face** (S)
+- [ ] **3.8 Bundle the brand face** (S) — *blocked on a decision, see D13*
   Why: 3.2 defines the scale against `FontFamily.Default`. The design system's own face is Source
   Sans 3, chosen for a high x-height and a `1` distinguishable from `l` on a tilted tablet.
   Done: the four weights the scale asks for (400/600/700/800) in `core/ui/src/main/res/font/`,
