@@ -134,10 +134,10 @@ fun AppButton(
             CompositionLocalProvider(LocalContentColor provides labelColor) {
                 Text(
                     text = label,
-                    style = if (size == ButtonSize.Small) {
-                        AppTheme.typography.labelMd
-                    } else {
-                        AppTheme.typography.titleMd
+                    style = when (size) {
+                        ButtonSize.Small -> AppTheme.typography.labelMd
+                        ButtonSize.Medium -> AppTheme.typography.bodyLg
+                        ButtonSize.Large -> AppTheme.typography.titleMd
                     },
                     color = labelColor,
                     maxLines = 1,

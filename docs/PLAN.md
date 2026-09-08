@@ -8,6 +8,7 @@ human orientation. This file is the work list.
 
 **Last updated:** 2026-09-08 (Phases 0, 1 and 2 complete; 3.1 and 3.2 landed)
 **Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 73 · build green
+**Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
@@ -713,8 +714,19 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   the width), `AppTextField` (sunken ground, four states, an error that always carries text) and
   `AppCheckbox` (row-sized target, indeterminate only for a group toggle). All three take their
   colours as *roles*, never as values, so a re-brand does not touch them.
-  Still open: `AppTopBar`, `AppListItem`, `EmptyState`, `Skeleton`, and migrating the sample
-  screens onto the set. The last of those overlaps 3.3 and should land with it.
+  `SettingsScreen` is the first to use them, which is also how the set was verified on a device.
+  Still open: `AppTopBar`, `AppListItem`, `EmptyState`, `Skeleton`, and the remaining sample
+  screens. That last part overlaps 3.3 and should land with it.
+  **Contrast, measured on an emulator (2026-09-08):** base `#F7F7F6` / `#1A1A17` as specified;
+  outline border 4.32:1 light and 3.76:1 dark, label 16.27:1 in both. `borderStrong` had to move
+  to `Gray500` on both sides to clear the 3:1 the system requires of an element border — a step of
+  the surface does not.
+  **Known, for 3.6:** Material's own `OutlinedButton` draws its border from `outlineVariant`, which
+  is mapped to the quiet divider hairline (1.57:1) — correct for a divider, too weak for a button.
+  Any sample screen still on a stock `OutlinedButton` under-contrasts until it moves to `AppButton`.
+  `textTertiary` is `Gray500` in both themes, the value the source system gives it: 4.32:1 light
+  and 3.76:1 dark, just under the 4.5:1 body-text threshold. It is used for placeholders and
+  missing values. 3.6 decides whether to keep the source value or raise it.
 
 - [ ] **3.5 `AppImage` over Coil 3** (S)
   Why: Plan 1's G5. Features should not import an image library directly.

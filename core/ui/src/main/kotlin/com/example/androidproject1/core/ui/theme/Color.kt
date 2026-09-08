@@ -60,8 +60,12 @@ data class AppColors(
     val warning: ActionColors,
     /** Number keys and secondary actions. */
     val neutral: ActionColors,
-    /** Hairline between rows and around fields. */
+    /** Hairline between rows — decorative, so it is allowed to be quiet. */
     val border: Color,
+    /**
+     * The edge of something you can press or type into. Held at 3:1 against [surfaceBase] in both
+     * themes, which is why it is `Gray500` on each side rather than a step of the surface.
+     */
     val borderStrong: Color,
     /** Keyboard focus, on every platform. Never removed — a till is driven by keyboard too. */
     val focusRing: Color,
@@ -96,7 +100,7 @@ fun lightAppColors(): AppColors = AppColors(
     warning = ActionColors(Ramp.Amber500, Ramp.Amber700, Ramp.White, Ramp.Amber100, Ramp.Amber700),
     neutral = ActionColors(Ramp.White, Ramp.Gray300, Ramp.Gray900, Ramp.Gray100, Ramp.Gray600),
     border = Ramp.Gray200,
-    borderStrong = Ramp.Gray300,
+    borderStrong = Ramp.Gray500,
     focusRing = Ramp.Blue500,
     scrim = Ramp.Gray950,
     scrimAlpha = 0.45f,
@@ -124,7 +128,7 @@ fun darkAppColors(): AppColors = AppColors(
     warning = ActionColors(Ramp.Amber400, Ramp.Amber600, Ramp.Amber900, Ramp.Amber800, Ramp.Amber200),
     neutral = ActionColors(Ramp.DarkRaised, Ramp.Gray950, Ramp.Gray50, Ramp.Gray800, Ramp.Gray300),
     border = Ramp.Gray700,
-    borderStrong = Ramp.Gray600,
+    borderStrong = Ramp.Gray500,
     focusRing = Ramp.Blue400,
     scrim = Ramp.Gray950,
     scrimAlpha = 0.60f,
