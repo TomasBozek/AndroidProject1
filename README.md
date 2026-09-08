@@ -20,7 +20,7 @@ Then make it yours — one command, on a clean tree:
 python3 scripts/init_project.py --package com.acme.tracker --name "Field Tracker"
 ```
 
-It rewrites the base package across every source file, moves the package directories in all 38
+It rewrites the base package across every source file, moves the package directories in all 35
 source sets, and renames the Gradle project, the Android theme, the launcher label and
 `scripts/_common.py` so the other generators keep working. Add `--dry-run` to see the plan first.
 It refuses to run on a dirty working tree, so `git checkout .` stays an escape hatch.
@@ -31,7 +31,7 @@ It refuses to run on a dirty working tree, so `git checkout .` stays an escape h
 service/core/{domain,data,ui}   the reusable architecture — knows nothing about this app
 core/{ui,di}                    this app's theme and its single Koin registration point
 app                             one activity, AppNavHost, MainViewModel
-feature/<name>/{domain,gateway,data,presentation,di}
+feature/<name>/{domain,data,presentation,di}
 ```
 
 The split between `service/` and `core/` is the one that matters. `service/` is portable: drop the
@@ -44,14 +44,14 @@ Layer direction, enforced by `doctor.py`:
 | Layer | May depend on |
 |---|---|
 | `domain` | `service:core:domain` only |
-| `gateway` | `service:core:data` + own `domain` — holds `DefaultXRepository` and the data-source **interfaces** |
-| `data` | own `domain` + own `gateway` — holds the `DefaultXDataSource` **implementations** |
+| `data` | `service:core:data` + own `domain` — holds `DefaultXRepository` and both halves of the data source |
 | `presentation` | `core:ui` + own `domain` |
 | `di` | all of the above |
 
-The inversion in the middle is deliberate: a data source's interface lives in `gateway` because
-`gateway` is what declares its needs, and the implementation lives in `data`. That is what lets you
-swap a network source for a cache without touching anything above it.
+`data` is split into two packages: `repository` holds `DefaultXRepository`, `source` holds the
+`XDataSource` interface and its `DefaultXDataSource` implementation. The repository depends on the
+interface and never on the implementation, which is what lets you swap a network source for a cache
+without touching anything above it — and `doctor.py` fails if it does.
 
 ## A screen is seven files
 
@@ -130,7 +130,6 @@ What is different here, and why:
 | `observe(retries = …)` | A flow that throws is terminal. Without retries, one transient read error kills a session flow for the process lifetime. |
 | `AlertPayload` instead of `Map<String, Any>` | Confirm handlers should not cast out of a map. |
 | `AlertState.title` with no default | The original defaulted every dialog title to the error title, so confirmations read "something went wrong". |
-| `gateway` in place of `infrastructure` | The layer is a port to the outside world; the name should say so. |
 | No `KoinComponent` in the base class | Everything is constructor-injected, so a ViewModel's dependencies are visible in its signature. |
 
 The general shape — layered modules, MVI, a `Result` wrapper, DI, type-safe navigation — is

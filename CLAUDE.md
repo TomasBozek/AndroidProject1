@@ -38,12 +38,12 @@ There are three top-level groups, and the split between the first two is the imp
 
 :app                  single activity, AppNavHost, MainViewModel, Application
 
-:feature:auth:{domain,gateway,data,presentation,di}       full stack; owns the session
-:feature:catalog:{domain,gateway,data,presentation,di}   full stack; three screens, one with args
-:feature:home:{presentation,di}                          screen only
-:feature:launch:{presentation,di}                        screen only; the splash held by MainViewModel
-:feature:settings:{presentation,di}                      screen only; reads :feature:auth:domain
-:feature:template:{domain,gateway,data,presentation,di}  what the generators clone
+:feature:auth:{domain,data,presentation,di}       full stack; owns the session
+:feature:catalog:{domain,data,presentation,di}    full stack; three screens, one with args
+:feature:home:{presentation,di}                   screen only
+:feature:launch:{presentation,di}                 screen only; the splash held by MainViewModel
+:feature:settings:{presentation,di}               screen only; reads :feature:auth:domain
+:feature:template:{domain,data,presentation,di}   what the generators clone
 ```
 
 `service/` holds **reusable** modules — the architecture, with no knowledge of this app's features,
@@ -75,15 +75,17 @@ Layer dependency directions:
 | Layer | Depends on |
 |---|---|
 | `domain` | `api(projects.service.core.domain)` only |
-| `gateway` | `service:core:data` + own `domain`; holds `DefaultXRepository` and the `XDataSource` **interfaces** |
-| `data` | own `domain` + own `gateway`; holds the `DefaultXDataSource` **implementations** |
+| `data` | `service:core:data` + own `domain`; holds `DefaultXRepository` and both halves of the data source |
 | `presentation` | `api(projects.core.ui)` + own `domain` |
 | `di` | `api(...)` of all of the above |
 
-`gateway` is the port to the outside world: it declares *what* the feature needs of a data source
-and adapts it to the domain. Hence the inversion — a data source's *interface* lives in `gateway`,
-its *implementation* in `data`, so `data` depends on `gateway` and not the reverse. Naming is rigid
-at every layer: `Foo` (interface) ↔ `DefaultFoo` (implementation).
+`data` is the port to the outside world, split into two packages: `repository` holds
+`DefaultXRepository`, which adapts what the feature needs to the domain, and `source` holds the
+`XDataSource` interface *and* its `DefaultXDataSource` implementation. The interface sits beside its
+implementation because nothing above `data` names it — what the rest of the app depends on is the
+repository interface in `domain`. A `DefaultXRepository` therefore imports `XDataSource` and never
+`DefaultXDataSource`; `doctor.py` fails if it does. Naming is rigid at every layer: `Foo`
+(interface) ↔ `DefaultFoo` (implementation).
 
 A feature's `presentation` module must never depend on another feature's `presentation`. Cross-feature
 navigation is passed in as a lambda and wired in `AppNavHost` (see `homeDestination`). Depending on
@@ -223,14 +225,14 @@ a `data class` and read it from the nav entry.
 python3 scripts/create_datasource.py userprofile LocalUserProfile --repository
 ```
 
-Writes the interface into `gateway`, the `Default…` implementation into `data`, the repository
-pair into `domain` + `gateway`, and the Koin bindings. Then:
+Writes the interface and its `Default…` implementation into `data.source`, the repository pair into
+`domain` + `data.repository`, and the Koin bindings. Then:
 
 1. Replace the placeholder `observeValue` / `setValue` with the real operations — in the interface and
    the implementation, and in the repository pair if you generated one.
 2. The generated implementation is DataStore-backed so that it compiles and runs; swap it for the real
-   source (network client, DAO) and keep the interface where it is. The interface stays in
-   `gateway` and the implementation in `data` — that inversion is what the layering depends on.
+   source (network client, DAO) and keep the interface where it is. `DefaultXRepository` depends on
+   `XDataSource` and never on `DefaultXDataSource` — that is what the swap depends on.
 3. Repository methods return `Outcome` and go through `execute` / `observe`. Pass
    `retries` when the collector outlives a failure, as `DefaultAuthRepository.observeSession()` does.
 4. Call it from a ViewModel with `execute {}`, never try/catch.
@@ -287,7 +289,7 @@ python3 scripts/init_project.py --package com.acme.app --name "My App" [--dry-ru
 
 Run once on a fresh clone, before writing anything of your own. Rewrites the base package in every
 source file (both the dotted and slash-separated forms — `scripts/test_scripts.py` holds the latter),
-moves the package directory in all 38 source sets, and renames `rootProject.name`, the Android theme,
+moves the package directory in all 35 source sets, and renames `rootProject.name`, the Android theme,
 the launcher label and `_common.py:BASE_PACKAGE`. Refuses to run on a dirty tree without `--force`.
 
 ```bash
@@ -325,11 +327,11 @@ there to clone, and adding a fake one would ship a placeholder component in the 
 python3 scripts/create_datasource.py userprofile LocalUserProfile --repository
 ```
 
-Writes the `XDataSource` interface into `gateway`, `DefaultXDataSource` into `data`, and the
-Koin `singleOf(...) bind ...::class` line — the trio that spans three modules and whose dependency
-direction is most often got backwards by hand. `--repository [NAME]` also generates `XRepository` in
-`domain` and `DefaultXRepository` in `gateway`; the name defaults to the data source's without
-its `Local`/`Remote`/`Cached`/`InMemory` qualifier, matching `LocalAuthDataSource` ↔ `AuthRepository`.
+Writes the `XDataSource` interface and `DefaultXDataSource` into `data.source`, and the Koin
+`singleOf(...) bind ...::class` line that a hand-written copy forgets. `--repository [NAME]` also
+generates `XRepository` in `domain` and `DefaultXRepository` in `data.repository`; the name defaults
+to the data source's without its `Local`/`Remote`/`Cached`/`InMemory` qualifier, matching
+`LocalAuthDataSource` ↔ `AuthRepository`.
 
 ```bash
 python3 scripts/delete_feature.py userProfile

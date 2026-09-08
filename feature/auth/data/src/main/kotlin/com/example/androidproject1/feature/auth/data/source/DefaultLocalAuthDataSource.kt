@@ -1,10 +1,9 @@
-package com.example.androidproject1.feature.auth.data
+package com.example.androidproject1.feature.auth.data.source
 
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.androidproject1.core.data.DataStoreProvider
 import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
-import com.example.androidproject1.feature.auth.gateway.LocalAuthDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map

@@ -29,7 +29,6 @@ android {
 dependencies {
     api(projects.feature.catalog.data)
     api(projects.feature.catalog.domain)
-    api(projects.feature.catalog.gateway)
     api(projects.feature.catalog.presentation)
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin.android)

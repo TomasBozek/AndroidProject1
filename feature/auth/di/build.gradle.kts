@@ -29,7 +29,6 @@ android {
 dependencies {
     api(projects.feature.auth.data)
     api(projects.feature.auth.domain)
-    api(projects.feature.auth.gateway)
     api(projects.feature.auth.presentation)
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin.android)

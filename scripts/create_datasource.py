@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Scaffolds a data source (and optionally the repository above it) across the three modules it lives
-in, plus the Koin bindings.
+Scaffolds a data source (and optionally the repository above it) across the modules it lives in,
+plus the Koin bindings.
 
     python3 scripts/create_datasource.py userprofile LocalUserProfile
     python3 scripts/create_datasource.py userprofile LocalUserProfile --repository
     python3 scripts/create_datasource.py userprofile RemoteUserProfile --repository UserProfile --dry-run
 
-The point is the layer inversion, which is the thing most often got backwards when written by
-hand: the `XDataSource` *interface* belongs to `gateway` and `DefaultXDataSource` to `data`,
-so `data` depends on `gateway` and not the other way round. `--repository` adds the matching
-`XRepository` in `domain` and `DefaultXRepository` in `gateway`.
+The point is which package each half lands in: `data.source` holds the `XDataSource` interface
+*and* its `DefaultXDataSource` implementation, `data.repository` holds `DefaultXRepository`.
+`--repository` adds the matching `XRepository` in `domain`, which is the only one of the four the
+rest of the app is allowed to name.
 """
 
 from __future__ import annotations
@@ -43,14 +43,14 @@ SOURCE_QUALIFIERS = ("Local", "Remote", "Cached", "InMemory")
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Scaffold a data source across gateway/data/di.",
+        description="Scaffold a data source across domain/data/di.",
         epilog=(
             'Examples:\n'
             '  python3 scripts/create_datasource.py userprofile LocalUserProfile\n'
             '  python3 scripts/create_datasource.py userprofile LocalUserProfile --repository\n'
             '  python3 scripts/create_datasource.py userprofile RemoteUserProfile --repository UserProfile\n'
             '\n'
-            'The interface lands in gateway and the implementation in data — that inversion is the point.'
+            'Both halves of the source land in data.source; the repository in data.repository.'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -82,13 +82,14 @@ def default_repository_name(source: str) -> str:
 
 
 def data_source_interface(flat: str, source: str) -> str:
-    return f"""package {feature_package(flat, "gateway")}
+    return f"""package {feature_package(flat, "data", "source")}
 
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Declared in gateway, implemented in `:feature:{flat}:data`. This inversion is what keeps
- * the data layer depending on gateway rather than the other way round.
+ * Internal to the data layer: it sits beside its implementation, and nothing above
+ * `:feature:{flat}:data` names it. What the rest of the app depends on is the repository
+ * interface in `domain`.
  */
 interface {source}DataSource {{
 
@@ -101,13 +102,12 @@ interface {source}DataSource {{
 
 
 def data_source_implementation(flat: str, source: str, key: str) -> str:
-    return f"""package {feature_package(flat, "data")}
+    return f"""package {feature_package(flat, "data", "source")}
 
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import {BASE_PACKAGE}.core.data.DataStoreProvider
 import {BASE_PACKAGE}.core.domain.coroutines.DispatcherProvider
-import {feature_package(flat, "gateway")}.{source}DataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -152,7 +152,7 @@ import {BASE_PACKAGE}.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Implemented in the gateway layer. Declared here so the domain layer depends on nothing.
+ * Implemented in the data layer. Declared here so the domain layer depends on nothing.
  */
 interface {repository}Repository {{
 
@@ -166,11 +166,12 @@ interface {repository}Repository {{
 
 def repository_implementation(flat: str, repository: str, source: str) -> str:
     field = to_camel(source) + "DataSource"
-    return f"""package {feature_package(flat, "gateway")}
+    return f"""package {feature_package(flat, "data", "repository")}
 
 import {BASE_PACKAGE}.core.data.BaseRepository
 import {BASE_PACKAGE}.core.domain.Logger
 import {BASE_PACKAGE}.core.domain.result.Outcome
+import {feature_package(flat, "data", "source")}.{source}DataSource
 import {feature_package(flat, "domain")}.{repository}Repository
 import kotlinx.coroutines.flow.Flow
 
@@ -221,8 +222,8 @@ def register_in_koin(flat: str, bindings: list[tuple[str, str, str]], dry_run: b
 
 
 def _implementation_package(flat: str, implementation: str) -> str:
-    """`DefaultXDataSource` lives in `data`, `DefaultXRepository` in `gateway`."""
-    return feature_package(flat, "data" if implementation.endswith("DataSource") else "gateway")
+    """`DefaultXDataSource` lives in `data.source`, `DefaultXRepository` in `data.repository`."""
+    return feature_package(flat, "data", "source" if implementation.endswith("DataSource") else "repository")
 
 
 def _insert_binding(lines: list[str], entry: str) -> None:
@@ -270,7 +271,6 @@ def main() -> None:
     if not (feature_module_dir(flat, "presentation").is_dir() or feature_module_dir(flat, "domain").is_dir()):
         sys.exit(f"No such feature: feature/{flat}")
 
-    require_layer(flat, "gateway")
     require_layer(flat, "data")
     if wants_repository:
         require_layer(flat, "domain")
@@ -282,19 +282,19 @@ def main() -> None:
         print("-- dry run, nothing will be written --")
 
     emit(
-        feature_source_dir(flat, "gateway") / f"{source}DataSource.kt",
+        feature_source_dir(flat, "data", "source") / f"{source}DataSource.kt",
         data_source_interface(flat, source),
         args.force,
         args.dry_run,
     )
     emit(
-        feature_source_dir(flat, "data") / f"Default{source}DataSource.kt",
+        feature_source_dir(flat, "data", "source") / f"Default{source}DataSource.kt",
         data_source_implementation(flat, source, to_snake(source)),
         args.force,
         args.dry_run,
     )
 
-    bindings = [(f"Default{source}DataSource", f"{source}DataSource", feature_package(flat, "gateway"))]
+    bindings = [(f"Default{source}DataSource", f"{source}DataSource", feature_package(flat, "data", "source"))]
 
     if wants_repository:
         emit(
@@ -304,7 +304,7 @@ def main() -> None:
             args.dry_run,
         )
         emit(
-            feature_source_dir(flat, "gateway") / f"Default{repository}Repository.kt",
+            feature_source_dir(flat, "data", "repository") / f"Default{repository}Repository.kt",
             repository_implementation(flat, repository, source),
             args.force,
             args.dry_run,

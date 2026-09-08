@@ -29,5 +29,4 @@ android {
 dependencies {
     api(projects.service.core.data)
     api(projects.feature.template.domain)
-    api(projects.feature.template.gateway)
 }

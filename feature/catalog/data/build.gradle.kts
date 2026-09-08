@@ -29,5 +29,4 @@ android {
 dependencies {
     api(projects.service.core.data)
     api(projects.feature.catalog.domain)
-    api(projects.feature.catalog.gateway)
 }

@@ -45,7 +45,6 @@ NOT_A_SCREEN = re.compile(r"(NavGraph)\.kt$")
 
 SUFFIX_TO_LAYER = {
     "Domain": "domain",
-    "Gateway": "gateway",
     "Data": "data",
     "Presentation": "presentation",
     "Di": "di",
@@ -389,10 +388,9 @@ def check_destinations_registered() -> list[str]:
 # What each layer of a feature is allowed to depend on. The table in CLAUDE.md, enforced.
 ALLOWED_FEATURE_DEPENDENCIES = {
     "domain": {"domain"},
-    "gateway": {"domain", "gateway"},
-    "data": {"domain", "gateway", "data"},
+    "data": {"domain", "data"},
     "presentation": {"domain", "presentation"},
-    "di": {"domain", "gateway", "data", "presentation", "di"},
+    "di": {"domain", "data", "presentation", "di"},
 }
 
 FEATURE_PROJECT_ACCESSOR = re.compile(r"projects\.feature\.(\w+)\.(\w+)")
@@ -401,9 +399,9 @@ FEATURE_PROJECT_ACCESSOR = re.compile(r"projects\.feature\.(\w+)\.(\w+)")
 @check("feature layers depend only downwards")
 def check_layer_direction() -> list[str]:
     """
-    `presentation` reaching into `data` or `gateway` compiles perfectly well and quietly undoes the
-    layering — the ViewModel ends up talking to a data source instead of a repository. The
-    cross-feature rule is checked separately; this one is about layers within a feature.
+    `presentation` reaching into `data` compiles perfectly well and quietly undoes the layering —
+    the ViewModel ends up talking to a data source instead of a repository. The cross-feature rule
+    is checked separately; this one is about layers within a feature.
     """
     problems = []
     for feature in feature_names():
@@ -425,6 +423,33 @@ def check_layer_direction() -> list[str]:
                             number,
                             f"{layer} must not depend on {target_layer} — allowed: {', '.join(sorted(allowed))}",
                         )
+                    )
+    return problems
+
+
+DEFAULT_DATA_SOURCE_IMPORT = re.compile(r"^import [\w.]*\.(Default\w*DataSource)$", re.MULTILINE)
+
+
+@check("no repository imports a data source implementation")
+def check_repository_depends_on_interface() -> list[str]:
+    """
+    The rule the `gateway` module used to enforce by living in a different module. Now that both
+    halves sit in `:feature:x:data`, nothing but this stops `DefaultXRepository` from constructing
+    a `DefaultXDataSource` directly — and a repository wired to an implementation cannot have its
+    source swapped for a cache or a fake, which is the whole point of the layer.
+    """
+    problems = []
+    for feature in feature_names():
+        data_dir = REPO_ROOT / "feature" / feature / "data"
+        for path in kotlin_files(data_dir):
+            if not path.stem.endswith("Repository"):
+                continue
+            for number, line in enumerate(path.read_text().split("\n"), start=1):
+                match = DEFAULT_DATA_SOURCE_IMPORT.match(line)
+                if match:
+                    interface = match.group(1)[len("Default"):]
+                    problems.append(
+                        problem(path, number, f"imports {match.group(1)} — depend on {interface} instead")
                     )
     return problems
 

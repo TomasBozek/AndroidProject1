@@ -79,7 +79,7 @@ class ScaffoldingTest(unittest.TestCase):
     def test_create_feature_registers_every_module(self) -> None:
         self.run_script("create_feature.py", "userProfile")
 
-        for layer in ("domain", "gateway", "data", "presentation", "di"):
+        for layer in ("domain", "data", "presentation", "di"):
             self.assertTrue((self.repo / f"feature/userprofile/{layer}/build.gradle.kts").is_file(), layer)
 
         self.assertIn('includeFeatureModule(\n    "userprofile",', self.read("settings.gradle.kts"))
@@ -100,7 +100,7 @@ class ScaffoldingTest(unittest.TestCase):
 
         # The fifth registration: CLAUDE.md's module tree, which doctor.py checks.
         self.assertIn(
-            ":feature:userprofile:{domain,gateway,data,presentation,di}",
+            ":feature:userprofile:{domain,data,presentation,di}",
             self.read("CLAUDE.md"),
         )
 
@@ -199,19 +199,28 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn('name="user_profile_detail_title"', strings)
         self.assert_doctor_passes()
 
-    def test_create_datasource_puts_each_half_in_the_right_layer(self) -> None:
+    def test_create_datasource_puts_each_half_in_the_right_package(self) -> None:
         self.run_script("create_feature.py", "userProfile")
         self.run_script("create_datasource.py", "userprofile", "LocalUserProfile", "--repository")
 
-        gateway = self.repo / f"feature/userprofile/gateway/src/main/kotlin/{BASE_PATH}/feature/userprofile/gateway"
         data = self.repo / f"feature/userprofile/data/src/main/kotlin/{BASE_PATH}/feature/userprofile/data"
         domain = self.repo / f"feature/userprofile/domain/src/main/kotlin/{BASE_PATH}/feature/userprofile/domain"
 
-        # The interface belongs to gateway and the implementation to data, not the reverse.
-        self.assertTrue((gateway / "LocalUserProfileDataSource.kt").is_file())
-        self.assertTrue((data / "DefaultLocalUserProfileDataSource.kt").is_file())
+        # Both halves of the source sit together; the repository is one package over, and only its
+        # interface — the one in domain — is visible above the data layer.
+        self.assertTrue((data / "source/LocalUserProfileDataSource.kt").is_file())
+        self.assertTrue((data / "source/DefaultLocalUserProfileDataSource.kt").is_file())
         self.assertTrue((domain / "UserProfileRepository.kt").is_file())
-        self.assertTrue((gateway / "DefaultUserProfileRepository.kt").is_file())
+        self.assertTrue((data / "repository/DefaultUserProfileRepository.kt").is_file())
+
+        # The repository depends on the interface, never on the implementation — doctor.py's
+        # "no repository imports a data source implementation" check, asserted at the source.
+        repository = (data / "repository/DefaultUserProfileRepository.kt").read_text()
+        self.assertIn(
+            "import com.example.androidproject1.feature.userprofile.data.source.LocalUserProfileDataSource",
+            repository,
+        )
+        self.assertNotIn("DefaultLocalUserProfileDataSource", repository)
 
         module = self.read(f"feature/userprofile/di/src/main/kotlin/{BASE_PATH}/feature/userprofile/di/UserProfileModule.kt")
         self.assertIn("singleOf(::DefaultLocalUserProfileDataSource) bind LocalUserProfileDataSource::class", module)
@@ -221,7 +230,7 @@ class ScaffoldingTest(unittest.TestCase):
 
         # A data source touches disk, so it switches to IO itself — BaseRepository runs on the
         # caller's context, and that caller is viewModelScope.
-        implementation = (data / "DefaultLocalUserProfileDataSource.kt").read_text()
+        implementation = (data / "source/DefaultLocalUserProfileDataSource.kt").read_text()
         self.assertIn("import com.example.androidproject1.core.domain.coroutines.DispatcherProvider", implementation)
         self.assertIn("private val dispatcherProvider: DispatcherProvider,", implementation)
         self.assertIn(".flowOn(dispatcherProvider.io)", implementation)

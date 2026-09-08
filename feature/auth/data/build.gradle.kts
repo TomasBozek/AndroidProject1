@@ -29,5 +29,4 @@ android {
 dependencies {
     api(projects.service.core.data)
     api(projects.feature.auth.domain)
-    api(projects.feature.auth.gateway)
 }

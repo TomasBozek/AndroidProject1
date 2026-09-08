@@ -29,11 +29,10 @@ APP_NAV_HOST_FILE = REPO_ROOT / "app/src/main/kotlin" / BASE_PATH / "AppNavHost.
 VERSION_CATALOG_FILE = REPO_ROOT / "gradle/libs.versions.toml"
 
 # Order matters: this is also the order layers are listed in settings.gradle.kts.
-ALL_LAYERS = ["domain", "gateway", "data", "presentation", "di"]
+ALL_LAYERS = ["domain", "data", "presentation", "di"]
 
 LAYER_SUFFIX = {
     "domain": "Domain",
-    "gateway": "Gateway",
     "data": "Data",
     "presentation": "Presentation",
     "di": "Di",
@@ -48,13 +47,13 @@ NAV_GRAPHS = {
 STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
 
 # A line of the module tree in CLAUDE.md, e.g.
-# `:feature:auth:{domain,gateway,data,presentation,di}       full stack; owns the session`.
+# `:feature:auth:{domain,data,presentation,di}       full stack; owns the session`.
 # doctor.py fails when the tree and the directories on disk disagree, so the generators keep it
 # in step — it is the fifth registration, and the only one a compiler could never catch.
 FEATURE_TREE_ENTRY = re.compile(r"^:feature:(\w+):\{([\w,]*)\}(?:\s+(.*))?$")
 
 # Column the descriptions in that tree start at.
-FEATURE_TREE_COLUMN = 57
+FEATURE_TREE_COLUMN = 50
 
 
 # --------------------------------------------------------------------------------------------
@@ -188,13 +187,19 @@ def feature_module_dir(flat: str, layer: str) -> Path:
     return REPO_ROOT / "feature" / flat / layer
 
 
-def feature_source_dir(flat: str, layer: str) -> Path:
-    """The package directory holding a layer's Kotlin sources."""
-    return feature_module_dir(flat, layer) / "src/main/kotlin" / BASE_PATH / "feature" / flat / layer
+def feature_source_dir(flat: str, layer: str, sub: str = "") -> Path:
+    """
+    The package directory holding a layer's Kotlin sources.
+
+    `sub` names a package inside the layer — `data` splits into `repository` and `source`.
+    """
+    directory = feature_module_dir(flat, layer) / "src/main/kotlin" / BASE_PATH / "feature" / flat / layer
+    return directory / sub if sub else directory
 
 
-def feature_package(flat: str, layer: str) -> str:
-    return f"{BASE_PACKAGE}.feature.{flat}.{layer}"
+def feature_package(flat: str, layer: str, sub: str = "") -> str:
+    package = f"{BASE_PACKAGE}.feature.{flat}.{layer}"
+    return f"{package}.{sub}" if sub else package
 
 
 def module_namespace(module_dir: Path, fallback: str) -> str:

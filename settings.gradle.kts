@@ -37,7 +37,6 @@ sealed class ModuleSuffix(name: String) {
 
     data object Di : ModuleSuffix("di")
     data object Domain : ModuleSuffix("domain")
-    data object Gateway : ModuleSuffix("gateway")
     data object Data : ModuleSuffix("data")
     data object Presentation : ModuleSuffix("presentation")
     data object Ui : ModuleSuffix("ui")
@@ -84,7 +83,6 @@ includeCoreModule(
 includeFeatureModule(
     "auth",
     ModuleSuffix.Domain,
-    ModuleSuffix.Gateway,
     ModuleSuffix.Data,
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,
@@ -111,7 +109,6 @@ includeFeatureModule(
 includeFeatureModule(
     "catalog",
     ModuleSuffix.Domain,
-    ModuleSuffix.Gateway,
     ModuleSuffix.Data,
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,
@@ -121,7 +118,6 @@ includeFeatureModule(
 includeFeatureModule(
     "template",
     ModuleSuffix.Domain,
-    ModuleSuffix.Gateway,
     ModuleSuffix.Data,
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,

@@ -35,7 +35,7 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 | `create_feature.py` | Clones `feature/template` into a new feature | `settings.gradle.kts`, `core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt` |
 | `create_screen.py` | The seven-file screen unit in an existing feature | the ViewModel in the feature's Koin module, the destination in `AppNavHost.kt` |
 | `create_component.py` | A Compose component and its preview | nothing — a component needs none |
-| `create_datasource.py` | Data source across `gateway`/`data`, optionally its repository | the Koin bindings |
+| `create_datasource.py` | Data source across `data`, optionally its repository in `domain` | the Koin bindings |
 | `delete_feature.py` | The inverse of `create_feature.py` | undoes all five |
 | `doctor.py` | 17 checks a compiler cannot make | — |
 | `test_scripts.py` | Tests for everything above | — |
@@ -55,9 +55,9 @@ reading `navArgs<XDestination>()`, and a Robolectric-annotated test. Do not hand
 `LaunchedEffect` instead of its `SavedStateHandle`, which re-fires on recomposition and restores
 nothing after process death.
 
-**`create_datasource.py --repository`** when the data source needs one. The interface lands in
-`gateway` and the implementation in `data`; that inversion is the point of the layer and the thing
-most often got backwards by hand.
+**`create_datasource.py --repository`** when the data source needs one. Both halves of the source
+land in `data.source` and the repository in `data.repository`; the only thing above `data` that may
+name any of it is the `XRepository` interface in `domain`.
 
 ## Before you call the work done
 

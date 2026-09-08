@@ -43,7 +43,7 @@ SKIP_DIRS = {"build", ".gradle", ".kotlin", ".idea"}
 TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro", ".md"}
 
 # The order layers are listed in settings.gradle.kts.
-SERVICE_LAYER_ORDER = ["domain", "gateway", "data", "ui", "presentation", "di"]
+SERVICE_LAYER_ORDER = ["domain", "data", "ui", "presentation", "di"]
 
 LAYER_SUFFIXES = {**LAYER_SUFFIX, "ui": "Ui"}
 

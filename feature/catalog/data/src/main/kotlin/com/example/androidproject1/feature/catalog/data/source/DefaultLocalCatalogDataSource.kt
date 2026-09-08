@@ -1,8 +1,7 @@
-package com.example.androidproject1.feature.catalog.data
+package com.example.androidproject1.feature.catalog.data.source
 
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
-import com.example.androidproject1.feature.catalog.gateway.LocalCatalogDataSource
 
 /**
  * Mock catalog, held in memory so the app has something to browse. Swap for a network client or a

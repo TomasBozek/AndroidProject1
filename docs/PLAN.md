@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete)
-**Gate at last run:** doctor 17/17 · test_scripts 37 · unit tests 61 · build green
-**Repo:** 27 Gradle modules · 5 sample features + `template` · 10 scripts
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8 landed)
+**Gate at last run:** doctor 18/18 · test_scripts 37 · unit tests 61 · build green
+**Repo:** 24 Gradle modules · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 0 / 8 | `░░░░░░░░░░` 0% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 1 / 8 | `█░░░░░░░░░` 13% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **14 / 67** | `██░░░░░░░░` 21% |
+| **Total** | | **15 / 67** | `██░░░░░░░░` 22% |
 
 **Now:** nothing in flight.
-**Next:** 1.8 (merge `gateway` into `data`), then 1.1 (convention plugins).
+**Next:** 1.1 (convention plugins), then the rest of Phase 1 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -107,7 +107,7 @@ All ten were made by Tomáš on 2026-09-08. Kept here so the reasoning stays wit
 - **D3 · `UiState.loading` default to `null`?** Today `UiState(data = x)` shows a loading overlay
   unless told otherwise; `BaseViewModel` is the only caller and always passes it explicitly.
   **Outcome (2026-09-08): flip.** Item 0.9.
-- **D4 · Convention plugins in `build-logic/`?** Declined once; 27 identical build blocks and the
+- **D4 · Convention plugins in `build-logic/`?** Declined once; 24 identical build blocks and the
   export story changed the maths.
   **Outcome (2026-09-08): yes, and the plugins own the common dependencies too**, not only the
   Android config: a module's build file keeps only its project dependencies. `service/` modules
@@ -249,9 +249,9 @@ Order: **1.8 first**, so the convention plugins in 1.1 are written for four laye
 three fewer modules to convert. Then 1.1, then the rest in any order.
 
 - [ ] **1.1 Convention plugins in `build-logic/`** (L) · D4 decided: yes, config and dependencies
-  Why: 27 build files repeat the same `plugins` / `namespace` / `compileSdk` / `lint` block, and
+  Why: 24 build files repeat the same `plugins` / `namespace` / `compileSdk` / `lint` block, and
   every presentation module repeats the same twelve dependency lines. `minSdk`, Java target and
-  lint config are 27 edits. `export_service.py` ships this project's SDK levels into the next one.
+  lint config are 24 edits. `export_service.py` ships this project's SDK levels into the next one.
   Done: an included build `build-logic/` (`includeBuild` in `settings.gradle.kts`, `kotlin-dsl`,
   plugins aliased in the version catalog with `version = "unspecified"`), plugin ids prefixed
   `convention.` so `init_project.py` never has to rename them. The rule is **library
@@ -271,7 +271,7 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   `gradle.properties` (`:feature:auth:presentation` becomes `<base>.feature.auth.presentation`,
   `:service:core:ui` becomes `<base>.service.core.ui`); an explicit `namespace` in a module still
   wins, and `resourcePrefix = "core_"` stays where it is. `init_project.py` then changes one
-  property instead of 27 lines. A feature presentation build file ends up as:
+  property instead of 24 lines. A feature presentation build file ends up as:
 
   ```kotlin
   plugins { alias(libs.plugins.convention.feature.presentation) }
@@ -328,7 +328,7 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   `:service:core:ui` fixtures keep `MainDispatcherRule`; `FakeAuthService` in `testFixtures` of
   `:feature:auth:domain`, used by auth and settings tests; the copies deleted.
 
-- [ ] **1.8 Merge `gateway` into `data`** (M) · D1 decided: merge
+- [x] **1.8 Merge `gateway` into `data`** (M) · 2026-09-08
   Why: a feature is five modules, and the rule "interface in `gateway`, implementation in `data`"
   is the one the docs admit is most often got backwards. The contract other modules depend on is
   the repository interface in `domain`; the data-source interface is internal to the data layer.
@@ -340,6 +340,11 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   `_common.py:ALL_LAYERS`, `create_feature.py`, `create_datasource.py`, `delete_feature.py`,
   `test_scripts.py`, `CLAUDE.md`, `README.md`, `scripts/README.md` and the `new-datasource` slash
   command all say four layers; gate green.
+  Landed: the new check is check 18, "no repository imports a data source implementation" — it
+  reads the imports of any `*Repository.kt` under `feature/*/data`, so it also covers a repository
+  written by hand rather than generated. `export_service.py`'s `SERVICE_LAYER_ORDER` and
+  `_common.py:FEATURE_TREE_COLUMN` (57 to 50, the tree entries being shorter) went with it. The
+  repo is 24 Gradle modules and 35 source sets, down from 27 and 38.
 
 ## Phase 2 · App shell and session
 

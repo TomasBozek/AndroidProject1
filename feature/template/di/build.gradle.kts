@@ -29,7 +29,6 @@ android {
 dependencies {
     api(projects.feature.template.data)
     api(projects.feature.template.domain)
-    api(projects.feature.template.gateway)
     api(projects.feature.template.presentation)
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin.android)

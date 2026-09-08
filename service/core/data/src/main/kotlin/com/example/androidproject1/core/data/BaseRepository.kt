@@ -15,7 +15,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Base class for repository implementations — the single place thrown exceptions become an
- * [Outcome.Failure], so nothing above the gateway layer needs try/catch.
+ * [Outcome.Failure], so nothing above the data layer needs try/catch.
  */
 abstract class BaseRepository(protected val logger: Logger) {
 

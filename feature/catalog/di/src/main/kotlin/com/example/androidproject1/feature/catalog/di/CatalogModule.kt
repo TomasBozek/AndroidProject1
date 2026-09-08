@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.catalog.di
 
-import com.example.androidproject1.feature.catalog.data.DefaultLocalCatalogDataSource
+import com.example.androidproject1.feature.catalog.data.repository.DefaultCatalogRepository
+import com.example.androidproject1.feature.catalog.data.source.DefaultLocalCatalogDataSource
+import com.example.androidproject1.feature.catalog.data.source.LocalCatalogDataSource
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
-import com.example.androidproject1.feature.catalog.gateway.DefaultCatalogRepository
-import com.example.androidproject1.feature.catalog.gateway.LocalCatalogDataSource
 import com.example.androidproject1.feature.catalog.presentation.CategoriesViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel

@@ -1,5 +1,5 @@
 ---
-description: Scaffold a data source across gateway/data/di, optionally with its repository
+description: Scaffold a data source across domain/data/di, optionally with its repository
 argument-hint: <feature> <LocalXName> [--repository]
 allowed-tools: Bash(python3 scripts/*), Read, Edit, Glob, Grep
 ---
@@ -9,9 +9,9 @@ python3 scripts/create_datasource.py $ARGUMENTS
 ```
 
 The point is the layer inversion, which is the thing most often got backwards by hand: the
-`XDataSource` **interface** belongs to `gateway`, `DefaultXDataSource` to `data`. So `data` depends
-on `gateway`, not the reverse. `--repository` adds `XRepository` in `domain` and
-`DefaultXRepository` in `gateway`.
+`XDataSource` **interface** and `DefaultXDataSource` both belong to `data.source`; nothing above
+`data` names either. `--repository` adds `XRepository` in `domain` — the one the rest of the app
+depends on — and `DefaultXRepository` in `data.repository`.
 
 Then:
 
