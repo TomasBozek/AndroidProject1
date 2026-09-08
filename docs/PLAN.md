@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4, 1.2 and 1.3 landed)
-**Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 61 · build green
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4, 1.2, 1.3 and 1.7 landed)
+**Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 60 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 5 / 8 | `██████░░░░` 63% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 6 / 8 | `████████░░` 75% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **19 / 67** | `███░░░░░░░` 28% |
+| **Total** | | **20 / 67** | `███░░░░░░░` 30% |
 
 **Now:** nothing in flight.
-**Next:** 1.7 (shared test fixtures), 1.5, 1.6 — the rest of Phase 1.
+**Next:** 1.5 (api/implementation hygiene), 1.6 (detekt/ktlint on JDK 25) — the rest of Phase 1.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -71,7 +71,9 @@ six slash commands). See git history for the details.
 | `navArgs<T>()` | `BaseViewModel` | Route args from `SavedStateHandle`. Goes away in 2.8: on Navigation 3 the route key is a plain ViewModel constructor parameter |
 | `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
 | `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Defined; not yet used (item 3.3) |
-| `MainDispatcherRule`, `FakeLogger` | `testFixtures(projects.service.core.ui)` | Moves in item 1.7 |
+| `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation` |
+| `FakeLogger` | `testFixtures(projects.service.core.domain)` | Re-exported by `:service:core:ui`'s fixtures, so one line still gets both |
+| `FakeAuthService` | `testFixtures(projects.feature.auth.domain)` | Used by the auth and settings tests |
 | `appModules(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it |
 | `coreModule(isDebug)` | `core/di/Koin.kt` | WARN-and-above logger in release |
 | `execute(loadingMessage = …)` | `BaseViewModel` | Wording for the overlay; survives overlapping calls |
@@ -359,13 +361,20 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   Done: outcome recorded in `CLAUDE.md` and the root `build.gradle.kts` comment. If it works, a
   small rule set plus `detekt` in CI. If not, ktlint CLI as its own CI step on its own JDK.
 
-- [ ] **1.7 Shared test fixtures instead of copies** (S)
+- [x] **1.7 Shared test fixtures instead of copies** (S) · 2026-09-08
   Why: `FakeLogger` exists three times (`service/core/data` tests, `service/core/ui` fixtures,
   inline in `BaseViewModelTest`). `FakeAuthService` exists twice (`RecordingAuthService` in
   settings tests). The code promises "plan item F6" that Plan 1 never listed.
   Done: `FakeLogger` in `testFixtures` of `:service:core:domain` (where `Logger` lives);
   `:service:core:ui` fixtures keep `MainDispatcherRule`; `FakeAuthService` in `testFixtures` of
   `:feature:auth:domain`, used by auth and settings tests; the copies deleted.
+  Landed: `:service:core:ui` takes the domain fixtures with `testFixturesApi`, so a screen test
+  still needs the one `testFixtures(projects.service.core.ui)` line the convention plugin adds and
+  no module gained a second. The merged `FakeAuthService` is the union of the two it replaces — the
+  auth copy's `failWith` and `loggedInEmails`, the settings copy's settable `session` and
+  `logoutCount`. Both `domain` modules apply `java-test-fixtures`; on a Kotlin/JVM module that is
+  the plugin rather than AGP's `testFixtures { enable = true }`.
+  The stale "plan item F6" promise in the auth fixture's KDoc is gone with it.
 
 - [x] **1.8 Merge `gateway` into `data`** (M) · 2026-09-08
   Why: a feature is five modules, and the rule "interface in `gateway`, implementation in `data`"

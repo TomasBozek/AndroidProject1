@@ -6,4 +6,6 @@ dependencies {
     api(projects.core.ui)
     // Another feature's `domain` is fair game; its `presentation` is not — see doctor.py.
     api(projects.feature.auth.domain)
+
+    testImplementation(testFixtures(projects.feature.auth.domain))
 }

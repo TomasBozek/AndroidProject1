@@ -112,6 +112,11 @@ Two rules keep `service/` portable, and both are load-bearing:
 - **`:service:core:ui` sets `resourcePrefix = "core_"`,** so every string it ships is `core_*` and
   cannot silently collide with a consuming app's. New resources there must carry the prefix.
 
+Test fixtures live with the type they fake: `FakeLogger` in `testFixtures` of `:service:core:domain`
+alongside `Logger`, `MainDispatcherRule` in `:service:core:ui`'s, `FakeAuthService` in
+`:feature:auth:domain`'s. `:service:core:ui` re-exports the first with `testFixturesApi`, so a screen
+test still needs one `testFixtures(...)` line. Never write a second copy of a fake — move the first.
+
 The service modules have JVM unit tests (`src/test/kotlin`) covering `Outcome`, `BaseRepository` and
 `BaseViewModel`. They need no Robolectric — `R.string.x` is only an `Int` and `UiText` defers
 resolution — so keep it that way and don't pull the framework in.
@@ -151,7 +156,7 @@ Every screen is seven files — six in one package, plus its test in the matchin
 | `XEvent.kt` | `sealed interface XEvent : UiEvent` — what the user did |
 | `XNavigation.kt` | `sealed interface XNavigation` — one-off navigation intents |
 | `XViewModel.kt` | `BaseViewModel<XState, XEvent, XNavigation>` |
-| `XViewModelTest.kt` | in `src/test/kotlin`; uses `MainDispatcherRule` + `FakeLogger` from `testFixtures(projects.service.core.ui)` |
+| `XViewModelTest.kt` | in `src/test/kotlin`; uses `MainDispatcherRule` + `FakeLogger`, both of which arrive with `testFixtures(projects.service.core.ui)` — the convention plugin already adds it |
 
 `XState.PREVIEW` is required — it is the preview fixture and usually the value passed as
 `initialState`.

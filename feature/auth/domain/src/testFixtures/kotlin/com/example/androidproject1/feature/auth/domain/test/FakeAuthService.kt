@@ -1,4 +1,4 @@
-package com.example.androidproject1.feature.auth.presentation
+package com.example.androidproject1.feature.auth.domain.test
 
 import com.example.androidproject1.core.domain.error.DomainError
 import com.example.androidproject1.core.domain.result.Outcome
@@ -11,14 +11,19 @@ import kotlinx.coroutines.flow.map
 /**
  * In-memory [AuthService] for tests. Set [failWith] to make the next call fail.
  *
- * Lives here rather than in each test because two ViewModels need it. Once `:feature:auth:domain`
- * publishes test fixtures (plan item F6), this moves there and `:feature:settings` can use it too.
+ * A fixture of `:feature:auth:domain` rather than of one test source set, because the session is
+ * cross-cutting: `:feature:settings` reads it too, and had grown its own near-copy.
+ *
+ * @property session settable, so a test can start from a signed-in state without calling [login].
  */
 class FakeAuthService(var failWith: DomainError? = null) : AuthService {
 
+    val session = MutableStateFlow<Session?>(null)
+
     val loggedInEmails = mutableListOf<String>()
 
-    private val session = MutableStateFlow<Session?>(null)
+    var logoutCount = 0
+        private set
 
     override fun observeSession(): Flow<Outcome<Session?>> = session.map { Outcome.Success(it) }
 
@@ -33,6 +38,7 @@ class FakeAuthService(var failWith: DomainError? = null) : AuthService {
 
     override suspend fun logout(): Outcome<Unit> {
         failWith?.let { return Outcome.Failure(it) }
+        logoutCount++
         session.value = null
         return Outcome.Success(Unit)
     }

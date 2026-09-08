@@ -2,7 +2,7 @@ package com.example.androidproject1.feature.catalog.presentation
 
 import app.cash.turbine.test
 import com.example.androidproject1.core.ui.state.ContentState
-import com.example.androidproject1.core.ui.test.FakeLogger
+import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

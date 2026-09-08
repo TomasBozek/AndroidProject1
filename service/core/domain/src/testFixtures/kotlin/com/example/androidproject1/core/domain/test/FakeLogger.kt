@@ -1,4 +1,4 @@
-package com.example.androidproject1.core.ui.test
+package com.example.androidproject1.core.domain.test
 
 import com.example.androidproject1.core.domain.Logger
 

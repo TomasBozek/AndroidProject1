@@ -24,8 +24,13 @@ dependencies {
     api(libs.androidx.lifecycle.viewmodel.savedstate)
     api(libs.androidx.navigation.compose)
 
+    // Re-exported: a module that takes these fixtures for MainDispatcherRule gets FakeLogger too,
+    // so a screen test still needs one testFixtures line rather than two.
+    testFixturesApi(testFixtures(projects.service.core.domain))
+
     testFixturesImplementation(libs.junit)
     testFixturesImplementation(libs.kotlinx.coroutines.test)
 
+    testImplementation(testFixtures(projects.service.core.domain))
     testImplementation(libs.bundles.testing)
 }

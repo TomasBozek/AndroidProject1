@@ -3,6 +3,7 @@ package com.example.androidproject1.core.ui.viewmodel
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.error.NotFoundError
 import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiEvent
 import com.example.androidproject1.core.ui.text.UiText
@@ -35,13 +36,6 @@ class BaseViewModelTest {
 
     private sealed interface TestNavigation {
         data object Next : TestNavigation
-    }
-
-    private class FakeLogger : Logger {
-        override fun withTag(tag: String): Logger = this
-        override fun d(throwable: Throwable?, message: () -> String) = Unit
-        override fun w(throwable: Throwable?, message: () -> String) = Unit
-        override fun e(throwable: Throwable?, message: () -> String) = Unit
     }
 
     /** Exposes the protected members so the base class can be driven from a test. */

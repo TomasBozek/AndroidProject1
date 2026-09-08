@@ -3,6 +3,8 @@ package com.example.androidproject1.core.data
 import com.example.androidproject1.core.domain.error.NotFoundError
 import com.example.androidproject1.core.domain.error.UnexpectedError
 import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.domain.test.FakeLogger
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -13,7 +15,6 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.coroutines.cancellation.CancellationException
 
 class BaseRepositoryTest {
 

@@ -1,8 +1,9 @@
 package com.example.androidproject1.feature.auth.presentation
 
 import com.example.androidproject1.core.domain.error.CredentialsError
-import com.example.androidproject1.core.ui.test.FakeLogger
+import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

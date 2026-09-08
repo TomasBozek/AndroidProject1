@@ -1,14 +1,10 @@
 package com.example.androidproject1.feature.settings.presentation
 
-import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.event.SystemEvent
-import com.example.androidproject1.core.ui.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
-import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.auth.domain.Session
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -22,7 +18,7 @@ class SettingsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val authService = RecordingAuthService()
+    private val authService = FakeAuthService()
 
     private fun viewModel() = SettingsViewModel(logger = FakeLogger(), authService = authService)
 
@@ -65,26 +61,5 @@ class SettingsViewModelTest {
 
         assertNull(viewModel.state.value.alert)
         assertEquals(1, authService.logoutCount)
-    }
-
-    private class RecordingAuthService : AuthService {
-
-        val session = MutableStateFlow<Session?>(null)
-        var logoutCount = 0
-
-        override fun observeSession(): Flow<Outcome<Session?>> = session.map { Outcome.Success(it) }
-
-        override fun isLoggedIn(): Flow<Outcome<Boolean>> = session.map { Outcome.Success(it != null) }
-
-        override suspend fun login(email: String): Outcome<Unit> {
-            session.value = Session(email = email)
-            return Outcome.Success(Unit)
-        }
-
-        override suspend fun logout(): Outcome<Unit> {
-            logoutCount++
-            session.value = null
-            return Outcome.Success(Unit)
-        }
     }
 }
