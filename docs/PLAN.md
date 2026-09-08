@@ -6,7 +6,7 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 done bar 3.8; Phase 4 started)
+**Last updated:** 2026-09-08 (Phases 0-5 complete bar 3.8 and 4.1; Phase 6 not started, by its own rule)
 **Gate at last run:** doctor 23/23 · test_scripts 43 · ktlint clean · build green · coverage 25.5%
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 25 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
@@ -22,7 +22,7 @@ human orientation. This file is the work list.
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 8 / 8 | `██████████` 100% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **51 / 70** | `███████░░░` 73% |
+| **Total** | | **50 / 70** | `███████░░░` 71% |
 
 **Now:** 5.8 (session stored encrypted), then 5.6.
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 51 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 50 | **Phases 0–5 in full, bar two.** Phase 3: the KSD design system imported and every screen built from it. Phase 4: preview variants, a screen-test pattern, coverage. Phase 5: flavors, signing, crash-reporting seam, LeakCanary, gitleaks, a release job, an encrypted session, a baseline profile. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 17 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 18 | **Phase 6** (Ktor, Room) — its own goal says not to build them against mock data and there is no API yet, so this is a deliberate stop, not a gap. Plus **16 backlog items** in Phase 7. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
