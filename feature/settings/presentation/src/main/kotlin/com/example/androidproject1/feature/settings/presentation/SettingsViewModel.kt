@@ -27,6 +27,8 @@ class SettingsViewModel(
 
     override fun onUiEvent(event: SettingsEvent) {
         when (event) {
+            SettingsEvent.PermissionsClicked -> navigate(SettingsNavigation.Permissions)
+
             SettingsEvent.LogoutClicked -> uiState.setAlert(
                 id = ALERT_ID_LOGOUT,
                 title = R.string.settings_logout_title.toUiText(),

@@ -1,8 +1,5 @@
 package com.example.androidproject1.core.ui.component
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -27,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiCommand
 import com.example.androidproject1.core.ui.event.UiEvent
+import com.example.androidproject1.core.ui.permission.openAppSettings
 import com.example.androidproject1.core.ui.util.CollectEffect
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.launch
@@ -126,12 +124,7 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
 
             is UiCommand.OpenBrowser -> uriHandler.openUri(command.url)
 
-            is UiCommand.OpenAppSettings -> context.startActivity(
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                },
-            )
+            is UiCommand.OpenAppSettings -> context.openAppSettings()
         }
     }
 }

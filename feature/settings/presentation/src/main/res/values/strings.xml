@@ -8,4 +8,14 @@
     <string name="settings_logout_confirmation">Are you sure you want to log out?</string>
     <string name="settings_logout_confirm">Log out</string>
     <string name="settings_logout_cancel">Cancel</string>
+    <string name="settings_permissions">Permissions</string>
+
+    <string name="settings_permissions_title">Permissions</string>
+    <string name="settings_permissions_back">Back</string>
+    <string name="settings_permissions_granted">Granted</string>
+    <string name="settings_permissions_denied">Not granted</string>
+    <string name="settings_permissions_notifications_title">Notifications</string>
+    <string name="settings_permissions_notifications_message">Allow notifications so the app can tell you when something happens.</string>
+    <string name="settings_permissions_allow">Allow</string>
+    <string name="settings_permissions_open_settings">Open system settings</string>
 </resources>

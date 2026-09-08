@@ -27,6 +27,7 @@ import com.example.androidproject1.feature.catalog.presentation.productDetailDes
 import com.example.androidproject1.feature.catalog.presentation.productsDestination
 import com.example.androidproject1.feature.home.presentation.homeDestination
 import com.example.androidproject1.feature.settings.presentation.settingsDestination
+import com.example.androidproject1.feature.settings.presentation.settingsPermissionsDestination
 
 /**
  * The only place that knows about more than one feature. Cross-feature navigation is a lambda.
@@ -161,4 +162,5 @@ private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<Na
 
 private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<NavKey>) {
     settingsDestination(backStack = backStack)
+    settingsPermissionsDestination(backStack = backStack)
 }

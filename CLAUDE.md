@@ -319,6 +319,32 @@ userProfileDestination(
 Switching between the auth and main flows is different again: change the session and let
 `MainViewModel` react. Do not replace the back stack from a screen.
 
+### Permissions
+
+`service/core/ui/.../permission/` owns the whole story; no feature writes permission code of its own.
+
+- **`rememberPermissionRequest(vararg permissions)`** wraps `rememberLauncherForActivityResult` and
+  returns a `PermissionRequest` with a `status` and a `request()`. `status` is re-read on every
+  resume, because the user can change a permission in system settings and come back.
+- **`PermissionStatus`** is `NotRequested` / `Granted` / `PartiallyGranted` / `Denied(canAskAgain)`.
+  Four cases, not a boolean, because each ungranted one needs different UI — and once
+  `canAskAgain` is false the system dialog never appears again, so the only way forward is
+  `Context.openAppSettings()`.
+- **`PermissionGate(permission, rationale = …) { content }`** composes `content` only while the
+  permission is held. Prefer it to checking a boolean: there is no ungranted case for a caller to
+  forget, because `content` simply does not run.
+- **`rememberDeclaredPermissions()`** lists what the merged manifest asks for, read from
+  `PackageManager` — so a permission a library contributed shows up too. Also re-read on resume.
+
+**Permission state is read in composition, not in a ViewModel.** It lives outside the app and
+changes while the app is backgrounded, so there is nothing to observe — only something to re-read.
+A screen that needs it in its state hands it over as an event, the way `SettingsPermissionsScreen`
+does with `PermissionsRead`. A ViewModel-readable version is item 7.13, parked until a ViewModel has
+to make a decision on one.
+
+Ask for a permission where the user came looking for it, not on first launch. `POST_NOTIFICATIONS`
+is requested from the Permissions screen, and its channel is created in `App.onCreate`.
+
 ### The tabs
 
 `TopLevelDestination` in `:app` is the bottom bar: one entry per tab, each naming a feature's route

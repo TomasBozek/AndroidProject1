@@ -8,21 +8,21 @@ import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
 @Serializable
-data object SettingsDestination : NavKey
+data object SettingsPermissionsDestination : NavKey
 
-fun EntryProviderScope<NavKey>.settingsDestination(backStack: NavBackStack<NavKey>) {
-    entry<SettingsDestination> {
-        val viewModel: SettingsViewModel = koinViewModel()
+fun EntryProviderScope<NavKey>.settingsPermissionsDestination(backStack: NavBackStack<NavKey>) {
+    entry<SettingsPermissionsDestination> {
+        val viewModel: SettingsPermissionsViewModel = koinViewModel()
 
         Screen(
             viewModel = viewModel,
             onNavigation = { navigation ->
                 when (navigation) {
-                    SettingsNavigation.Permissions -> backStack.add(SettingsPermissionsDestination)
+                    SettingsPermissionsNavigation.NavigateUp -> backStack.removeLastOrNull()
                 }
             },
         ) { state, onEvent ->
-            SettingsScreen(
+            SettingsPermissionsScreen(
                 state = state,
                 onEvent = onEvent,
             )

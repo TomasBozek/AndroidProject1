@@ -6,25 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; Phase 2 all but 2.5)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 68 · build green
+**Last updated:** 2026-09-08 (Phases 0, 1 and 2 complete)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 73 · build green
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 7 / 8 | `█████████░` 88% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **29 / 67** | `████░░░░░░` 43% |
+| **Total** | | **30 / 67** | `████░░░░░░` 45% |
 
 **Now:** nothing in flight.
-**Next:** 2.5, the last of Phase 2 and a large one; then Phase 3, where 3.1 comes before 3.4
-and 3.2 before 3.4.
+**Next:** Phase 3. 3.1 before 3.4, and 3.2 before 3.4; the rest in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### Scope
@@ -83,6 +82,9 @@ six slash commands). See git history for the details.
 | `Screen(onNavigation = …)` | `service/core/ui/.../component/Screen.kt` | Destinations write no collector |
 | Route arguments | the route key itself | A constructor parameter on the ViewModel, handed over by the destination with `koinViewModel { parametersOf(key) }` |
 | `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
+| `rememberPermissionRequest(vararg)` | `service/core/ui/.../permission/` | `status` + `request()`; re-read on resume |
+| `PermissionGate(…) { }` | same | Composes content only while granted — no boolean for a caller to forget |
+| `Context.openAppSettings()` | same | The one implementation; `UiCommand.OpenAppSettings` uses it too |
 | `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Defined; not yet used (item 3.3) |
 | `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation`; `:app` declares it itself |
 | `FakeLogger` | `testFixtures(projects.service.core.domain)` | Re-exported by `:service:core:ui`'s fixtures, so one line still gets both |
@@ -555,7 +557,7 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   Home cross-fading in over the product detail with no offset at all. The predictive-back gesture
   itself was not exercised.
 
-- [ ] **2.5 Permissions, redesigned** (L)
+- [x] **2.5 Permissions, redesigned** (L) · 2026-09-08
   Why: Plan 1's E1 to E5, and the part of the original brief with nothing built yet. The
   original's `PermissionBox` named the implementation not the job, left an `if (!granted) return`
   footgun to the caller, and pulled Accompanist into `service/`.
@@ -568,6 +570,28 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   sensible moment. A Permissions screen in `feature/settings` (full seven-file unit) listing what
   the manifest declares, read from `PackageManager`, with status chips. Verified on device in
   all three states: grant, deny once, deny permanently.
+  Landed. Three differences, all deliberate:
+  - **`PartiallyGranted`, not `Granted.Partial`.** As a subtype, `status is Granted` would be true
+    for a partial grant — which is the same class of footgun the item exists to remove. A caller
+    happy with a subset now has to name the case.
+  - **The optional slot is on `PermissionGate`, not on `PermissionRationale`.** A data class holding
+    a composable lambda is neither comparable nor stable; the rationale stays plain data (so a
+    ViewModel could build one) and `PermissionGate(denied = …)` is where a composable belongs.
+  - **The Permissions screen reads the platform in composition and hands it to the ViewModel as an
+    event** (`PermissionsRead`). Permission state lives outside the app and changes while it is
+    backgrounded, so there is nothing a ViewModel could observe — only something the UI can re-read
+    on resume. That is also why item **7.13** stays parked: it is the alternative, not a gap.
+  `rememberDeclaredPermissions()` reads the *merged* manifest, which is worth more than a hand-written
+  list — the emulator shows a `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` that no source file here
+  mentions. `PackageInfoFlags.of` is API 33 and `minSdk` is 29, so `declaredPermissions()` carries
+  both spellings until that floor moves.
+  `PermissionGate` and `PermissionRationale` ship unused: nothing in the sample app has content worth
+  gating. They are API for the app built on this, like `UiText.Plural`.
+  Verified on an emulator (API 37), four passes, with `dumpsys package` read after each to confirm
+  the platform agreed: **grant** → chip flips to Granted and the prompt disappears; **deny once**
+  (`USER_SET`) → "Allow" is still offered; **deny again** (`USER_FIXED`) → "Allow" is gone and only
+  "Open system settings" remains; and **granted from outside while backgrounded** → the chip is
+  right again on resume, which is the `LifecycleResumeEffect` doing its job.
 
 - [x] **2.6 Snackbar action is a `SystemEvent`, not a lambda in a command** (S) · 2026-09-08
   Why: `UiCommand.ShowSnackbar.onAction` is a function inside a data class, the one command that is

@@ -48,6 +48,13 @@ fun SettingsScreen(
             )
 
             OutlinedButton(
+                onClick = { onEvent(SettingsEvent.PermissionsClicked) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(R.string.settings_permissions))
+            }
+
+            OutlinedButton(
                 onClick = { onEvent(SettingsEvent.LogoutClicked) },
                 modifier = Modifier.fillMaxWidth(),
             ) {

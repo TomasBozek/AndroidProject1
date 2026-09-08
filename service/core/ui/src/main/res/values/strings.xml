@@ -9,4 +9,6 @@
     <string name="core_error_no_connection">No internet connection. Check your network and try again.</string>
     <string name="core_error_server_unavailable">The server is unavailable right now.</string>
     <string name="core_empty_message">Nothing to show yet.</string>
+    <string name="core_permission_allow">Allow</string>
+    <string name="core_permission_open_settings">Open settings</string>
 </resources>

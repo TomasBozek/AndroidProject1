@@ -1,4 +1,7 @@
 package com.example.androidproject1.feature.settings.presentation
 
-/** Empty on purpose: Settings is a tab root, and the bottom bar is what leaves it. */
-sealed interface SettingsNavigation
+/** One-off navigation intents, turned into back-stack calls in SettingsDestination. */
+sealed interface SettingsNavigation {
+
+    data object Permissions : SettingsNavigation
+}
