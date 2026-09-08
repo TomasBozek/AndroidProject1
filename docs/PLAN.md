@@ -7,7 +7,7 @@ human orientation. This file is the work list.
 ## Status
 
 **Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 done bar 3.8; Phase 4 started)
-**Gate at last run:** doctor 23/23 · test_scripts 42 · ktlint clean · build green · coverage 25.5%
+**Gate at last run:** doctor 23/23 · test_scripts 43 · ktlint clean · build green · coverage 25.5%
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 **Design system:** 41 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
@@ -19,12 +19,12 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 1 / 8 | `█░░░░░░░░░` 13% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **43 / 70** | `██████░░░░` 61% |
+| **Total** | | **44 / 70** | `██████░░░░` 63% |
 
-**Now:** nothing in flight.
+**Now:** 5.2 (release signing from `keystore.properties`).
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
 past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 43 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 44 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 24 | All of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 23 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -946,9 +946,19 @@ new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
 
 Goal: a project started from this template can ship without adding infrastructure first.
 
-- [ ] **5.1 Flavors dev / staging / prod** (S)
+- [x] **5.1 Flavors dev / staging / prod** (S) (2026-09-08)
   Why: Plan 1's B3. Base URL and app-id suffix per environment.
   Done: three flavors, `BuildConfig.BASE_URL`, distinct launcher label per flavor.
+  **Landed:** defined once as `ProjectConfig.Flavor`, so a fourth environment is one enum entry
+  rather than a block in a build file. Verified on the built APK with `aapt2 dump badging`:
+  `devDebug` is `com.example.androidproject1.dev`, labelled `AndroidProject1 Dev`, with
+  `BASE_URL = https://dev.example.com/`.
+  The launcher label needed somewhere to come from. It is now `appName` in `gradle.properties`,
+  one line that the flavors decorate — the same shape as `basePackage`, and `init_project.py`
+  rewrites it with a test to prove it. The alternative, an `app_name` string per flavor source
+  set, would have put the project's name in four places for the rename to find.
+  **`assembleDebug` and `installDebug` no longer name a variant** — it is `assembleDevDebug` and
+  `installDevDebug` now. CLAUDE.md's command list is updated.
 
 - [ ] **5.2 Release signing from `keystore.properties`** (S)
   Why: Plan 1's B4. The file is already gitignored; nothing reads it.

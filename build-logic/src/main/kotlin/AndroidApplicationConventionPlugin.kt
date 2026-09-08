@@ -26,6 +26,21 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
             }
 
+            // One dimension, three environments. A build is `devDebug`, `prodRelease` and so on.
+            flavorDimensions += "environment"
+            productFlavors {
+                ProjectConfig.Flavor.entries.forEach { flavor ->
+                    create(flavor.flavorName) {
+                        dimension = "environment"
+                        applicationIdSuffix = flavor.applicationIdSuffix
+                        // The launcher label, so three installed side by side are tellable apart
+                        // on the home screen rather than only in Settings.
+                        manifestPlaceholders["appLabel"] = flavor.label.format(appName)
+                        buildConfigField("String", "BASE_URL", "\"${flavor.baseUrl}\"")
+                    }
+                }
+            }
+
             buildTypes {
                 release {
                     // R8 on from the start: the keep-rule surface is one screen big today and grows

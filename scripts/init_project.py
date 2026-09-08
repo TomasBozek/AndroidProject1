@@ -141,6 +141,9 @@ def rewrite_text(text: str, package: str, gradle_name: str, display_name: str) -
         f'<string name="app_name">{gradle_name}</string>',
         f'<string name="app_name">{display_name}</string>',
     )
+    # The launcher label lives in gradle.properties, one line, because the flavors compose their
+    # own labels from it. PROJECT_NAME above has already turned it into the Gradle name.
+    text = text.replace(f"appName={gradle_name}", f"appName={display_name}")
     if text.startswith(f"# {gradle_name}\n"):
         text = text.replace(f"# {gradle_name}\n", f"# {display_name}\n", 1)
     return text

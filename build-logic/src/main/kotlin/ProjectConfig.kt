@@ -20,4 +20,26 @@ object ProjectConfig {
 
     /** Falls back only so an unconfigured build fails with a namespace clash rather than silently. */
     const val BASE_PACKAGE_PROPERTY = "basePackage"
+
+    /** The launcher label, which the flavors below decorate. */
+    const val APP_NAME_PROPERTY = "appName"
+
+    /**
+     * The three environments an app is built for, and the only thing that differs between them.
+     *
+     * `dev` and `staging` carry an application-id suffix so all three install side by side — the
+     * usual reason a tester cannot reproduce something is that they only have one of them. The
+     * base URL is a placeholder until 6.1 introduces a client; the point today is that a screen
+     * reads `BuildConfig.BASE_URL` and never a literal.
+     */
+    enum class Flavor(
+        val flavorName: String,
+        val applicationIdSuffix: String?,
+        val label: String,
+        val baseUrl: String,
+    ) {
+        DEV("dev", ".dev", "%s Dev", "https://dev.example.com/"),
+        STAGING("staging", ".staging", "%s Staging", "https://staging.example.com/"),
+        PROD("prod", null, "%s", "https://api.example.com/"),
+    }
 }

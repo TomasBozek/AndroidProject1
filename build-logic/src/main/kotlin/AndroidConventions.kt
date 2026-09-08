@@ -23,6 +23,17 @@ internal val Project.basePackage: String
         )
 
 /**
+ * The launcher label, from `appName` in gradle.properties. The flavors decorate it rather than
+ * each shipping a `app_name` string of their own.
+ */
+internal val Project.appName: String
+    get() = providers.gradleProperty(ProjectConfig.APP_NAME_PROPERTY).orNull
+        ?: error(
+            "Missing `${ProjectConfig.APP_NAME_PROPERTY}` in gradle.properties — the flavors " +
+                "derive their launcher labels from it.",
+        )
+
+/**
  * `:feature:auth:presentation` becomes `<base>.feature.auth.presentation`, `:app` becomes `<base>`.
  *
  * A module that needs something else still sets `namespace` itself and keeps it; this only fills

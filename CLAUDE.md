@@ -611,12 +611,22 @@ Run from the repo root with the Gradle wrapper.
 ```
 
 ```bash
-./gradlew :app:assembleDebug
+./gradlew :app:assembleDevDebug
 ```
 
 ```bash
-./gradlew installDebug
+./gradlew installDevDebug
 ```
+
+Three flavors on one `environment` dimension — `dev`, `staging`, `prod` — so a build is
+`devDebug`, `prodRelease` and so on, and `assembleDebug` alone no longer names a variant. `dev`
+and `staging` carry an application-id suffix and their own launcher label, so all three install
+side by side; the usual reason a tester cannot reproduce something is that they only have one of
+them. `BuildConfig.BASE_URL` differs per flavor and a screen never writes a URL literal.
+
+The flavors are defined once, in `ProjectConfig.Flavor` — adding a fourth is one enum entry. The
+launcher label is composed from `appName` in `gradle.properties`, which `init_project.py` rewrites
+alongside `basePackage`.
 
 ```bash
 ./gradlew test

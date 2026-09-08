@@ -623,6 +623,15 @@ class ScaffoldingTest(unittest.TestCase):
             self.assertIn(expected, result.stdout)
         screen.write_text(original)
 
+    def test_init_project_renames_the_launcher_label(self) -> None:
+        """The flavors compose their labels from `appName`, so the rename has to reach it."""
+        self.run_script("init_project.py", "--package", "com.acme.tracker", "--name", "Field Tracker")
+
+        properties = self.read("gradle.properties")
+        self.assertIn("appName=Field Tracker", properties)
+        self.assertIn("basePackage=com.acme.tracker", properties)
+        self.assertNotIn("AndroidProject1", properties)
+
     def test_doctor_catches_a_state_that_is_not_immutable(self) -> None:
         state = self.repo / f"feature/home/presentation/src/main/kotlin/{BASE_PATH}/feature/home/presentation/HomeState.kt"
         state.write_text(state.read_text().replace("@Immutable\n", ""))
