@@ -47,6 +47,12 @@ jobs:
       - name: Build, lint and test
         run: ./gradlew build
 
+      # A signal, not a gate: no threshold, and it never fails the job. `build` has already run
+      # the tests, so this only assembles the report.
+      - name: Coverage report
+        if: always()
+        run: ./gradlew koverHtmlReport koverXmlReport
+
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -56,4 +62,5 @@ jobs:
             **/build/reports/lint-results-*.html
             **/build/reports/ktlint/**
             **/build/reports/tests/**
+            build/reports/kover/**
           if-no-files-found: ignore

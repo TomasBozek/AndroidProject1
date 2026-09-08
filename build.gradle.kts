@@ -1,5 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
+    alias(libs.plugins.kover)
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.compose) apply false
@@ -28,3 +29,36 @@ subprojects {
 // project takes stable. ktlint has no such problem: it reads .editorconfig, so the rule set lives
 // there rather than in a second config file. `./gradlew ktlintCheck` gates CI; `ktlintFormat`
 // fixes. Revisit detekt when 2.x is stable.
+
+/**
+ * Coverage. Not a gate and deliberately without a threshold — a number that has to be met gets met
+ * by tests written for the number. It is a signal: which module the tests avoid.
+ *
+ * `./gradlew koverHtmlReport` locally; CI uploads it as an artifact.
+ */
+dependencies {
+    // Every module that compiles code contributes to the aggregate. Read off the project tree
+    // rather than listed by hand, so a new module is covered the day it is created. `:core` and
+    // `:feature` are grouping paths with no build file of their own, hence the filter.
+    subprojects
+        .filter { it.projectDir.resolve("build.gradle.kts").exists() }
+        .forEach { kover(project(it.path)) }
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                // Generated, or drawing rather than deciding. Neither tells you anything about
+                // where the tests are thin.
+                classes(
+                    "*.databinding.*",
+                    "*.BuildConfig",
+                    "*ComposableSingletons*",
+                    "*_Factory*",
+                )
+                annotatedBy("androidx.compose.ui.tooling.preview.Preview")
+            }
+        }
+    }
+}

@@ -12,6 +12,8 @@ class KotlinJvmConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) = with(target) {
         pluginManager.apply(libs.findPlugin("kotlin-jvm").get().get().pluginId)
+        // Coverage. Aggregated by the root build; a signal, never a gate — see build.gradle.kts.
+        pluginManager.apply("org.jetbrains.kotlinx.kover")
 
         extensions.configure<JavaPluginExtension> {
             sourceCompatibility = ProjectConfig.JAVA_VERSION

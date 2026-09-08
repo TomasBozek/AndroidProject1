@@ -9,6 +9,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) = with(target) {
         pluginManager.apply(libs.findPlugin("android-application").get().get().pluginId)
+        // Coverage. Aggregated by the root build; a signal, never a gate — see build.gradle.kts.
+        pluginManager.apply("org.jetbrains.kotlinx.kover")
         pluginManager.apply(libs.findPlugin("kotlin-serialization").get().get().pluginId)
 
         extensions.configure<ApplicationExtension> {

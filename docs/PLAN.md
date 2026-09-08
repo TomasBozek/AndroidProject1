@@ -7,7 +7,7 @@ human orientation. This file is the work list.
 ## Status
 
 **Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 done bar 3.8; Phase 4 started)
-**Gate at last run:** doctor 23/23 · test_scripts 42 · ktlint clean · build green
+**Gate at last run:** doctor 23/23 · test_scripts 42 · ktlint clean · build green · coverage 25.5%
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 **Design system:** 41 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
@@ -18,14 +18,15 @@ human orientation. This file is the work list.
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
-| 4 · Testing and quality | Regression coverage that costs nothing to keep | 2 / 4 | `█████░░░░░` 50% · 4.1 parked |
+| 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **42 / 70** | `██████░░░░` 60% |
+| **Total** | | **43 / 70** | `██████░░░░` 61% |
 
-**Now:** 4.4 (coverage report).
-**Next:** Phase 5. 3.8 whenever D13 is answered; 4.1 when the plugin is past alpha. 4.1's screenshot tests are worth much more now than
+**Now:** nothing in flight.
+**Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
+past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** 3.8, on D13 — bundle Source Sans 3's files or use Downloadable Fonts.
 Everything else in Phase 3 is done.
@@ -36,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 42 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 43 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 25 | 4.4, all of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 24 | All of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -920,9 +921,18 @@ new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
   `hasSetTextAction() and hasAnyAncestor(hasTestTag(…))`. Trying to solve that inside
   `AppTextField` with `mergeDescendants` does not work: merging does not carry focus actions up.
 
-- [ ] **4.4 Coverage report** (S)
+- [x] **4.4 Coverage report** (S) (2026-09-08)
   Why: not a gate, a signal. Cheap to add and it shows which module the tests avoid.
   Done: Kover aggregated report uploaded as a CI artifact; no threshold.
+  **Landed:** Kover 0.9.9 applied by the three convention plugins, aggregated in the root build
+  from the project tree rather than a hand-written list, so a new module is covered the day it is
+  created. Previews and generated classes are filtered out — they say nothing about where the
+  tests are thin.
+  **First reading: 25.5 % instructions, 38.0 % lines**, and the shape is the interesting part.
+  At zero: both features' `data` layers (repository *and* source), `core/domain/coroutines`,
+  `core/ui/common`, `core/ui/util`. At 9 %: `core/ui/component` — 41 components with previews and
+  no assertions, which is what 4.1 would have covered and does not. That is the honest picture:
+  the ViewModels and the architecture are tested, the data layer and the UI are not.
 
 - [-] **4.5 Generator output compiles** (M)
   Why: `test_scripts.py` checks text, not compilation, and the docs admit it. A template change

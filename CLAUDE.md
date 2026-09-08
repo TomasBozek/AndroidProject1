@@ -648,6 +648,15 @@ Read the rest. It is also pinned to a plugin version that predates this AGP, and
 run.
 
 ```bash
+./gradlew koverHtmlReport
+```
+
+Coverage, and deliberately not a gate: there is no threshold, because a number that has to be met
+gets met by tests written for the number. It is a signal — which module the tests avoid. CI
+uploads it as an artifact. Previews and generated classes are filtered out; they say nothing about
+where the tests are thin.
+
+```bash
 ./gradlew ktlintCheck
 ```
 

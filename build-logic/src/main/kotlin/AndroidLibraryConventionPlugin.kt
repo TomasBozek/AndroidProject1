@@ -11,6 +11,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) = with(target) {
         pluginManager.apply(libs.findPlugin("android-library").get().get().pluginId)
+        // Coverage. Aggregated by the root build; a signal, never a gate — see build.gradle.kts.
+        pluginManager.apply("org.jetbrains.kotlinx.kover")
         extensions.configure<LibraryExtension> { configureAndroid(this) }
     }
 }
