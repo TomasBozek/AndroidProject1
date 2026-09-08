@@ -13,7 +13,8 @@ Multi-module Android app (Kotlin + Jetpack Compose), base package `com.example.a
 modelled on a layered Clean/MVI setup — single activity, type-safe Compose navigation, Koin DI.
 
 - `minSdk = 29`, `targetSdk = compileSdk = 37`, Java 17 — all in `build-logic`'s `ProjectConfig`
-- AGP `9.5.0-alpha04`, Kotlin `2.2.10`, Gradle `9.6`, Compose BOM `2026.02.01`
+- AGP `9.4.0`, Kotlin `2.4.20`, Gradle `9.6`, Compose BOM `2026.08.00`. Renovate keeps them
+  current — `renovate.json` groups androidx, kotlin, koin and AGP, and skips pre-releases.
 - Dependencies come from `gradle/libs.versions.toml` — never hardcode a version in a module build file.
   Compose artifacts come from the BOM without an explicit version.
 - AGP 9 applies Kotlin itself; there is no `kotlin-android` plugin. New plugins must be declared in the
@@ -487,8 +488,8 @@ Build a single module, e.g. `./gradlew :feature:auth:presentation:assembleDebug`
 - `gradle/gradle-daemon-jvm.properties` pins the Gradle daemon to JDK 25 (auto-provisioned via foojay).
   A machine without it and without network access will fail before configuring; lower `toolchainVersion`
   if that happens.
-- AGP is a pre-release (`9.5.0-alpha04`), so the `compileSdk { version = release(37) }` and
-  `optimization { enable = false }` block DSL is AGP-9-only and will not work on AGP 8.x.
+- The `compileSdk { version = release(37) }` and `optimization { enable = … }` block DSL is AGP-9
+  only and will not work on AGP 8.x. It lives in `build-logic`, so there is one place to change.
 - The convention plugins declare AGP and the Kotlin plugins as `compileOnly`, so they compile against
   the DSL but do not put it on the consuming build's classpath. That is why the root
   `build.gradle.kts` still needs `alias(libs.plugins.android.library) apply false` and friends —

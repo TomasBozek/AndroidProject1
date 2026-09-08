@@ -1,20 +1,20 @@
 [versions]
-agp = "9.5.0-alpha04"
-kotlin = "2.2.10"
-composeBom = "2026.02.01"
+agp = "9.4.0"
+kotlin = "2.4.20"
+composeBom = "2026.08.00"
 
-coreKtx = "1.16.0"
-lifecycle = "2.9.1"
-activityCompose = "1.10.1"
-navigationCompose = "2.9.0"
+coreKtx = "1.19.0"
+lifecycle = "2.11.0"
+activityCompose = "1.13.0"
+navigationCompose = "2.10.0"
 
-koinBom = "4.0.4"
-coroutines = "1.9.0"
-serializationJson = "1.7.3"
-datastore = "1.1.7"
+koinBom = "4.2.2"
+coroutines = "1.11.0"
+serializationJson = "1.11.0"
+datastore = "1.2.1"
 
-turbine = "1.2.0"
-mockk = "1.13.13"
+turbine = "1.2.1"
+mockk = "1.14.11"
 robolectric = "4.16"
 
 junit = "4.13.2"

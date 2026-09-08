@@ -12,7 +12,6 @@ import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.AuthNavGraph
 import com.example.androidproject1.feature.home.presentation.MainNavGraph
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.compose.KoinContext
 
 /** The app's only Activity; everything else is a composable destination. */
 class MainActivity : ComponentActivity() {
@@ -24,10 +23,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            KoinContext {
-                AppTheme {
-                    MainContent()
-                }
+            // No KoinContext wrapper: since Koin 4.2, startKoin() sets the Compose context up.
+            AppTheme {
+                MainContent()
             }
         }
     }

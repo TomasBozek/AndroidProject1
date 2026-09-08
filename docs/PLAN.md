@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4 and 1.2 landed)
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4, 1.2 and 1.3 landed)
 **Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 61 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 4 / 8 | `█████░░░░░` 50% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 5 / 8 | `██████░░░░` 63% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **18 / 67** | `███░░░░░░░` 27% |
+| **Total** | | **19 / 67** | `███░░░░░░░` 28% |
 
 **Now:** nothing in flight.
-**Next:** 1.3 (stable AGP, fresh dependencies, Renovate), 1.7, 1.5, 1.6.
+**Next:** 1.7 (shared test fixtures), 1.5, 1.6 — the rest of Phase 1.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -321,12 +321,20 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   the JDK 25 daemon — `configureKotlinJvmTarget()` is now shared by both plugins. The generators
   needed no change: they clone `feature/template`, whose build files are the new shape.
 
-- [ ] **1.3 Toolchain: stable AGP, fresh dependencies, Renovate** (M) · D5 decided: yes
+- [x] **1.3 Toolchain: stable AGP, fresh dependencies, Renovate** (M) · 2026-09-08
   Why: AGP is an alpha. coroutines 1.9.0, Koin 4.0.4, serialization 1.7.3, lifecycle 2.9.1 and
   navigation 2.9.0 lag Compose BOM 2026.02 and Kotlin 2.2.10. A template should start current.
   Done: latest stable AGP 9.x; every catalog entry on the latest stable compatible with the BOM;
   `renovate.json` grouping androidx, kotlin and koin with the version catalog manager enabled;
   build green; lint's version checks stay informational.
+  Landed: AGP `9.5.0-alpha04` to `9.4.0`, Kotlin `2.2.10` to `2.4.20`, Compose BOM `2026.02.01` to
+  `2026.08.00`, coroutines to `1.11.0`, serialization to `1.11.0`, Koin to `4.2.2`, lifecycle to
+  `2.11.0`, navigation to `2.10.0`, activity-compose to `1.13.0`, core-ktx to `1.19.0`, datastore to
+  `1.2.1`, turbine to `1.2.1`, mockk to `1.14.11`. Robolectric and JUnit were already on the latest
+  stable — 4.17 is still in beta. AGP gets its own Renovate group rather than sharing androidx's,
+  because it is the one that breaks the build DSL. The bump surfaced one deprecation: Koin 4.2 sets
+  the Compose context up in `startKoin()`, so `MainActivity`'s `KoinContext { }` wrapper is gone.
+  Nothing else needed a source change.
 
 - [x] **1.4 Java target 11 to 17** (S) · 2026-09-08
   Why: the daemon runs JDK 25, AGP 9 requires 17 to run, and 17 is the current baseline. One edit
