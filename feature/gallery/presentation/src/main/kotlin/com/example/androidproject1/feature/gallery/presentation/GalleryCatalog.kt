@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
 import com.example.androidproject1.core.ui.component.AppBadge
@@ -54,6 +53,7 @@ import com.example.androidproject1.core.ui.component.TabItem
 import com.example.androidproject1.core.ui.component.TagTone
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.component.ToastTone
+import com.example.androidproject1.core.ui.theme.AppTheme
 
 /** One rendered state of a component, with the label that says which state it is. */
 @Immutable
@@ -299,7 +299,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Status",
         "The outline of what is loading. It copies the target's shape and does not blink.",
         "Text line" to { AppSkeleton() },
-        "A card" to { AppSkeleton(height = 48.dp) },
+        "A list row" to { AppSkeleton(height = AppTheme.density.listRowHeight) },
     ),
     entry(
         "card",

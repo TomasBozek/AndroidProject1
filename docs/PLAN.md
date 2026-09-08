@@ -7,7 +7,7 @@ human orientation. This file is the work list.
 ## Status
 
 **Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 half done — the design system landed)
-**Gate at last run:** doctor 20/20 · test_scripts 38 · ktlint clean · build green
+**Gate at last run:** doctor 22/22 · test_scripts 40 · ktlint clean · build green
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 **Design system:** 40 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
@@ -17,15 +17,15 @@ human orientation. This file is the work list.
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 5 / 10 | `█████░░░░░` 50% |
+| 3 · Design system and accessibility | A theme and components worth copying | 6 / 10 | `██████░░░░` 60% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **35 / 70** | `█████░░░░░` 50% |
+| **Total** | | **36 / 70** | `█████░░░░░` 51% |
 
-**Now:** 3.10 (the `doctor.py` checks that keep 3.3 and 3.4 true).
-**Next:** 3.7, then 3.6, 3.5, 3.8. 4.1's screenshot tests are worth much more now than
+**Now:** 3.7 (`@Immutable` on every `XState`).
+**Next:** 3.6, then 3.5, 3.8. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
@@ -769,7 +769,7 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   `is_copyable` had skipped, and did not compile. `strip_args_registration` plus a regression test
   in `test_scripts.py` (now 38).
 
-- [ ] **3.10 `doctor.py` keeps features honest** (S)
+- [x] **3.10 `doctor.py` keeps features honest** (S) (2026-09-08)
   Why: 3.3 and 3.4 emptied `grep material3 feature/` and `grep '\.dp' feature/`, and nothing stops
   the next screen from putting them back. The rule the design system rests on is that a feature
   composes only from `:core:ui`.
@@ -777,6 +777,15 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   `feature/*/presentation` source file, with the narrow allow-list the rule needs (a component's
   own intrinsic hairline). A second check that every file in `core/ui/component/` carries a
   `@ComponentPreview`. `--list` documents both; `test_scripts.py` covers them.
+  **Landed:** checks 21 and 22. The first flags a `material3` import, a bare `.dp`/`.sp` literal,
+  a `Color(0x…)` and a `MaterialTheme.colorScheme` read anywhere under `feature/*/presentation`;
+  `ExperimentalMaterial3Api` is allow-listed, because it is an opt-in marker rather than a widget.
+  Two tests assert each one actually fails, since a check that never fires is worth nothing.
+  It caught two real things on its first run: the gallery's skeleton demo used a `48.dp` literal
+  where it should have asked for `density.listRowHeight`, and **`create_component.py` was still
+  generating Material** — a component scaffolded into a feature failed the rule it was born under.
+  Its template now builds from `AppText`, and omits the import when the component lands in
+  `:core:ui`, which is already that package.
 
 - [ ] **3.8 Bundle the brand face** (S)
   Why: 3.2 defines the scale against `FontFamily.Default`. The design system's own face is Source

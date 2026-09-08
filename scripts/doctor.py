@@ -578,6 +578,76 @@ def check_modifier_parameter() -> list[str]:
 
 
 # --------------------------------------------------------------------------------------------
+# Design system
+# --------------------------------------------------------------------------------------------
+
+# A feature composes components from :core:ui; it never draws one. These are what "never draws"
+# means in grep terms — see CLAUDE.md's Design system section for the reasoning.
+MATERIAL_IMPORT = re.compile(r"^import androidx\.compose\.material3\.(\w+)", re.MULTILINE)
+DIMENSION_LITERAL = re.compile(r"(?<![\w.])\d+(?:\.\d+)?\.(dp|sp)\b")
+RAW_COLOR = re.compile(r"\bColor\(0x|\bMaterialTheme\.colorScheme\b")
+
+# Material types a screen legitimately names because they are types, not widgets: they appear in
+# a component's own signature and a feature has to spell them to call it.
+MATERIAL_TYPE_ALLOWLIST = {
+    "ExperimentalMaterial3Api",
+}
+
+
+@check("no feature draws its own UI")
+def check_features_use_the_design_system() -> list[str]:
+    problems = []
+    for feature in feature_names():
+        root = REPO_ROOT / "feature" / feature / "presentation/src/main"
+        for path in kotlin_files(root):
+            text = path.read_text()
+            for match in MATERIAL_IMPORT.finditer(text):
+                if match.group(1) in MATERIAL_TYPE_ALLOWLIST:
+                    continue
+                line = text[: match.start()].count("\n") + 1
+                problems.append(
+                    problem(
+                        path,
+                        line,
+                        f"imports Material's {match.group(1)} — compose the :core:ui component "
+                        "instead, or add one with create_component.py",
+                    )
+                )
+            for match in DIMENSION_LITERAL.finditer(text):
+                line = text[: match.start()].count("\n") + 1
+                problems.append(
+                    problem(
+                        path,
+                        line,
+                        f"has a bare `{match.group(0)}` — ask AppTheme.spacing or "
+                        "AppTheme.typography for a role",
+                    )
+                )
+            for match in RAW_COLOR.finditer(text):
+                line = text[: match.start()].count("\n") + 1
+                problems.append(
+                    problem(path, line, "names a colour directly — ask AppTheme.colors for a role")
+                )
+    return problems
+
+
+@check("every :core:ui component has a preview")
+def check_component_previews() -> list[str]:
+    """A component nobody can look at is a component nobody trusts.
+
+    The preview is also what the gallery and item 4.1's screenshot tests are built on, so a
+    missing one is a hole in both.
+    """
+    problems = []
+    root = REPO_ROOT / "core/ui/src/main/kotlin" / BASE_PACKAGE.replace(".", "/") / "core/ui/component"
+    for path in kotlin_files(root):
+        text = path.read_text()
+        if "@ComponentPreview" not in text:
+            problems.append(problem(path, None, "has no @ComponentPreview"))
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
 # Provenance
 # --------------------------------------------------------------------------------------------
 

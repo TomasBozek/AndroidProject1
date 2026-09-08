@@ -608,5 +608,29 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("UserProfileViewModel", result.stdout)
 
 
+    def test_doctor_catches_a_feature_drawing_its_own_ui(self) -> None:
+        """The rule the design system rests on: a feature composes components, it never draws."""
+        screen = self.repo / f"feature/home/presentation/src/main/kotlin/{BASE_PATH}/feature/home/presentation/HomeScreen.kt"
+
+        original = screen.read_text()
+        for violation, expected in (
+            ("import androidx.compose.material3.Button\n", "Material's Button"),
+            ("import androidx.compose.foundation.layout.Row\n@Suppress\nval pad = 12.dp\n", "12.dp"),
+        ):
+            screen.write_text(violation + original)
+            result = self.run_script("doctor.py", expect_success=False)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn(expected, result.stdout)
+        screen.write_text(original)
+
+    def test_doctor_catches_a_component_without_a_preview(self) -> None:
+        component = self.repo / f"core/ui/src/main/kotlin/{BASE_PATH}/core/ui/component/AppButton.kt"
+        component.write_text(component.read_text().replace("@ComponentPreview", "@Suppress(\"unused\")"))
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("AppButton.kt", result.stdout)
+        self.assertIn("@ComponentPreview", result.stdout)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

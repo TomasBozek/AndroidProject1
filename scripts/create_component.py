@@ -41,6 +41,8 @@ CORE_UI_DIR = REPO_ROOT / "core/ui/src/main/kotlin" / BASE_PATH / "core/ui"
 CORE_UI_PACKAGE = f"{BASE_PACKAGE}.core.ui"
 
 PREVIEW_PACKAGE = f"{BASE_PACKAGE}.core.ui.common"
+# Every generated component builds from the design system, so it imports from here.
+COMPONENT_PACKAGE = f"{BASE_PACKAGE}.core.ui.component"
 
 
 def parse_args() -> argparse.Namespace:
@@ -120,23 +122,32 @@ def component_source(package: str, pascal: str, with_state: bool) -> str:
     parameter = f"state: {pascal}State" if with_state else "label: String"
     body_text = "state.label" if with_state else "label"
     preview_argument = f"state = {pascal}State.PREVIEW" if with_state else f'label = "{pascal}"'
+    # A component that lands in :core:ui is already in AppText's package; only a feature-local one
+    # has to import it. `common` sorts before `component`, which is why these come second.
+    design_imports = (
+        ""
+        if package == COMPONENT_PACKAGE
+        else f"import {COMPONENT_PACKAGE}.AppText\nimport {COMPONENT_PACKAGE}.TextRole\n"
+    )
 
     return f"""package {package}
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import {PREVIEW_PACKAGE}.ComponentPreview
 import {PREVIEW_PACKAGE}.ThemedComponentPreview
-
+{design_imports}
 /**
  * TODO: say what this component shows and when to reach for it.
  *
  * `modifier` comes second and defaults to `Modifier` so the caller decides where this sits — the
  * convention `doctor.py` enforces. Keep it, and pass it to the outermost element.
+ *
+ * Build it from the design system: `AppText` and the rest of `:core:ui`'s components for content,
+ * `AppTheme.colors` / `.typography` / `.spacing` / `.shapes` for anything else. Never a Material
+ * widget, never a `.dp` literal, never a colour — `doctor.py` fails on all three.
  */
 @Composable
 fun {pascal}(
@@ -147,9 +158,9 @@ fun {pascal}(
         modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {{
-        Text(
+        AppText(
             text = {body_text},
-            style = MaterialTheme.typography.bodyMedium,
+            role = TextRole.Body,
         )
     }}
 }}
