@@ -3,7 +3,11 @@ plugins {
 }
 
 dependencies {
-    api(projects.feature.catalog.data)
-    api(projects.feature.catalog.domain)
+    // `api` only for presentation: a feature's destinations are the surface :app assembles the nav
+    // graph from, and they reach it through :core:di. The other layers are this module's own
+    // business — it registers them, it does not re-export them.
     api(projects.feature.catalog.presentation)
+
+    implementation(projects.feature.catalog.data)
+    implementation(projects.feature.catalog.domain)
 }

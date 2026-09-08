@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4, 1.2, 1.3 and 1.7 landed)
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4, 1.2, 1.3, 1.7 and 1.5 landed)
 **Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 60 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 6 / 8 | `████████░░` 75% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 7 / 8 | `█████████░` 88% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **20 / 67** | `███░░░░░░░` 30% |
+| **Total** | | **21 / 67** | `███░░░░░░░` 31% |
 
 **Now:** nothing in flight.
-**Next:** 1.5 (api/implementation hygiene), 1.6 (detekt/ktlint on JDK 25) — the rest of Phase 1.
+**Next:** 1.6 (detekt/ktlint on JDK 25), the last of Phase 1. Then Phase 2, starting with 2.8.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -347,12 +347,26 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   inherited from `compileOptions` — the two drifting apart is a warning most builds never surface.
   Verified on the emitted bytecode: class file major version 61.
 
-- [ ] **1.5 `api` vs `implementation` hygiene** (S)
+- [x] **1.5 `api` vs `implementation` hygiene** (S) · 2026-09-08
   Why: 43 `api(` lines in feature build files, most of them in `di` modules re-exporting layers,
   and `:app` reaches `AppTheme` and `Screen()` only because `:core:di` has `api(projects.core.ui)`.
   Done: `:app` depends on `core.ui` directly; `di` modules use `implementation` except where a
   type is exposed; the Dependency Analysis Gradle plugin runs as `./gradlew buildHealth` (advisory,
   not failing) with its findings fixed once.
+  Landed: `:app` declares `:core:ui` and `:feature:auth:domain` rather than reaching them through
+  `:core:di`. A feature's `di` module keeps `api` for its `presentation` only — the destinations are
+  the surface `:app` builds the nav graph from — and uses `implementation` for `domain` and `data`.
+  `convention.feature.di` makes Koin `api`, since the `XModule.module` a `di` module exists to
+  publish is a Koin `Module`.
+  What was **not** taken from the report, deliberately: it advises moving every
+  `:feature:*:presentation` into `:app`'s own dependencies and dropping `api` from `:core:di`. That
+  is a truer graph but a sixth registration point per feature, for no build-avoidance — `:app`
+  would depend on those modules either way. `:core:di` is the aggregation point on purpose. It also
+  advises replacing the bundle-and-BOM declarations with one line per transitively-used artifact in
+  every module, which would undo the version catalog's bundles. `CLAUDE.md` records both categories
+  as expected output so the next reader does not "fix" them.
+  The plugin has to be applied to the subprojects explicitly (root-only application produced no
+  reports), and warns that 9.4.0 is past the AGP range it is tested against.
 
 - [ ] **1.6 Re-test detekt 2.x and ktlint on JDK 25** (S)
   Why: Plan 1's I3. The earlier failure was version-specific (Robolectric 4.16 works where 4.14

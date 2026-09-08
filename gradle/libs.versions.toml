@@ -19,6 +19,8 @@ robolectric = "4.16"
 
 junit = "4.13.2"
 
+dependencyAnalysis = "3.19.1"
+
 [libraries]
 # The Gradle plugins themselves, so build-logic/ can compile against their DSL. Not for a module.
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -91,6 +93,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 # The convention plugins in build-logic/, an included build — hence "unspecified", which is what

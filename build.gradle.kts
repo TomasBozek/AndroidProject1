@@ -5,6 +5,15 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+
+    // Advisory, not a gate: `./gradlew buildHealth` reports dependencies declared but unused, used
+    // but undeclared, and `api` where `implementation` would do. Failing the build on it would
+    // make every dependency edit a negotiation with a heuristic.
+    alias(libs.plugins.dependency.analysis)
+}
+
+subprojects {
+    apply(plugin = "com.autonomousapps.dependency-analysis")
 }
 
 // No detekt/ktlint here on purpose: detekt 1.23 embeds a Kotlin compiler that cannot read the

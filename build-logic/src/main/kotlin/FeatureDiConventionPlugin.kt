@@ -9,8 +9,10 @@ class FeatureDiConventionPlugin : Plugin<Project> {
         pluginManager.apply("convention.android.library")
 
         dependencies {
-            add("implementation", platform(libs.findLibrary("koin-bom").get()))
-            add("implementation", libs.findBundle("koin-android").get())
+            // `api`, not `implementation`: the module object this layer exists to publish is a
+            // Koin `Module`, so Koin is in its signature. `buildHealth` agrees.
+            add("api", platform(libs.findLibrary("koin-bom").get()))
+            add("api", libs.findBundle("koin-android").get())
         }
     }
 }

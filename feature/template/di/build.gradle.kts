@@ -3,7 +3,11 @@ plugins {
 }
 
 dependencies {
-    api(projects.feature.template.data)
-    api(projects.feature.template.domain)
+    // `api` only for presentation: a feature's destinations are the surface :app assembles the nav
+    // graph from, and they reach it through :core:di. The other layers are this module's own
+    // business — it registers them, it does not re-export them.
     api(projects.feature.template.presentation)
+
+    implementation(projects.feature.template.data)
+    implementation(projects.feature.template.domain)
 }
