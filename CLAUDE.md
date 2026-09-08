@@ -146,6 +146,41 @@ is fine — `:feature:settings:presentation` does exactly that for `AuthService`
 
 `:feature:template` is compiled but unused; it is the source the generator scripts clone. Keep it working.
 
+## Design system
+
+`:core:ui` holds the design system, imported from the KSD system in Claude Design. It is three
+layers, and the split is what makes a re-brand one file rather than a sweep:
+
+| Layer | Where | Rule |
+|---|---|---|
+| 1 · core | `theme/Ramp.kt`, `Scale` in `theme/Spacing.kt` | Raw ramps and the 4 dp dimension scale. **`internal`** — no screen can name a step |
+| 2 · semantic | `theme/{Color,Type,Shape,Elevation,Motion,Density,Spacing}.kt` | Roles. The only layer that differs light ⇄ dark |
+| 3 · component | `component/*.kt` | Binds a role to an element and its states |
+
+Read layer 2 through `AppTheme`: `AppTheme.colors`, `.typography`, `.shapes`, `.elevation`,
+`.motion`, `.density`, `.spacing`. `toColorScheme()` / `toTypography()` / `toShapes()` also populate
+Material's own theme, so `service/core/ui`'s `Screen()` — which cannot depend on `:core:ui` without
+losing its portability — picks up the system for free.
+
+**A feature composes components; it never draws.** A `presentation` module imports from
+`core.ui.component` and `core.ui.theme` and from nothing else in Compose's widget set:
+
+- no `androidx.compose.material3.*` — every widget a screen needs has an `App*` counterpart
+- no `.dp` or `.sp` literal — ask `AppTheme.spacing` for a role, `AppTheme.typography` for a role
+- no `Color(...)` and no `MaterialTheme.colorScheme` — ask `AppTheme.colors` for a role
+
+`AppScaffold` is the screen shell: base surface, system insets, an optional `AppTopBar`. A screen
+does not call `safeDrawingPadding()` itself; that is what got screens padded twice.
+
+If a screen needs something the set does not have, **add it to `:core:ui` with
+`create_component.py`** and give it a `@ComponentPreview` — do not draw it in the feature. Every
+component is browsable in the running app under Settings → Components, which is
+`:feature:gallery`; add the new one to `GalleryCatalog.kt` in the same change.
+
+Elevation is not `Modifier.shadow`. A pressable surface uses `Modifier.keySurface(color, edge,
+shape, pressed)`: a hard bottom edge in the family's own colour that shortens on press, so the key
+travels 3 dp. A blurred shadow makes it a floating card instead of a pressed one.
+
 ## Screen structure (the unit of work)
 
 Every screen is seven files — six in one package, plus its test in the matching test package:

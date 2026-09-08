@@ -118,6 +118,22 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("R.string.user_profile_title", screen)
         self.assertNotIn("template_", screen)
 
+    def test_create_feature_registers_only_the_screens_it_copied(self) -> None:
+        """The di module names both template ViewModels; only one screen is copied.
+
+        `is_copyable` skips the args screen by file name, which leaves the di module — a single
+        file — importing and registering a ViewModel that does not exist. The generated feature
+        did not compile.
+        """
+        self.run_script("create_feature.py", "userProfile")
+
+        module = self.read(
+            "feature/userprofile/di/src/main/kotlin/com/example/androidproject1"
+            "/feature/userprofile/di/UserProfileModule.kt"
+        )
+        self.assertIn("viewModelOf(::UserProfileViewModel)", module)
+        self.assertNotIn("UserProfileArgsViewModel", module)
+
     def test_create_feature_lists_partial_layers_in_the_module_tree(self) -> None:
         """The tree documents what is on disk; a screen-only feature must not claim five layers."""
         self.run_script("create_feature.py", "userProfile", "--layers", "presentation,di")

@@ -6,25 +6,27 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phases 0, 1 and 2 complete; 3.1 and 3.2 landed)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 73 · build green
+**Last updated:** 2026-09-08 (Phases 0-2 complete; Phase 3 half done — the design system landed)
+**Gate at last run:** doctor 20/20 · test_scripts 38 · ktlint clean · build green
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
-**Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
+**Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
+**Design system:** 40 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 2 / 8 | `██░░░░░░░░` 25% |
+| 3 · Design system and accessibility | A theme and components worth copying | 5 / 10 | `█████░░░░░` 50% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **32 / 68** | `█████░░░░░` 47% |
+| **Total** | | **35 / 70** | `█████░░░░░` 50% |
 
-**Now:** 3.4 (primitives: Button, TextField, Checkbox).
-**Next:** 3.3 (migrate the `.dp` literals onto the new role-based scale), then 3.6, 3.7, 3.8.
+**Now:** 3.10 (the `doctor.py` checks that keep 3.3 and 3.4 true).
+**Next:** 3.7, then 3.6, 3.5, 3.8. 4.1's screenshot tests are worth much more now than
+when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### Scope
@@ -699,24 +701,39 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   one edit for a brand face; the system's own face is Source Sans 3, not bundled (item 3.8).
   Monetary and numeric roles carry `tnum`.
 
-- [ ] **3.3 Spacing scale actually used** (S)
+- [x] **3.3 Spacing scale actually used** (S) (2026-09-08)
   Why: Plan 1's G1-finish. `AppTheme.spacing` exists; 28 `.dp` literals remain in screens.
   Done: literals migrated; `doctor.py` check 18 flags a bare `.dp` literal in a feature screen
   (allow-list for `1.dp` dividers and hairlines).
+  **Landed:** the scale is role-based rather than a t-shirt ramp — `inset` / `stack` / `inline`,
+  each xs…xl, which is how the design system names it. `grep '\.dp' feature/` is empty, so the
+  literals are gone; the `doctor.py` check that keeps them gone is item 3.10, which covers the
+  wider rule that a feature composes only from `:core:ui`.
 
-- [~] **3.4 Component set** (M)
+- [x] **3.4 Component set** (M) (2026-09-08)
   Why: Plan 1's G4. Sample screens hand-roll buttons, text fields and headers.
   Done: `AppButton`, `AppTextField` (with error state), `AppTopBar`, `AppListItem`, `EmptyState`
   (wrapping `ContentMessage`), `Skeleton`, each generated with `create_component.py`, each with
   a `@ComponentPreview`; sample screens use them.
-  **In flight (2026-09-08):** the three the design system calls primitives are in —
+  **Landed, larger than the Done line:** the whole primitive set, not six components —
   `AppButton` (six kinds × three sizes, the edge-and-travel press, loading that does not change
   the width), `AppTextField` (sunken ground, four states, an error that always carries text) and
   `AppCheckbox` (row-sized target, indeterminate only for a group toggle). All three take their
   colours as *roles*, never as values, so a re-brand does not touch them.
-  `SettingsScreen` is the first to use them, which is also how the set was verified on a device.
-  Still open: `AppTopBar`, `AppListItem`, `EmptyState`, `Skeleton`, and the remaining sample
-  screens. That last part overlaps 3.3 and should land with it.
+  and then, on the same day and at Tomáš's request, the rest of it: **40 components** covering the
+  design system's primitives and the generic half of its components section — form (TextField,
+  SearchField, Select, Checkbox, Radio, Switch, Segmented, Stepper, Slider, FormField), action
+  (Button, IconButton, Fab), status (Tag, StatusDot, Badge, Avatar, Spinner, Progress, Skeleton),
+  content (Text, Card, Divider, ListItem, DescriptionList, SectionHeader, EmptyState, Accordion),
+  overlay (Dialog, ConfirmDialog, Sheet, Menu, Toast, Tooltip) and navigation (Scaffold, TopBar,
+  Tabs, BottomNav, NavRail, Toolbar, BottomActionBar). Every one carries a `@ComponentPreview`
+  showing its states.
+  **All ten screens were migrated onto them**, `feature/template` included, so
+  `grep material3 feature/` and `grep '\.dp' feature/` are both empty. That is the wider rule the
+  original Done line only gestured at, and 3.10 is what keeps it true.
+  The POS-specific half of the source document — keypads, order lines, product tiles, receipts,
+  floor plan, scale, stock, shift — is deliberately absent: it is that product's domain, not a
+  template's.
   **Contrast, measured on an emulator (2026-09-08):** base `#F7F7F6` / `#1A1A17` as specified;
   outline border 4.32:1 light and 3.76:1 dark, label 16.27:1 in both. `borderStrong` had to move
   to `Gray500` on both sides to clear the 3:1 the system requires of an element border — a step of
@@ -738,6 +755,28 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   Done: every icon has a description or is marked decorative; 48 dp touch targets; a `testTag`
   convention documented and used by 4.3; a font-scale 1.5 variant in `@ScreenPreview`; the two
   lint rules raised to `error`.
+
+- [x] **3.9 A component gallery, in the app** (M) (2026-09-08)
+  Why: 40 components with previews are only as good as the ability to look at them, and Android
+  Studio's preview pane is not where you check that the theme actually loaded. Asked for by Tomáš
+  while 3.4 was landing.
+  Done: Settings → Components lists every component in `:core:ui`, grouped as the design system
+  groups them; a detail screen shows each component's states, labelled. Demos live in
+  `:feature:gallery:presentation` — the gallery is a feature, and a feature composes components,
+  so `:core:ui` ships no sample code.
+  **Landed:** also fixed a real `create_feature.py` bug this feature hit first — the di module is
+  one file naming both template ViewModels, so every generated feature registered one that
+  `is_copyable` had skipped, and did not compile. `strip_args_registration` plus a regression test
+  in `test_scripts.py` (now 38).
+
+- [ ] **3.10 `doctor.py` keeps features honest** (S)
+  Why: 3.3 and 3.4 emptied `grep material3 feature/` and `grep '\.dp' feature/`, and nothing stops
+  the next screen from putting them back. The rule the design system rests on is that a feature
+  composes only from `:core:ui`.
+  Done: a check that fails on `androidx.compose.material3.*` or a bare `.dp` / `.sp` literal in a
+  `feature/*/presentation` source file, with the narrow allow-list the rule needs (a component's
+  own intrinsic hairline). A second check that every file in `core/ui/component/` carries a
+  `@ComponentPreview`. `--list` documents both; `test_scripts.py` covers them.
 
 - [ ] **3.8 Bundle the brand face** (S)
   Why: 3.2 defines the scale against `FontFamily.Default`. The design system's own face is Source
