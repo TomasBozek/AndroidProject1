@@ -6,7 +6,7 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2, 2.1 and 2.3 landed)
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2, 2.1, 2.3 and 2.4 landed)
 **Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 63 · build green
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
@@ -14,16 +14,16 @@ human orientation. This file is the work list.
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 4 / 8 | `█████░░░░░` 50% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 5 / 8 | `██████░░░░` 63% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **26 / 67** | `████░░░░░░` 39% |
+| **Total** | | **27 / 67** | `████░░░░░░` 40% |
 
 **Now:** nothing in flight.
-**Next:** 2.4 (transitions), then 2.5, 2.6 and 2.7 in any order.
+**Next:** 2.5, 2.6 and 2.7, in any order. 2.6 and 2.7 are small; 2.5 is the large one.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### Scope
@@ -533,10 +533,26 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   of the Catalog root lands on Settings, the tab visited before it; logging out replaces everything
   with the bar-less sign-in screen.
 
-- [ ] **2.4 Shared enter/exit transitions** (S)
+- [x] **2.4 Shared enter/exit transitions** (S) · 2026-09-08
   Why: Plan 1's D4. Default cross-fade looks unfinished; one shared spec on the host is cheap.
   Done: one shared `transitionSpec` / `popTransitionSpec` on the `NavDisplay` (after 2.8); tab
   switches fade, pushes slide; predictive back animates.
+  Landed. `slideIntoContainer` / `slideOutOfContainer` rather than raw offsets, so the direction
+  follows the layout direction and RTL is right for free.
+  **Tab switches fade through entry metadata, not through the host's spec**, and that is the part
+  worth remembering. `NavDisplay` resolves `NavEntry.metadata` against the screen *arriving* on a
+  push and the one *leaving* on a pop — exactly the rule this needs, and one the host's spec cannot
+  express, because from inside it a pop to `CategoriesDestination` and a switch to the Catalog tab
+  look identical. So a tab root carries fade specs and everything else slides. `AppNavHost` attaches
+  them by wrapping the entry the provider returns, so no feature knows it is a tab.
+  `NavEntry.key` is private and `defaultContentKey` is internal, so a spec cannot recover the
+  `NavKey` behind a `Scene` — the wrap has the key and the metadata route does not need it.
+  Predictive back is left at the library's default (fade plus scale-out): it is the platform's own
+  gesture and should look like it does everywhere else.
+  Verified on an emulator (API 37) with `animator_duration_scale 10` to catch mid-transition frames:
+  a push through the catalog shows the outgoing screen offset horizontally, and a tab switch shows
+  Home cross-fading in over the product detail with no offset at all. The predictive-back gesture
+  itself was not exercised.
 
 - [ ] **2.5 Permissions, redesigned** (L)
   Why: Plan 1's E1 to E5, and the part of the original brief with nothing built yet. The

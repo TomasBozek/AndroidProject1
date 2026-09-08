@@ -1,14 +1,21 @@
 package com.example.androidproject1
 
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -68,6 +75,11 @@ private fun AppNavDisplay(
     backStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
 ) {
+    val entries = entryProvider<NavKey> {
+        authEntries(backStack)
+        mainEntries(backStack)
+    }
+
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
@@ -79,12 +91,50 @@ private fun AppNavDisplay(
             // against — without it two screens would share one ViewModel.
             rememberViewModelStoreNavEntryDecorator(),
         ),
-        entryProvider = entryProvider {
-            authEntries(backStack)
-            mainEntries(backStack)
+        // Going deeper slides; the library's default is a cross-fade, which reads as unfinished.
+        transitionSpec = {
+            slideIntoContainer(SlideDirection.Start, SLIDE) togetherWith
+                slideOutOfContainer(SlideDirection.Start, SLIDE)
         },
+        popTransitionSpec = {
+            slideIntoContainer(SlideDirection.End, SLIDE) togetherWith
+                slideOutOfContainer(SlideDirection.End, SLIDE)
+        },
+        // predictivePopTransitionSpec is left at the library's default: it is the platform's own
+        // back gesture, and a screen that scales away under the user's finger is what that looks
+        // like everywhere else on the device.
+        entryProvider = { key -> entries(key).withTabRootTransitions(key) },
     )
 }
+
+/**
+ * Makes a tab root fade instead of slide.
+ *
+ * Attached to the entry rather than decided in the host's spec because `NavDisplay` resolves entry
+ * metadata against the screen *arriving* on a push and the one *leaving* on a pop — which is exactly
+ * the rule wanted here and not one the host's spec can express. Arriving at a tab root is a tab
+ * switch, so it fades; arriving at `CategoriesDestination` by popping `ProductsDestination` off is
+ * not, and the leaving screen has no metadata, so it slides back.
+ */
+private fun NavEntry<NavKey>.withTabRootTransitions(key: NavKey): NavEntry<NavKey> =
+    if (TopLevelDestination.of(key) == null) {
+        this
+    } else {
+        NavEntry(
+            key = key,
+            contentKey = contentKey,
+            metadata = metadata + TAB_ROOT_TRANSITIONS,
+            content = { Content() },
+        )
+    }
+
+private val SLIDE = tween<IntOffset>(durationMillis = 300)
+
+private val FADE = tween<Float>(durationMillis = 200)
+
+private val TAB_ROOT_TRANSITIONS: Map<String, Any> =
+    NavDisplay.transitionSpec { fadeIn(FADE) togetherWith fadeOut(FADE) } +
+        NavDisplay.popTransitionSpec { fadeIn(FADE) togetherWith fadeOut(FADE) }
 
 /** Shown while signed out. */
 private fun EntryProviderScope<NavKey>.authEntries(backStack: NavBackStack<NavKey>) {
