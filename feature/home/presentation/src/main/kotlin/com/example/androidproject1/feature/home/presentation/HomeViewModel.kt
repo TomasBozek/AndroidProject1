@@ -9,13 +9,4 @@ class HomeViewModel(
 ) : BaseViewModel<HomeState, HomeEvent, HomeNavigation>(
     initialState = HomeState(greeting = R.string.home_greeting.toUiText()),
     logger = logger.withTag("HomeViewModel"),
-) {
-
-    override fun onUiEvent(event: HomeEvent) {
-        when (event) {
-            HomeEvent.SettingsClicked -> navigate(HomeNavigation.Settings)
-
-            HomeEvent.BrowseCatalogClicked -> navigate(HomeNavigation.Catalog)
-        }
-    }
-}
+)

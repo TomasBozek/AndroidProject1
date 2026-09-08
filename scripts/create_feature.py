@@ -100,7 +100,7 @@ def parse_args() -> argparse.Namespace:
         "--graph",
         default="main",
         choices=[*NAV_GRAPHS, "none"],
-        help="Nav graph in AppNavHost.kt to register the destination in. Default: main",
+        help="Entry block in AppNavHost.kt to register the destination in — the signed-in flow, one of\nits tabs, or the auth flow. Default: main",
     )
     parser.add_argument("--dry-run", action="store_true", help="Show what would happen, change nothing.")
     parser.add_argument("--force", action="store_true", help="Overwrite layers that already exist.")

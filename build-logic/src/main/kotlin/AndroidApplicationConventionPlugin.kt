@@ -58,6 +58,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             add("implementation", libs.findLibrary("kotlinx-serialization-json").get())
             add("implementation", libs.findLibrary("androidx-navigation3-ui").get())
+            // The bottom bar, and the rail it becomes on a wide screen. Versioned by the
+            // Compose BOM, which configureCompose already applies.
+            add("implementation", libs.findLibrary("androidx-compose-material3-navigation-suite").get())
             add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
 
             // No androidTest source set: UI tests run under Robolectric as unit tests, so CI needs

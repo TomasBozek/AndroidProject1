@@ -80,12 +80,13 @@ There are three top-level groups, and the split between the first two is the imp
 :core:ui              this app's Compose theme + the @ScreenPreview/@ComponentPreview helpers
 :core:di              initKoin() + coreModule — the single Koin registration point
 
-:app                  single activity, AppNavHost, MainViewModel, SessionState, Application
+:app                  single activity, AppNavHost, MainViewModel, SessionState,
+                      TopLevelDestination (the tabs), Application
 
 :feature:auth:{domain,data,presentation,di}       full stack; owns the session
-:feature:catalog:{domain,data,presentation,di}    full stack; three screens, one with args
-:feature:home:{presentation,di}                   screen only
-:feature:settings:{presentation,di}               screen only; reads :feature:auth:domain
+:feature:catalog:{domain,data,presentation,di}    full stack; three screens, one with args; a tab
+:feature:home:{presentation,di}                   screen only; a tab
+:feature:settings:{presentation,di}               screen only; a tab; reads :feature:auth:domain
 :feature:template:{domain,data,presentation,di}   what the generators clone
 ```
 
@@ -138,8 +139,9 @@ repository interface in `domain`. A `DefaultXRepository` therefore imports `XDat
 (interface) ↔ `DefaultFoo` (implementation).
 
 A feature's `presentation` module must never depend on another feature's `presentation`. Cross-feature
-navigation is passed in as a lambda and wired in `AppNavHost` (see `homeDestination`). Depending on
-another feature's `domain` is fine — `:feature:settings:presentation` does exactly that for `AuthService`.
+navigation is passed in as a lambda and wired in `AppNavHost` — the sample app has none left to point
+at, because the three cross-feature jumps it had are now tabs. Depending on another feature's `domain`
+is fine — `:feature:settings:presentation` does exactly that for `AuthService`.
 
 `:feature:template` is compiled but unused; it is the source the generator scripts clone. Keep it working.
 
@@ -299,7 +301,7 @@ Writes the interface and its `Default…` implementation into `data.source`, the
 
 Not scripted, and deliberately: a `presentation` module must never depend on another feature's
 `presentation` (`doctor.py` fails if it does). Add a lambda parameter to the destination function and
-wire it in `AppNavHost.kt`, the way `homeDestination` reaches settings:
+wire it in `AppNavHost.kt`, where the parameter is the only thing either module knows about the other:
 
 ```kotlin
 userProfileDestination(
@@ -310,6 +312,25 @@ userProfileDestination(
 
 Switching between the auth and main flows is different again: change the session and let
 `MainViewModel` react. Do not replace the back stack from a screen.
+
+### The tabs
+
+`TopLevelDestination` in `:app` is the bottom bar: one entry per tab, each naming a feature's route
+key, its label (a string in `:app`'s own `strings.xml`) and its icon. `NavigationSuiteScaffold`
+renders it as a bar on a phone and a rail once there is width for one. The auth flow has no tabs, so
+`AppNavHost` composes the display without the scaffold there.
+
+**The tabs do not each own a list.** The back stack *is* their concatenation, in the order the tabs
+were last visited, and a tab's key is the only thing that starts a segment — so `currentTab` is the
+last tab key on the stack, `selectTab` moves that tab's segment to the end, and push and pop are
+unchanged because they act on the segment that happens to be last. One flat list is what makes
+per-tab history survive process death with no custom `Saver`: it is the list `rememberNavBackStack`
+already saves. Back out of a tab's root and the previously visited tab is underneath it, which is
+what Android expects.
+
+Adding a tab is one entry in `TopLevelDestination`, one `xEntries()` block in `AppNavHost.kt`, one
+label string, and its `--graph` name in `scripts/_common.py`'s `NAV_GRAPHS`. A tab root carries no up
+arrow: the bar is what leaves it.
 
 ### Removing things
 
@@ -359,7 +380,9 @@ python3 scripts/create_feature.py userProfile --layers domain,presentation,di
 Clones `feature/template`, rewrites names, and performs **all five** registrations: the modules in
 `settings.gradle.kts`, `api(projects.feature.userprofile.di)` in `core/di/build.gradle.kts`, the Koin
 module entry in `Koin.kt`, the destination in `AppNavHost.kt`, and the line in the module tree above. Dependencies on layers you did not
-generate are stripped from the generated build files. `--graph main|auth|none` picks the nav graph.
+generate are stripped from the generated build files. `--graph` picks the entry block in
+`AppNavHost.kt`: `main` for the signed-in flow, `home` / `catalog` / `settings` for one tab of it,
+`auth` for the signed-out flow, `none` to skip the registration.
 
 ```bash
 python3 scripts/create_screen.py userprofile UserProfileList --sub overview

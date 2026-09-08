@@ -14,14 +14,7 @@ fun EntryProviderScope<NavKey>.settingsDestination(backStack: NavBackStack<NavKe
     entry<SettingsDestination> {
         val viewModel: SettingsViewModel = koinViewModel()
 
-        Screen(
-            viewModel = viewModel,
-            onNavigation = { navigation ->
-                when (navigation) {
-                    SettingsNavigation.NavigateUp -> backStack.removeLastOrNull()
-                }
-            },
-        ) { state, onEvent ->
+        Screen(viewModel = viewModel) { state, onEvent ->
             SettingsScreen(
                 state = state,
                 onEvent = onEvent,

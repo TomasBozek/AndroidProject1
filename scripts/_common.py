@@ -42,8 +42,14 @@ LAYER_SUFFIX = {
 # The entry blocks in AppNavHost.kt, keyed by the `--graph` value the scripts accept. Navigation 3
 # has no nested graphs, so these are grouping functions rather than framework objects — but they are
 # still where a generated destination belongs, and still the thing `--graph` chooses between.
+#
+# `main` is the signed-in flow as a whole; the three below it are its tabs, and are the right answer
+# whenever the new screen is pushed onto one tab's stack. Add a line here when a tab is added.
 NAV_GRAPHS = {
     "main": "mainEntries",
+    "home": "homeEntries",
+    "catalog": "catalogEntries",
+    "settings": "settingsEntries",
     "auth": "authEntries",
 }
 

@@ -6,25 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2 and 2.1 landed)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 64 · build green
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2, 2.1 and 2.3 landed)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 63 · build green
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 3 / 8 | `████░░░░░░` 38% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 4 / 8 | `█████░░░░░` 50% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **25 / 67** | `████░░░░░░` 37% |
+| **Total** | | **26 / 67** | `████░░░░░░` 39% |
 
 **Now:** nothing in flight.
-**Next:** 2.3 (bottom navigation) and 2.4 (transitions), which both build on the `NavDisplay`;
-2.5, 2.6 and 2.7 are independent of them and of each other.
+**Next:** 2.4 (transitions), then 2.5, 2.6 and 2.7 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -491,13 +490,36 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
     `failWith`, so a test of a failing sign-in still reads a session — since nothing could make the
     session flow fail before.
 
-- [ ] **2.3 Bottom navigation with nested graphs** (M)
+- [x] **2.3 Bottom navigation with nested graphs** (M) · 2026-09-08
   Why: Plan 1's D1. The first thing a real project adds and the one thing the template does not
   show. `NavigationSuiteScaffold` gives a rail on tablets for free.
   Done: Home, Catalog and Settings as top-level destinations on Navigation 3 (after 2.8); each tab
   keeps its own back stack and survives process death; `create_feature.py --graph <tab>` registers
   the entry under that tab; `doctor.py` still finds every destination; the `homeDestination`
   lambdas for settings and catalog are removed.
+  Landed. `material3-adaptive-navigation-suite`, versioned by the Compose BOM already applied.
+  **How the per-tab back stacks work, because it is the decision worth knowing:** the tabs do not
+  each own a list. The back stack *is* their concatenation, in the order the tabs were last visited,
+  and a tab's key is the only thing that starts a segment — so `currentTab` is the last tab key on
+  the stack and `selectTab` moves that tab's segment to the end. Push and pop are untouched, backing
+  out of a tab root lands on the tab underneath it, and process-death survival is free: it is the one
+  list `rememberNavBackStack` already saves, so there is no `Saver` for a map of lists to write or to
+  get wrong. The alternative — a `TopLevelBackStack` holding a map, as the Nav3 recipes do — needs
+  that `Saver` and buys nothing here.
+  Two consequences beyond the Done line:
+  - **Settings lost its up arrow**, with `SettingsEvent.NavigateUpClicked` and
+    `SettingsNavigation.NavigateUp`. A tab root has nothing to go up to.
+  - **`--graph` gained the three tabs** (`home`, `catalog`, `settings`) beside `main` and `auth`, and
+    `mainEntries()` became three per-tab blocks. `main` still means the signed-in flow as a whole and
+    is still the default, so nothing generated before changes shape.
+  Also: the sample app now has **no cross-feature navigation lambda left** — the three jumps it had
+  are tabs — so `CLAUDE.md`'s recipe for one no longer points at `homeDestination`. `HomeScreen` is
+  the greeting alone, and `HomeEvent` / `HomeNavigation` are empty interfaces.
+  Verified on an emulator (API 37): the bar shows only in the signed-in flow; a tab switch keeps the
+  screens left on the other tab (Catalog three deep, away to Settings, back to Catalog, still on the
+  product detail); process death four screens deep restores both the stack and the tab; backing out
+  of the Catalog root lands on Settings, the tab visited before it; logging out replaces everything
+  with the bar-less sign-in screen.
 
 - [ ] **2.4 Shared enter/exit transitions** (S)
   Why: Plan 1's D4. Default cross-fade looks unfinished; one shared spec on the host is cheap.
