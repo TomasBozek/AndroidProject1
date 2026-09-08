@@ -12,7 +12,7 @@ Multi-module Android app (Kotlin + Jetpack Compose), base package `com.example.a
 **template**: the structure and conventions matter more than the five sample features. Architecture is
 modelled on a layered Clean/MVI setup — single activity, type-safe Compose navigation, Koin DI.
 
-- `minSdk = 29`, `targetSdk = compileSdk = 37`, Java 11
+- `minSdk = 29`, `targetSdk = compileSdk = 37`, Java 17 — all in `build-logic`'s `ProjectConfig`
 - AGP `9.5.0-alpha04`, Kotlin `2.2.10`, Gradle `9.6`, Compose BOM `2026.02.01`
 - Dependencies come from `gradle/libs.versions.toml` — never hardcode a version in a module build file.
   Compose artifacts come from the BOM without an explicit version.

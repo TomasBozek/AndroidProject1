@@ -12,7 +12,8 @@ object ProjectConfig {
     const val TARGET_SDK = 37
     const val MIN_SDK = 29
 
-    val JAVA_VERSION = JavaVersion.VERSION_11
+    /** The daemon runs JDK 25 and AGP 9 needs 17 to run at all, so 17 is the sensible floor. */
+    val JAVA_VERSION = JavaVersion.VERSION_17
 
     const val VERSION_CODE = 1
     const val VERSION_NAME = "1.0"

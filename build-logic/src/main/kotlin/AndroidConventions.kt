@@ -3,6 +3,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /** The version catalog, so a convention plugin declares dependencies the way a module used to. */
 internal val Project.libs: VersionCatalog
@@ -50,6 +53,12 @@ internal fun Project.configureAndroid(extension: CommonExtension) {
 
     extension.compileOptions.sourceCompatibility = ProjectConfig.JAVA_VERSION
     extension.compileOptions.targetCompatibility = ProjectConfig.JAVA_VERSION
+
+    // Stated rather than inherited from compileOptions: the two drifting apart is a warning most
+    // builds never surface, and Kotlin's default has changed between versions before.
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions.jvmTarget.set(JvmTarget.fromTarget(ProjectConfig.JAVA_VERSION.toString()))
+    }
 
     // Shared configuration; see lint.xml at the repo root.
     extension.lint.lintConfig = rootProject.file("lint.xml")

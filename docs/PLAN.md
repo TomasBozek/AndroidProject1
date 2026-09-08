@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8 and 1.1 landed)
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1 and 1.4 landed)
 **Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 61 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 2 / 8 | `███░░░░░░░` 25% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 3 / 8 | `████░░░░░░` 38% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **16 / 67** | `██░░░░░░░░` 24% |
+| **Total** | | **17 / 67** | `███░░░░░░░` 25% |
 
 **Now:** nothing in flight.
-**Next:** 1.4 (Java 11 to 17, now one edit), 1.2, then the rest of Phase 1 in any order.
+**Next:** 1.2 (domain modules to Kotlin JVM), then the rest of Phase 1 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -321,11 +321,14 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   `renovate.json` grouping androidx, kotlin and koin with the version catalog manager enabled;
   build green; lint's version checks stay informational.
 
-- [ ] **1.4 Java target 11 to 17** (S)
+- [x] **1.4 Java target 11 to 17** (S) · 2026-09-08
   Why: the daemon runs JDK 25, AGP 9 requires 17 to run, and 17 is the current baseline. One edit
   once 1.1 lands.
   Done: `compileOptions` and Kotlin `jvmTarget` at 17 in the convention plugin; build green.
   The one edit is `ProjectConfig.JAVA_VERSION` in `build-logic/src/main/kotlin/ProjectConfig.kt`.
+  Landed: it was one edit, plus three lines making Kotlin's `jvmTarget` explicit rather than
+  inherited from `compileOptions` — the two drifting apart is a warning most builds never surface.
+  Verified on the emitted bytecode: class file major version 61.
 
 - [ ] **1.5 `api` vs `implementation` hygiene** (S)
   Why: 43 `api(` lines in feature build files, most of them in `di` modules re-exporting layers,
