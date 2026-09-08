@@ -6,7 +6,7 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phases 0, 1 and 2 complete)
+**Last updated:** 2026-09-08 (Phases 0, 1 and 2 complete; 3.1 and 3.2 landed)
 **Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 73 · build green
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
@@ -15,15 +15,15 @@ human orientation. This file is the work list.
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
+| 3 · Design system and accessibility | A theme and components worth copying | 2 / 8 | `██░░░░░░░░` 25% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **30 / 67** | `████░░░░░░` 45% |
+| **Total** | | **32 / 68** | `█████░░░░░` 47% |
 
-**Now:** nothing in flight.
-**Next:** Phase 3. 3.1 before 3.4, and 3.2 before 3.4; the rest in any order.
+**Now:** 3.4 (primitives: Button, TextField, Checkbox).
+**Next:** 3.3 (migrate the `.dp` literals onto the new role-based scale), then 3.6, 3.7, 3.8.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### Scope
@@ -85,7 +85,13 @@ six slash commands). See git history for the details.
 | `rememberPermissionRequest(vararg)` | `service/core/ui/.../permission/` | `status` + `request()`; re-read on resume |
 | `PermissionGate(…) { }` | same | Composes content only while granted — no boolean for a caller to forget |
 | `Context.openAppSettings()` | same | The one implementation; `UiCommand.OpenAppSettings` uses it too |
-| `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Defined; not yet used (item 3.3) |
+| `AppTheme.colors` | `core/ui/theme/Color.kt` | Semantic roles: `surfaceBase/Raised/Sunken`, `textPrimary/Secondary/Tertiary`, `confirm`/`destructive`/`info`/`warning`/`neutral` (each `bg`/`edge`/`label`/`container`/`onContainer`), `border`, `focusRing` |
+| `AppTheme.typography` | `core/ui/theme/Type.kt` | Nine roles, two densities. Never a `sp` literal |
+| `AppTheme.shapes` | `core/ui/theme/Shape.kt` | `none`/`xs`/`sm`/`md`/`lg`/`xl`/`sheet`/`pill`; `nested(parent, gap)` for a child's radius |
+| `Modifier.keySurface(...)` | `core/ui/theme/Elevation.kt` | The edge-plus-travel press effect. Not `Modifier.shadow` — the edge has to stay sharp |
+| `AppTheme.motion` | `core/ui/theme/Motion.kt` | press 70 ms, toggle 140 ms, sheet 220/180 ms, screen 260 ms |
+| `AppTheme.density` | `core/ui/theme/Density.kt` | `SizeClass` + `minTouchTarget`. 48 dp on touch, 56 dp on a till |
+| `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Role-based: `inset` / `stack` / `inline`, each xs…xl. Not yet used (item 3.3) |
 | `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation`; `:app` declares it itself |
 | `FakeLogger` | `testFixtures(projects.service.core.domain)` | Re-exported by `:service:core:ui`'s fixtures, so one line still gets both |
 | `FakeAuthService` | `testFixtures(projects.feature.auth.domain)` | The auth, settings and `MainViewModel` tests; `sessionError` fails the session flow |
@@ -162,6 +168,16 @@ All ten were made by Tomáš on 2026-09-08. Kept here so the reasoning stays wit
   **Outcome (2026-09-08): Compose Preview Screenshot Testing.** Item 4.1.
 - **D10 · Material 3 Expressive?** The template is re-skinned per project; neutral wins.
   **Outcome (2026-09-08): standard Material 3.** Item 3.1.
+- **D11 · Adopt the KSD design system, or generate a neutral palette?** D10 chose neutral because a
+  template is re-skinned per project. An existing, finished system — five levelled ramps, a nine-role
+  type scale, a shape and elevation scale, all with light/dark values already decided — is better
+  than anything generated from a seed, and re-skinning it is still one file (`Ramp.kt`).
+  **Outcome (2026-09-08): adopt it, three layers and all.** D10 stands for the *shape* of the
+  result — standard Material 3, mapped from the roles — not for inventing a palette. Items 3.1, 3.2.
+- **D12 · Keep `dynamicColor`?** It was `true`, so the app took its colours from the wallpaper.
+  The status roles (paid / open / void) carry meaning, and a wallpaper-derived scheme destroys them.
+  **Outcome (2026-09-08): removed, not defaulted off.** A parameter nobody should pass is not an
+  option worth keeping. Item 3.1.
 
 ---
 
@@ -659,16 +675,28 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
 Goal: the theme is something a project keeps rather than replaces on day one, and the sample
 screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 before 3.4.
 
-- [ ] **3.1 A real colour scheme** (M)
+- [x] **3.1 A real colour scheme** (M) (2026-09-08)
   Why: Plan 1's G2. `Color.kt` is the wizard's purple with three roles; `dynamicColor = true`
   means the app never looks like itself.
   Done: full M3 role set (primary/secondary/tertiary, surface, error, outline) in light and dark
   from one seed, neutral by design; `AppTheme(dynamicColor = false)` default; every
   `@ScreenPreview` checked in dark. Standard Material 3, not Expressive (D10).
+  **Landed:** not generated from a seed. The palette is imported from the KSD design system
+  (`claude.ai/design`, project `KotlinProject1`), whose foundations document already defines five
+  perceptually levelled ramps and a semantic role table with exact light/dark values. `Ramp.kt`
+  holds the ramps as layer 1 and is `internal`, so no screen can name a ramp step; `AppColors` in
+  `Color.kt` is layer 2 and the only layer that differs between the themes. `dynamicColor` is gone
+  rather than defaulted off — see D12. M3's scheme is derived from the roles by
+  `toColorScheme()`, so stock Material components fit without a wrapper.
 
-- [ ] **3.2 Full type scale** (S)
+- [x] **3.2 Full type scale** (S) (2026-09-08)
   Why: `Type.kt` defines `bodyLarge` only; everything else falls back to Material defaults.
   Done: the M3 scale defined explicitly with `FontFamily.Default`, so a brand font is one edit.
+  **Landed:** nine roles rather than M3's fifteen slots — `displayXl` … `numericMd`, from the same
+  design system — in two densities, `compactTypography()` and `regularTypography()` (the compact
+  scale × 1.15). `toTypography()` maps the nine onto Material's fifteen. `AppFontFamily` is the
+  one edit for a brand face; the system's own face is Source Sans 3, not bundled (item 3.8).
+  Monetary and numeric roles carry `tnum`.
 
 - [ ] **3.3 Spacing scale actually used** (S)
   Why: Plan 1's G1-finish. `AppTheme.spacing` exists; 28 `.dp` literals remain in screens.
@@ -691,6 +719,13 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   Done: every icon has a description or is marked decorative; 48 dp touch targets; a `testTag`
   convention documented and used by 4.3; a font-scale 1.5 variant in `@ScreenPreview`; the two
   lint rules raised to `error`.
+
+- [ ] **3.8 Bundle the brand face** (S)
+  Why: 3.2 defines the scale against `FontFamily.Default`. The design system's own face is Source
+  Sans 3, chosen for a high x-height and a `1` distinguishable from `l` on a tilted tablet.
+  Done: the four weights the scale asks for (400/600/700/800) in `core/ui/src/main/res/font/`,
+  `AppFontFamily` pointing at them, APK size delta recorded here. Downloadable fonts considered
+  and rejected or taken, with the reason.
 
 - [ ] **3.7 `@Immutable` on every `XState`** (S)
   Why: Plan 1's C5. States hold `List<Product>`. Strong skipping covers most of it since Kotlin
