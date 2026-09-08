@@ -59,7 +59,7 @@ Layer direction, enforced by `doctor.py`:
 
 | Layer | May depend on |
 |---|---|
-| `domain` | `service:core:domain` only |
+| `domain` | `service:core:domain` only — a plain Kotlin/JVM module, so `android.*` will not compile |
 | `data` | `service:core:data` + own `domain` — holds `DefaultXRepository` and both halves of the data source |
 | `presentation` | `core:ui` + own `domain` |
 | `di` | all of the above |

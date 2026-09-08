@@ -17,8 +17,12 @@ class KotlinJvmConventionPlugin : Plugin<Project> {
             sourceCompatibility = ProjectConfig.JAVA_VERSION
             targetCompatibility = ProjectConfig.JAVA_VERSION
         }
+        configureKotlinJvmTarget()
 
         dependencies {
+            // A domain module's repository interfaces return Flow, so coroutines are not optional.
+            add("api", libs.findLibrary("kotlinx-coroutines-core").get())
+
             add("testImplementation", libs.findLibrary("junit").get())
             add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())
         }

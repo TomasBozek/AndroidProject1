@@ -42,7 +42,7 @@ dependencies {
 |---|---|
 | `convention.android.library` | `com.android.library`, the SDK levels, Java target, the shared `lint.xml`, the derived namespace. No dependencies |
 | `convention.android.library.compose` | the above plus the Compose compiler plugin, `buildFeatures.compose`, the BOM and the `compose-core` bundle |
-| `convention.kotlin.jvm` | `org.jetbrains.kotlin.jvm`, Java target, JUnit and coroutines-test. Written for the `domain` modules; nothing applies it yet (plan item 1.2) |
+| `convention.kotlin.jvm` | `org.jetbrains.kotlin.jvm`, Java target, coroutines, JUnit and coroutines-test. Every `domain` module |
 | `convention.feature.data` | android library plus coroutines |
 | `convention.feature.di` | android library plus the Koin BOM and bundle |
 | `convention.feature.presentation` | the compose library plus serialization, Koin, navigation, lifecycle, the `testing` bundle, Robolectric and `testFixtures(:service:core:ui)` |
@@ -105,7 +105,9 @@ lives here rather than in `service` because it references `AppTheme`.
 Two rules keep `service/` portable, and both are load-bearing:
 
 - **`:service:core:domain` stays free of `android.*`.** The `Logger` *interface* lives there;
-  `AndroidLogger` lives in `:service:core:data`. Don't reintroduce a framework import into domain.
+  `AndroidLogger` lives in `:service:core:data`. It is a plain Kotlin/JVM module, so the compiler
+  enforces this and `doctor.py` is only the second line of defence. Don't make it an Android
+  library to get around a framework import — move the class into `:service:core:data` instead.
 - **`:service:core:ui` sets `resourcePrefix = "core_"`,** so every string it ships is `core_*` and
   cannot silently collide with a consuming app's. New resources there must carry the prefix.
 
@@ -117,7 +119,7 @@ Layer dependency directions:
 
 | Layer | Depends on |
 |---|---|
-| `domain` | `api(projects.service.core.domain)` only |
+| `domain` | `api(projects.service.core.domain)` only. A **Kotlin/JVM** module — no manifest, no AAR, no lint pass, and `android.*` is not on its classpath |
 | `data` | `service:core:data` + own `domain`; holds `DefaultXRepository` and both halves of the data source |
 | `presentation` | `api(projects.core.ui)` + own `domain` |
 | `di` | `api(...)` of all of the above |

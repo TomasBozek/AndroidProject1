@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1 and 1.4 landed)
+**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4 and 1.2 landed)
 **Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 61 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 3 / 8 | `████░░░░░░` 38% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 4 / 8 | `█████░░░░░` 50% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **17 / 67** | `███░░░░░░░` 25% |
+| **Total** | | **18 / 67** | `███░░░░░░░` 27% |
 
 **Now:** nothing in flight.
-**Next:** 1.2 (domain modules to Kotlin JVM), then the rest of Phase 1 in any order.
+**Next:** 1.3 (stable AGP, fresh dependencies, Renovate), 1.7, 1.5, 1.6.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -307,12 +307,19 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   shared Android configuration". No unit-test options were lifted into the plugin: no module set
   any, so there was nothing to share.
 
-- [ ] **1.2 Domain modules are plain Kotlin JVM** (M)
+- [x] **1.2 Domain modules are plain Kotlin JVM** (M) · 2026-09-08
   Why: `:service:core:domain` and every `feature/*/domain` are Android libraries that by rule
   contain no `android.*`. As `kotlin("jvm")` modules the rule is enforced by the compiler, there
   is no manifest, AAR or lint pass per module, and the build is faster.
   Done: `org.jetbrains.kotlin.jvm` in the catalog and root; the five domain modules converted;
   `doctor.py`'s Android-free check kept as a second line; generators and template updated.
+  Landed: four domain modules, not five — `home`, `settings` and `launch` are screen-only, and the
+  fifth was `gateway`, which 1.8 removed. `convention.kotlin.jvm` gained `api(kotlinx-coroutines-core)`
+  (a domain repository returns `Flow`), so `:service:core:domain`'s build file is now the plugins
+  block and nothing else. It also needed Kotlin's `jvmTarget` set: an Android module inherits it
+  from `compileOptions` and merely warns, a Kotlin/JVM module inherits nothing and fails against
+  the JDK 25 daemon — `configureKotlinJvmTarget()` is now shared by both plugins. The generators
+  needed no change: they clone `feature/template`, whose build files are the new shape.
 
 - [ ] **1.3 Toolchain: stable AGP, fresh dependencies, Renovate** (M) · D5 decided: yes
   Why: AGP is an alpha. coroutines 1.9.0, Koin 4.0.4, serialization 1.7.3, lifecycle 2.9.1 and

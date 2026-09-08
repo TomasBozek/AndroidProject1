@@ -54,16 +54,25 @@ internal fun Project.configureAndroid(extension: CommonExtension) {
     extension.compileOptions.sourceCompatibility = ProjectConfig.JAVA_VERSION
     extension.compileOptions.targetCompatibility = ProjectConfig.JAVA_VERSION
 
-    // Stated rather than inherited from compileOptions: the two drifting apart is a warning most
-    // builds never surface, and Kotlin's default has changed between versions before.
-    tasks.withType<KotlinCompile>().configureEach {
-        compilerOptions.jvmTarget.set(JvmTarget.fromTarget(ProjectConfig.JAVA_VERSION.toString()))
-    }
+    configureKotlinJvmTarget()
 
     // Shared configuration; see lint.xml at the repo root.
     extension.lint.lintConfig = rootProject.file("lint.xml")
     extension.lint.warningsAsErrors = false
     extension.lint.abortOnError = true
+}
+
+/**
+ * Kotlin's `jvmTarget`, stated rather than left to a default.
+ *
+ * An Android module inherits it from `compileOptions` and only warns when the two drift apart; a
+ * plain Kotlin/JVM module does not inherit it at all and fails the build, because the daemon's JDK
+ * is 25 and `compileJava` is on [ProjectConfig.JAVA_VERSION].
+ */
+internal fun Project.configureKotlinJvmTarget() {
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions.jvmTarget.set(JvmTarget.fromTarget(ProjectConfig.JAVA_VERSION.toString()))
+    }
 }
 
 /**
