@@ -177,6 +177,32 @@ If a screen needs something the set does not have, **add it to `:core:ui` with
 component is browsable in the running app under Settings → Components, which is
 `:feature:gallery`; add the new one to `GalleryCatalog.kt` in the same change.
 
+### Testing a screen
+
+Two tests per screen, and they answer different questions:
+
+| | Asks | Runs as |
+|---|---|---|
+| `XViewModelTest` | what the state becomes, and what navigation is emitted | plain JVM test |
+| `XScreenTest` | what is on screen, and what a tap does | Robolectric unit test |
+
+The second is the half a ViewModel test cannot reach. `LoginScreenTest` is the pattern: it renders
+the stateless screen with a fixed state, collects the events it emits, and finds everything by
+`testTag` — never by text, because copy gets reworded and translated. It runs under Robolectric as
+an ordinary unit test, so `./gradlew test` covers it and CI needs no emulator.
+
+Two things it has to say out loud, both of which cost a comment in the file:
+
+- **`@Config(sdk = …)` is pinned.** Robolectric ships an SDK image per API level and has none for
+  this project's `targetSdk`; the test asks for the newest it does have.
+- **A compound component is tagged on its group.** A caller's `modifier` goes to the outermost
+  element, so `Modifier.testTag("login_emailField")` on an `AppTextField` tags the label, input and
+  supporting line together. Assertions about the group use the tag directly; a test that types
+  reaches the input inside it with `hasSetTextAction() and hasAnyAncestor(hasTestTag(…))`.
+
+`convention.feature.presentation` carries the dependencies, so a new screen's test needs no
+build-file edit.
+
 ### Test identifiers
 
 One id serves the screen reader, the test and the design registry, so there is one to keep in sync

@@ -18,13 +18,13 @@ human orientation. This file is the work list.
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
-| 4 · Testing and quality | Regression coverage that costs nothing to keep | 1 / 4 | `███░░░░░░░` 25% · 4.1 parked |
+| 4 · Testing and quality | Regression coverage that costs nothing to keep | 2 / 4 | `█████░░░░░` 50% · 4.1 parked |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **41 / 70** | `██████░░░░` 59% |
+| **Total** | | **42 / 70** | `██████░░░░` 60% |
 
-**Now:** 4.3 (one Compose UI test as the pattern), then 4.4.
+**Now:** 4.4 (coverage report).
 **Next:** Phase 5. 3.8 whenever D13 is answered; 4.1 when the plugin is past alpha. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** 3.8, on D13 — bundle Source Sans 3's files or use Downloadable Fonts.
@@ -36,10 +36,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 41 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 42 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 26 | 4.3, 4.4, all of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 25 | 4.4, all of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -903,10 +903,22 @@ new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
   second placeholder field. Three states × the four `@ScreenPreview` variants is twelve renders
   per screen, which is what 4.1 will record.
 
-- [ ] **4.3 One Compose UI test as the pattern** (S)
+- [x] **4.3 One Compose UI test as the pattern** (S) (2026-09-08)
   Why: Plan 1's H4. Nothing shows how to test a screen's behaviour end to end.
   Done: `LoginScreenTest` under Robolectric using `ui-test-junit4` and the `testTag`s from 3.6,
   running as a unit test so CI needs no emulator; documented in `CLAUDE.md`.
+  **Landed:** six tests — what renders, that submit is disabled until the form can be submitted,
+  that typing and pressing report events, and that a disabled button reports nothing. Verified by
+  breaking the screen on purpose (`enabled = state.canSubmit` → `enabled = true`): exactly two
+  tests fail, and the right two. The dependencies are in `convention.feature.presentation`, so a
+  new screen's test needs no build-file edit — this is the Robolectric that 2.8 removed, back for
+  the reason 2.8 said it would be.
+  Two things the pattern has to state, both commented in the file and in `CLAUDE.md`:
+  `@Config(sdk = …)` is pinned because Robolectric has no image for this `targetSdk`; and a
+  compound component is tagged on its *group*, since a caller's modifier goes to the outermost
+  element — so a test that types reaches the input with
+  `hasSetTextAction() and hasAnyAncestor(hasTestTag(…))`. Trying to solve that inside
+  `AppTextField` with `mergeDescendants` does not work: merging does not carry focus actions up.
 
 - [ ] **4.4 Coverage report** (S)
   Why: not a gate, a signal. Cheap to add and it shows which module the tests avoid.
