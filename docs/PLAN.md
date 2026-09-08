@@ -1,1140 +1,500 @@
 # Plan
 
-The single plan for this template. A new session should be able to read this file and continue.
-`CLAUDE.md` is the rulebook, `scripts/README.md` documents the generators, `README.md` is the
-human orientation. This file is the work list.
+Plan 3. The single work list for this template: what is open, who may work on it in parallel,
+and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientation,
+`scripts/README.md` the generators. History lives in git, not here — Plan 2 in full is
+`git show 3dde6e2:docs/PLAN.md`, and every landed item is one commit named `<id> <title>`.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phases 0-5 complete bar 3.8 and 4.1; Phase 6 not started, by its own rule)
-**Gate at last run:** doctor 23/23 · test_scripts 43 · ktlint clean · build green · coverage 25.5%
-**Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
-**Repo:** 25 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
-**Design system:** 41 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
+**Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 43 · ktlint clean · build green
+**Coverage:** 38 % lines — architecture and ViewModels tested; data layers 0 %, components 10 %
+**Repo:** 25 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
 
-| Phase | Goal | Done | Progress |
+| Track | Owns | Done | Progress |
 |---|---|---|---|
-| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
-| 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 8 / 8 | `██████████` 100% |
-| 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
-| 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **50 / 70** | `███████░░░` 71% |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 6 | `░░░░░░░░░░` 0 % |
+| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 0 / 13 | `░░░░░░░░░░` 0 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 0 / 9 | `░░░░░░░░░░` 0 % |
+| **Total** | | **0 / 33** | `░░░░░░░░░░` 0 % |
 
-**Now:** 5.8 (session stored encrypted), then 5.6.
-**Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
-past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
-when they were written — there are 40 previews to record rather than ten.
-**Blocked on a decision:** 3.8, on D13 — bundle Source Sans 3's files or use Downloadable Fonts.
-Everything else in Phase 3 is done.
+**Start now, one worktree each:** `core.1` · `ui.1` · `feat.1` · `qa.3`. None of the four waits
+on a question, and none touches another's files.
+**Waiting on you:** Q6 — the licence, now askable because D19 settled the repo as a template —
+and Q7, strike or swap a sample feature. Q3 and Q4 shape backlog items only. No track waits.
 
-### Where things stand
+Legend · size `S` under an hour, `M` half a day, `L` a day or more · risk `stable` known-good
+libraries, `plugin` adds a Gradle plugin (check its AGP range before writing code), `alpha`
+pre-release library, `device` needs an emulator or hardware, `decision` waits on a Q or D.
 
-Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item further down.
+## Questions
 
-| | Items | What that means |
+No default; the dependent items wait, everything else proceeds.
+
+- **Q3 · Locales.** English only, or English and Czech? And is the spreadsheet-driven string
+  pipeline the reference project has wanted here — written fresh, not ported?
+- **Q4 · Theme from tokens, or the hand port?** The KSD project plans to generate `Tokens.kt`
+  from its DTCG token files with Style Dictionary. That keeps design and code in step at the cost
+  of Node tooling in an Android repo; the hand port is one file and already done.
+- **Q5 · Two facts left.** Has the Renovate GitHub app been installed on the repo? `git ls-remote
+  origin` shows only `main`, so it has never opened a PR. And can `main` get required status
+  checks (`qa.9`)? Both need the GitHub UI or `gh`, which is not installed here. The device half
+  is answered — D21.
+- **Q6 · Licence.** Apache-2.0 or MIT — D19 made this a template, so it needs one. The repo has
+  had no LICENSE file since the first commit; `qa.1` is one file and a README line once you pick.
+- **Q7 · The four sample features.** Favourites, cart, profile, search — each exists to prove one
+  capability the architecture has and no sample uses (see the app track). Strike or swap any.
+
+## Decisions
+
+A decision with a default is taken when its item starts; say so before then to change it.
+D1–D12 are Plan 2's, made 2026-09-08, and stand.
+
+| | Decision | Outcome |
 |---|---|---|
-| **Done** | 50 | **Phases 0–5 in full, bar two.** Phase 3: the KSD design system imported and every screen built from it. Phase 4: preview variants, a screen-test pattern, coverage. Phase 5: flavors, signing, crash-reporting seam, LeakCanary, gitleaks, a release job, an encrypted session, a baseline profile. |
-| **In progress** | 0 | — |
-| **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 18 | **Phase 6** (Ktor, Room) — its own goal says not to build them against mock data and there is no API yet, so this is a deliberate stop, not a gap. Plus **16 backlog items** in Phase 7. |
+| D1 | `gateway` module | Merged into `data` |
+| D2 | Splash | SplashScreen API, no minimum hold |
+| D3 | `UiState.loading` | Defaults to `null` |
+| D4 | Convention plugins | Yes, and they own the shared dependencies |
+| D5 | AGP | Stable 9.x |
+| D6 | Navigation 3 | Migrated, no spike |
+| D7 | Network and database | Ktor client + Room |
+| D8 | Crash reporting | Interface + logging default; no vendor SDK in the repo |
+| D9 | Screenshot tool | Compose Preview Screenshot Testing — **superseded by D14** |
+| D10 | Material 3 Expressive | No, standard M3 |
+| D11 | Design system | KSD, imported as three layers |
+| D12 | Dynamic colour | Removed, not defaulted off |
+| D13 | Brand face | **Default: bundle Source Sans 3.** Previews and goldens need a face that renders without network, a POS device may have no Play Services, and 300–500 kB is nothing. Fetching the OFL-licensed TTFs into the repo is part of the item |
+| D14 | Screenshot tool, second try | **Default: Roborazzi.** Runs under the Robolectric 4.16 that already works here, no alpha plugin, and scans the previews that exist rather than duplicating them. If the compatibility check fails within an hour, park it like 4.1 |
+| D15 | End-to-end tool | **Default: Maestro.** `CLAUDE.md` already writes its syntax and every screen carries the ids |
+| D16 | Component gallery in prod | **Default: no.** It moves under the debug menu (`shell.2`) and R8 drops it from `prod` |
+| D17 | Merge policy for worktrees | **Default: one PR per item, rebase-merged, CI required.** `main` keeps one commit per item |
+| D18 | Room wiring | **Default: a `convention.android.room` plugin** (Room + KSP), applied beside `convention.feature.data` by the modules that need it |
+| D19 | Q2 · Template or product | **Template.** The four generic sample features stand, `feature/template` and the generators keep earning their cost, `ui.4` / `ui.5` stay where they are |
+| D20 | Q1 · What the sample talks to | **Ktor `MockEngine` fixtures on the `dev` flavor.** No server to keep alive and CI runs it unchanged. The cost is that "offline" is a fixture told to fail, not a real network drop — `feat.5`'s Verify line says so rather than pretending otherwise |
+| D21 | Q5 · Hardware | **A physical device exists.** `qa.5` stays scheduled behind `shell.1` |
 
-Three things need you rather than me: **D13** (above); a look at the app now the design system is
-in; and **what Phase 6 points at** — the phase is deliberately unstarted because there is no real
-API, and that is the decision that unblocks it.
+## What Plan 2 taught
 
-### Scope
+Fifty items landed in one day. Where the time went, and the rule each cost bought:
 
-This is an Android project. The Kotlin is the work; `scripts/` exists to make the repetitive parts
-of it fast, and that is all it is for. So:
+| Cost | Rule in this plan |
+|---|---|
+| ~2 h of the day on alpha Gradle plugins meeting AGP 9 + Gradle 9 + JDK 25 | Every item carries a risk tag. A `plugin` or `alpha` item starts with a compatibility check and gets 30 minutes to a green spike before it is parked |
+| The plan grew to 1,140 lines, most of it notes on finished items; every session paid to read it | An item is four lines. A landed item keeps its Done line; the commit and PR hold the story |
+| Coverage: 38 % overall, data layers 0 %, components 10 % | An item that adds code names its tests in its Verify line and ships them in the same commit |
+| Device checks by hand through `adb` and `uiautomator dump` | Maestro flows over the ids that already exist (`qa.2`); hardware for what an emulator cannot settle (`qa.5`) |
+| One agent, one branch, one item at a time | Four tracks with disjoint file ownership, so four worktrees can run at once |
+| One open decision (D13) held the last Phase 3 item for the whole plan | Every D has a default. Only a Q waits, and a Q blocks only its own items |
+| Full `./gradlew build` some thirty times per item | Iterate on the module task; run the gate once, before the commit |
 
-- **No new scripts.** An item that would add one goes to the backlog instead. `doctor.py` and the
-  generators are the set.
-- **Existing scripts change only when something else forces them to** — a convention moved, a
-  generated file's shape changed, a new `--graph` name. That change is part of the item that caused
-  it, not an item of its own.
-- Items 4.5 and 6.3 were moved to the backlog on 2026-09-08 under this rule.
+## How to work this plan
 
-### How to keep this file current
+**Worktrees.** One per item, on a branch named after it:
 
-1. Starting an item: mark it `[~]`, add its ID to **Now**.
-2. Landing an item: run the gate below, mark it `[x] (YYYY-MM-DD)`, remove it from **Now**,
-   update the phase row and the total. Refresh the bar: one `█` per 10%.
-3. Dropping an item: mark it `[-]` and add one line saying why. Never delete a line. A dropped
-   item is removed from its phase total.
-4. Adding an item: next free number in its phase. Update the counts.
-5. If a decision (D-section) is made, write the outcome and date next to it.
-6. If what shipped differs from the item's **Done** line, add a **Landed:** line under it saying
-   how. Do not rewrite the original; the difference is the record.
-7. Grow an item only when its **Done** line cannot be true without the extra work, and say so
-   under **Landed**. Anything else becomes a new numbered item, not part of this one.
-8. Commit each landed item on `main` as one commit, message `<id> <title>` (for example
-   `0.2 Snackbar sits under the system bar`), with this file's update in the same commit. Start
-   an item on a clean tree with the gate green.
+```bash
+git worktree add ../<repo>-core.1 -b core.1-network
+```
 
-The gate, in the order CI runs it:
+Rebase on `main` before the PR. PR title is `<id> <title>`; rebase-merge, so `main` stays one
+commit per item. Branch protection with the three CI jobs required is `qa.9`.
+
+**Shared files.** These are edited by more than one track, always additively — a new line, never
+a rewrite. On a conflict keep both sides and run `doctor.py`; it checks every one of them.
+
+| File | Who appends |
+|---|---|
+| `settings.gradle.kts`, `core/di/build.gradle.kts`, `core/di/Koin.kt`, `app/AppNavHost.kt`, `app/KoinGraphTest.kt`, the module tree in `CLAUDE.md` | any item that adds a feature or screen — the generators do it |
+| `gradle/libs.versions.toml` | any item that adds a library |
+| `build-logic/` | core track; `feat.1` adds one plugin file, `ui.3` one dependency line |
+| `app/TopLevelDestination.kt` | `feat.2` adds a tab |
+| this file | every item, its own line and the dashboard |
+
+An item that must edit a file its track does not own says so in its Done line; nobody else has an
+open item on that file at the same time.
+
+**Item lifecycle.** `[ ]` → `[~]` when started (add the id to *Start now*) → `[x] (date)` when
+the gate is green and the PR is merged; refresh the track row and the total, one `█` per 10 %.
+`[-]` drops an item with one line saying why. New item: next number in its track. If what shipped
+differs from the Done line, one **Landed:** sentence — not a paragraph.
+
+**The gate,** in the order CI runs it:
 
 ```bash
 python3 scripts/doctor.py && python3 scripts/test_scripts.py && ./gradlew ktlintCheck && ./gradlew build
 ```
 
-## Done before this plan
+**Environment,** checked 2026-09-09 on this machine, because four `device` items assume it:
+`adb` lives at `~/Library/Android/sdk/platform-tools/adb` and is not on `PATH`; one AVD exists
+(`medium_phone_1`), so `ui.4` and `ui.5` need a tablet profile created before their Verify lines
+can run; `gh` and `maestro` are not installed, and `qa.2`, `qa.6`, `qa.9` and D17's
+one-PR-per-item flow all want them.
 
-Plan 1 (September 2026) delivered 33 items. In short: the four P0 defects (double loading
-decrement in `observe()`, session carried by auto-backup, R8 off, no dispatcher switching), nav
-arguments via `SavedStateHandle`, inline error/empty/retry states, `Screen()` owning navigation,
-snackbar command, typed alert payloads, the Modifier convention, the spacing scale, the testing
-foundation (`MainDispatcherRule`, `KoinGraphTest`, a test per screen), CI and `doctor.py` gates,
-and the generator suite (`init_project`, `create_feature`, `create_screen --with-args`,
-`create_component`, `create_datasource`, `delete_feature`, `export_service`, `install_hooks`,
-six slash commands). See git history for the details.
+**Scope rules that stand.** No new scripts; an existing one changes only when something else
+forces it, as part of that item. A `service/` module never references `:core:*`, `:feature:*` or
+`:app`. A feature composes from `:core:ui` and never draws. Do not build a data layer against
+invented data — that is what Q1 is for.
 
-## API you build on (do not reinvent)
+## Dependencies
 
-| Thing | Where | Note |
-|---|---|---|
-| `execute {}` / `observe(flow = …) {}` | `service/core/ui/.../BaseViewModel.kt` | Never try/catch in a ViewModel |
-| `ErrorDisplay.{Alert,Inline,Silent}` | same | `Inline` remembers the failed call **per content id**; retry re-runs that one |
-| `ContentState.{Error,Empty}` | `service/core/ui/.../state/ContentState.kt` | Rendered by `Screen()` instead of content |
-| `Screen(onNavigation = …)` | `service/core/ui/.../component/Screen.kt` | Destinations write no collector |
-| Route arguments | the route key itself | A constructor parameter on the ViewModel, handed over by the destination with `koinViewModel { parametersOf(key) }` |
-| `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
-| `rememberPermissionRequest(vararg)` | `service/core/ui/.../permission/` | `status` + `request()`; re-read on resume |
-| `PermissionGate(…) { }` | same | Composes content only while granted — no boolean for a caller to forget |
-| `Context.openAppSettings()` | same | The one implementation; `UiCommand.OpenAppSettings` uses it too |
-| `AppTheme.colors` | `core/ui/theme/Color.kt` | Semantic roles: `surfaceBase/Raised/Sunken`, `textPrimary/Secondary/Tertiary`, `confirm`/`destructive`/`info`/`warning`/`neutral` (each `bg`/`edge`/`label`/`container`/`onContainer`), `border`, `focusRing` |
-| `AppTheme.typography` | `core/ui/theme/Type.kt` | Nine roles, two densities. Never a `sp` literal |
-| `AppTheme.shapes` | `core/ui/theme/Shape.kt` | `none`/`xs`/`sm`/`md`/`lg`/`xl`/`sheet`/`pill`; `nested(parent, gap)` for a child's radius |
-| `Modifier.keySurface(...)` | `core/ui/theme/Elevation.kt` | The edge-plus-travel press effect. Not `Modifier.shadow` — the edge has to stay sharp |
-| `AppTheme.motion` | `core/ui/theme/Motion.kt` | press 70 ms, toggle 140 ms, sheet 220/180 ms, screen 260 ms |
-| `AppTheme.density` | `core/ui/theme/Density.kt` | `SizeClass` + `minTouchTarget`. 48 dp on touch, 56 dp on a till |
-| `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Role-based: `inset` / `stack` / `inline`, each xs…xl. Not yet used (item 3.3) |
-| `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation`; `:app` declares it itself |
-| `FakeLogger` | `testFixtures(projects.service.core.domain)` | Re-exported by `:service:core:ui`'s fixtures, so one line still gets both |
-| `FakeAuthService` | `testFixtures(projects.feature.auth.domain)` | The auth, settings and `MainViewModel` tests; `sessionError` fails the session flow |
-| `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
-| `appModules(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it |
-| `coreModule(isDebug)` | `core/di/Koin.kt` | WARN-and-above logger in release |
-| `execute(loadingMessage = …)` | `BaseViewModel` | Wording for the overlay; survives overlapping calls |
-| `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
-| `convention.*` plugins | `build-logic/src/main/kotlin/` | A module build file is a `plugins` block and its project dependencies, nothing else |
-| `ProjectConfig` | same | `minSdk`, `compileSdk`, `targetSdk`, Java version, app version. One edit each |
+Arrows are "must land first". Everything not drawn is independent and can start today.
 
-**Gotchas already paid for:**
+```mermaid
+flowchart LR
+  classDef core fill:#DBE7FF,stroke:#3566E0,color:#1D3F96
+  classDef ui fill:#FFEDC2,stroke:#DE9209,color:#915B06
+  classDef app fill:#D0F4DF,stroke:#1FA463,color:#12693E
+  classDef qa fill:#EEEEEC,stroke:#75756F,color:#3C3C37
 
-- ~~A screen with nav arguments needs Robolectric.~~ Gone with 2.8: Navigation 3 hands the route
-  key to the ViewModel directly, so there is no `Bundle` to decode and every ViewModel test is a
-  plain JVM test. Robolectric is out of `convention.feature.presentation` and nothing uses it —
-  item 4.3 will add it back for the screen tests.
-- Koin's `verify()` cannot see a `parametersOf` argument, so a screen with route arguments needs one
-  line in `KoinGraphTest`'s `injectedParameters`. That is the sixth registration;
-  `create_screen.py --with-args` writes it and `doctor.py` check 20 fails if it is missing.
-- `rememberSceneSetupNavEntryDecorator` is internal in navigation3 1.1.7 — `NavDisplay` adds it
-  itself. Pass only the saveable-state and ViewModel-store decorators.
-- **`rememberNavBackStack` must be composed on the first frame.** It is a `rememberSaveable`, and
-  one that first enters composition on a later frame gets nothing back from the restored state.
-  Gating it on anything asynchronous — the session, a feature flag, a loaded config — throws the
-  saved back stack away on every process death, silently and only on a real device. Remember it
-  unconditionally (empty if need be) and gate the `NavDisplay` instead. Found in 2.1.
-- `Module.mappings` is `@KoinInternalAPI`, so the route-key injections cannot be derived by walking
-  the graph. They are listed.
-- `testFixtures { enable = true }` works on AGP 9.
-- `lint { checkDependencies }` belongs to `:app` only.
-- `feature/template` holds two screens (`Template*`, `TemplateArgs*`). `create_feature.py` skips
-  the args set on purpose.
-- The Modifier check in `doctor.py` exempts extensions, value-returning composables and
-  `*Theme`/`*Provider`/`*Screen`/`*Preview`. Extend the list rather than fight it.
+  core1[core.1 network client]:::core
+  core2[core.2 offline-first]:::core
+  core4[core.4 nav results]:::core
+  core5[core.5 forms]:::core
+  ui1[ui.1 brand face]:::ui
+  ui2[ui.2 screenshots]:::ui
+  ui4[ui.4 size class]:::ui
+  ui5[ui.5 list–detail]:::ui
+  shell1[shell.1 deep links]:::app
+  shell2[shell.2 debug menu]:::app
+  shell4[shell.4 notification]:::app
+  feat1[feat.1 favourites + Room]:::app
+  feat2[feat.2 cart]:::app
+  feat3[feat.3 profile]:::app
+  feat5[feat.5 catalog remote]:::app
+  feat8[feat.8 screen tests]:::app
+  qa3[qa.3 template screen test]:::qa
+  qa5[qa.5 hardware pass]:::qa
 
-## Decisions
+  core1 --> feat5
+  core2 --> feat5
+  feat1 --> feat5
+  core4 --> feat2
+  feat1 --> feat2
+  core5 --> feat3
+  ui1 --> ui2
+  ui4 --> ui5
+  shell1 --> shell4
+  shell2 --> shell4
+  shell1 --> qa5
+  qa3 --> feat8
+```
 
-All ten were made by Tomáš on 2026-09-08. Kept here so the reasoning stays with the plan.
-
-- **D1 · Keep `gateway` as its own module?** It existed so the data layer had a module to depend
-  on for the data-source interface. That contract is not what other modules use: they depend on
-  the repository interface, which lives in `domain`. The data-source interface is internal to the
-  data layer and can sit beside its implementation in a separate package.
-  **Outcome (2026-09-08): merge `gateway` into `data`.** Item 1.8. Layers become
-  `domain` / `data` / `presentation` / `di`.
-- **D2 · Replace the `launch` feature and the 2 s hold with the SplashScreen API?** A splash should
-  last as long as startup work does, not two seconds; and it removes two modules and the
-  `Screen() { _, _ -> }` overlay in `MainActivity`.
-  **Outcome (2026-09-08): replace.** Items 2.1 and 2.2.
-- **D3 · `UiState.loading` default to `null`?** Today `UiState(data = x)` shows a loading overlay
-  unless told otherwise; `BaseViewModel` is the only caller and always passes it explicitly.
-  **Outcome (2026-09-08): flip.** Item 0.9.
-- **D4 · Convention plugins in `build-logic/`?** Declined once; 24 identical build blocks and the
-  export story changed the maths.
-  **Outcome (2026-09-08): yes, and the plugins own the common dependencies too**, not only the
-  Android config: a module's build file keeps only its project dependencies. `service/` modules
-  use the same plugins; `export_service.py` copies `build-logic/` along with `service/` and
-  prints the `includeBuild` line. Item 1.1.
-- **D5 · Move from AGP `9.5.0-alpha04` to the latest stable 9.x?** The
-  `compileSdk { version = release(37) }` DSL is AGP 9 DSL, so a stable 9.x should carry it.
-  **Outcome (2026-09-08): yes.** Item 1.3.
-- **D6 · Navigation 3: migrate or hold?** `Screen(onNavigation)` and typed routes map directly onto
-  a Navigation 3 back stack, and the tab graphs in Phase 2 should not be built twice.
-  **Outcome (2026-09-08): migrate, not spike.** Item 2.8 replaces the 6.4 spike, and 2.3 / 2.4
-  are built on it.
-- **D7 · Network and database stack?** Ktor uses the kotlinx-serialization already here and needs
-  no annotation processing, matching the Koin choice; Room is the standard Android database.
-  **Outcome (2026-09-08): Ktor client + Room.** Items 6.1, 6.2.
-- **D8 · Crash reporting vendor?** A template should not carry a vendor SDK or its config file.
-  **Outcome (2026-09-08): interface plus a logging no-op; vendor recipe in `CLAUDE.md`.** Item 5.3.
-- **D9 · Screenshot-testing tool?** The `@ScreenPreview` functions already exist, so the tool that
-  renders them directly needs no new test code.
-  **Outcome (2026-09-08): Compose Preview Screenshot Testing.** Item 4.1.
-- **D10 · Material 3 Expressive?** The template is re-skinned per project; neutral wins.
-  **Outcome (2026-09-08): standard Material 3.** Item 3.1.
-- **D11 · Adopt the KSD design system, or generate a neutral palette?** D10 chose neutral because a
-  template is re-skinned per project. An existing, finished system — five levelled ramps, a nine-role
-  type scale, a shape and elevation scale, all with light/dark values already decided — is better
-  than anything generated from a seed, and re-skinning it is still one file (`Ramp.kt`).
-  **Outcome (2026-09-08): adopt it, three layers and all.** D10 stands for the *shape* of the
-  result — standard Material 3, mapped from the roles — not for inventing a palette. Items 3.1, 3.2.
-- **D13 · Source Sans 3: bundle the files, or use Downloadable Fonts?** 3.2's scale runs on
-  `FontFamily.Default`, so the type is right and the face is not. Bundling four weights adds
-  roughly 300–500 kB to the APK and needs the TTFs fetched from Google Fonts into the repo;
-  Downloadable Fonts adds `ui-text-google-fonts` and no files at all, but needs Play Services and
-  renders nothing in a preview or a screenshot test without network — which matters more than
-  usual now that 4.1 is about to record 41 components' worth of goldens.
-  **Open.** Item 3.8. Everything else in Phase 3 is done, so this is the only thing holding it.
-- **D12 · Keep `dynamicColor`?** It was `true`, so the app took its colours from the wallpaper.
-  The status roles (paid / open / void) carry meaning, and a wallpaper-derived scheme destroys them.
-  **Outcome (2026-09-08): removed, not defaulted off.** A parameter nobody should pass is not an
-  option worth keeping. Item 3.1.
+Independent: `core.3` `core.6` `ui.3` `shell.3` `shell.5` `feat.4` `feat.6` `feat.7` `qa.1`
+`qa.2` `qa.4` `qa.6` `qa.7` `qa.8` `qa.9`.
 
 ---
 
-## Phase 0 · Truth and small defects
-
-Goal: the docs describe the code that exists, and the defects found in the September review are
-gone. Everything here is small and independent. Do these first; they make every later phase
-easier to verify.
-
-- [x] **0.1 Sync CLAUDE.md, README.md and this file with the code** (S) · 2026-09-08
-  Why: they say "three sample features"; there are five. The module tree in `CLAUDE.md` omits
-  `launch` and `catalog`. Module count is 27, not 26. A wrong rulebook teaches wrong rules.
-  Done: tree and counts correct; new `doctor.py` check 17 fails if a `feature/*` directory is not
-  named in `CLAUDE.md`'s module tree.
-  Landed: the check also compares the **layers** in the tree with the directories on disk, so the
-  tree is now a fifth registration — `create_feature.py` and `delete_feature.py` maintain it
-  (`_common.py:register_in_feature_tree`), and the round-trip test watches `CLAUDE.md` too. Source
-  sets are 38, not 39, after 0.7 removed the empty `app/src/androidTest`.
-
-- [x] **0.2 Snackbar sits under the system bar** (S) · 2026-09-08
-  Why: `Screen()` aligns its `SnackbarHost` to the bottom with no insets and the activity is edge
-  to edge, so on gesture navigation the snackbar overlaps the bar.
-  Done: host padded with `WindowInsets.safeDrawing`; checked on a gesture-nav device or preview.
-
-- [x] **0.3 Remove the unused `TAGGED_LOGGER` factory** (S) · 2026-09-08
-  Why: registered in `coreModule`, consumed nowhere. Loggers get their tag via `withTag()`.
-  Done: qualifier and constant gone; `KoinGraphTest.extraTypes` trimmed to what `verify()` still
-  needs (re-check `String`/`Int`; they may come from `DataStoreProvider` and `AndroidLogger`).
-  Landed: both `String` and `Int` came from the tagged logger — `extraTypes` is now `Context` and
-  `SavedStateHandle` only.
-
-- [x] **0.4 One source of truth for the Koin module list** (S) · 2026-09-08
-  Why: `initKoin()` and `KoinGraphTest` each list every feature module, with a comment asking you
-  to keep them in step. That is a drift waiting to happen.
-  Done: `core/di` exposes `fun appModules(isDebug: Boolean): List<Module>`; both use it;
-  `create_feature.py` and `delete_feature.py` edit that list; `test_scripts.py` still passes.
-
-- [x] **0.5 Generators agree on destination function names** (S) · 2026-09-08
-  Why: `create_feature.py` emits `userprofileDestination`, `create_screen.py` emits
-  `userProfileDetailDestination`. `CLAUDE.md` documents the difference instead of fixing it.
-  Done: both emit camelCase (`rewrite_source` gains a `camel` argument for identifiers, keeps
-  `flat` for packages and paths); the note in `CLAUDE.md` is deleted; a test covers it.
-
-- [x] **0.6 Generated data sources switch to IO** (S) · 2026-09-08
-  Why: `DefaultLocalAuthDataSource` documents the rule "every data source that touches disk or the
-  network switches to `dispatcherProvider.io`". The `create_datasource.py` template does not.
-  Done: generated implementation takes `DispatcherProvider` and uses `flowOn`/`withContext`; the
-  Koin binding still resolves; `test_scripts.py` asserts the import is present.
-
-- [x] **0.7 Drop the unused `androidTest` dependencies in `:app`** (S) · 2026-09-08
-  Why: espresso, `androidx.test.ext:junit` and the Compose test manifest are declared; there is no
-  `androidTest` source set anywhere. Item 4.3 adds UI tests as Robolectric unit tests instead.
-  Done: dependencies removed; `./gradlew :app:assembleDebug` green.
-  Landed: the empty `app/src/androidTest/java` directory went too, and with it the catalog's now
-  orphaned `androidx-junit`, `androidx-espresso-core` and `junitVersion` entries. `ui-test-junit4`
-  and `ui-test-manifest` stay — item 4.3 needs them.
-
-- [x] **0.8 `:app` sources move from `src/main/java` to `src/main/kotlin`** (S) · 2026-09-08
-  Why: it is the only module still on `java/`. `_common.py:APP_NAV_HOST_FILE` hardcodes it.
-  Done: directory moved; `_common.py`, `init_project.py` source roots and `test_scripts.py`
-  updated; doctor and scripts green.
-
-- [x] **0.9 `UiState.loading` defaults to `null`** (S) · 2026-09-08
-  Why: see D3.
-  Done: default flipped; `BaseViewModel` unchanged in behaviour; `BaseViewModelTest` still green.
-
-- [x] **0.10 `DispatcherProvider` becomes interface + `DefaultDispatcherProvider`** (S) · 2026-09-08
-  Why: the naming rule "Foo / DefaultFoo at every layer" is called rigid in `CLAUDE.md`; this is
-  the one type that breaks it (an `open class`).
-  Done: interface in `service/core/domain`, default in the same module, Koin binding updated,
-  tests use a one-line fake.
-  Landed: no test substituted one yet — the only consumer, `DefaultLocalAuthDataSource`, has no
-  unit test — so the one-line fake is documented in the interface's KDoc rather than written.
-
-- [x] **0.11 Catalog sample uses the framework it demonstrates** (S) · 2026-09-08
-  Why: `ProductDetail` renders "not found" as inline text while `Products` uses
-  `ContentState.Empty`. `Product.price` is a `Double`; `asPrice()` hardcodes `$`.
-  Done: a missing product shows `ContentState.Empty` with a "Go back" action; price is minor units
-  (`Long`) formatted with `NumberFormat.getCurrencyInstance()`; tests updated.
-  Landed: with the not-found case moved into `ContentState`, `ProductDetailState.product` is no
-  longer nullable and the screen has one branch instead of two. The empty state carries its own
-  content id (`ProductDetailViewModel.CONTENT_NOT_FOUND`) so `onSystemEvent` can tell "go back"
-  from a retry of a failed load, and answers it with `UiCommand.NavigateBack`.
-
-- [x] **0.12 Retry works for more than one inline load at a time** (S) · 2026-09-08
-  Why: `pendingRetry` is a single lambda slot. Two `ErrorDisplay.Inline` calls in flight and only
-  the last is retryable; the first retry button silently does nothing useful.
-  Done: retries keyed by content id (`Map<String, () -> Unit>`); `SystemEvent.ContentAction(id)`
-  picks its own; a `BaseViewModelTest` case covers two concurrent failures.
-  Landed: a `ConcurrentHashMap`, plus a second case for an action whose id has no registered call.
-
-- [x] **0.13 Loading message survives the loading counter** (S) · 2026-09-08
-  Why: Plan 1's N1. `isLoading`'s setter builds a fresh `LoadingState()`, so a custom message
-  passed by a caller is discarded. `updateData` reads oddly for what it does.
-  Done: `execute(loading = LoadingState(message))` style API (or `loadingMessage: UiText?`); the
-  counter keeps the most recent message; `updateData` renamed or documented; tests cover it.
-  Landed: `loadingMessage: UiText?` on `execute`/`observe` and `setLoading(active, message)`. The
-  `MutableStateFlow<UiState<*>>.isLoading` extension is **deleted** — its setter was the bug, and
-  `setLoading` is the only thing that should write the overlay. `updateData` now takes
-  `Data.() -> Data` rather than `Data.(Data) -> Data`, which handed the same value twice.
-
-- [x] **0.14 Forget a retry once its call succeeds** (S) · 2026-09-08
-  Why: 0.12 registers the retry lambda when an inline call starts and removes it only when the
-  retry button is pressed. After a success the lambda, and the closures it captures, stay in the
-  map until the ViewModel is cleared. Bounded and harmless, but a leak is a leak.
-  Done: the entry is removed on success as well; a `BaseViewModelTest` case shows that a content
-  action arriving after a successful load re-runs nothing.
-  Landed: removed by identity (`ConcurrentHashMap.remove(key, value)`), so a later call that has
-  since claimed the same content id keeps its own retry.
-
-## Phase 1 · Build foundation
-
-Goal: the build is cheaper to run and to change, the toolchain is stable, and the module count
-stops being a tax.
-
-Order: **1.8 first**, so the convention plugins in 1.1 are written for four layers and there are
-three fewer modules to convert. Then 1.1, then the rest in any order.
-
-- [x] **1.1 Convention plugins in `build-logic/`** (L) · 2026-09-08
-  Why: 24 build files repeat the same `plugins` / `namespace` / `compileSdk` / `lint` block, and
-  every presentation module repeats the same twelve dependency lines. `minSdk`, Java target and
-  lint config are 24 edits. `export_service.py` ships this project's SDK levels into the next one.
-  Done: an included build `build-logic/` (`includeBuild` in `settings.gradle.kts`, `kotlin-dsl`,
-  plugins aliased in the version catalog with `version = "unspecified"`), plugin ids prefixed
-  `convention.` so `init_project.py` never has to rename them. The rule is **library
-  dependencies live in the plugin, project dependencies stay in the module.**
-  - `convention.android.library`: `com.android.library`, compileSdk / minSdk, Java 17, the shared
-    `lint.xml`, unit-test options. Nothing else.
-  - `convention.android.library.compose`: the above plus the Compose compiler plugin,
-    `buildFeatures.compose`, the Compose BOM and bundle, tooling on debug.
-  - `convention.kotlin.jvm`: `org.jetbrains.kotlin.jvm`, Java 17, JUnit and coroutines-test. For
-    every `domain` module (item 1.2).
-  - `convention.feature.presentation`: the compose library plus the serialization plugin, Koin BOM
-    and bundle, navigation, lifecycle, the `testing` bundle and `testFixtures(:service:core:ui)`.
-  - `convention.feature.data` and `convention.feature.di`: android library plus coroutines, and
-    plus Koin, respectively.
-  - `convention.android.application`: `:app`.
-  The namespace is derived from the project path and one `basePackage` property in
-  `gradle.properties` (`:feature:auth:presentation` becomes `<base>.feature.auth.presentation`,
-  `:service:core:ui` becomes `<base>.service.core.ui`); an explicit `namespace` in a module still
-  wins, and `resourcePrefix = "core_"` stays where it is. `init_project.py` then changes one
-  property instead of 24 lines. A feature presentation build file ends up as:
-
-  ```kotlin
-  plugins { alias(libs.plugins.convention.feature.presentation) }
-
-  dependencies {
-      api(projects.core.ui)
-      api(projects.feature.auth.domain)
-  }
-  ```
-
-  `service/` modules use the same plugins; `export_service.py` copies `build-logic/` and prints
-  the `includeBuild` line. New `doctor.py` check: no module build file sets `compileSdk`,
-  `minSdk`, `compileOptions` or a `lint` block. `feature/template` and every generator emit the
-  new shape; `module_namespace()` in `_common.py` falls back to the derived value. Gate green.
-  Landed, with four differences:
-  - **Java stays at 11.** Item 1.4 says "one edit once 1.1 lands", which is only true if 1.1 does
-    not already make it. `ProjectConfig.JAVA_VERSION` is that one edit.
-  - **`convention.feature.data` and `convention.feature.di` are applied outside `feature/` too** —
-    to `:service:core:{domain,data}` and `:core:di`, whose shape is identical. Two near-duplicate
-    plugins would have been worse than two slightly misleading names.
-  - **The compose plugin adds the Compose BOM and bundle as `api`, not `implementation`**, because
-    `:core:ui` and `:service:core:ui` re-export them on purpose and would otherwise have to repeat
-    the same three lines. Item 1.5 revisits it.
-  - **`convention.feature.presentation` also adds Robolectric.** `create_screen.py --with-args`
-    generates a Robolectric test into any feature and edits no build file, so before this the
-    generator's promise held only in the two features that happened to declare it.
-  Also: the plugins apply AGP and the Kotlin plugins through the catalog
-  (`libs.findPlugin("android-library")`) rather than by literal id, which is what lets
-  `export_service.py --sync-versions` see them; and it exports every `convention.*` alias, not only
-  the two the service modules apply. The new doctor check is 19, "no module build file repeats the
-  shared Android configuration". No unit-test options were lifted into the plugin: no module set
-  any, so there was nothing to share.
-
-- [x] **1.2 Domain modules are plain Kotlin JVM** (M) · 2026-09-08
-  Why: `:service:core:domain` and every `feature/*/domain` are Android libraries that by rule
-  contain no `android.*`. As `kotlin("jvm")` modules the rule is enforced by the compiler, there
-  is no manifest, AAR or lint pass per module, and the build is faster.
-  Done: `org.jetbrains.kotlin.jvm` in the catalog and root; the five domain modules converted;
-  `doctor.py`'s Android-free check kept as a second line; generators and template updated.
-  Landed: four domain modules, not five — `home`, `settings` and `launch` are screen-only, and the
-  fifth was `gateway`, which 1.8 removed. `convention.kotlin.jvm` gained `api(kotlinx-coroutines-core)`
-  (a domain repository returns `Flow`), so `:service:core:domain`'s build file is now the plugins
-  block and nothing else. It also needed Kotlin's `jvmTarget` set: an Android module inherits it
-  from `compileOptions` and merely warns, a Kotlin/JVM module inherits nothing and fails against
-  the JDK 25 daemon — `configureKotlinJvmTarget()` is now shared by both plugins. The generators
-  needed no change: they clone `feature/template`, whose build files are the new shape.
-
-- [x] **1.3 Toolchain: stable AGP, fresh dependencies, Renovate** (M) · 2026-09-08
-  Why: AGP is an alpha. coroutines 1.9.0, Koin 4.0.4, serialization 1.7.3, lifecycle 2.9.1 and
-  navigation 2.9.0 lag Compose BOM 2026.02 and Kotlin 2.2.10. A template should start current.
-  Done: latest stable AGP 9.x; every catalog entry on the latest stable compatible with the BOM;
-  `renovate.json` grouping androidx, kotlin and koin with the version catalog manager enabled;
-  build green; lint's version checks stay informational.
-  Landed: AGP `9.5.0-alpha04` to `9.4.0`, Kotlin `2.2.10` to `2.4.20`, Compose BOM `2026.02.01` to
-  `2026.08.00`, coroutines to `1.11.0`, serialization to `1.11.0`, Koin to `4.2.2`, lifecycle to
-  `2.11.0`, navigation to `2.10.0`, activity-compose to `1.13.0`, core-ktx to `1.19.0`, datastore to
-  `1.2.1`, turbine to `1.2.1`, mockk to `1.14.11`. Robolectric and JUnit were already on the latest
-  stable — 4.17 is still in beta. AGP gets its own Renovate group rather than sharing androidx's,
-  because it is the one that breaks the build DSL. The bump surfaced one deprecation: Koin 4.2 sets
-  the Compose context up in `startKoin()`, so `MainActivity`'s `KoinContext { }` wrapper is gone.
-  Nothing else needed a source change.
-
-- [x] **1.4 Java target 11 to 17** (S) · 2026-09-08
-  Why: the daemon runs JDK 25, AGP 9 requires 17 to run, and 17 is the current baseline. One edit
-  once 1.1 lands.
-  Done: `compileOptions` and Kotlin `jvmTarget` at 17 in the convention plugin; build green.
-  The one edit is `ProjectConfig.JAVA_VERSION` in `build-logic/src/main/kotlin/ProjectConfig.kt`.
-  Landed: it was one edit, plus three lines making Kotlin's `jvmTarget` explicit rather than
-  inherited from `compileOptions` — the two drifting apart is a warning most builds never surface.
-  Verified on the emitted bytecode: class file major version 61.
-
-- [x] **1.5 `api` vs `implementation` hygiene** (S) · 2026-09-08
-  Why: 43 `api(` lines in feature build files, most of them in `di` modules re-exporting layers,
-  and `:app` reaches `AppTheme` and `Screen()` only because `:core:di` has `api(projects.core.ui)`.
-  Done: `:app` depends on `core.ui` directly; `di` modules use `implementation` except where a
-  type is exposed; the Dependency Analysis Gradle plugin runs as `./gradlew buildHealth` (advisory,
-  not failing) with its findings fixed once.
-  Landed: `:app` declares `:core:ui` and `:feature:auth:domain` rather than reaching them through
-  `:core:di`. A feature's `di` module keeps `api` for its `presentation` only — the destinations are
-  the surface `:app` builds the nav graph from — and uses `implementation` for `domain` and `data`.
-  `convention.feature.di` makes Koin `api`, since the `XModule.module` a `di` module exists to
-  publish is a Koin `Module`.
-  What was **not** taken from the report, deliberately: it advises moving every
-  `:feature:*:presentation` into `:app`'s own dependencies and dropping `api` from `:core:di`. That
-  is a truer graph but a sixth registration point per feature, for no build-avoidance — `:app`
-  would depend on those modules either way. `:core:di` is the aggregation point on purpose. It also
-  advises replacing the bundle-and-BOM declarations with one line per transitively-used artifact in
-  every module, which would undo the version catalog's bundles. `CLAUDE.md` records both categories
-  as expected output so the next reader does not "fix" them.
-  The plugin has to be applied to the subprojects explicitly (root-only application produced no
-  reports), and warns that 9.4.0 is past the AGP range it is tested against.
-
-- [x] **1.6 Re-test detekt 2.x and ktlint on JDK 25** (S) · 2026-09-08
-  Why: Plan 1's I3. The earlier failure was version-specific (Robolectric 4.16 works where 4.14
-  did not). If the current release reads JDK 25 bytecode, we get formatting and a few rules for
-  free.
-  Done: outcome recorded in `CLAUDE.md` and the root `build.gradle.kts` comment. If it works, a
-  small rule set plus `detekt` in CI. If not, ktlint CLI as its own CI step on its own JDK.
-  Landed: **detekt still fails, ktlint works as a Gradle plugin** — better than the fallback, so no
-  separate CI step and no second JDK. detekt 1.23.8 (the current release; 2.x is `2.0.0-alpha`)
-  refuses `--jvm-target 25`, and pinning that to 17 only moves the failure to its embedded
-  compiler choking on the JDK's version string. ktlint-gradle 14.2.0 runs on the JDK 25 daemon.
-  The rule set is `.editorconfig` — no second config file — on `intellij_idea` style rather than
-  `ktlint_official`, with four rules disabled: `class-signature`, `function-signature` and
-  `parameter-list-spacing` all read a multi-line parameter list as if it were on one line (572
-  violations became 20 once they were off), and `function-naming` cannot know a `@Composable` is
-  PascalCase or that a test name is a backtick-quoted sentence. The remaining 20 —
-  `statement-wrapping`, `import-ordering`, one unused import — were fixed by `ktlintFormat`.
-  `ktlintCheck` is a CI step ahead of the build, and part of the gate. Applying the two new
-  plugins with `subprojects { }` made Gradle materialise a build directory for `:feature` and the
-  other path-only projects, which `doctor.py` then read as a feature named `build`; the block now
-  skips a project with no build file, and `feature_names()` ignores `build` either way.
-
-- [x] **1.7 Shared test fixtures instead of copies** (S) · 2026-09-08
-  Why: `FakeLogger` exists three times (`service/core/data` tests, `service/core/ui` fixtures,
-  inline in `BaseViewModelTest`). `FakeAuthService` exists twice (`RecordingAuthService` in
-  settings tests). The code promises "plan item F6" that Plan 1 never listed.
-  Done: `FakeLogger` in `testFixtures` of `:service:core:domain` (where `Logger` lives);
-  `:service:core:ui` fixtures keep `MainDispatcherRule`; `FakeAuthService` in `testFixtures` of
-  `:feature:auth:domain`, used by auth and settings tests; the copies deleted.
-  Landed: `:service:core:ui` takes the domain fixtures with `testFixturesApi`, so a screen test
-  still needs the one `testFixtures(projects.service.core.ui)` line the convention plugin adds and
-  no module gained a second. The merged `FakeAuthService` is the union of the two it replaces — the
-  auth copy's `failWith` and `loggedInEmails`, the settings copy's settable `session` and
-  `logoutCount`. Both `domain` modules apply `java-test-fixtures`; on a Kotlin/JVM module that is
-  the plugin rather than AGP's `testFixtures { enable = true }`.
-  The stale "plan item F6" promise in the auth fixture's KDoc is gone with it.
-
-- [x] **1.8 Merge `gateway` into `data`** (M) · 2026-09-08
-  Why: a feature is five modules, and the rule "interface in `gateway`, implementation in `data`"
-  is the one the docs admit is most often got backwards. The contract other modules depend on is
-  the repository interface in `domain`; the data-source interface is internal to the data layer.
-  Done: `feature/{auth,catalog,template}/gateway` folded into their `data` modules, with
-  `DefaultXRepository` and the `XDataSource` interface in package `...data.repository` /
-  `...data.source` and `DefaultXDataSource` in `...data.source`; `ModuleSuffix.Gateway` removed
-  from `settings.gradle.kts`; `doctor.py` layer table is `domain` / `data` / `presentation` /
-  `di`, plus a new check that a `Default*Repository` never imports a `Default*DataSource`;
-  `_common.py:ALL_LAYERS`, `create_feature.py`, `create_datasource.py`, `delete_feature.py`,
-  `test_scripts.py`, `CLAUDE.md`, `README.md`, `scripts/README.md` and the `new-datasource` slash
-  command all say four layers; gate green.
-  Landed: the new check is check 18, "no repository imports a data source implementation" — it
-  reads the imports of any `*Repository.kt` under `feature/*/data`, so it also covers a repository
-  written by hand rather than generated. `export_service.py`'s `SERVICE_LAYER_ORDER` and
-  `_common.py:FEATURE_TREE_COLUMN` (57 to 50, the tree entries being shorter) went with it. The
-  repo is 24 Gradle modules and 35 source sets, down from 27 and 38.
-
-## Phase 2 · App shell and session
-
-Goal: the template demonstrates what every real app needs in week one: a proper splash, a session
-switch without hacks, bottom navigation, transitions, permissions, all on Navigation 3.
-
-Order: **2.8 first** (or together with 2.1 and 2.2, since both touch the navigation host). 2.3
-and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and migrate them later.
-2.5, 2.6 and 2.7 are independent.
-
-- [x] **2.1 SplashScreen API replaces the `launch` feature and the 2 s hold** (M) · 2026-09-08 · D2 decided: yes
-  Why: `LaunchScreen` is a spinner, `MainViewModel` delays two seconds so it is visible, and
-  `MainActivity` composes an invisible `Screen()` over the nav host just to receive the graph
-  switch. `androidx.core.splashscreen` with `setKeepOnScreenCondition { session is Unknown }`
-  does the same job with no delay and no extra feature.
-  Done: `feature/launch` deleted via `delete_feature.py`; the navigation host is composed only
-  once the session is known, starting in the matching flow (auth or main); a later session change
-  replaces the whole back stack; `Screen.isTransparent` removed; `themes.xml` uses
-  `Theme.SplashScreen`.
-  Landed. `androidx.core:core-splashscreen` **1.2.0**, the current stable. The manifest names
-  `Theme.AndroidProject1.Starting` on the activity and `postSplashScreenTheme` points back at the
-  real theme, so the launcher window is the splash and `installSplashScreen()` swaps it.
-  One difference from the Done line, and it is the reason this item was worth running on a device:
-  - **The back stack is remembered on the first frame and starts empty**, rather than the whole
-    host being composed only once the session is known. `rememberNavBackStack` is a
-    `rememberSaveable`; composing it behind the session dropped the saved back stack on every
-    process death — see the new gotcha above. So it is always remembered, the session fills it,
-    and `AppNavHost` is composed once it is non-empty. Same "nothing before the flow is known"
-    behaviour, without the loss.
-  Verified on an emulator (API 37): cold start signed in lands on Home with no spinner and no hold;
-  cold start signed out lands on Sign in; Log out replaces the whole stack with Sign in; back walks
-  Croissant → Bakery → Categories → Home; and killing the process four screens deep and relaunching
-  comes back on the product detail. This last one **fails** on the version of this item that
-  composed the host conditionally, and passes on the one that shipped — the regression was found
-  and fixed here, not shipped. Predictive back's animation was not exercised.
-
-- [x] **2.2 `MainViewModel` is a plain `ViewModel` with a `SessionState`** (S) · 2026-09-08 · D2 decided: yes
-  Why: it is not a screen. Today it subclasses `BaseViewModel` with a state nothing renders and a
-  `sessionKnown` flag to work around that.
-  Done: `sealed interface SessionState { Unknown; SignedIn; SignedOut }` exposed as `StateFlow`;
-  a read failure after retries maps to `SignedOut` and a WARN log instead of a modal over nothing;
-  `MainNavigation`, `MainEvent`, `MainState` deleted; `KoinGraphTest` green.
-  Landed. Done ahead of 2.1 because the splash's keep-on-screen condition is this item's
-  `SessionState.Unknown`. Two things beyond the Done line, both needed for it to be true:
-  - **`MainActivity` applies the session by asserting an invariant**, not by remembering whether it
-    has already navigated: the flow the user is in *is* the first key on the back stack, so a
-    `LaunchedEffect` replaces the stack when the session's root key and `backStack.first()` disagree
-    and does nothing when they match. The old `sessionKnown` flag had no equivalent, and the
-    obvious replacement — switch on the first non-`Unknown` value — would discard a back stack
-    restored after process death. Still true of the launch screen this commit keeps; 2.1 removes it.
-  - **`MainViewModelTest`, and the `testFixtures(...)` lines in `app/build.gradle.kts` it needs.**
-    `convention.android.application` is not `convention.feature.presentation`, so `:app` had no
-    `MainDispatcherRule`. `FakeAuthService` grew a `sessionError` property — kept apart from
-    `failWith`, so a test of a failing sign-in still reads a session — since nothing could make the
-    session flow fail before.
-
-- [x] **2.3 Bottom navigation with nested graphs** (M) · 2026-09-08
-  Why: Plan 1's D1. The first thing a real project adds and the one thing the template does not
-  show. `NavigationSuiteScaffold` gives a rail on tablets for free.
-  Done: Home, Catalog and Settings as top-level destinations on Navigation 3 (after 2.8); each tab
-  keeps its own back stack and survives process death; `create_feature.py --graph <tab>` registers
-  the entry under that tab; `doctor.py` still finds every destination; the `homeDestination`
-  lambdas for settings and catalog are removed.
-  Landed. `material3-adaptive-navigation-suite`, versioned by the Compose BOM already applied.
-  **How the per-tab back stacks work, because it is the decision worth knowing:** the tabs do not
-  each own a list. The back stack *is* their concatenation, in the order the tabs were last visited,
-  and a tab's key is the only thing that starts a segment — so `currentTab` is the last tab key on
-  the stack and `selectTab` moves that tab's segment to the end. Push and pop are untouched, backing
-  out of a tab root lands on the tab underneath it, and process-death survival is free: it is the one
-  list `rememberNavBackStack` already saves, so there is no `Saver` for a map of lists to write or to
-  get wrong. The alternative — a `TopLevelBackStack` holding a map, as the Nav3 recipes do — needs
-  that `Saver` and buys nothing here.
-  Two consequences beyond the Done line:
-  - **Settings lost its up arrow**, with `SettingsEvent.NavigateUpClicked` and
-    `SettingsNavigation.NavigateUp`. A tab root has nothing to go up to.
-  - **`--graph` gained the three tabs** (`home`, `catalog`, `settings`) beside `main` and `auth`, and
-    `mainEntries()` became three per-tab blocks. `main` still means the signed-in flow as a whole and
-    is still the default, so nothing generated before changes shape.
-  Also: the sample app now has **no cross-feature navigation lambda left** — the three jumps it had
-  are tabs — so `CLAUDE.md`'s recipe for one no longer points at `homeDestination`. `HomeScreen` is
-  the greeting alone, and `HomeEvent` / `HomeNavigation` are empty interfaces.
-  Verified on an emulator (API 37): the bar shows only in the signed-in flow; a tab switch keeps the
-  screens left on the other tab (Catalog three deep, away to Settings, back to Catalog, still on the
-  product detail); process death four screens deep restores both the stack and the tab; backing out
-  of the Catalog root lands on Settings, the tab visited before it; logging out replaces everything
-  with the bar-less sign-in screen.
-
-- [x] **2.4 Shared enter/exit transitions** (S) · 2026-09-08
-  Why: Plan 1's D4. Default cross-fade looks unfinished; one shared spec on the host is cheap.
-  Done: one shared `transitionSpec` / `popTransitionSpec` on the `NavDisplay` (after 2.8); tab
-  switches fade, pushes slide; predictive back animates.
-  Landed. `slideIntoContainer` / `slideOutOfContainer` rather than raw offsets, so the direction
-  follows the layout direction and RTL is right for free.
-  **Tab switches fade through entry metadata, not through the host's spec**, and that is the part
-  worth remembering. `NavDisplay` resolves `NavEntry.metadata` against the screen *arriving* on a
-  push and the one *leaving* on a pop — exactly the rule this needs, and one the host's spec cannot
-  express, because from inside it a pop to `CategoriesDestination` and a switch to the Catalog tab
-  look identical. So a tab root carries fade specs and everything else slides. `AppNavHost` attaches
-  them by wrapping the entry the provider returns, so no feature knows it is a tab.
-  `NavEntry.key` is private and `defaultContentKey` is internal, so a spec cannot recover the
-  `NavKey` behind a `Scene` — the wrap has the key and the metadata route does not need it.
-  Predictive back is left at the library's default (fade plus scale-out): it is the platform's own
-  gesture and should look like it does everywhere else.
-  Verified on an emulator (API 37) with `animator_duration_scale 10` to catch mid-transition frames:
-  a push through the catalog shows the outgoing screen offset horizontally, and a tab switch shows
-  Home cross-fading in over the product detail with no offset at all. The predictive-back gesture
-  itself was not exercised.
-
-- [x] **2.5 Permissions, redesigned** (L) · 2026-09-08
-  Why: Plan 1's E1 to E5, and the part of the original brief with nothing built yet. The
-  original's `PermissionBox` named the implementation not the job, left an `if (!granted) return`
-  footgun to the caller, and pulled Accompanist into `service/`.
-  Done: package `service/core/ui/.../permission/` with `PermissionStatus` (`Granted`,
-  `Granted.Partial`, `Denied(canAskAgain)`, `NotRequested`), `rememberPermissionRequest(vararg)`
-  on `rememberLauncherForActivityResult`, `PermissionGate(permission, rationale) { content }`
-  composing content only when granted, `PermissionRationale` as a data class with an optional
-  slot. The "open app settings" intent extracted from `Screen()` and reused, not copied.
-  `POST_NOTIFICATIONS` in the manifest with a channel created on first launch and requested at a
-  sensible moment. A Permissions screen in `feature/settings` (full seven-file unit) listing what
-  the manifest declares, read from `PackageManager`, with status chips. Verified on device in
-  all three states: grant, deny once, deny permanently.
-  Landed. Three differences, all deliberate:
-  - **`PartiallyGranted`, not `Granted.Partial`.** As a subtype, `status is Granted` would be true
-    for a partial grant — which is the same class of footgun the item exists to remove. A caller
-    happy with a subset now has to name the case.
-  - **The optional slot is on `PermissionGate`, not on `PermissionRationale`.** A data class holding
-    a composable lambda is neither comparable nor stable; the rationale stays plain data (so a
-    ViewModel could build one) and `PermissionGate(denied = …)` is where a composable belongs.
-  - **The Permissions screen reads the platform in composition and hands it to the ViewModel as an
-    event** (`PermissionsRead`). Permission state lives outside the app and changes while it is
-    backgrounded, so there is nothing a ViewModel could observe — only something the UI can re-read
-    on resume. That is also why item **7.13** stays parked: it is the alternative, not a gap.
-  `rememberDeclaredPermissions()` reads the *merged* manifest, which is worth more than a hand-written
-  list — the emulator shows a `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` that no source file here
-  mentions. `PackageInfoFlags.of` is API 33 and `minSdk` is 29, so `declaredPermissions()` carries
-  both spellings until that floor moves.
-  `PermissionGate` and `PermissionRationale` ship unused: nothing in the sample app has content worth
-  gating. They are API for the app built on this, like `UiText.Plural`.
-  Verified on an emulator (API 37), four passes, with `dumpsys package` read after each to confirm
-  the platform agreed: **grant** → chip flips to Granted and the prompt disappears; **deny once**
-  (`USER_SET`) → "Allow" is still offered; **deny again** (`USER_FIXED`) → "Allow" is gone and only
-  "Open system settings" remains; and **granted from outside while backgrounded** → the chip is
-  right again on resume, which is the `LifecycleResumeEffect` doing its job.
-
-- [x] **2.6 Snackbar action is a `SystemEvent`, not a lambda in a command** (S) · 2026-09-08
-  Why: `UiCommand.ShowSnackbar.onAction` is a function inside a data class, the one command that is
-  not plain data. Alerts already solve this with `AlertResult(id)`.
-  Done: `ShowSnackbar(id, message, actionLabel, …)` and `SystemEvent.SnackbarAction(id)` handled
-  in `onSystemEvent`; `Screen()` routes it; one test.
-  Landed as written. `showSnackbar` takes `id` last with a `SNACKBAR_ID_DEFAULT`, so the common
-  call — a snackbar with no action — is unchanged. `BaseViewModel.onSystemEvent` ignores the event
-  by default: only the screen that raised the snackbar knows what its action means. Two tests, not
-  one: the second is that an id nobody handles is ignored rather than mistaken for an alert result.
-  Nothing in the app raises an actionable snackbar yet, so this is API only.
-
-- [x] **2.7 `UiText.Plural`** (S) · 2026-09-08
-  Why: quantity strings are a week-one need and `UiText` cannot express them today.
-  Done: `UiText.Plural(id, quantity, args)` resolving through `getQuantityString`; a `toUiText`
-  overload; one test with a `Resources` fake or Robolectric.
-  Landed with one difference, and it matters: **the builder is `toPluralUiText`, not another
-  `toUiText` overload.** As an overload, `R.string.x.toUiText(count)` would bind to the plural one —
-  a non-vararg parameter beats a vararg — and a string resource would be read as a plural at
-  runtime, silently, in code that compiled yesterday. The name is longer and the trap is gone.
-  Tests use a mockk `Resources` rather than Robolectric, so `:service:core:ui` stays free of it
-  (see the Robolectric gotcha above). Three of them, including that the quantity is not also a
-  format argument — `getQuantityString` requires it twice and that surprises everyone once.
-
-- [x] **2.8 Migrate to Navigation 3** (L) · 2026-09-08
-  Why: `Screen(onNavigation)` plus typed `@Serializable` routes already look like a Navigation 3
-  back stack of keys. Navigation 3 also removes the `SavedStateHandle` + `toRoute()` detour: the
-  route key is handed to the screen and its ViewModel directly, so argument-carrying screens lose
-  the Robolectric requirement and every ViewModel test is a plain JVM test.
-  First step: check the current stable `androidx.navigation3` version and its Koin integration
-  before writing code; this plan was written without that knowledge.
-  Done: `AppNavHost` is a `NavDisplay` over `rememberNavBackStack(...)` with the saved-state and
-  ViewModel-store entry decorators; each `XDestination.kt` keeps its `@Serializable` route (now a
-  `NavKey`) and exposes an `EntryProviderBuilder` extension instead of a `NavGraphBuilder` one;
-  `Screen(onNavigation)` lambdas call the back stack instead of a `navController`; the
-  `TemplateArgs*` set passes the key into the ViewModel through Koin `parametersOf`, `navArgs<T>()`
-  is deleted from `BaseViewModel` and the two Robolectric tests become JVM tests;
-  `create_feature.py`, `create_screen.py`, `delete_feature.py` and the `doctor.py` destination
-  check target the new registration shape; `UiCommand.NavigateBack` still works through the
-  back-pressed dispatcher; process death restores the back stack; `CLAUDE.md` and
-  `scripts/README.md` updated; gate green.
-  Landed. The versions the item asked to check first: **navigation3 1.1.7** (stable; 1.2.0 is beta)
-  and **lifecycle-viewmodel-navigation3 2.11.0**, matching the lifecycle version already here.
-  Koin's own `koin-compose-navigation3` was **not** used: it registers destinations in the Koin
-  graph, which would move the one place that knows about more than one feature out of `AppNavHost`.
-  Plain `koinViewModel()` resolves against the entry's ViewModelStore, and `parametersOf(key)`
-  passes the route key.
-  Differences from the Done line:
-  - **`AuthNavGraph` and `MainNavGraph` are deleted, not converted.** Navigation 3 has no nested
-    graphs. `AppNavHost` groups the entries into `authEntries()` and `mainEntries()`, which is what
-    `--graph` now writes into, and `MainActivity` switches flows by replacing the back stack.
-  - **A sixth registration appeared**, and could not be avoided: see the `KoinGraphTest` gotcha
-    above. `doctor.py` check 20 covers it.
-  - **Robolectric came back out of `convention.feature.presentation`**, reversing part of 1.1's
-    Landed note — the reason it was there was the `Bundle` decoding this item removes.
-  - Navigation 2 is gone from the catalog with it: `navigation-compose`, `navigationCompose` and
-    `koin-androidx-compose-navigation` (and so from the `koin-android` bundle).
-  Not verified on a device: process-death restoration and predictive back are asserted by
-  `rememberNavBackStack`'s contract, not by a test here. Worth a manual pass with 2.1.
-  Since done: 2.1's device pass confirms process-death restoration four screens deep. Predictive
-  back is still unexercised.
-
-## Phase 3 · Design system and accessibility
-
-Goal: the theme is something a project keeps rather than replaces on day one, and the sample
-screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 before 3.4.
-
-- [x] **3.1 A real colour scheme** (M) (2026-09-08)
-  Why: Plan 1's G2. `Color.kt` is the wizard's purple with three roles; `dynamicColor = true`
-  means the app never looks like itself.
-  Done: full M3 role set (primary/secondary/tertiary, surface, error, outline) in light and dark
-  from one seed, neutral by design; `AppTheme(dynamicColor = false)` default; every
-  `@ScreenPreview` checked in dark. Standard Material 3, not Expressive (D10).
-  **Landed:** not generated from a seed. The palette is imported from the KSD design system
-  (`claude.ai/design`, project `KotlinProject1`), whose foundations document already defines five
-  perceptually levelled ramps and a semantic role table with exact light/dark values. `Ramp.kt`
-  holds the ramps as layer 1 and is `internal`, so no screen can name a ramp step; `AppColors` in
-  `Color.kt` is layer 2 and the only layer that differs between the themes. `dynamicColor` is gone
-  rather than defaulted off — see D12. M3's scheme is derived from the roles by
-  `toColorScheme()`, so stock Material components fit without a wrapper.
-
-- [x] **3.2 Full type scale** (S) (2026-09-08)
-  Why: `Type.kt` defines `bodyLarge` only; everything else falls back to Material defaults.
-  Done: the M3 scale defined explicitly with `FontFamily.Default`, so a brand font is one edit.
-  **Landed:** nine roles rather than M3's fifteen slots — `displayXl` … `numericMd`, from the same
-  design system — in two densities, `compactTypography()` and `regularTypography()` (the compact
-  scale × 1.15). `toTypography()` maps the nine onto Material's fifteen. `AppFontFamily` is the
-  one edit for a brand face; the system's own face is Source Sans 3, not bundled (item 3.8).
-  Monetary and numeric roles carry `tnum`.
-
-- [x] **3.3 Spacing scale actually used** (S) (2026-09-08)
-  Why: Plan 1's G1-finish. `AppTheme.spacing` exists; 28 `.dp` literals remain in screens.
-  Done: literals migrated; `doctor.py` check 18 flags a bare `.dp` literal in a feature screen
-  (allow-list for `1.dp` dividers and hairlines).
-  **Landed:** the scale is role-based rather than a t-shirt ramp — `inset` / `stack` / `inline`,
-  each xs…xl, which is how the design system names it. `grep '\.dp' feature/` is empty, so the
-  literals are gone; the `doctor.py` check that keeps them gone is item 3.10, which covers the
-  wider rule that a feature composes only from `:core:ui`.
-
-- [x] **3.4 Component set** (M) (2026-09-08)
-  Why: Plan 1's G4. Sample screens hand-roll buttons, text fields and headers.
-  Done: `AppButton`, `AppTextField` (with error state), `AppTopBar`, `AppListItem`, `EmptyState`
-  (wrapping `ContentMessage`), `Skeleton`, each generated with `create_component.py`, each with
-  a `@ComponentPreview`; sample screens use them.
-  **Landed, larger than the Done line:** the whole primitive set, not six components —
-  `AppButton` (six kinds × three sizes, the edge-and-travel press, loading that does not change
-  the width), `AppTextField` (sunken ground, four states, an error that always carries text) and
-  `AppCheckbox` (row-sized target, indeterminate only for a group toggle). All three take their
-  colours as *roles*, never as values, so a re-brand does not touch them.
-  and then, on the same day and at Tomáš's request, the rest of it: **40 components** covering the
-  design system's primitives and the generic half of its components section — form (TextField,
-  SearchField, Select, Checkbox, Radio, Switch, Segmented, Stepper, Slider, FormField), action
-  (Button, IconButton, Fab), status (Tag, StatusDot, Badge, Avatar, Spinner, Progress, Skeleton),
-  content (Text, Card, Divider, ListItem, DescriptionList, SectionHeader, EmptyState, Accordion),
-  overlay (Dialog, ConfirmDialog, Sheet, Menu, Toast, Tooltip) and navigation (Scaffold, TopBar,
-  Tabs, BottomNav, NavRail, Toolbar, BottomActionBar). Every one carries a `@ComponentPreview`
-  showing its states.
-  **All ten screens were migrated onto them**, `feature/template` included, so
-  `grep material3 feature/` and `grep '\.dp' feature/` are both empty. That is the wider rule the
-  original Done line only gestured at, and 3.10 is what keeps it true.
-  The POS-specific half of the source document — keypads, order lines, product tiles, receipts,
-  floor plan, scale, stock, shift — is deliberately absent: it is that product's domain, not a
-  template's.
-  **Contrast, measured on an emulator (2026-09-08):** base `#F7F7F6` / `#1A1A17` as specified;
-  outline border 4.32:1 light and 3.76:1 dark, label 16.27:1 in both. `borderStrong` had to move
-  to `Gray500` on both sides to clear the 3:1 the system requires of an element border — a step of
-  the surface does not.
-  **Known, for 3.6:** Material's own `OutlinedButton` draws its border from `outlineVariant`, which
-  is mapped to the quiet divider hairline (1.57:1) — correct for a divider, too weak for a button.
-  Any sample screen still on a stock `OutlinedButton` under-contrasts until it moves to `AppButton`.
-  `textTertiary` is `Gray500` in both themes, the value the source system gives it: 4.32:1 light
-  and 3.76:1 dark, just under the 4.5:1 body-text threshold. It is used for placeholders and
-  missing values. 3.6 decides whether to keep the source value or raise it.
-
-- [x] **3.5 `AppImage` over Coil 3** (S) (2026-09-08)
-  Why: Plan 1's G5. Features should not import an image library directly.
-  Done: one composable in `core/ui` with placeholder and error states; Coil is `implementation`
-  in `core/ui` only; `doctor.py` flags `coil` imports in features.
-  **Landed with one deviation:** Coil is declared in `configureCompose`, not in
-  `core/ui/build.gradle.kts`. The rulebook's "a module build file is a `plugins` block and its
-  project dependencies, nothing else" outranks the Done line's wording, and that rule is what the
-  export story rests on. Every UI module therefore links it; `implementation` scope and R8 make
-  that free, and check 21 is what actually confines it — it fails on an `import coil3.` anywhere
-  under `feature/`, which is the property the item wanted.
-  Loading draws an `AppSkeleton` in the image's own shape rather than a spinner, so nothing moves
-  when the bytes land; a failure draws a mark rather than collapsing, because an empty box reads
-  as a broken design and a mark reads as a missing picture.
-
-- [x] **3.6 Accessibility pass** (M) (2026-09-08)
-  Why: Plan 1's G7. Lint's `ContentDescription` and `ClickableViewAccessibility` are warnings.
-  Done: every icon has a description or is marked decorative; 48 dp touch targets; a `testTag`
-  convention documented and used by 4.3; a font-scale 1.5 variant in `@ScreenPreview`; the two
-  lint rules raised to `error`.
-  **Landed:** the minimum target is owned by the components, not by the screens, so a screen
-  cannot get it wrong — `AppNavRail`'s destinations and `AppToast`'s action were the two that
-  measured short. `AppButton`'s 40 dp size stays below the floor on purpose: the design system
-  calls it mouse-only, and the range starts at 52 on touch. Three hardcoded English
-  `contentDescription`s moved into `:core:ui`'s own `strings.xml`, where a component's label
-  belongs. Both preview annotations gained a `fontScale = 1.5f` variant.
-  **Test identifiers came with it**, because the design system makes them the same string as the
-  accessibility label: `AppScaffold(screenId = "HomeScreen")` publishes tags as resource ids —
-  verified on the emulator, `uiautomator` reports `resource-id="HomeScreen"` — and CLAUDE.md
-  documents the `<screenStem>_<element>` convention for what is inside. 4.3 has what it needs.
-  **The contrast question from 3.1 is closed:** `textTertiary` is 4.3:1 light and 3.8:1 dark, so
-  it is now scoped to a mark that carries no information of its own — the missing-value dash.
-  Field placeholders were on it and moved to `textSecondary` (7.0:1 / 6.2:1).
-
-- [x] **3.9 A component gallery, in the app** (M) (2026-09-08)
-  Why: 40 components with previews are only as good as the ability to look at them, and Android
-  Studio's preview pane is not where you check that the theme actually loaded. Asked for by Tomáš
-  while 3.4 was landing.
-  Done: Settings → Components lists every component in `:core:ui`, grouped as the design system
-  groups them; a detail screen shows each component's states, labelled. Demos live in
-  `:feature:gallery:presentation` — the gallery is a feature, and a feature composes components,
-  so `:core:ui` ships no sample code.
-  **Landed:** also fixed a real `create_feature.py` bug this feature hit first — the di module is
-  one file naming both template ViewModels, so every generated feature registered one that
-  `is_copyable` had skipped, and did not compile. `strip_args_registration` plus a regression test
-  in `test_scripts.py` (now 38).
-
-- [x] **3.10 `doctor.py` keeps features honest** (S) (2026-09-08)
-  Why: 3.3 and 3.4 emptied `grep material3 feature/` and `grep '\.dp' feature/`, and nothing stops
-  the next screen from putting them back. The rule the design system rests on is that a feature
-  composes only from `:core:ui`.
-  Done: a check that fails on `androidx.compose.material3.*` or a bare `.dp` / `.sp` literal in a
-  `feature/*/presentation` source file, with the narrow allow-list the rule needs (a component's
-  own intrinsic hairline). A second check that every file in `core/ui/component/` carries a
-  `@ComponentPreview`. `--list` documents both; `test_scripts.py` covers them.
-  **Landed:** checks 21 and 22. The first flags a `material3` import, a bare `.dp`/`.sp` literal,
-  a `Color(0x…)` and a `MaterialTheme.colorScheme` read anywhere under `feature/*/presentation`;
-  `ExperimentalMaterial3Api` is allow-listed, because it is an opt-in marker rather than a widget.
-  Two tests assert each one actually fails, since a check that never fires is worth nothing.
-  It caught two real things on its first run: the gallery's skeleton demo used a `48.dp` literal
-  where it should have asked for `density.listRowHeight`, and **`create_component.py` was still
-  generating Material** — a component scaffolded into a feature failed the rule it was born under.
-  Its template now builds from `AppText`, and omits the import when the component lands in
-  `:core:ui`, which is already that package.
-
-- [ ] **3.8 Bundle the brand face** (S) — *blocked on a decision, see D13*
-  Why: 3.2 defines the scale against `FontFamily.Default`. The design system's own face is Source
-  Sans 3, chosen for a high x-height and a `1` distinguishable from `l` on a tilted tablet.
-  Done: the four weights the scale asks for (400/600/700/800) in `core/ui/src/main/res/font/`,
-  `AppFontFamily` pointing at them, APK size delta recorded here. Downloadable fonts considered
-  and rejected or taken, with the reason.
-
-- [x] **3.7 `@Immutable` on every `XState`** (S) (2026-09-08)
-  Why: Plan 1's C5. States hold `List<Product>`. Strong skipping covers most of it since Kotlin
-  2.0.20, but the annotation documents intent and lets the compiler skip more.
-  Done: template and `create_component.py --state` emit `@Immutable`; `doctor.py` check 19 flags
-  an `XState` without it. `kotlinx-collections-immutable` only if 4.1's screenshots or a profiler
-  show a need.
-  **Landed:** check 23, not 19 — the numbering moved when 3.10 added two. Ten states annotated,
-  `feature/template`'s two among them, which is what makes every generated screen compliant from
-  birth; a test asserts that rather than trusting it. `SessionState` in `:app` got it too, since
-  it is read in composition like any other. `kotlinx-collections-immutable` was not needed and
-  stays out.
-
-## Phase 4 · Testing and quality
-
-Goal: regressions are caught by things that already exist (previews, generators), not by
-new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
-
-- [ ] **4.1 Compose Preview Screenshot Testing** (M) — *parked; the plugin does not work on this toolchain*
-  Why: Plan 1's H3 and D9. Ten screens already carry `@ScreenPreview`; goldens are nearly free.
-  Done: plugin applied to presentation modules through the convention plugin;
-  `./gradlew updateDebugScreenshotTest` records, `validateDebugScreenshotTest` runs in CI;
-  deliberately break one padding value and confirm it fails; goldens committed.
-  **Attempted and backed out, 2026-09-08.** Wired end to end and it records nothing;
-  `updateDebugScreenshotTest` succeeds and produces **zero goldens**. Four obstacles found and
-  cleared so far, each of which fails with a message that does not say what is wrong:
-  1. `0.0.1-alpha10` refuses AGP 9 outright ("requires between 8.5.0-beta01 and 8.12").
-     **alpha16 accepts it** — that is the version to be on.
-  2. The flag must be set *before* the plugin applies, so `extension.experimentalProperties[…]`
-     comes above `pluginManager.apply` in `configureCompose`. Setting it in `gradle.properties`
-     alone is not enough.
-  3. Gradle 9 fails a `Test` task that discovers nothing, which masked the real problem behind a
-     misconfiguration error. `failOnNoDiscoveredTests` is off for these tasks now.
-  4. **Kotlin sources in `src/screenshotTest/kotlin` are not compiled** — the Kotlin plugin does
-     not register that convention for AGP's screenshotTest source set. They must live in
-     `src/screenshotTest/java`. Nothing warns; the classes simply are not there.
-  5. The engine is a JUnit Platform engine, so the task needs `useJUnitPlatform()`; the rest of
-     the repo is JUnit 4.
-  6. `debugScreenshotTestRuntimeClasspath` has **no engine on it at all** on AGP 9 — the plugin
-     injects `com.android.tools.screenshot:screenshot-validation-junit-engine` itself on 8.x.
-     Adding it as `screenshotTestRuntimeOnly` is the current attempt; it still records nothing.
-  7. The renderer is `layoutlib-16.1.0-**jdk17**` and the daemon is JDK 25, so the task was also
-     pinned to a 17 toolchain. It provisions and runs — and still discovers nothing.
-  With the engine on `debugScreenshotTestRuntimeClasspath`, the sources compiled, the platform
-  selected and a JDK 17 launcher, the engine reports no tests and writes no images. **This is the
-  detekt situation**, so the wiring was backed out rather than left in the template: build
-  machinery that silently does nothing costs more than an open item does. The commits are in the
-  history if it is worth resuming.
-  Revisit when the plugin is past `0.0.1-alpha`. Two things to know when picking it up: previews
-  must be **duplicated** into `screenshotTest` — the plugin does not see `main`'s
-  `@ComponentPreview`, so group components into sheets rather than mirroring all 41 — and the
-  sources must be under `src/screenshotTest/java`, because nothing compiles `.../kotlin` and
-  nothing warns.
-  Its value has gone up, not down: 41 components with previews and three states per screen from
-  4.2 is a lot of coverage sitting unused.
-
-- [x] **4.2 Preview variants in the template** (S) (2026-09-08)
-  Why: Plan 1's C7. One preview per screen shows one state.
-  Done: a `PreviewParameterProvider` for loaded / empty / long-text in `feature/template`, cloned by
-  the generators, so every new screen ships three goldens.
-  **Landed:** `TemplateStatePreviews` and `TemplateArgsStatePreviews`, both cloned and renamed by
-  the generators — verified by generating a feature and reading the output. The template's state
-  gained a `title: String` so "empty" and "long text" have something to be; `counter` stays as the
-  second placeholder field. Three states × the four `@ScreenPreview` variants is twelve renders
-  per screen, which is what 4.1 will record.
-
-- [x] **4.3 One Compose UI test as the pattern** (S) (2026-09-08)
-  Why: Plan 1's H4. Nothing shows how to test a screen's behaviour end to end.
-  Done: `LoginScreenTest` under Robolectric using `ui-test-junit4` and the `testTag`s from 3.6,
-  running as a unit test so CI needs no emulator; documented in `CLAUDE.md`.
-  **Landed:** six tests — what renders, that submit is disabled until the form can be submitted,
-  that typing and pressing report events, and that a disabled button reports nothing. Verified by
-  breaking the screen on purpose (`enabled = state.canSubmit` → `enabled = true`): exactly two
-  tests fail, and the right two. The dependencies are in `convention.feature.presentation`, so a
-  new screen's test needs no build-file edit — this is the Robolectric that 2.8 removed, back for
-  the reason 2.8 said it would be.
-  Two things the pattern has to state, both commented in the file and in `CLAUDE.md`:
-  `@Config(sdk = …)` is pinned because Robolectric has no image for this `targetSdk`; and a
-  compound component is tagged on its *group*, since a caller's modifier goes to the outermost
-  element — so a test that types reaches the input with
-  `hasSetTextAction() and hasAnyAncestor(hasTestTag(…))`. Trying to solve that inside
-  `AppTextField` with `mergeDescendants` does not work: merging does not carry focus actions up.
-
-- [x] **4.4 Coverage report** (S) (2026-09-08)
-  Why: not a gate, a signal. Cheap to add and it shows which module the tests avoid.
-  Done: Kover aggregated report uploaded as a CI artifact; no threshold.
-  **Landed:** Kover 0.9.9 applied by the three convention plugins, aggregated in the root build
-  from the project tree rather than a hand-written list, so a new module is covered the day it is
-  created. Previews and generated classes are filtered out — they say nothing about where the
-  tests are thin.
-  **First reading: 25.5 % instructions, 38.0 % lines**, and the shape is the interesting part.
-  At zero: both features' `data` layers (repository *and* source), `core/domain/coroutines`,
-  `core/ui/common`, `core/ui/util`. At 9 %: `core/ui/component` — 41 components with previews and
-  no assertions, which is what 4.1 would have covered and does not. That is the honest picture:
-  the ViewModels and the architecture are tested, the data layer and the UI are not.
-
-- [-] **4.5 Generator output compiles** (M)
-  Why: `test_scripts.py` checks text, not compilation, and the docs admit it. A template change
-  that breaks generated code is found by the next user, not by CI.
-  Done: an opt-in test (`--with-gradle`) that runs `create_feature.py` in the temp copy and then
-  `./gradlew :feature:x:presentation:compileDebugKotlin`; run in CI only.
-  Moved to the backlog 2026-09-08 as 7.15: Python tooling is not where the effort goes (see the
-  note under Scope below).
-
-## Phase 5 · Shipping baseline
-
-Goal: a project started from this template can ship without adding infrastructure first.
-
-- [x] **5.1 Flavors dev / staging / prod** (S) (2026-09-08)
-  Why: Plan 1's B3. Base URL and app-id suffix per environment.
-  Done: three flavors, `BuildConfig.BASE_URL`, distinct launcher label per flavor.
-  **Landed:** defined once as `ProjectConfig.Flavor`, so a fourth environment is one enum entry
-  rather than a block in a build file. Verified on the built APK with `aapt2 dump badging`:
-  `devDebug` is `com.example.androidproject1.dev`, labelled `AndroidProject1 Dev`, with
-  `BASE_URL = https://dev.example.com/`.
-  The launcher label needed somewhere to come from. It is now `appName` in `gradle.properties`,
-  one line that the flavors decorate — the same shape as `basePackage`, and `init_project.py`
-  rewrites it with a test to prove it. The alternative, an `app_name` string per flavor source
-  set, would have put the project's name in four places for the rename to find.
-  **`assembleDebug` and `installDebug` no longer name a variant** — it is `assembleDevDebug` and
-  `installDevDebug` now. CLAUDE.md's command list is updated.
-
-- [x] **5.2 Release signing from `keystore.properties`** (S) (2026-09-08)
-  Why: Plan 1's B4. The file is already gitignored; nothing reads it.
-  Done: `signingConfigs.release` reads it when present, falls back to debug when absent so CI
-  still assembles.
-  **Landed:** with a third path the Done line did not have. A file that is *present but missing a
-  key* is an error naming the keys, not a silent fall back — a release signed with the debug key
-  because someone fat-fingered a property is worse than a build that stops. All three verified
-  with `apksigner --print-certs`: a real keystore signs as `CN=Test`, an incomplete file fails
-  with `keystore.properties is missing: keyAlias, keyPassword`, and no file at all signs as
-  `CN=Android Debug` and still assembles.
-
-- [x] **5.3 `ErrorTracker`** (M) · D8 decided: no vendor SDK in the repo (2026-09-08)
-  Why: Plan 1's J1. Four hook points already exist in `BaseRepository` and `BaseViewModel`. A
-  template should not carry a vendor SDK or its config file.
-  Done: `ErrorTracker` interface in `service/`, a `LoggingErrorTracker` bound by default;
-  `handleError` and the repository's `logger.w` paths report through it; a recipe in `CLAUDE.md`
-  shows the few lines that swap in Crashlytics or Sentry inside `:app`. No vendor dependency.
-  **Landed as a decorator, not a module.** No `:service:errortracker`: the interface sits beside
-  `Logger` in `:service:core:domain`, and `TrackingLogger` in `:service:core:data` wraps whatever
-  `Logger` is bound and forwards anything logged with a `Throwable`. The alternative — an
-  `errorTracker` parameter on `BaseViewModel` and `BaseRepository` — would have put an
-  infrastructure argument in every ViewModel constructor in the app and in every one the
-  generators will ever write, to reach four call sites that already log the throwable.
-  So the four hook points needed no edit at all; `coreModule` gained two bindings. Six tests cover
-  the seam, including the one that matters: a `w` with no throwable is a note to a developer and
-  is *not* reported, or the real ones get buried.
-  **`setUser` is deliberately unwired.** The sample `AuthService` exposes a boolean and no id, and
-  the right value is an opaque id rather than the email the settings screen happens to have.
-  CLAUDE.md says so rather than the code pretending otherwise.
-
-- [x] **5.4 LeakCanary on debug** (S) (2026-09-08)
-  Why: Plan 1's J4.
-  Done: both on `debugImplementation`; Chucker wired once 6.1 gives it a client.
-  **Landed: LeakCanary only, and Chucker moved into 6.1.** Chucker is an OkHttp interceptor and a
-  UI for what that interceptor captures; with no client it captures nothing, so putting it on
-  `debugImplementation` today adds a dependency that does not run. It goes in with the client, in
-  the same change, where it can be wired and seen to work — the same reasoning that took the
-  screenshot plugin back out in 4.1.
-  LeakCanary is 2.14, the stable line rather than the 3.0 alpha, and it installs itself: nothing
-  in `:app` references it. Verified absent from `prodReleaseRuntimeClasspath`.
-
-- [x] **5.5 gitleaks in CI** (S) (2026-09-08)
-  Why: Plan 1's M3.
-  Done: a job on push and pull request; a baseline file if needed.
-  **Landed:** the pinned binary rather than `gitleaks-action`, which requires a paid licence key
-  for organization-owned repositories — not something a template should quietly depend on. It runs
-  beside `conventions`, before the slow build, with `fetch-depth: 0` because it scans history and
-  not the diff: a committed key is the one mistake a later commit cannot undo. No baseline was
-  needed.
-
-- [x] **5.6 Baseline profile and macrobenchmark** (M) (2026-09-08)
-  Why: startup time is a shipping concern and the module is boilerplate a template should carry.
-  Done: `:baselineprofile` module generating the profile for the main flow; a startup benchmark;
-  profile committed to `:app`.
-  **Landed:** `androidx.baselineprofile` **1.5.0-rc02**, not the 1.4.1 stable — 1.4.1 fails to
-  apply on AGP 9 (`Extension of type 'TestExtension' does not exist`), the same shape of problem
-  that parked 4.1, and here the rc fixes it. Profile generated on the emulator and committed:
-  6,164 rules in `app/src/devRelease/generated/baselineProfiles/`, covering `App.onCreate` through
-  `MainActivity.onCreate` to the first frame.
-  `StartupBenchmark` measures cold start with and without the profile, so the profile's value is a
-  number rather than a belief — but **run it on hardware**. An emulator shares a CPU with whatever
-  else is on the machine; the benchmark refuses to run on one unless errors are suppressed, and
-  that refusal is right.
-  The generator waits on `By.res("LoginScreen")` rather than sleeping, which is 3.6's `testTag`
-  convention doing a second job it was not designed for.
-  **Two things `doctor.py` caught, both correctly:** the new module repeated the shared Android
-  configuration, so there is now a `convention.android.test` plugin; and the settings check could
-  not see a plain `include(":baselineprofile")` — it understood only the three helpers and a
-  hardcoded `:app`. It parses plain includes now, so the next such module needs no edit.
-
-- [x] **5.7 Release build in CI** (S) (2026-09-08)
-  Why: R8 is on but only `build` runs; a keep-rule regression shows up at release time.
-  Done: `assembleRelease` and `lintRelease` on tags and on a weekly schedule.
-  **Landed:** `assembleProdRelease` and `lintProdRelease` — flavours mean the plain names no
-  longer exist — on `v*` tags and Mondays, with the APK as an artifact. It writes
-  `keystore.properties` from secrets when they are set and simply does not when they are not,
-  which is 5.2's fallback doing its job: a fork's pull request still builds.
-  One thing worth knowing if this is edited: a step's own `env` is not readable from that step's
-  `if`, so `KEYSTORE_BASE64` is declared at job level.
-
-- [x] **5.8 Session stored encrypted** (M) (2026-09-08)
-  Why: Plan 1's M2. The session is plain text in Preferences DataStore. `security-crypto` is
-  deprecated, so the answer is not that.
-  Done: Keystore-backed AEAD (Tink or a small Keystore wrapper) as a DataStore `Serializer`;
-  `LocalAuthDataSource` unchanged; one Robolectric test for round-trip.
-  **Landed:** a small Keystore wrapper, not Tink — AES-256-GCM in about thirty lines against a key
-  the Keystore will not hand back. `Aead` is an interface in `:service:core:domain`;
-  `EncryptedStringSerializer` is the DataStore `Serializer`; the session moved to its own
-  `EncryptedDataStoreProvider` because encrypting a theme choice costs a cold start and protects
-  nothing. The `LocalAuthDataSource` *interface* is unchanged; its implementation now stores one
-  string where empty means signed out — which is also what an absent file and an undecryptable one
-  look like, so there is no third case for a caller to forget.
-  **Not a Robolectric test, and that is the point.** Robolectric ships no `AndroidKeyStore`
-  provider, so the class was split: `AesGcmAead` holds everything worth getting wrong — IV
-  handling, tamper detection, length checks, key separation — and is covered by six plain JVM
-  tests; `KeystoreAead` is the fifteen lines that fetch the key, and only those are untested.
-  **Koin's `verify()` forced a better binding.** It cannot see a constructor argument supplied
-  inline, so `Aead` is a real definition and the store's file name has a default. The graph is now
-  honest rather than annotated — the opposite of the route-key case, where there is no
-  alternative.
-  **On-device verification is outstanding.** The emulator ANRs on every launch, and the build from
-  before this change ANRs identically on it, so it is the emulator and not this work — but that
-  means the real Keystore path has not been exercised. Worth a pass on hardware.
-
-## Phase 6 · Data layer
-
-Goal: network and offline, held until there is a real API to point them at. Do not build these
-against mock data.
-
-- [ ] **6.1 `:service:network`** (L)
-  Why: Plan 1's F2 and D7. Ktor client, status-to-`DomainError` mapping, auth header,
-  single-flight token refresh.
-  Done: module in `service/` with `api(projects.service.core.domain)` only; a `NetworkError` /
-  `ServerError` / `UnauthorizedError` mapping table with tests; `export_service.py` picks it up
-  automatically.
-  Also brings in **Chucker** on `debugImplementation` and wires it as an interceptor — moved
-  here from 5.4, because without a client it captures nothing.
-
-
-- [ ] **6.2 Room and offline-first** (L)
-  Why: Plan 1's F3 and D7 (Room). The original had `repositoryCall(remote, local, updateLocal)`
-  emitting cache then remote.
-  Done: `BaseRepository.observe(local, remote, updateLocal)`; one feature (catalog) converted;
-  tests for cache hit, cache miss, remote failure with stale cache.
-
-- [-] **6.3 `create_datasource.py --remote`** (S)
-  Why: once 6.1 exists, the generator should produce the network-backed variant, not only
-  DataStore.
-  Done: flag emits a Ktor-backed `DefaultRemoteXDataSource`; tested in `test_scripts.py`.
-  Moved to the backlog 2026-09-08 as 7.16, for the same reason as 4.5.
-
-- [-] **6.4 Navigation 3 spike** (M)
-  Dropped 2026-09-08: D6 was decided without a spike. The migration is item 2.8.
-
-## Phase 7 · Backlog
-
-Parked. Not scheduled, kept so they are not lost. Promote by moving to a phase and renumbering.
-
-- [ ] **7.1 Deep links** (M) · Plan 1's D2.
-- [ ] **7.2 Navigation results (screen returns a value)** (M) · Plan 1's D3.
-- [ ] **7.3 Feature-owned nav graphs** (M) · Plan 1's D5.
-- [ ] **7.4 Analytics with automatic screen tracking from `Screen()`** (M) · Plan 1's J.
-- [ ] **7.5 Logger backend, remote config, debug menu** (M) · Plan 1's J.
-- [ ] **7.6 `doctor.py --fix` for the mechanical checks** (M) · Plan 1's L3.
-- [ ] **7.7 `create_service.py`** (S) · Plan 1's L4.
-- [ ] **7.8 `check_strings.py` (unused and missing strings)** (S) · Plan 1's L5.
-- [ ] **7.9 Localisation pipeline** (M) · Plan 1's L7.
-- [ ] **7.10 `:core:designsystem` split and adaptive layouts** (L) · Plan 1's G3, G6.
-- [ ] **7.11 ADRs and a release process doc** (S) · Plan 1's M4, M5.
-- [ ] **7.12 Licence** (S) · Plan 1's N6/N8. The repo has no LICENSE file since the init commit.
-- [ ] **7.13 ViewModel-readable permission state** (S) · Plan 1's E6. Build when a feature needs it.
-- [ ] **7.15 Generator output compiles** (M) · was 4.5. An opt-in `test_scripts.py --with-gradle`
-  that runs `create_feature.py` in the temp copy and compiles the result.
-- [ ] **7.16 `create_datasource.py --remote`** (S) · was 6.3. Needs 6.1 first either way.
-- [ ] **7.14 Undecoded Plan 1 codes: C8, C9, C10, H7, I6, K3, K4** (?)
-  Why: Plan 1 lists these by code only and the audit they refer to is not in the repo. Nobody can
-  act on them.
-  Done: either the descriptions are recovered and each becomes a real item, or this line is marked
-  `[-]` with "audit not available".
-
-## Verification
-
-Every item ends green on the gate. Phase-specific checks:
-
-- **Phase 0 and 1 (generators, build files):** `python3 scripts/test_scripts.py`, then generate a
-  throwaway feature end to end, build it, `delete_feature.py`, and confirm the tree is byte-identical.
-- **Phase 2 (splash, session, navigation, permissions):** cannot be unit-tested alone.
-  `./gradlew :app:installDebug`, cold start signed out and signed in, log out from settings, and
-  for permissions all three states (grant, deny once, deny permanently). After 2.8: predictive back
-  on every screen, and "Don't keep activities" on with a deep back stack to confirm it restores.
-- **Phase 3 (theme, spacing):** every `@ScreenPreview` in light and dark; after 3.3 the new
-  `doctor.py` check passes on the tree.
-- **Phase 4 (screenshots):** record, then break one padding value and confirm the validate task
-  fails, then restore.
-- **Doctor count:** 17 today (0.1 added the CLAUDE.md tree check). Phases 1 to 3 take it to about
-  20 (no direct `compileSdk`, bare `.dp`, `XState` without `@Immutable`). Update the counts in
-  `CLAUDE.md`, `README.md` and `scripts/README.md` when they change.
+## Track core · the reusable architecture
+
+Owns `service/`, `core/di`, `build-logic/`. Every item here is API the app track then uses;
+nothing here knows a feature.
+
+- [ ] **core.1 `:service:network` — Ktor client** · L · `stable`
+  Why: nothing crosses a network. The reusable half — client, error mapping, auth, refresh — is
+  API-agnostic.
+  Done: module on Ktor **3.5.2** with `api(projects.service.core.domain)` only; `HttpClient` factory
+  (JSON, timeouts, logging on debug) **taking its engine as a parameter**, which is what lets D20's
+  `MockEngine` replace it on `dev`; HTTP status → `DomainError` table; bearer auth behind a
+  `TokenStore` interface with single-flight refresh; Chucker **4.3.1** on `debugImplementation`; `create_datasource.py --remote`
+  emits the Ktor-backed variant (was 7.16); `export_service.py` picks the module up unedited.
+  Verify: `MockEngine` tests for every row of the mapping table and for two parallel 401s causing
+  one refresh; a `test_scripts.py` case for `--remote`; Chucker absent from `prodRelease`.
+
+- [ ] **core.2 Offline-first combinator** · M · `stable`
+  Why: was 6.2's first half. Cache-then-network is the shape every remote-backed screen needs.
+  Done: `BaseRepository.cached(local: Flow<T?>, remote: suspend () -> T, write: suspend (T) -> Unit)`
+  emitting cache, then remote, then the refreshed cache; a remote failure over a stale cache emits
+  the data plus a failure the screen can show inline. Pure JVM — `local` is any flow.
+  Verify: `BaseRepositoryTest` cases for hit, miss, stale-on-failure, and remote-then-local order.
+
+- [ ] **core.3 Lifecycle-aware `observe`** · S · `stable`
+  Why: was C8. `observe {}` collects for the ViewModel's whole life, including backgrounded. Fine
+  for DataStore, wrong for a socket or a location stream.
+  Done: `observe(flow, whileSubscribed = true)` collects the source only while `state` has a
+  subscriber, with a 5 s grace; the KDoc says which variant to reach for.
+  Verify: `BaseViewModelTest` shows the source is cancelled when the last collector leaves and
+  re-collected when one returns.
+
+- [ ] **core.4 Navigation results** · M · `stable`
+  Why: was 7.2. No pattern for "pick something on screen B, return it to A", so it gets reinvented
+  per feature. Navigation 3 has no `previousBackStackEntry` to lean on.
+  Done: `service/core/ui/navigation/` — a result store keyed by the requesting entry, a
+  `rememberNavResult<T>()` for the requester and `setNavResult(value)` for the responder, surviving
+  process death through the saved-state decorator; documented in `CLAUDE.md`'s navigation recipe.
+  The worked example is `feat.2`'s product picker.
+  Verify: a Robolectric test round-trips a value across a push and pop; the pattern needs no
+  `SavedStateHandle` in any ViewModel.
+
+- [ ] **core.5 Form validation** · S · `stable`
+  Why: was C10. `LoginState.canSubmit` and `SignUpState.canSubmit` are hand-rolled booleans that
+  cannot say *why* submit is disabled.
+  Done: `service/core/ui/form/` — `FieldState(value, error: UiText?, touched)`, validators
+  (`required`, `email`, `minLength`), and a `Form` that derives `canSubmit` and the first error;
+  `LoginState` and `SignUpState` migrate to it (edits `feature/auth/presentation`, app track's directory).
+  Verify: JVM tests per validator; `LoginScreenTest` and both auth ViewModel tests unchanged and
+  green; the error text appears under the field in the Login preview.
+
+- [ ] **core.6 Analytics seam** · M · `stable`
+  Why: was 7.4. Screen views are the one event every product wants, and the only place that knows
+  every screen is `AppScaffold(screenId)`.
+  Done: `Analytics` in `:service:core:domain` (`screen(id)`, `event(name, params)`), a logging
+  default bound in `coreModule`, a `LocalAnalytics` in `:service:core:ui`; `AppScaffold` reports
+  `screenId` once per entry (one call added in `core/ui`, ui track's directory); vendor recipe
+  next to the crash-reporting one in `CLAUDE.md`.
+  Verify: a Robolectric test that composing a scaffold twice reports one view; every sample screen
+  passes `screenId` — `doctor.py` gains that check.
+
+## Track ui · design system and adaptive
+
+Owns `core/ui` and `feature/gallery`. `ui.5` also edits `app/AppNavHost.kt` and the catalog
+destinations; no app-track item touches those while it is open.
+
+- [ ] **ui.1 Bundle the brand face** · S · `decision` D13
+  Why: was 3.8. The scale is right and the face is `FontFamily.Default`.
+  Done: Source Sans 3 in weights 400/600/700/800 under `core/ui/src/main/res/font/`;
+  `AppFontFamily` points at them; the APK delta recorded in this line.
+  Verify: every `@ScreenPreview` renders the face offline; `aapt2 dump badging` size before and after.
+
+- [ ] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · needs ui.1
+  Why: was 4.1. 41 components × three variants and ten screens × twelve renders sit unasserted.
+  Done: compatibility check first — Roborazzi **1.74.0** and `ComposablePreviewScanner` **0.9.3**
+  are both current and stable (checked 2026-09-09), so the spike is only the toolchain: AGP 9.4,
+  Gradle 9.6, JDK 25, Robolectric 4.16. Roborazzi
+  applied through `convention.android.library.compose`; `ComposablePreviewScanner` records every
+  `@ComponentPreview` and `@ScreenPreview` without duplicating them; goldens committed;
+  `verifyRoborazziDebug` in the CI build job.
+  Verify: break one padding value on purpose and the verify task fails on that image only; restore.
+
+- [ ] **ui.3 Component behaviour tests** · M · `stable`
+  Why: `core/ui/component` is 1,689 lines at 10 % coverage. Previews show; nothing asserts.
+  Done: `ui-test-junit4` + Robolectric added to `convention.android.library.compose` for
+  `src/test`; tests for the interactive components — `AppButton` (loading keeps width, disabled
+  emits nothing), `AppTextField` (error always carries text), `AppCheckbox` (indeterminate),
+  `AppSelect`, `AppTabs`, `AppStepper`, `AppSheet`, `AppDialog`.
+  Verify: the package leaves 10 % in the Kover report; each test finds by `testTag`, never by text.
+
+- [ ] **ui.4 Window size class drives density** · S · `stable`
+  Why: `AppTheme.density` has a `SizeClass` and nothing sets it; a tablet gets the phone scale.
+  Done: `AppTheme` reads `currentWindowAdaptiveInfo()` and picks compact or regular density and
+  typography from it; previews gain a tablet variant.
+  Verify: the tablet preview shows regular typography and the 56 dp touch target.
+
+- [ ] **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
+  Why: was 7.10's useful half. The source system runs on tablets; the catalog is exactly a
+  list-detail shape.
+  Done: `adaptive-navigation3` **1.3.0**, stable as of 2026-09-09 — the `alpha` tag this item
+  carried is retired, and only its Navigation 3 range still wants checking against the catalog's
+  1.1.7; a `ListDetailSceneStrategy` on the `NavDisplay`; products and product detail carry the metadata;
+  phones unchanged.
+  Verify: emulator tablet profile shows both panes, phone profile one; process death four screens
+  deep restores on both.
+
+## Track app · shell and sample features
+
+Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the app shell;
+`feat.*` is one feature per item, each proving one capability the architecture has and no sample
+uses. Each feature is a worktree of its own — they meet only in the registration files.
+
+- [ ] **shell.1 Deep links** · M · `device`
+  Why: was 7.1. Getting the back stack right on a cold-start deep link is the part people get wrong.
+  Done: a `VIEW` intent filter on `MainActivity` for `<app>://product/{id}`, the scheme named
+  after the app; a
+  `DeepLinks.kt` in `:app` parsing a URI into a `NavKey`; a cold start builds Home → Categories →
+  Products → Detail so Up walks back; a warm start pushes onto the current tab.
+  Verify: `adb shell am start -d <app>://product/croissant` cold and warm, both land on
+  the product with Up working; a `MainViewModelTest` case for the synthesised stack.
+
+- [ ] **shell.2 Debug menu, dev and staging only** · M · `stable` D16
+  Why: was 7.5's useful half. Flavor, base URL, session and "crash now" are what a tester needs,
+  and the gallery has no business in a prod build.
+  Done: `:feature:devmenu` (presentation, di) reached from Settings when a `prod` source set's
+  `DebugMenu.enabled` is false and the others' is true, so R8 strips it; shows build info,
+  `BASE_URL`, session, `ErrorTracker` test crash, LeakCanary and Chucker launchers; Components
+  moves here from Settings.
+  Verify: `prodRelease` mapping file contains no `feature.gallery` or `feature.devmenu` class;
+  a `SettingsScreenTest` case for the entry present and absent.
+
+- [ ] **shell.3 Theme setting** · M · `stable`
+  Why: light / dark / system is the first preference every app grows, and no sample shows a
+  preference read at the root.
+  Done: `:feature:settings` gains `domain` and `data` (`--layers domain,data --force`) with a
+  `ThemePreference` in Preferences DataStore; a segmented control on Settings; `MainActivity`
+  applies it through `AppTheme(darkTheme = …)`.
+  Verify: `SettingsViewModelTest` and a screen test; the choice survives a restart on the emulator.
+
+- [ ] **shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
+  Why: the channel exists and nothing posts to it.
+  Done: the debug menu posts a notification whose `PendingIntent` carries a product deep link.
+  Verify: tapping it from a cold start lands on the product with Up working.
+
+- [ ] **shell.5 Onboarding flow** · M · `stable`
+  Why: a third flow beside auth and main, gated by a stored flag, is the shape of every first-run
+  screen and the one flow switch the template does not show.
+  Done: `:feature:onboarding` full stack with a `seen` flag in DataStore; `MainViewModel` combines
+  it with the session into `Unknown / Onboarding / SignedOut / SignedIn`; the splash holds through
+  `Unknown`; three pages on an `AppPager` added to `:core:ui` with `create_component.py` (one
+  new file in the ui track's directory).
+  Verify: `MainViewModelTest` for all four states; first cold start shows onboarding then Login,
+  the second skips it.
+
+- [ ] **feat.1 Favourites — proves Room** · M · `plugin` D18
+  Why: Room was chosen (D7) and nothing uses it; `SnackbarAction` is API nobody raises.
+  Done: `convention.android.room` in `build-logic/` (Room **2.8.4** + KSP **2.3.11**, versions in
+  the catalog; KSP decoupled from the Kotlin version at 2.3.0 — last coupled release was
+  `2.2.21-2.0.5` — so nothing has to match Kotlin 2.4.20, checked 2026-09-09, and the spike that
+  remains is KSP against AGP 9.4 on the JDK 25 daemon); `:feature:catalog:data` gets a `CatalogDatabase` with products
+  seeded from the in-memory list and a favourites table; a heart on product detail; a Favourites
+  section on Home (Home depends on catalog `domain`, which is allowed); remove with an undo snackbar.
+  Verify: a DAO round-trip test under Robolectric; ViewModel tests; a `ProductDetailScreenTest`
+  tap toggles the heart; favourites survive a restart.
+
+- [ ] **feat.2 Cart — proves cross-feature domain, tab badge, plurals, nav results** · L · `stable` · needs core.4, feat.1
+  Why: `toPluralUiText` and `AlertPayload` are unused API; no feature depends on another's domain.
+  Done: `:feature:cart` full stack on its own Room database; add from product detail; a Cart tab
+  with a count badge (`TopLevelDestination` gains an optional badge flow); quantity on
+  `AppStepper`; "N items" through `toPluralUiText`; remove with undo; checkout → confirm dialog →
+  clear; "Add item" opens the catalog in picker mode and the product comes back through core.4.
+  Verify: ViewModel tests including the plural at 1, 2 and 5; a screen test; the badge updates
+  from another tab.
+
+- [ ] **feat.3 Profile — proves PermissionGate and forms** · M · `device` · needs core.5
+  Why: `PermissionGate` and `PermissionRationale` ship unused; no sample has a form with rules.
+  Done: `:feature:profile` full stack, DataStore-backed; name and e-mail on `FieldState`; avatar
+  from the Photo Picker (no permission) or the camera behind `PermissionGate(CAMERA)`; shown with
+  `AppImage`; reached from Settings.
+  Verify: ViewModel tests for every validator path; a screen test; on the emulator deny the camera
+  twice and the gate shows the settings rationale while the picker still works.
+
+- [ ] **feat.4 Search — proves inline error per content id** · M · `stable`
+  Why: 0.12 made inline retry work per content id and no screen has two content states.
+  Done: a search screen from the Categories top bar; `AppSearchField` with a 300 ms debounce and
+  `flatMapLatest`; results and recent searches as two content ids, each with its own inline
+  error and empty state; recents in DataStore.
+  Verify: ViewModel test with `advanceTimeBy` for the debounce and one for a failure on one id
+  leaving the other; a screen test.
+
+- [ ] **feat.5 Catalog over the network** · M · `stable` D20 · needs core.1, core.2, feat.1
+  Why: was 6.1's second half. The first remote-backed feature.
+  Done: `RemoteCatalogDataSource` on `core.1`, DTOs and mappers in `data`, `DefaultCatalogRepository`
+  on `core.2` writing into `feat.1`'s database; JSON fixtures in `dev`'s source set behind a
+  `MockEngine` that takes a failure toggle, so the stale-cache path can be exercised by hand;
+  `BuildConfig.BASE_URL` names the fixture host, so a screen still never writes a URL.
+  Verify: repository tests on `MockEngine` for hit, miss and stale; on `dev`, load once, flip the
+  toggle, browse from cache. Airplane mode proves nothing here — the engine is in-process.
+
+- [ ] **feat.6 Session carries an id; `setUser` wired** · S · `stable`
+  Why: `ErrorTracker.setUser` has nothing to be called with, and the docs say so instead of the code.
+  Done: `Session(id, email)`; the mock login mints an opaque id; `MainViewModel` calls
+  `setUser(id)` on sign-in and `setUser(null)` on sign-out; an old encrypted session reads as
+  signed out rather than crashing.
+  Verify: `MainViewModelTest` asserts both calls; `AesGcmAeadTest` unchanged.
+
+- [ ] **feat.7 Tests for the data layers that exist** · M · `stable`
+  Why: `feature/*/data` is 84 lines at 0 %, the cheapest coverage in the repo.
+  Done: `DefaultAuthRepository`, `DefaultLocalAuthDataSource` (in-memory DataStore + `AesGcmAead`,
+  no Keystore), `DefaultCatalogRepository`, `DefaultLocalCatalogDataSource`.
+  Verify: none of the four packages reads 0 % in the Kover report.
+
+- [ ] **feat.8 A screen test for every existing screen** · M · `stable` · needs qa.3
+  Why: `LoginScreenTest` is the pattern and nine screens do not follow it.
+  Done: SignUp, Categories, Products, ProductDetail, Home, Settings, Permissions, Gallery and
+  GalleryDetail, each in the shape `qa.3` generates — renders the fixed state, finds by tag,
+  asserts the event a tap emits.
+  Verify: `./gradlew test`; each test fails when its screen's tag is renamed on purpose.
+
+## Track quality · tests, CI, release
+
+Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`,
+`baselineprofile/`.
+
+- [ ] **qa.1 LICENSE** · S · `decision` Q6
+  Done: the file, and the licence named in `README.md`.
+
+- [ ] **qa.2 Maestro golden-path flows** · M · `device` D15
+  Why: every device check so far went through `adb` by hand.
+  Done: `.maestro/` flows for sign in → Home, browse to a product, log out, grant a permission,
+  all by `id:` and never by text; how to run them in `README.md`; CI left for later.
+  Verify: `maestro test .maestro` passes on the emulator; a flow fails when its tag is renamed.
+
+- [ ] **qa.3 The template ships a screen test** · S · `stable`
+  Why: the seven-file unit has a ViewModel test and no screen test, so every generated screen
+  starts without one.
+  Done: `TemplateScreenTest` and `TemplateArgsScreenTest` in `feature/template`, cloned by
+  `create_screen.py` and `create_feature.py`; the unit is eight files; `doctor.py`'s unit check
+  and `test_scripts.py` follow; `CLAUDE.md`'s screen table gains the row.
+  Verify: generate a throwaway feature, its screen test runs and passes, `delete_feature.py`
+  leaves the tree byte-identical.
+
+- [ ] **qa.4 Generator output compiles in CI** · M · `stable`
+  Why: was 7.15. `test_scripts.py` checks text; a template change that breaks generated code is
+  found by the next user.
+  Done: `test_scripts.py --with-gradle` generates a feature in the temp copy and compiles its
+  presentation module; run on the weekly schedule job only.
+  Verify: break `feature/template` on purpose and the weekly job fails.
+
+- [ ] **qa.5 Hardware pass** · M · `device` Q5 · needs shell.1
+  Why: the Keystore path, the startup benchmark and predictive back have never run outside an
+  emulator, and the emulator ANRs.
+  Done: on a physical device — session round trip through the real Keystore; `StartupBenchmark`
+  with and without the profile, numbers recorded in this line; predictive back on every screen;
+  "Don't keep activities" four screens deep; a cold deep link; TalkBack through Login and Catalog.
+  Verify: the numbers, and one line per check here.
+
+- [ ] **qa.6 Renovate runs** · S · `stable` Q5
+  Done: a Renovate PR has been opened against the repo, or the app is installed and one appears
+  within a week; `dependencyDashboard` on.
+
+- [ ] **qa.7 `resourcePrefix` per feature** · S · `stable`
+  Why: was K4. `CLAUDE.md` asks for `user_profile_` prefixes and nothing enforces them.
+  Done: `convention.feature.presentation` derives `resourcePrefix` from the module path;
+  `:core:ui` sets `app_`; existing strings already comply.
+  Verify: add an unprefixed string on purpose and lint fails.
+
+- [ ] **qa.8 Compose compiler metrics** · S · `stable`
+  Why: was I6. `@Immutable` is everywhere; whether anything is still unstable is a guess.
+  Done: `composeCompiler { metricsDestination / reportsDestination }` behind `-PcomposeMetrics`
+  in the compose convention plugin; the first report read and any unstable parameter fixed.
+  Verify: the report lists every `XState` as stable.
+
+- [ ] **qa.9 Required checks on `main`** · S · `decision` Q5 D17
+  Done: the `secrets`, `conventions` and `build` jobs required for merge; direct pushes off.
+  Verify: a PR with a failing `doctor.py` cannot be merged.
+
+## Backlog
+
+Parked, not scheduled. Promote by moving into a track with the next number.
+
+- Feature-owned nav graphs (was 7.3) — the `--graph` grouping in `AppNavHost` does the job today.
+- Logger backend and remote config (the rest of 7.5).
+- `doctor.py --fix` (7.6) — only when a check's fix is mechanical. `create_service.py` (7.7) and
+  `check_strings.py` (7.8) stay parked under the no-new-scripts rule.
+- Localisation pipeline (7.9) — waits on Q3. Per-app language picker with it.
+- Theme generated from KSD tokens — waits on Q4; replaces the `:core:designsystem` split (7.10).
+- ViewModel-readable permission state (7.13) — build inside the first feature that needs it.
+- Module graph rendered and layer rules asserted at build time (was K3).
+- WorkManager sync and Paging 3 — once `feat.5` has a server to sync with and a list longer than
+  a page.
+- Baseline profile regenerated on release tags.
+- detekt, when 2.x is stable. Compose Preview Screenshot Testing, if D14 fails and it leaves alpha.
+- `explicitApi()` on the `service/` modules.
+
+Dropped: ADRs and a release doc (7.11) — the Decisions table is the record and `CLAUDE.md`'s
+Commands section is the release doc. Undecoded Plan 1 codes (7.14) — decoded from the review:
+C8 → `core.3`, C9 done (2.7), C10 → `core.5`, H7 done (5.6), I6 → `qa.8`, K3 → backlog,
+K4 → `qa.7`.
+
+## Done before this plan
+
+| Plan | When | Landed |
+|---|---|---|
+| Plan 1 · 33 items | 2026-09-07 | The four P0 defects, `Outcome` / `BaseRepository` / `BaseViewModel`, `Screen()` owning navigation and commands, inline states, the generator suite, `doctor.py`, CI |
+| Plan 2 · Phase 0 · 14 | 2026-09-08 | Docs match code; the review's small defects fixed |
+| Plan 2 · Phase 1 · 8 | 2026-09-08 | Convention plugins, plain-JVM domains, AGP 9.4 / Kotlin 2.4.20, ktlint, shared fixtures, `gateway` merged into `data` |
+| Plan 2 · Phase 2 · 8 | 2026-09-08 | Navigation 3, SplashScreen API, `SessionState`, tabs with per-tab history, transitions, permissions, snackbar action, plurals |
+| Plan 2 · Phase 3 · 9 of 10 | 2026-09-08 | KSD design system in three layers, 41 components, every screen composed from them, accessibility and test ids, the gallery, three `doctor.py` checks |
+| Plan 2 · Phase 4 · 3 of 4 | 2026-09-08 | Preview variants, the screen-test pattern, coverage report |
+| Plan 2 · Phase 5 · 8 | 2026-09-08 | Flavors, signing, `ErrorTracker`, LeakCanary, gitleaks, baseline profile, release CI, encrypted session |
+
+Carried over: 3.8 → `ui.1`, 4.1 → `ui.2` (tool changed, D14), 6.1 → `core.1` + `feat.5`,
+6.2 → `core.2` + `feat.1`, 7.x as listed in the backlog.

@@ -3,8 +3,10 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Work in progress:** [docs/PLAN.md](docs/PLAN.md) is the single plan for this template — what is
-done, what is next, and the API and gotchas a cold start needs. Read it before picking up work.
-Keep it current as items land; there is deliberately no second copy anywhere.
+open, what needs a decision, and how the work splits into tracks that can run in parallel
+worktrees. Read it before picking up work and keep it current as items land; there is
+deliberately no second copy anywhere. The API table and the gotchas a cold start needs are in
+this file, under *API you build on* and *Known constraints*.
 
 ## Project
 
@@ -279,6 +281,25 @@ Every screen is seven files — six in one package, plus its test in the matchin
   its `res/values/strings.xml` — no hardcoded literals. See `HomeState.greeting`.
 - **A screen without a `Scaffold` pads itself with `.safeDrawingPadding()`.** The activity is edge to
   edge and `Screen()` applies no insets, so `Scaffold`-based screens are not padded twice.
+
+## API you build on (do not reinvent)
+
+Plan 2's reference table, kept here because the plan holds only open work.
+
+| Thing | Where | Note |
+|---|---|---|
+| `execute {}` / `observe(flow = …) {}` | `service/core/ui/.../BaseViewModel.kt` | Never try/catch in a ViewModel. `loadingMessage` words the overlay and survives overlapping calls |
+| `ErrorDisplay.{Alert,Inline,Silent}` | same | `Inline` remembers the failed call per content id; the retry re-runs that one and forgets it on success |
+| `ContentState.{Error,Empty}` | `service/core/ui/.../state/ContentState.kt` | Rendered by `Screen()` instead of content; a screen with two of them gives each its own `id` |
+| `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
+| `UiCommand` | `event/UiCommand.kt` | Toast, snackbar (action comes back as `SystemEvent.SnackbarAction(id)`), back, close, browser, app settings |
+| `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
+| `Aead` / `AesGcmAead` / `KeystoreAead` | `service/core/domain/crypto/`, `service/core/data/crypto/` | `EncryptedDataStoreProvider` stores the session with it; the logic is in `AesGcmAead` and JVM-tested, the Keystore fetch is fifteen lines |
+| `ErrorTracker` / `TrackingLogger` | `service/core/domain/`, `service/core/data/` | See Crash reporting above |
+| `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
+| `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
+| `MainDispatcherRule`, `FakeLogger`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain`, `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first two; the convention plugin adds it |
+| `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, version, flavors. One edit each |
 
 ## DI (Koin)
 
@@ -742,3 +763,15 @@ Build a single module, e.g. `./gradlew :feature:auth:presentation:assembleDebug`
   resumed. A flow whose collector outlives the failure (session state, say) must pass `retries`, or one
   transient I/O error stops it emitting for as long as the collector lives. See
   `DefaultAuthRepository.observeSession()`.
+- **`rememberNavBackStack` must be composed on the first frame.** It is a `rememberSaveable`, and
+  one that first enters composition on a later frame gets nothing back from the restored state.
+  Gating it on anything asynchronous — the session, a flag, a loaded config — throws the saved
+  back stack away on every process death, silently and only on a real device. Remember it
+  unconditionally (empty if need be) and gate the `NavDisplay` instead. `MainActivity` shows it.
+- Koin's `verify()` cannot see a `parametersOf` argument, and `Module.mappings` is internal API,
+  so the route keys a screen takes are listed by hand in `KoinGraphTest`'s `injectedParameters`.
+  `create_screen.py --with-args` writes the line; `doctor.py` fails if it is missing.
+- Robolectric ships no `AndroidKeyStore` provider, so `KeystoreAead` cannot run under it. That is
+  why the class is split: everything worth getting wrong is in `AesGcmAead` and JVM-tested.
+- Robolectric 4.16 reads JDK 25 bytecode; 4.14 did not. A tool that fails here with a class-file
+  version error may only need its current release — try that before concluding it cannot work.
