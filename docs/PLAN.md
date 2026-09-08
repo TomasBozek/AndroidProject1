@@ -19,10 +19,10 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 6 / 8 | `████████░░` 75% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 7 / 8 | `█████████░` 88% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **49 / 70** | `███████░░░` 70% |
+| **Total** | | **50 / 70** | `███████░░░` 71% |
 
 **Now:** 5.8 (session stored encrypted), then 5.6.
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 49 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 50 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 18 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 17 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -1025,11 +1025,29 @@ Goal: a project started from this template can ship without adding infrastructur
   One thing worth knowing if this is edited: a step's own `env` is not readable from that step's
   `if`, so `KEYSTORE_BASE64` is declared at job level.
 
-- [ ] **5.8 Session stored encrypted** (M)
+- [x] **5.8 Session stored encrypted** (M) (2026-09-08)
   Why: Plan 1's M2. The session is plain text in Preferences DataStore. `security-crypto` is
   deprecated, so the answer is not that.
   Done: Keystore-backed AEAD (Tink or a small Keystore wrapper) as a DataStore `Serializer`;
   `LocalAuthDataSource` unchanged; one Robolectric test for round-trip.
+  **Landed:** a small Keystore wrapper, not Tink — AES-256-GCM in about thirty lines against a key
+  the Keystore will not hand back. `Aead` is an interface in `:service:core:domain`;
+  `EncryptedStringSerializer` is the DataStore `Serializer`; the session moved to its own
+  `EncryptedDataStoreProvider` because encrypting a theme choice costs a cold start and protects
+  nothing. The `LocalAuthDataSource` *interface* is unchanged; its implementation now stores one
+  string where empty means signed out — which is also what an absent file and an undecryptable one
+  look like, so there is no third case for a caller to forget.
+  **Not a Robolectric test, and that is the point.** Robolectric ships no `AndroidKeyStore`
+  provider, so the class was split: `AesGcmAead` holds everything worth getting wrong — IV
+  handling, tamper detection, length checks, key separation — and is covered by six plain JVM
+  tests; `KeystoreAead` is the fifteen lines that fetch the key, and only those are untested.
+  **Koin's `verify()` forced a better binding.** It cannot see a constructor argument supplied
+  inline, so `Aead` is a real definition and the store's file name has a default. The graph is now
+  honest rather than annotated — the opposite of the route-key case, where there is no
+  alternative.
+  **On-device verification is outstanding.** The emulator ANRs on every launch, and the build from
+  before this change ANRs identically on it, so it is the emulator and not this work — but that
+  means the real Keystore path has not been exercised. Worth a pass on hardware.
 
 ## Phase 6 · Data layer
 

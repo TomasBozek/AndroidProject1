@@ -3,12 +3,15 @@ package com.example.androidproject1.core.di
 import android.util.Log
 import com.example.androidproject1.core.data.AndroidLogger
 import com.example.androidproject1.core.data.DataStoreProvider
+import com.example.androidproject1.core.data.EncryptedDataStoreProvider
 import com.example.androidproject1.core.data.TrackingLogger
+import com.example.androidproject1.core.data.crypto.KeystoreAead
 import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.LoggingErrorTracker
 import com.example.androidproject1.core.domain.coroutines.DefaultDispatcherProvider
 import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
+import com.example.androidproject1.core.domain.crypto.Aead
 import com.example.androidproject1.feature.auth.di.AuthModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
 import com.example.androidproject1.feature.gallery.di.GalleryModule
@@ -43,6 +46,11 @@ fun coreModule(isDebug: Boolean): Module = module {
 
     singleOf(::DefaultDispatcherProvider) bind DispatcherProvider::class
     single { DataStoreProvider(androidContext()) }
+
+    // The session, encrypted at rest with a key the Keystore will not hand back. Separate from the
+    // preferences store above: encrypting a theme choice costs a cold start and protects nothing.
+    single<Aead> { KeystoreAead(alias = SESSION_KEY_ALIAS) }
+    single { EncryptedDataStoreProvider(context = androidContext(), aead = get()) }
 }
 
 /**
@@ -76,3 +84,6 @@ fun initKoin(
         modules(*platformModules, *appModules(isDebug).toTypedArray())
     }
 }
+
+/** The Keystore alias for the session store. Changing it signs everyone out. */
+private const val SESSION_KEY_ALIAS = "session"
