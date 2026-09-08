@@ -3,13 +3,37 @@ name: Build
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
+  schedule:
+    # Weekly, so a release-only regression is found by the schedule rather than by a release.
+    - cron: '0 6 * * 1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  secrets:
+    # Runs alongside the conventions job and is just as fast. A committed key is the one mistake
+    # that a later commit cannot undo — it has to be caught on the pull request that adds it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks scans history, not just the diff, so it needs more than the default depth.
+          fetch-depth: 0
+
+      # The binary rather than gitleaks-action: the action requires a paid licence key for
+      # organization-owned repositories, which a template should not quietly depend on.
+      - name: Scan for committed secrets
+        env:
+          GITLEAKS_VERSION: 8.28.0
+        run: |
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --no-banner
+
   conventions:
     # Runs first and is fast: doctor.py checks the rules no compiler enforces, and exits non-zero
     # specifically so it can gate here. A convention violation fails before the slow build starts.
@@ -64,3 +88,46 @@ jobs:
             **/build/reports/tests/**
             build/reports/kover/**
           if-no-files-found: ignore
+
+  release:
+    # R8 is on for release, but `build` only assembles debug — a keep rule that goes missing shows
+    # up when someone cuts a release, which is the worst time to find it. Tags and a weekly run
+    # keep that surface honest without slowing every pull request down.
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    env:
+      # At job level, so the guard on the keystore step can read it — a step's own `env` is not
+      # available to its own `if`.
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Absent on a fork or a pull request, and that is fine: the build falls back to the debug
+      # key and still assembles, which is what 5.2 is for.
+      - name: Write the release keystore
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > release.jks
+          cat > keystore.properties <<PROPERTIES
+          storeFile=$PWD/release.jks
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          PROPERTIES
+
+      - name: Assemble and lint the release build
+        run: ./gradlew assembleProdRelease lintProdRelease
+
+      - name: Upload the release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-release
+          path: app/build/outputs/apk/prod/release/*.apk
+          if-no-files-found: error

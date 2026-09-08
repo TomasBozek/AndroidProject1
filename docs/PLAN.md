@@ -19,12 +19,12 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 2 / 8 | `███░░░░░░░` 25% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 4 / 8 | `█████░░░░░` 50% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **45 / 70** | `██████░░░░` 64% |
+| **Total** | | **47 / 70** | `███████░░░` 67% |
 
-**Now:** 5.5 (gitleaks) and 5.7 (release build in CI).
+**Now:** 5.3 (`ErrorTracker`), then 5.4.
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
 past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 45 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 47 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 22 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 20 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -982,18 +982,29 @@ Goal: a project started from this template can ship without adding infrastructur
   Why: Plan 1's J4.
   Done: both on `debugImplementation`; Chucker wired once 6.1 gives it a client.
 
-- [ ] **5.5 gitleaks in CI** (S)
+- [x] **5.5 gitleaks in CI** (S) (2026-09-08)
   Why: Plan 1's M3.
   Done: a job on push and pull request; a baseline file if needed.
+  **Landed:** the pinned binary rather than `gitleaks-action`, which requires a paid licence key
+  for organization-owned repositories — not something a template should quietly depend on. It runs
+  beside `conventions`, before the slow build, with `fetch-depth: 0` because it scans history and
+  not the diff: a committed key is the one mistake a later commit cannot undo. No baseline was
+  needed.
 
 - [ ] **5.6 Baseline profile and macrobenchmark** (M)
   Why: startup time is a shipping concern and the module is boilerplate a template should carry.
   Done: `:baselineprofile` module generating the profile for the main flow; a startup benchmark;
   profile committed to `:app`.
 
-- [ ] **5.7 Release build in CI** (S)
+- [x] **5.7 Release build in CI** (S) (2026-09-08)
   Why: R8 is on but only `build` runs; a keep-rule regression shows up at release time.
   Done: `assembleRelease` and `lintRelease` on tags and on a weekly schedule.
+  **Landed:** `assembleProdRelease` and `lintProdRelease` — flavours mean the plain names no
+  longer exist — on `v*` tags and Mondays, with the APK as an artifact. It writes
+  `keystore.properties` from secrets when they are set and simply does not when they are not,
+  which is 5.2's fallback doing its job: a fork's pull request still builds.
+  One thing worth knowing if this is edited: a step's own `env` is not readable from that step's
+  `if`, so `KEYSTORE_BASE64` is declared at job level.
 
 - [ ] **5.8 Session stored encrypted** (M)
   Why: Plan 1's M2. The session is plain text in Preferences DataStore. `security-crypto` is
