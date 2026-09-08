@@ -41,8 +41,23 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 }
             }
 
+            // Release signing, when there is something to sign with. `keystore.properties` is
+            // gitignored and absent on a fresh clone, so this is a no-op there and `assembleRelease`
+            // still produces an APK — signed with the debug key, which is the honest outcome: it
+            // installs and it is obviously not a release artefact.
+            val keystore = releaseKeystore()
+            if (keystore != null) {
+                signingConfigs.create("release") {
+                    storeFile = file(keystore.getProperty("storeFile"))
+                    storePassword = keystore.getProperty("storePassword")
+                    keyAlias = keystore.getProperty("keyAlias")
+                    keyPassword = keystore.getProperty("keyPassword")
+                }
+            }
+
             buildTypes {
                 release {
+                    signingConfig = signingConfigs.getByName(if (keystore != null) "release" else "debug")
                     // R8 on from the start: the keep-rule surface is one screen big today and grows
                     // with every reflection-based library. Rules live in src/main/keepRules/.
                     optimization {

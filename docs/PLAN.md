@@ -19,12 +19,12 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 1 / 8 | `█░░░░░░░░░` 13% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 2 / 8 | `███░░░░░░░` 25% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **44 / 70** | `██████░░░░` 63% |
+| **Total** | | **45 / 70** | `██████░░░░` 64% |
 
-**Now:** 5.2 (release signing from `keystore.properties`).
+**Now:** 5.5 (gitleaks) and 5.7 (release build in CI).
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
 past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 44 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 45 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 23 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 22 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -960,10 +960,16 @@ Goal: a project started from this template can ship without adding infrastructur
   **`assembleDebug` and `installDebug` no longer name a variant** — it is `assembleDevDebug` and
   `installDevDebug` now. CLAUDE.md's command list is updated.
 
-- [ ] **5.2 Release signing from `keystore.properties`** (S)
+- [x] **5.2 Release signing from `keystore.properties`** (S) (2026-09-08)
   Why: Plan 1's B4. The file is already gitignored; nothing reads it.
   Done: `signingConfigs.release` reads it when present, falls back to debug when absent so CI
   still assembles.
+  **Landed:** with a third path the Done line did not have. A file that is *present but missing a
+  key* is an error naming the keys, not a silent fall back — a release signed with the debug key
+  because someone fat-fingered a property is worse than a build that stops. All three verified
+  with `apksigner --print-certs`: a real keystore signs as `CN=Test`, an incomplete file fails
+  with `keystore.properties is missing: keyAlias, keyPassword`, and no file at all signs as
+  `CN=Android Debug` and still assembles.
 
 - [ ] **5.3 `:service:errortracker`** (M) · D8 decided: no vendor SDK in the repo
   Why: Plan 1's J1. Four hook points already exist in `BaseRepository` and `BaseViewModel`. A

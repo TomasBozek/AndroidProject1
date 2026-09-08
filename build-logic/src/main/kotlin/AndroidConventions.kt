@@ -23,6 +23,29 @@ internal val Project.basePackage: String
         )
 
 /**
+ * The release keystore's credentials, or `null` when `keystore.properties` is not there.
+ *
+ * The file is gitignored on purpose — a keystore and its passwords do not belong in a repository,
+ * and a template that shipped one would teach the opposite. CI writes it from secrets before
+ * building a release; a fresh clone simply does not have it, and everything still assembles.
+ *
+ * Required keys: `storeFile`, `storePassword`, `keyAlias`, `keyPassword`. A file that is present
+ * but missing one is an error rather than a silent fall back to the debug key — a release signed
+ * with the wrong key is worse than a build that stops.
+ */
+internal fun Project.releaseKeystore(): java.util.Properties? {
+    val file = rootProject.file("keystore.properties")
+    if (!file.exists()) return null
+    val properties = java.util.Properties().apply { file.inputStream().use(::load) }
+    val missing = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+        .filter { properties.getProperty(it).isNullOrBlank() }
+    if (missing.isNotEmpty()) {
+        error("keystore.properties is missing: ${missing.joinToString(", ")}")
+    }
+    return properties
+}
+
+/**
  * The launcher label, from `appName` in gradle.properties. The flavors decorate it rather than
  * each shipping a `app_name` string of their own.
  */
