@@ -52,6 +52,27 @@ TEMPLATE_DIR = (
     / BASE_PATH / "feature" / TEMPLATE_FEATURE / "presentation"
 )
 
+# The args variant of the template screen. Cloned by --with-args instead of the plain one, so the
+# generated shape is one that compiles and is checked by doctor.py rather than assembled by string
+# surgery here.
+TEMPLATE_ARGS_CLASS = "TemplateArgs"
+TEMPLATE_ARGS_RESOURCE_PREFIX = "template_args"
+
+# The one argument the args template declares; --with-args rewrites it into the real list.
+TEMPLATE_ARG_NAME = "templateId"
+
+SCREEN_SUFFIXES = ["Destination", "Screen", "State", "Event", "Navigation", "ViewModel"]
+TEST_SUFFIXES = ["ViewModelTest"]
+
+ARG_TYPES = {
+    "String": '"example"',
+    "Int": "1",
+    "Long": "1L",
+    "Boolean": "true",
+    "Float": "1f",
+    "Double": "1.0",
+}
+
 TEMPLATE_TEST_DIR = (
     TEMPLATE_PRESENTATION_DIR / "src/test/kotlin"
     / BASE_PATH / "feature" / TEMPLATE_FEATURE / "presentation"
@@ -61,7 +82,20 @@ TEMPLATE_STRINGS = TEMPLATE_PRESENTATION_DIR / "src/main/res/values/strings.xml"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Scaffold a screen inside an existing feature.")
+    parser = argparse.ArgumentParser(
+        description="Scaffold a screen inside an existing feature.",
+        epilog=(
+            'Examples:\n'
+            '  python3 scripts/create_screen.py userprofile UserProfileDetail\n'
+            "  python3 scripts/create_screen.py userprofile UserProfileDetail --with-args 'userId:String'\n"
+            "  python3 scripts/create_screen.py catalog ProductReview --with-args 'productId:String,rating:Int'\n"
+            '  python3 scripts/create_screen.py userprofile UserProfileList --sub overview\n'
+            '\n'
+            'Use --with-args for any screen that takes route arguments; do not hand-convert a data object\n'
+            'route into a data class afterwards.'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("feature", help="Existing feature module name, e.g. userprofile")
     parser.add_argument("screen", help="Screen name in PascalCase, e.g. UserProfileList")
     parser.add_argument("--sub", default="", help="Optional sub-package, e.g. overview or overview/list")
@@ -71,12 +105,68 @@ def parse_args() -> argparse.Namespace:
         choices=[*NAV_GRAPHS, "none"],
         help="Nav graph in AppNavHost.kt to register the destination in. Default: main",
     )
+    parser.add_argument(
+        "--with-args",
+        nargs="?",
+        const="id:String",
+        default=None,
+        metavar="SPEC",
+        help=(
+            "Generate a route that carries arguments, e.g. --with-args 'productId:String,count:Int'. "
+            "Bare --with-args means id:String. Types: " + ", ".join(ARG_TYPES) + "."
+        ),
+    )
     parser.add_argument("--dry-run", action="store_true", help="Show what would happen, change nothing.")
     parser.add_argument("--force", action="store_true", help="Overwrite files that already exist.")
     return parser.parse_args()
 
 
-def template_string_entries(screen_pascal: str, screen_snake: str) -> dict[str, str]:
+def parse_arg_spec(spec: str) -> list[tuple[str, str]]:
+    """`productId:String,count:Int` -> [('productId', 'String'), ('count', 'Int')]."""
+    arguments = []
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        name, _, type_name = part.partition(":")
+        name, type_name = name.strip(), (type_name.strip() or "String")
+        if not name.isidentifier():
+            sys.exit(f"'{name}' is not a valid argument name.")
+        if type_name not in ARG_TYPES:
+            sys.exit(f"'{type_name}' is not a supported route argument type. Use one of: {', '.join(ARG_TYPES)}.")
+        arguments.append((name, type_name))
+    if not arguments:
+        sys.exit("--with-args needs at least one argument, e.g. --with-args 'productId:String'.")
+    return arguments
+
+
+def rewrite_arguments(text: str, arguments: list[tuple[str, str]]) -> str:
+    """
+    Expands the template's single `templateId: String` into the real argument list.
+
+    Three places carry it: the route's constructor, the SavedStateHandle map in the test, and every
+    reference to `args.templateId`. The first argument stands in for the template's one, so those
+    references keep working; the rest are appended.
+    """
+    first_name, first_type = arguments[0]
+
+    # The route's parameter list, written on one line in the template.
+    declaration = ", ".join(f"val {name}: {type_name}" for name, type_name in arguments)
+    text = text.replace(f"val {TEMPLATE_ARG_NAME}: String)", f"{declaration})")
+
+    # The test's SavedStateHandle map.
+    entries = ", ".join(f'"{name}" to {ARG_TYPES[type_name]}' for name, type_name in arguments)
+    text = text.replace(f'mapOf("{TEMPLATE_ARG_NAME}" to "example")', f"mapOf({entries})")
+
+    # Everything else — the state field, `args.templateId`, the preview fixture — follows the first.
+    text = text.replace(TEMPLATE_ARG_NAME, first_name)
+    if first_type != "String":
+        text = text.replace(f'val {first_name}: String', f"val {first_name}: {first_type}")
+        text = text.replace(f'{first_name} = "example"', f"{first_name} = {ARG_TYPES[first_type]}")
+    return text
+
+
+def template_string_entries(screen_pascal: str, screen_snake: str, resource_prefix: str, class_name: str) -> dict[str, str]:
     """
     Maps the template's `template_*` strings onto the new screen's `<snake>_*` names.
 
@@ -85,10 +175,17 @@ def template_string_entries(screen_pascal: str, screen_snake: str) -> dict[str, 
     """
     entries = {}
     for name, value in read_string_resources(TEMPLATE_STRINGS).items():
-        if not name.startswith(f"{TEMPLATE_RESOURCE_PREFIX}_"):
+        if not name.startswith(f"{resource_prefix}_"):
             continue
-        suffix = name[len(TEMPLATE_RESOURCE_PREFIX) + 1:]
-        entries[f"{screen_snake}_{suffix}"] = value.replace(TEMPLATE_CLASS, screen_pascal)
+        # `template_args_title` must not match the plain `template_` prefix as well.
+        if resource_prefix == TEMPLATE_RESOURCE_PREFIX and name.startswith(f"{TEMPLATE_ARGS_RESOURCE_PREFIX}_"):
+            continue
+        suffix = name[len(resource_prefix) + 1:]
+        # The value is prose ("Template screen for %1$s"), so it carries the plain class name even
+        # in the args template. Replace the specific name first, then whatever is left.
+        entries[f"{screen_snake}_{suffix}"] = value.replace(class_name, screen_pascal).replace(
+            TEMPLATE_CLASS, screen_pascal
+        )
     return entries
 
 
@@ -100,9 +197,19 @@ def rewrite(
     screen_snake: str,
     sub_package: str,
     r_import: str,
+    with_args: bool = False,
 ) -> str:
     # The feature's package segment.
     text = text.replace(f"feature.{TEMPLATE_FEATURE}", f"feature.{feature}")
+
+    # `TemplateArgs` and `templateArgs` first: replacing the shorter `Template` prefix ahead of
+    # them would leave `ProductDetailArgsViewModel` behind.
+    if with_args:
+        text = re.sub(rf"\b{TEMPLATE_FEATURE}Args(?=[A-Z])", screen_camel, text)
+        text = text.replace(TEMPLATE_ARGS_CLASS, screen_pascal)
+        # ...and the same for resource names, before the plain `template_` rule below.
+        text = re.sub(rf"\b{TEMPLATE_ARGS_RESOURCE_PREFIX}_(\w+)", rf"{screen_snake}_\1", text)
+
     # camelCase identifiers derived from the screen, e.g. `templateDestination`.
     text = re.sub(rf"\b{TEMPLATE_FEATURE}(?=[A-Z])", screen_camel, text)
     # Class names.
@@ -162,6 +269,7 @@ def main() -> None:
     screen_snake = to_snake(args.screen)
     sub_path = args.sub.strip("/")
     sub_package = sub_path.replace("/", ".")
+    arguments = parse_arg_spec(args.with_args) if args.with_args else None
 
     feature_presentation = REPO_ROOT / "feature" / feature / "presentation"
     if not feature_presentation.is_dir():
@@ -185,30 +293,43 @@ def main() -> None:
 
     # (template file, where it goes). The seventh file is the ViewModel test, which lives in the
     # test source set — so a generated screen starts testable rather than becoming testable later.
-    sources = [(path, dest_dir) for path in sorted(TEMPLATE_DIR.glob(f"{TEMPLATE_CLASS}*.kt"))]
-    sources += [(path, screen_dir("test")) for path in sorted(TEMPLATE_TEST_DIR.glob(f"{TEMPLATE_CLASS}*.kt"))]
-    if not sources:
-        sys.exit(f"No template files found in {TEMPLATE_DIR}")
+    # Named explicitly rather than globbed: `Template*.kt` now matches the args variant too, and a
+    # glob would clone both sets into one screen.
+    class_name = TEMPLATE_ARGS_CLASS if arguments else TEMPLATE_CLASS
+    sources = [(TEMPLATE_DIR / f"{class_name}{suffix}.kt", dest_dir) for suffix in SCREEN_SUFFIXES]
+    sources += [(TEMPLATE_TEST_DIR / f"{class_name}{suffix}.kt", screen_dir("test")) for suffix in TEST_SUFFIXES]
+
+    missing = [s for s, _ in sources if not s.is_file()]
+    if missing:
+        sys.exit("Template files are missing:\n  " + "\n  ".join(str(m) for m in missing))
 
     print(f"Creating screen '{screen_pascal}' in feature '{feature}' (strings: {screen_snake}_xxx)")
+    if arguments:
+        print("Route arguments: " + ", ".join(f"{n}: {ty}" for n, ty in arguments))
     print(f"Target: {dest_dir.relative_to(REPO_ROOT)}")
     if args.dry_run:
         print("-- dry run, nothing will be written --")
 
     wrote_any = False
     for source, target_dir in sources:
-        dest = target_dir / source.name.replace(TEMPLATE_CLASS, screen_pascal)
+        dest = target_dir / source.name.replace(class_name, screen_pascal)
         if dest.exists() and not args.force:
             print(f"  skipping {dest.relative_to(REPO_ROOT)}: already exists (use --force)")
             continue
+        text = source.read_text()
+        # Before rewrite(), not after: its camelCase rule turns `templateId` into
+        # `productReviewId`, and rewrite_arguments would then have nothing left to match.
+        if arguments:
+            text = rewrite_arguments(text, arguments)
         text = rewrite(
-            source.read_text(),
+            text,
             feature,
             screen_pascal,
             screen_camel,
             screen_snake,
             sub_package,
             r_import,
+            with_args=bool(arguments),
         )
         write_file(dest, text, args.dry_run)
         wrote_any = True
@@ -218,7 +339,12 @@ def main() -> None:
 
     merge_strings_xml(
         feature_presentation / "src/main/res/values/strings.xml",
-        template_string_entries(screen_pascal, screen_snake),
+        template_string_entries(
+            screen_pascal,
+            screen_snake,
+            TEMPLATE_ARGS_RESOURCE_PREFIX if arguments else TEMPLATE_RESOURCE_PREFIX,
+            TEMPLATE_ARGS_CLASS if arguments else TEMPLATE_CLASS,
+        ),
         args.dry_run,
     )
 

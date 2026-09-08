@@ -529,7 +529,18 @@ def check_no_hardcoded_versions() -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Check this project's architectural conventions.")
+    parser = argparse.ArgumentParser(
+        description="Check this project's architectural conventions.",
+        epilog=(
+            'Examples:\n'
+            '  python3 scripts/doctor.py\n'
+            '  python3 scripts/doctor.py --list\n'
+            '\n'
+            'Exits non-zero, so it gates CI and the pre-commit hook. If a check looks wrong, fix the check\n'
+            'rather than working around it — each one exists because a compiler cannot catch it.'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--list", action="store_true", help="List the checks and exit.")
     args = parser.parse_args()
 

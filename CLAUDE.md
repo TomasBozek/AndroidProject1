@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Work in progress:** [docs/PLAN.md](docs/PLAN.md) is the single plan for this template — what is
+done, what is next, and the API and gotchas a cold start needs. Read it before picking up work.
+Keep it current as items land; there is deliberately no second copy anywhere.
+
 ## Project
 
 Multi-module Android app (Kotlin + Jetpack Compose), base package `com.example.androidproject1`. It is a
@@ -147,12 +151,16 @@ need, extend it rather than working around it; `scripts/test_scripts.py` covers 
 
 | I need | Command |
 |---|---|
+| to turn this template into a real project | `python3 scripts/init_project.py --package com.acme.app --name "My App"` |
 | a new feature, full stack | `python3 scripts/create_feature.py userProfile` |
 | a new screen-only feature | `python3 scripts/create_feature.py userProfile --layers presentation,di` |
 | another screen in an existing feature | `python3 scripts/create_screen.py userprofile UserProfileDetail` |
+| a screen that takes route arguments | `python3 scripts/create_screen.py userprofile UserProfileDetail --with-args 'userId:String'` |
+| a shared Compose component | `python3 scripts/create_component.py PrimaryButton` |
 | a data source, optionally with its repository | `python3 scripts/create_datasource.py userprofile LocalUserProfile --repository` |
 | to undo a generated feature | `python3 scripts/delete_feature.py userProfile` |
 | to check the conventions still hold | `python3 scripts/doctor.py` |
+| to make a missed registration fail at commit time | `python3 scripts/install_hooks.py` |
 | to reuse `service/` in another project | `python3 scripts/export_service.py --to <dir> --package <pkg> --sync-versions` |
 
 Pass the name in any case — `userProfile`, `user-profile`, `UserProfile` all work. What comes out is fixed:
@@ -185,7 +193,20 @@ the dependencies on layers you skipped. You can add a layer later with
 ```bash
 python3 scripts/create_screen.py userprofile UserProfileDetail
 python3 scripts/create_screen.py userprofile UserProfileDetail --sub detail
+python3 scripts/create_screen.py userprofile UserProfileDetail --with-args 'userId:String,tab:Int'
 ```
+
+`--with-args` clones a second screen template, `feature/template`'s `TemplateArgs*` set, which
+demonstrates the argument-carrying route: an `@Serializable data class` route, a ViewModel taking a
+`SavedStateHandle` and reading `navArgs<XDestination>()`, and a Robolectric-annotated test (route
+decoding goes through an `android.os.Bundle`). Bare `--with-args` gives one `id: String`. Supported
+types are `String`, `Int`, `Long`, `Boolean`, `Float`, `Double`.
+
+Do not hand-convert a `data object` route into a `data class` — that is what produced a screen
+loading from a `LaunchedEffect` instead of its `SavedStateHandle`.
+
+Note that `create_feature.py` deliberately skips the `TemplateArgs*` files: a new feature starts
+with one screen, and copying the second would leave an unregistered destination behind.
 
 Writes the six-file unit, adds `user_profile_detail_*` strings to the feature's `strings.xml`, registers
 the ViewModel in the feature's Koin module and the destination in `AppNavHost.kt`. Then follow steps
@@ -258,6 +279,17 @@ Add `python3 scripts/test_scripts.py` if you touched anything under `scripts/`.
 Prefer these over copying files by hand; they also perform the registration steps that are easy to
 forget. Every one of them supports `--dry-run`. `scripts/_common.py` holds the shared naming rules,
 paths and the idempotent file-editing helpers — put anything used by two scripts there.
+`scripts/README.md` documents them at the point of use, and every script's `--help` carries worked
+examples.
+
+```bash
+python3 scripts/init_project.py --package com.acme.app --name "My App" [--dry-run]
+```
+
+Run once on a fresh clone, before writing anything of your own. Rewrites the base package in every
+source file (both the dotted and slash-separated forms — `scripts/test_scripts.py` holds the latter),
+moves the package directory in all 39 source sets, and renames `rootProject.name`, the Android theme,
+the launcher label and `_common.py:BASE_PACKAGE`. Refuses to run on a dirty tree without `--force`.
 
 ```bash
 python3 scripts/create_feature.py userProfile --layers domain,presentation,di
@@ -277,6 +309,18 @@ Clones the six-file screen unit into an existing feature, renames the template's
 feature's Koin module and the destination in `AppNavHost.kt`. With `--sub` the generated files get an
 explicit `import ...presentation.R`, because `R` lives in the module's namespace package and a
 sub-package is no longer part of it.
+
+```bash
+python3 scripts/create_component.py PrimaryButton
+python3 scripts/create_component.py ProductCard --feature catalog --state
+```
+
+Writes a Compose component with a `modifier` parameter and a `@ComponentPreview`. With no
+`--feature` it lands in `:core:ui`, where every feature can reach it; `--feature` keeps it to one.
+`--state` adds an `@Immutable` `XState` data class with the `PREVIEW` fixture `doctor.py` requires.
+A component needs no registration, which is why this script edits nothing outside the file it
+writes. Templates live in the script rather than in `feature/template` — there is no component
+there to clone, and adding a fake one would ship a placeholder component in the app.
 
 ```bash
 python3 scripts/create_datasource.py userprofile LocalUserProfile --repository
@@ -318,6 +362,22 @@ layout and namespaces, then prints the `includeServiceModule` block to paste int
 members included — and merges those entries into the target's `gradle/libs.versions.toml`, creating it
 if needed; an alias the target already defines differently is left alone and reported. Also supports
 `--force` and `--modules`.
+
+```bash
+python3 scripts/install_hooks.py
+```
+
+Installs a `pre-commit` hook running `doctor.py` — quiet on success, and it prints the full report
+and aborts the commit on failure. `test_scripts.py` runs too, but only when the commit touches
+`scripts/`, since it takes ~20s. Hooks are not version controlled, so each clone runs this once;
+`--uninstall` removes it, and it refuses to overwrite a hook it did not write.
+
+The same workflows are exposed as Claude Code slash commands in `.claude/commands/`:
+`/new-feature`, `/new-screen`, `/new-component`, `/new-datasource`, `/check`, `/rename-project`.
+Each carries the follow-up steps, so the conventions arrive with the command rather than having to
+be looked up. There is deliberately no accompanying skill — `CLAUDE.md` is already loaded for every
+session in this project, so a skill restating it would be duplication to maintain, not context to
+gain.
 
 ```bash
 python3 scripts/test_scripts.py

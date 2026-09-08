@@ -42,7 +42,18 @@ SOURCE_QUALIFIERS = ("Local", "Remote", "Cached", "InMemory")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Scaffold a data source across gateway/data/di.")
+    parser = argparse.ArgumentParser(
+        description="Scaffold a data source across gateway/data/di.",
+        epilog=(
+            'Examples:\n'
+            '  python3 scripts/create_datasource.py userprofile LocalUserProfile\n'
+            '  python3 scripts/create_datasource.py userprofile LocalUserProfile --repository\n'
+            '  python3 scripts/create_datasource.py userprofile RemoteUserProfile --repository UserProfile\n'
+            '\n'
+            'The interface lands in gateway and the implementation in data — that inversion is the point.'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("feature", help="Existing feature module name, e.g. userprofile")
     parser.add_argument("name", help="Data source name without the suffix, e.g. LocalUserProfile")
     parser.add_argument(

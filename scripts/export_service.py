@@ -85,6 +85,14 @@ SERVICE_MODULES = discover_service_modules()
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Copy service/ into another project, rewriting the base package.",
+        epilog=(
+            'Examples:\n'
+            '  python3 scripts/export_service.py --to ~/Projects/OtherApp --package com.acme.other\n'
+            '  python3 scripts/export_service.py --to ~/Projects/OtherApp --package com.acme.other --sync-versions\n'
+            '\n'
+            'Copies service/ into another project. To rename *this* project instead, use init_project.py.'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "--to",

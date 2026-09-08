@@ -50,15 +50,43 @@ TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro"}
 EXCLUDED_DIRS = {"build", ".gradle", ".idea", ".cxx"}
 EXCLUDED_FILES = {".DS_Store"}
 
+# The template feature holds two screens: the plain one and the `TemplateArgs` variant that
+# `create_screen.py --with-args` clones. A new feature starts with one screen, so the args set is
+# skipped here — copying it would leave every generated feature with a second, unregistered
+# destination that doctor.py rightly fails on.
+EXCLUDED_PREFIX = "TemplateArgs"
+EXCLUDED_RESOURCE_PREFIX = "template_args_"
+
 
 def is_copyable(relative: Path) -> bool:
     if EXCLUDED_DIRS.intersection(relative.parts):
         return False
+    if relative.name.startswith(EXCLUDED_PREFIX):
+        return False
     return relative.name not in EXCLUDED_FILES
 
 
+def strip_args_strings(text: str) -> str:
+    """Drops the args screen's string resources, whose screen is not being copied."""
+    return "\n".join(
+        line for line in text.split("\n") if f'name="{EXCLUDED_RESOURCE_PREFIX}' not in line
+    )
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Scaffold a feature module from feature/template.")
+    parser = argparse.ArgumentParser(
+        description="Scaffold a feature module from feature/template.",
+        epilog=(
+            'Examples:\n'
+            '  python3 scripts/create_feature.py userProfile\n'
+            '  python3 scripts/create_feature.py userProfile --layers presentation,di\n'
+            '  python3 scripts/create_feature.py userProfile --layers domain --force   # add a layer later\n'
+            '  python3 scripts/create_feature.py userProfile --graph auth --dry-run\n'
+            '\n'
+            'Name it in any case — userProfile, user-profile and UserProfile all work.'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("name", help="Feature name, e.g. userProfile")
     parser.add_argument(
         "--layers",
@@ -127,7 +155,10 @@ def copy_layer(
         dest_file = dest_dir / rewrite_relative_path(relative, flat, pascal)
 
         if source_file.suffix in TEXT_SUFFIXES:
-            text = rewrite_source(source_file.read_text(), flat, pascal)
+            text = source_file.read_text()
+            if source_file.name == "strings.xml":
+                text = strip_args_strings(text)
+            text = rewrite_source(text, flat, pascal)
             # `template_title` -> `user_profile_title`, in the Kotlin references and in strings.xml.
             text = rewrite_resource_names(text, snake)
             if source_file.name == "build.gradle.kts":

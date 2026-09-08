@@ -30,6 +30,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            // The TemplateArgs screen's test decodes a route, which needs a real android.os.Bundle.
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -50,5 +57,6 @@ dependencies {
     // The seventh file of every screen is its ViewModel test; MainDispatcherRule comes from
     // :service:core:ui's test fixtures so no module rewrites Dispatchers.setMain.
     testImplementation(libs.bundles.testing)
+    testImplementation(libs.robolectric)
     testImplementation(testFixtures(projects.service.core.ui))
 }

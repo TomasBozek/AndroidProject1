@@ -43,7 +43,18 @@ REFERENCE_ROOTS = ["app", "core", "feature", "service", "settings.gradle.kts"]
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Delete a feature module and its registrations.")
+    parser = argparse.ArgumentParser(
+        description="Delete a feature module and its registrations.",
+        epilog=(
+            'Examples:\n'
+            '  python3 scripts/delete_feature.py userProfile\n'
+            '  python3 scripts/delete_feature.py userProfile --dry-run\n'
+            '\n'
+            'Undoes the four registrations create_feature.py made, then greps for what it could not remove\n'
+            'safely — a cross-feature navigation lambda, typically. Run doctor.py afterwards.'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("name", help="Feature name, e.g. userProfile")
     parser.add_argument("--dry-run", action="store_true", help="Show what would happen, change nothing.")
     parser.add_argument(

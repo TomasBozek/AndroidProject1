@@ -5,7 +5,7 @@ navigation. It exists to be copied: the structure and the conventions are the pr
 three sample features are there to demonstrate them.
 
 If you are an agent working in this repo, read [CLAUDE.md](CLAUDE.md) instead — it is the rulebook.
-This file is the orientation.
+This file is the orientation. [docs/PLAN.md](docs/PLAN.md) is what is being worked on next.
 
 ## Start a project from it
 
@@ -14,10 +14,16 @@ python3 scripts/doctor.py   # 16 checks; should pass on a clean tree
 ./gradlew build
 ```
 
-Then rename the package. There is no script for this yet (it is the top item on the plan), so for
-now it is a careful find-and-replace of `com.example.androidproject1` across sources, directory
-layout, the 27 module namespaces, `applicationId`, `rootProject.name` and
-`scripts/_common.py:BASE_PACKAGE`.
+Then make it yours — one command, on a clean tree:
+
+```bash
+python3 scripts/init_project.py --package com.acme.tracker --name "Field Tracker"
+```
+
+It rewrites the base package across every source file, moves the package directories in all 39
+source sets, and renames the Gradle project, the Android theme, the launcher label and
+`scripts/_common.py` so the other generators keep working. Add `--dry-run` to see the plan first.
+It refuses to run on a dirty working tree, so `git checkout .` stays an escape hatch.
 
 ## How it is laid out
 
@@ -69,9 +75,23 @@ floor: Robolectric 4.14 cannot read this build's JDK 25 bytecode and 4.16 can.
 | a feature, full stack | `python3 scripts/create_feature.py userProfile` |
 | a screen-only feature | `python3 scripts/create_feature.py userProfile --layers presentation,di` |
 | another screen | `python3 scripts/create_screen.py userprofile UserProfileDetail` |
+| a screen with route arguments | `python3 scripts/create_screen.py userprofile Detail --with-args 'id:String'` |
+| a shared UI component | `python3 scripts/create_component.py PrimaryButton` |
 | a data source | `python3 scripts/create_datasource.py userprofile LocalUserProfile --repository` |
 | to undo a feature | `python3 scripts/delete_feature.py userProfile` |
 | to check conventions | `python3 scripts/doctor.py` |
+
+See [scripts/README.md](scripts/README.md) for the full set, or `--help` on any of them.
+
+In Claude Code these are also slash commands — `/new-feature`, `/new-screen`, `/new-component`,
+`/new-datasource`, `/check`, `/rename-project` — which carry the follow-up steps with them.
+
+Install the pre-commit hook once per clone, so a missed registration fails in seconds rather than
+in CI:
+
+```bash
+python3 scripts/install_hooks.py
+```
 
 ## The parts worth knowing before you write a ViewModel
 
