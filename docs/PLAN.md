@@ -10,21 +10,21 @@ human orientation. This file is the work list.
 **Gate at last run:** doctor 23/23 · test_scripts 42 · ktlint clean · build green
 **Device pass:** emulator `medium_phone_1`, light and dark, contrast measured (3.1 / 3.4)
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
-**Design system:** 40 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
+**Design system:** 41 components in `:core:ui`, imported from KSD — see 3.1 and the gallery
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
-| 3 · Design system and accessibility | A theme and components worth copying | 8 / 10 | `████████░░` 80% |
+| 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **38 / 70** | `█████░░░░░` 54% |
+| **Total** | | **39 / 70** | `██████░░░░` 56% |
 
-**Now:** 3.5 (`AppImage` over Coil 3).
+**Now:** 3.8 (bundle the brand face) — the last of Phase 3.
 **Next:** 3.8, then Phase 4 — 4.2 before 4.1 so goldens are recorded once. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
@@ -745,10 +745,19 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
   and 3.76:1 dark, just under the 4.5:1 body-text threshold. It is used for placeholders and
   missing values. 3.6 decides whether to keep the source value or raise it.
 
-- [ ] **3.5 `AppImage` over Coil 3** (S)
+- [x] **3.5 `AppImage` over Coil 3** (S) (2026-09-08)
   Why: Plan 1's G5. Features should not import an image library directly.
   Done: one composable in `core/ui` with placeholder and error states; Coil is `implementation`
   in `core/ui` only; `doctor.py` flags `coil` imports in features.
+  **Landed with one deviation:** Coil is declared in `configureCompose`, not in
+  `core/ui/build.gradle.kts`. The rulebook's "a module build file is a `plugins` block and its
+  project dependencies, nothing else" outranks the Done line's wording, and that rule is what the
+  export story rests on. Every UI module therefore links it; `implementation` scope and R8 make
+  that free, and check 21 is what actually confines it — it fails on an `import coil3.` anywhere
+  under `feature/`, which is the property the item wanted.
+  Loading draws an `AppSkeleton` in the image's own shape rather than a spinner, so nothing moves
+  when the bytes land; a failure draws a mark rather than collapsing, because an empty box reads
+  as a broken design and a mark reads as a missing picture.
 
 - [x] **3.6 Accessibility pass** (M) (2026-09-08)
   Why: Plan 1's G7. Lint's `ContentDescription` and `ClickableViewAccessibility` are warnings.

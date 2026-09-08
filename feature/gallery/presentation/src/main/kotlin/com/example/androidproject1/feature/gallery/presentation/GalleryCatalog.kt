@@ -1,5 +1,6 @@
 package com.example.androidproject1.feature.gallery.presentation
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -7,6 +8,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Modifier
 import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
 import com.example.androidproject1.core.ui.component.AppBadge
@@ -21,6 +23,7 @@ import com.example.androidproject1.core.ui.component.AppEmptyState
 import com.example.androidproject1.core.ui.component.AppFab
 import com.example.androidproject1.core.ui.component.AppFormField
 import com.example.androidproject1.core.ui.component.AppIconButton
+import com.example.androidproject1.core.ui.component.AppImage
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppNavRail
 import com.example.androidproject1.core.ui.component.AppProgress
@@ -300,6 +303,20 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "The outline of what is loading. It copies the target's shape and does not blink.",
         "Text line" to { AppSkeleton() },
         "A list row" to { AppSkeleton(height = AppTheme.density.listRowHeight) },
+    ),
+    entry(
+        "image",
+        "AppImage",
+        "Content",
+        "A remote image with its two real states. The one place that knows Coil exists.",
+        "Failed to load" to {
+            AppImage(
+                model = "https://example.invalid/product.jpg",
+                contentDescription = null,
+                // A thumbnail the height of a list row, which is where one usually sits.
+                modifier = Modifier.size(AppTheme.density.listRowHeight),
+            )
+        },
     ),
     entry(
         "card",

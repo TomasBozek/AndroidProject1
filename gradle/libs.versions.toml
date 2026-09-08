@@ -1,4 +1,5 @@
 [versions]
+coil = "3.1.0"
 agp = "9.4.0"
 kotlin = "2.4.20"
 composeBom = "2026.08.00"
@@ -24,6 +25,8 @@ dependencyAnalysis = "3.19.1"
 ktlintGradle = "14.2.0"
 
 [libraries]
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 # The Gradle plugins themselves, so build-logic/ can compile against their DSL. Not for a module.
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }

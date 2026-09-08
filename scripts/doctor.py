@@ -586,6 +586,8 @@ def check_modifier_parameter() -> list[str]:
 MATERIAL_IMPORT = re.compile(r"^import androidx\.compose\.material3\.(\w+)", re.MULTILINE)
 DIMENSION_LITERAL = re.compile(r"(?<![\w.])\d+(?:\.\d+)?\.(dp|sp)\b")
 RAW_COLOR = re.compile(r"\bColor\(0x|\bMaterialTheme\.colorScheme\b")
+# Swapping the image loader should be a change to AppImage and nothing else.
+IMAGE_LIBRARY = re.compile(r"^import coil3?\.", re.MULTILINE)
 
 # Material types a screen legitimately names because they are types, not widgets: they appear in
 # a component's own signature and a feature has to spell them to call it.
@@ -621,6 +623,16 @@ def check_features_use_the_design_system() -> list[str]:
                         line,
                         f"has a bare `{match.group(0)}` — ask AppTheme.spacing or "
                         "AppTheme.typography for a role",
+                    )
+                )
+            for match in IMAGE_LIBRARY.finditer(text):
+                line = text[: match.start()].count("\n") + 1
+                problems.append(
+                    problem(
+                        path,
+                        line,
+                        "imports the image library directly — use AppImage, which is the one "
+                        "place that knows it exists",
                     )
                 )
             for match in RAW_COLOR.finditer(text):
