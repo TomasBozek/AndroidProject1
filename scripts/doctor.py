@@ -523,7 +523,7 @@ def check_modifier_parameter() -> list[str]:
     """
     The first rule in Compose's own API guidelines: a composable that emits UI takes
     `modifier: Modifier = Modifier` so its caller can position it. Previews and screen-level
-    composables that fill the window are exempt.
+    composables that fill the window are exempt, as is everything outside `src/main`.
     """
     problems = []
     roots = [REPO_ROOT / "core/ui", REPO_ROOT / "service/core/ui"]
@@ -531,6 +531,10 @@ def check_modifier_parameter() -> list[str]:
 
     for root in roots:
         for path in kotlin_files(root):
+            # Production composables only. A preview in `screenshotTest` positions nothing — it is
+            # the thing being rendered.
+            if "/src/main/" not in path.as_posix():
+                continue
             text = path.read_text()
             if "@Composable" not in text:
                 continue
