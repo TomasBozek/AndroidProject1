@@ -214,8 +214,9 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     ): Job {
         // Captured so SystemEvent.ContentAction can re-run exactly this call. Only meaningful for
         // Inline, which is the only display mode that offers the user a retry.
+        var retry: (() -> Unit)? = null
         if (errorDisplay == ErrorDisplay.Inline) {
-            pendingRetries[alertId] = {
+            retry = {
                 execute(
                     loadingMessage = loadingMessage,
                     loading = loading,
@@ -227,6 +228,14 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
                     onData = onData,
                 )
             }
+            pendingRetries[alertId] = retry
+        }
+
+        // Nothing failed, so there is nothing to retry: drop the lambda and the closures it holds
+        // rather than leaving them until the ViewModel is cleared. Removed by identity, so a later
+        // call that has since claimed this id keeps its own.
+        fun forgetRetry() {
+            retry?.let { pendingRetries.remove(alertId, it) }
         }
 
         return scope.launch {
@@ -234,6 +243,7 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
             try {
                 when (val outcome = action()) {
                     is Outcome.Success -> runCatching { onData(outcome.data) }
+                        .onSuccess { forgetRetry() }
                         .onFailure { handleError(it, onError, alertId, errorDisplay) }
 
                     is Outcome.Failure -> handleError(outcome.error, onError, alertId, errorDisplay)

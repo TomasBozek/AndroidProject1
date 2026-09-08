@@ -6,13 +6,13 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (0.11 landed)
-**Gate at last run:** doctor 17/17 · test_scripts 37 · unit tests 58 · build green
+**Last updated:** 2026-09-08 (Phase 0 complete)
+**Gate at last run:** doctor 17/17 · test_scripts 37 · unit tests 61 · build green
 **Repo:** 27 Gradle modules · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
-| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 13 / 14 | `█████████░` 93% |
+| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 0 / 8 | `░░░░░░░░░░` 0% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
@@ -20,10 +20,10 @@ human orientation. This file is the work list.
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **13 / 67** | `██░░░░░░░░` 19% |
+| **Total** | | **14 / 67** | `██░░░░░░░░` 21% |
 
 **Now:** nothing in flight.
-**Next:** 0.14 (the last of Phase 0). Then 1.8, then 1.1.
+**Next:** 1.8 (merge `gateway` into `data`), then 1.1 (convention plugins).
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -231,12 +231,14 @@ easier to verify.
   `setLoading` is the only thing that should write the overlay. `updateData` now takes
   `Data.() -> Data` rather than `Data.(Data) -> Data`, which handed the same value twice.
 
-- [ ] **0.14 Forget a retry once its call succeeds** (S)
+- [x] **0.14 Forget a retry once its call succeeds** (S) · 2026-09-08
   Why: 0.12 registers the retry lambda when an inline call starts and removes it only when the
   retry button is pressed. After a success the lambda, and the closures it captures, stay in the
   map until the ViewModel is cleared. Bounded and harmless, but a leak is a leak.
   Done: the entry is removed on success as well; a `BaseViewModelTest` case shows that a content
   action arriving after a successful load re-runs nothing.
+  Landed: removed by identity (`ConcurrentHashMap.remove(key, value)`), so a later call that has
+  since claimed the same content id keeps its own retry.
 
 ## Phase 1 · Build foundation
 

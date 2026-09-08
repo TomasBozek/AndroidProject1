@@ -239,6 +239,24 @@ class BaseViewModelTest {
         assertEquals(2, runs)
     }
 
+    @Test
+    fun `a retry is forgotten once its call succeeds`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+        var runs = 0
+
+        viewModel.inlineLoad("first") {
+            runs++
+            if (runs == 1) Outcome.Failure(NotFoundError(message = "gone")) else Outcome.Success(Unit)
+        }
+        viewModel.onSystemEvent(SystemEvent.ContentAction("first"))
+        assertEquals("the retry re-ran the call, and this time it succeeded", 2, runs)
+
+        // Nothing is pending any more, so a stray action re-runs nothing and holds no closures.
+        viewModel.onSystemEvent(SystemEvent.ContentAction("first"))
+
+        assertEquals(2, runs)
+    }
+
     // --- one-shot events ---
 
     /**
