@@ -31,7 +31,7 @@ It refuses to run on a dirty working tree, so `git checkout .` stays an escape h
 build-logic/                    the convention.* plugins — an included build, not a module
 service/core/{domain,data,ui}   the reusable architecture — knows nothing about this app
 core/{ui,di}                    this app's theme and its single Koin registration point
-app                             one activity, AppNavHost, MainViewModel
+app                             one activity, AppNavHost, MainViewModel + SessionState
 feature/<name>/{domain,data,presentation,di}
 ```
 

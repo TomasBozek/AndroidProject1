@@ -49,6 +49,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             add("implementation", libs.findLibrary("androidx-core-ktx").get())
             add("implementation", libs.findLibrary("androidx-lifecycle-runtime-ktx").get())
             add("implementation", libs.findLibrary("androidx-activity-compose").get())
+            // The system splash screen, which the app owns: it is installed by MainActivity
+            // and themed in app/src/main/res.
+            add("implementation", libs.findLibrary("androidx-core-splashscreen").get())
 
             add("implementation", platform(libs.findLibrary("koin-bom").get()))
             add("implementation", libs.findBundle("koin-android").get())

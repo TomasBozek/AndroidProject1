@@ -9,7 +9,6 @@ import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.feature.auth.di.AuthModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
 import com.example.androidproject1.feature.home.di.HomeModule
-import com.example.androidproject1.feature.launch.di.LaunchModule
 import com.example.androidproject1.feature.settings.di.SettingsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
@@ -47,7 +46,6 @@ fun appModules(isDebug: Boolean): List<Module> = listOf(
     AuthModule.module,
     HomeModule.module,
     SettingsModule.module,
-    LaunchModule.module,
     CatalogModule.module,
 )
 

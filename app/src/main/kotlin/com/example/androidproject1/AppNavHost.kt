@@ -16,7 +16,6 @@ import com.example.androidproject1.feature.catalog.presentation.categoriesDestin
 import com.example.androidproject1.feature.catalog.presentation.productDetailDestination
 import com.example.androidproject1.feature.catalog.presentation.productsDestination
 import com.example.androidproject1.feature.home.presentation.homeDestination
-import com.example.androidproject1.feature.launch.presentation.launchDestination
 import com.example.androidproject1.feature.settings.presentation.SettingsDestination
 import com.example.androidproject1.feature.settings.presentation.settingsDestination
 
@@ -46,7 +45,6 @@ fun AppNavHost(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
-            launchDestination()
             authEntries(backStack)
             mainEntries(backStack)
         },

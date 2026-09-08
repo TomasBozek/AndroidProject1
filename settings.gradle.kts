@@ -105,12 +105,6 @@ includeFeatureModule(
 )
 
 includeFeatureModule(
-    "launch",
-    ModuleSuffix.Presentation,
-    ModuleSuffix.Di,
-)
-
-includeFeatureModule(
     "catalog",
     ModuleSuffix.Domain,
     ModuleSuffix.Data,

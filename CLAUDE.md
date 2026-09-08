@@ -80,12 +80,11 @@ There are three top-level groups, and the split between the first two is the imp
 :core:ui              this app's Compose theme + the @ScreenPreview/@ComponentPreview helpers
 :core:di              initKoin() + coreModule — the single Koin registration point
 
-:app                  single activity, AppNavHost, MainViewModel, Application
+:app                  single activity, AppNavHost, MainViewModel, SessionState, Application
 
 :feature:auth:{domain,data,presentation,di}       full stack; owns the session
 :feature:catalog:{domain,data,presentation,di}    full stack; three screens, one with args
 :feature:home:{presentation,di}                   screen only
-:feature:launch:{presentation,di}                 screen only; the splash held by MainViewModel
 :feature:settings:{presentation,di}               screen only; reads :feature:auth:domain
 :feature:template:{domain,data,presentation,di}   what the generators clone
 ```
@@ -182,8 +181,12 @@ Every screen is seven files — six in one package, plus its test in the matchin
 - Alert results arrive at `onSystemEvent` as `SystemEvent.AlertResult.*` tagged with the alert's
   `id`; delegate anything you don't handle to `super`. See `SettingsViewModel` for the confirm-then-act
   pattern.
-- `MainViewModel` is the single owner of session state and the only thing that switches nav graphs.
-  Screens change the session and let it react — do not navigate between the auth and main graphs directly.
+- `MainViewModel` is the single owner of session state and the only thing that switches flows. It is
+  a **plain `ViewModel`**, not a `BaseViewModel` — it owns no screen — and exposes
+  `sessionState: StateFlow<SessionState>` (`Unknown` / `SignedIn` / `SignedOut`). `MainActivity`
+  keeps the system splash screen up while it is `Unknown` and composes the nav host once it is not.
+  Screens change the session and let it react — do not navigate between the auth and main flows
+  directly.
 - Strings reachable from a ViewModel are `UiText` (`R.string.x.toUiText()`), so no Context is needed;
   strings used only in a composable use `stringResource(...)`. Each feature's `presentation` module owns
   its `res/values/strings.xml` — no hardcoded literals. See `HomeState.greeting`.

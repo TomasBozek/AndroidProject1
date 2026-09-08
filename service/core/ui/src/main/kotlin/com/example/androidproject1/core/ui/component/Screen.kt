@@ -45,7 +45,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun <State, Event : UiEvent, Navigation : Any> Screen(
     viewModel: BaseViewModel<State, Event, Navigation>,
-    isTransparent: Boolean = false,
     onNavigation: (Navigation) -> Unit = {},
     content: @Composable (State, (Event) -> Unit) -> Unit,
 ) {
@@ -53,10 +52,7 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
 
-    ScreenSurface(
-        isTransparent = isTransparent,
-        modifier = Modifier.fillMaxSize(),
-    ) {
+    ScreenSurface(modifier = Modifier.fillMaxSize()) {
         // A failure or empty state stands in for the content rather than covering it: there is
         // nothing behind it worth showing.
         val contentState = uiState.content
@@ -141,15 +137,10 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
 // Always a Box inside, so the snackbar host has a BoxScope to align itself in.
 @Composable
 private fun ScreenSurface(
-    isTransparent: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    if (isTransparent) {
-        Box(modifier = modifier, content = content)
-    } else {
-        Surface(modifier = modifier) {
-            Box(modifier = Modifier.fillMaxSize(), content = content)
-        }
+    Surface(modifier = modifier) {
+        Box(modifier = Modifier.fillMaxSize(), content = content)
     }
 }

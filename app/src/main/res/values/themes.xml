@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--
+      The theme the launcher window uses, and so the one the manifest names on the activity. It is
+      the system splash screen; `installSplashScreen()` swaps it for `postSplashScreenTheme` once
+      the activity is up, and MainActivity keeps it on screen while the session is still Unknown.
+
+      The explicit parent wins over the implicit `Theme.AndroidProject1` inheritance the dotted name
+      would otherwise give it — the same shape as the platform's own sample.
+    -->
+    <style name="Theme.AndroidProject1.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.AndroidProject1</item>
+    </style>
+
+    <!-- Only what is outside Compose: the window itself. The app's colours are in `:core:ui`. -->
     <style name="Theme.AndroidProject1" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

@@ -6,25 +6,25 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8 and 2.2 landed)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 65 · build green
-**Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2 and 2.1 landed)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 64 · build green
+**Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 2 / 8 | `███░░░░░░░` 25% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 3 / 8 | `████░░░░░░` 38% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **24 / 67** | `████░░░░░░` 36% |
+| **Total** | | **25 / 67** | `████░░░░░░` 37% |
 
-**Now:** 2.1.
-**Next:** 2.1 (splash; 2.2 landed first because the splash condition is its `SessionState`),
-then 2.3, 2.4, and 2.5 to 2.7 in any order.
+**Now:** nothing in flight.
+**Next:** 2.3 (bottom navigation) and 2.4 (transitions), which both build on the `NavDisplay`;
+2.5, 2.6 and 2.7 are independent of them and of each other.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -94,6 +94,11 @@ six slash commands). See git history for the details.
   `create_screen.py --with-args` writes it and `doctor.py` check 20 fails if it is missing.
 - `rememberSceneSetupNavEntryDecorator` is internal in navigation3 1.1.7 — `NavDisplay` adds it
   itself. Pass only the saveable-state and ViewModel-store decorators.
+- **`rememberNavBackStack` must be composed on the first frame.** It is a `rememberSaveable`, and
+  one that first enters composition on a later frame gets nothing back from the restored state.
+  Gating it on anything asynchronous — the session, a feature flag, a loaded config — throws the
+  saved back stack away on every process death, silently and only on a real device. Remember it
+  unconditionally (empty if need be) and gate the `NavDisplay` instead. Found in 2.1.
 - `Module.mappings` is `@KoinInternalAPI`, so the route-key injections cannot be derived by walking
   the graph. They are listed.
 - `testFixtures { enable = true }` works on AGP 9.
@@ -440,7 +445,7 @@ Order: **2.8 first** (or together with 2.1 and 2.2, since both touch the navigat
 and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and migrate them later.
 2.5, 2.6 and 2.7 are independent.
 
-- [ ] **2.1 SplashScreen API replaces the `launch` feature and the 2 s hold** (M) · D2 decided: yes
+- [x] **2.1 SplashScreen API replaces the `launch` feature and the 2 s hold** (M) · 2026-09-08 · D2 decided: yes
   Why: `LaunchScreen` is a spinner, `MainViewModel` delays two seconds so it is visible, and
   `MainActivity` composes an invisible `Screen()` over the nav host just to receive the graph
   switch. `androidx.core.splashscreen` with `setKeepOnScreenCondition { session is Unknown }`
@@ -449,6 +454,22 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   once the session is known, starting in the matching flow (auth or main); a later session change
   replaces the whole back stack; `Screen.isTransparent` removed; `themes.xml` uses
   `Theme.SplashScreen`.
+  Landed. `androidx.core:core-splashscreen` **1.2.0**, the current stable. The manifest names
+  `Theme.AndroidProject1.Starting` on the activity and `postSplashScreenTheme` points back at the
+  real theme, so the launcher window is the splash and `installSplashScreen()` swaps it.
+  One difference from the Done line, and it is the reason this item was worth running on a device:
+  - **The back stack is remembered on the first frame and starts empty**, rather than the whole
+    host being composed only once the session is known. `rememberNavBackStack` is a
+    `rememberSaveable`; composing it behind the session dropped the saved back stack on every
+    process death — see the new gotcha above. So it is always remembered, the session fills it,
+    and `AppNavHost` is composed once it is non-empty. Same "nothing before the flow is known"
+    behaviour, without the loss.
+  Verified on an emulator (API 37): cold start signed in lands on Home with no spinner and no hold;
+  cold start signed out lands on Sign in; Log out replaces the whole stack with Sign in; back walks
+  Croissant → Bakery → Categories → Home; and killing the process four screens deep and relaunching
+  comes back on the product detail. This last one **fails** on the version of this item that
+  composed the host conditionally, and passes on the one that shipped — the regression was found
+  and fixed here, not shipped. Predictive back's animation was not exercised.
 
 - [x] **2.2 `MainViewModel` is a plain `ViewModel` with a `SessionState`** (S) · 2026-09-08 · D2 decided: yes
   Why: it is not a screen. Today it subclasses `BaseViewModel` with a state nothing renders and a
@@ -543,6 +564,8 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
     `koin-androidx-compose-navigation` (and so from the `koin-android` bundle).
   Not verified on a device: process-death restoration and predictive back are asserted by
   `rememberNavBackStack`'s contract, not by a test here. Worth a manual pass with 2.1.
+  Since done: 2.1's device pass confirms process-death restoration four screens deep. Predictive
+  back is still unexercised.
 
 ## Phase 3 · Design system and accessibility
 

@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Behind the splash icon. A window background, so it cannot come from the Compose theme. -->
+    <color name="splash_background">#FFFFFFFF</color>
 </resources>
