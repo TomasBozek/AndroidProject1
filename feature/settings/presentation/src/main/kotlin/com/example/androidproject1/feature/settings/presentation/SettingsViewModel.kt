@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.settings.presentation
 
 import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.CommonEvent
+import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.state.setAlert
-import com.example.androidproject1.core.ui.toText
+import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.auth.domain.AuthService
 import kotlinx.coroutines.flow.update
@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.update
 class SettingsViewModel(
     logger: Logger,
     private val authService: AuthService,
-) : BaseViewModel<SettingsState, SettingsEvent, SettingsDirection>(
+) : BaseViewModel<SettingsState, SettingsEvent, SettingsNavigation>(
     initialState = SettingsState(email = null),
     logger = logger.withTag("SettingsViewModel"),
 ) {
 
     init {
-        domainCall(
+        observe(
             flow = { authService.observeSession() },
             loading = {},
         ) { session ->
@@ -27,40 +27,35 @@ class SettingsViewModel(
 
     override fun onUiEvent(event: SettingsEvent) {
         when (event) {
-            SettingsEvent.NavigateUpClicked -> navigate(SettingsDirection.NavigateUp)
+            SettingsEvent.NavigateUpClicked -> navigate(SettingsNavigation.NavigateUp)
 
-            // A ViewModel-reachable string is an AppString, so no Context is needed here.
             SettingsEvent.LogoutClicked -> uiState.setAlert(
                 id = ALERT_ID_LOGOUT,
-                title = R.string.settings_logout_title.toText(),
-                message = R.string.settings_logout_confirmation.toText(),
-                primaryButton = R.string.settings_logout_confirm.toText(),
-                secondaryButton = R.string.settings_logout_cancel.toText(),
+                title = R.string.settings_logout_title.toUiText(),
+                message = R.string.settings_logout_confirmation.toUiText(),
+                confirmLabel = R.string.settings_logout_confirm.toUiText(),
+                declineLabel = R.string.settings_logout_cancel.toUiText(),
             )
         }
     }
 
-    /**
-     * Alert results come back here rather than to [onUiEvent], tagged with the alert's id — which
-     * is how a screen with several dialogs tells them apart. Anything not handled is delegated to
-     * `super`, which just dismisses the alert.
-     */
-    override fun onCommonEvent(event: CommonEvent) {
+    /** Alert results arrive here tagged with the alert's id; delegate what you don't handle. */
+    override fun onSystemEvent(event: SystemEvent) {
         when {
-            event is CommonEvent.AlertDialogAction &&
+            event is SystemEvent.AlertResult &&
                 event.id == ALERT_ID_LOGOUT &&
-                event is CommonEvent.AlertDialogAction.PrimaryClicked -> {
-                super.onCommonEvent(event)
+                event is SystemEvent.AlertResult.Confirmed -> {
+                super.onSystemEvent(event)
                 logout()
             }
 
-            else -> super.onCommonEvent(event)
+            else -> super.onSystemEvent(event)
         }
     }
 
-    private fun logout() = domainCall(
+    private fun logout() = execute(
         action = { authService.logout() },
-        handleData = { logger.d { "Signed out" } },
+        onData = { logger.d { "Signed out" } },
     )
 
     private companion object {

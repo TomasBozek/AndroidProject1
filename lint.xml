@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Shared lint configuration. Applied by every module through the `lint { }` block in its build
+    file, so a rule is raised or lowered in one place rather than 27.
+-->
+<lint>
+    <!-- Correctness issues worth failing a build over. -->
+    <issue id="StateFlowValueCalledInComposition" severity="error" />
+    <issue id="ComposableNaming" severity="error" />
+    <issue id="UnrememberedMutableState" severity="error" />
+    <issue id="ProduceStateDoesNotAssignValue" severity="error" />
+    <issue id="CoroutineCreationDuringComposition" severity="error" />
+    <issue id="FlowOperatorInvokedInComposition" severity="error" />
+    <issue id="AutoboxingStateCreation" severity="error" />
+
+    <!-- Accessibility: see G7. Warnings for now, raise to error once the pass is done. -->
+    <issue id="ContentDescription" severity="warning" />
+    <issue id="ClickableViewAccessibility" severity="warning" />
+
+    <!-- Localisation: every user-facing string belongs in a feature's strings.xml. -->
+    <issue id="HardcodedText" severity="error" />
+
+    <!-- Security. -->
+    <issue id="UnsafeIntentLaunch" severity="error" />
+    <issue id="AllowBackup" severity="error" />
+
+    <!--
+        Dependency freshness is Renovate's job (I6), not the build's — an out-of-date library
+        should not fail a build that was passing yesterday.
+    -->
+    <issue id="GradleDependency" severity="informational" />
+    <issue id="AndroidGradlePluginVersion" severity="informational" />
+    <issue id="NewerVersionAvailable" severity="informational" />
+</lint>

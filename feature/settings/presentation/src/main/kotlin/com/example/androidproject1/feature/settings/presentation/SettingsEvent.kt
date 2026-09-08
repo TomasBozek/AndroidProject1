@@ -1,8 +1,8 @@
 package com.example.androidproject1.feature.settings.presentation
 
-import com.example.androidproject1.core.ui.Event
+import com.example.androidproject1.core.ui.event.UiEvent
 
-sealed interface SettingsEvent : Event {
+sealed interface SettingsEvent : UiEvent {
 
     data object NavigateUpClicked : SettingsEvent
 

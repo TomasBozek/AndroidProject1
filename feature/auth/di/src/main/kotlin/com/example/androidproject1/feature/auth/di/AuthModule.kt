@@ -4,9 +4,10 @@ import com.example.androidproject1.feature.auth.data.DefaultLocalAuthDataSource
 import com.example.androidproject1.feature.auth.domain.AuthRepository
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.auth.domain.DefaultAuthService
-import com.example.androidproject1.feature.auth.infrastructure.DefaultAuthRepository
-import com.example.androidproject1.feature.auth.infrastructure.LocalAuthDataSource
+import com.example.androidproject1.feature.auth.gateway.DefaultAuthRepository
+import com.example.androidproject1.feature.auth.gateway.LocalAuthDataSource
 import com.example.androidproject1.feature.auth.presentation.LoginViewModel
+import com.example.androidproject1.feature.auth.presentation.SignUpViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -17,6 +18,7 @@ object AuthModule {
 
     val module: Module = module {
         viewModelOf(::LoginViewModel)
+        viewModelOf(::SignUpViewModel)
 
         singleOf(::DefaultAuthService) bind AuthService::class
         singleOf(::DefaultAuthRepository) bind AuthRepository::class

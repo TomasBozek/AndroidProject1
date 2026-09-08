@@ -9,15 +9,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.androidproject1.core.ui.component.Screen
 import com.example.androidproject1.core.ui.theme.AppTheme
-import com.example.androidproject1.core.ui.util.CommandEffect
 import com.example.androidproject1.feature.auth.presentation.AuthNavGraph
 import com.example.androidproject1.feature.home.presentation.MainNavGraph
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinContext
 
-/**
- * The app's only Activity. Everything else is a composable destination.
- */
+/** The app's only Activity; everything else is a composable destination. */
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModel<MainViewModel>()
@@ -39,24 +36,22 @@ class MainActivity : ComponentActivity() {
     private fun MainContent() {
         val navController = rememberNavController()
 
-        // Screen() renders nothing until state.data is non-null, so the NavHost is not created
-        // until the session is known — which is what stops the login screen flashing on a cold
-        // start while already signed in.
-        Screen(viewModel = viewModel) { state, _ ->
-            AppNavHost(
-                navController = navController,
-                startGraph = if (state.isLoggedIn) MainNavGraph else AuthNavGraph,
-            )
-        }
+        // The app always starts on the launch screen; MainViewModel decides when to leave it.
+        AppNavHost(navController = navController)
 
-        // A session change can land while the UI is below STARTED; BaseViewModel buffers
-        // directions in a channel, so this collector picks it up on resume rather than missing it.
-        CommandEffect(commandFlow = viewModel.direction) { direction ->
-            when (direction) {
-                MainDirection.Main -> navController.switchGraph(MainNavGraph)
-                MainDirection.Auth -> navController.switchGraph(AuthNavGraph)
-            }
-        }
+        // MainViewModel owns no screen of its own — Screen() here only surfaces a session error
+        // as a dialog (observeSession() already retries, so this is a last-resort path) and
+        // delivers the graph switch.
+        Screen(
+            viewModel = viewModel,
+            isTransparent = true,
+            onNavigation = { navigation ->
+                when (navigation) {
+                    MainNavigation.Main -> navController.switchGraph(MainNavGraph)
+                    MainNavigation.Auth -> navController.switchGraph(AuthNavGraph)
+                }
+            },
+        ) { _, _ -> }
     }
 }
 

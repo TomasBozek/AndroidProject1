@@ -14,7 +14,14 @@ fun NavGraphBuilder.loginDestination(navController: NavHostController) {
     composable<LoginDestination> {
         val viewModel: LoginViewModel = koinViewModel()
 
-        Screen(viewModel = viewModel) { state, onEvent ->
+        Screen(
+            viewModel = viewModel,
+            onNavigation = { navigation ->
+                when (navigation) {
+                    LoginNavigation.SignUp -> navController.navigate(SignUpDestination)
+                }
+            },
+        ) { state, onEvent ->
             LoginScreen(
                 state = state,
                 onEvent = onEvent,

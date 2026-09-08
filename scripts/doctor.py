@@ -1,0 +1,560 @@
+#!/usr/bin/env python3
+"""
+Checks the conventions this template relies on but cannot enforce with a compiler.
+
+    python3 scripts/doctor.py
+    python3 scripts/doctor.py --list
+
+There is no detekt/ktlint here (detekt 1.23 cannot read the JDK 25 the daemon is pinned to), so
+these greps are the only automated defence for the rules in CLAUDE.md: the portability of
+`service/`, the six-file screen unit, module and DI registration, and versions coming from the
+version catalog. Exits non-zero when something is wrong, so it can run in CI.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _common import (  # noqa: E402
+    APP_NAV_HOST_FILE,
+    BASE_PACKAGE,
+    CORE_DI_BUILD_FILE,
+    KOIN_FILE,
+    REPO_ROOT,
+    SETTINGS_FILE,
+    TEMPLATE_FEATURE,
+    block_end,
+    relative_to_repo,
+)
+
+SCREEN_FILE_SUFFIXES = ["Destination", "Screen", "State", "Event", "Navigation", "ViewModel"]
+
+# The seventh file lives in the test source set rather than beside the other six.
+SCREEN_TEST_SUFFIX = "ViewModelTest"
+
+# Files in a presentation module that end in `Destination` or `NavGraph` but are not screens.
+NOT_A_SCREEN = re.compile(r"(NavGraph)\.kt$")
+
+SUFFIX_TO_LAYER = {
+    "Domain": "domain",
+    "Gateway": "gateway",
+    "Data": "data",
+    "Presentation": "presentation",
+    "Di": "di",
+    "Ui": "ui",
+}
+
+CHECKS = []
+
+
+def check(name: str):
+    def decorate(function):
+        CHECKS.append((name, function))
+        return function
+
+    return decorate
+
+
+def kotlin_files(root: Path):
+    if not root.is_dir():
+        return
+    for path in sorted(root.rglob("*.kt")):
+        if "build" in path.relative_to(root).parts:
+            continue
+        yield path
+
+
+def build_files(root: Path):
+    if not root.is_dir():
+        return
+    for path in sorted(root.rglob("build.gradle.kts")):
+        if "build" in path.relative_to(root).parts:
+            continue
+        yield path
+
+
+def feature_names() -> list[str]:
+    root = REPO_ROOT / "feature"
+    return sorted(p.name for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
+
+
+def presentation_dir(feature: str) -> Path:
+    return (
+        REPO_ROOT / "feature" / feature / "presentation/src/main/kotlin"
+        / BASE_PACKAGE.replace(".", "/") / "feature" / feature / "presentation"
+    )
+
+
+def problem(path: Path, line_number: int | None, message: str) -> str:
+    location = f"{relative_to_repo(path)}:{line_number}" if line_number else relative_to_repo(path)
+    return f"{location}: {message}"
+
+
+# --------------------------------------------------------------------------------------------
+# service/ portability
+# --------------------------------------------------------------------------------------------
+
+APP_PROJECT_ACCESSOR = re.compile(r"\bprojects\.(core|feature|app)\b")
+
+
+@check("service/ depends on nothing app-specific")
+def check_service_isolation() -> list[str]:
+    problems = []
+    for path in build_files(REPO_ROOT / "service"):
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            match = APP_PROJECT_ACCESSOR.search(line)
+            if match:
+                problems.append(problem(path, number, f"depends on :{match.group(1)} — service/ must stay portable"))
+    for path in kotlin_files(REPO_ROOT / "service"):
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            if line.startswith(f"import {BASE_PACKAGE}.feature."):
+                problems.append(problem(path, number, "imports a feature — service/ must stay portable"))
+    return problems
+
+
+@check(":service:core:domain is free of the Android framework")
+def check_domain_has_no_android() -> list[str]:
+    problems = []
+    for path in kotlin_files(REPO_ROOT / "service/core/domain"):
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            if re.match(r"import androidx?\.", line):
+                problems.append(problem(path, number, f"domain must not import the framework: {line.strip()}"))
+    return problems
+
+
+@check(":service:core:ui resources are prefixed core_")
+def check_resource_prefix() -> list[str]:
+    module = REPO_ROOT / "service/core/ui"
+    if not module.is_dir():
+        return []
+
+    problems = []
+    build_file = module / "build.gradle.kts"
+    if build_file.is_file() and 'resourcePrefix = "core_"' not in build_file.read_text():
+        problems.append(problem(build_file, None, 'missing resourcePrefix = "core_"'))
+
+    for path in sorted((module / "src/main/res").rglob("*.xml")) if (module / "src/main/res").is_dir() else []:
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            for name in re.findall(r'\bname="([^"]+)"', line):
+                if not name.startswith("core_"):
+                    problems.append(problem(path, number, f"resource '{name}' is missing the core_ prefix"))
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Screens
+# --------------------------------------------------------------------------------------------
+
+
+@check("every screen is a complete seven-file unit")
+def check_screen_units() -> list[str]:
+    problems = []
+    for feature in feature_names():
+        for destination in sorted(presentation_dir(feature).rglob("*Destination.kt")) if presentation_dir(feature).is_dir() else []:
+            if NOT_A_SCREEN.search(destination.name):
+                continue
+            screen = destination.name[: -len("Destination.kt")]
+            for suffix in SCREEN_FILE_SUFFIXES:
+                sibling = destination.parent / f"{screen}{suffix}.kt"
+                if not sibling.is_file():
+                    problems.append(problem(destination, None, f"screen '{screen}' is missing {sibling.name}"))
+
+            test_file = test_dir_for(destination, feature) / f"{screen}{SCREEN_TEST_SUFFIX}.kt"
+            if not test_file.is_file():
+                problems.append(
+                    problem(destination, None, f"screen '{screen}' is missing {test_file.name} — generate it, don't skip it")
+                )
+    return problems
+
+
+def test_dir_for(destination: Path, feature: str) -> Path:
+    """The test source set directory mirroring a screen's package, sub-package included."""
+    main_root = (
+        REPO_ROOT / "feature" / feature / "presentation/src/main/kotlin"
+        / BASE_PACKAGE.replace(".", "/") / "feature" / feature / "presentation"
+    )
+    test_root = (
+        REPO_ROOT / "feature" / feature / "presentation/src/test/kotlin"
+        / BASE_PACKAGE.replace(".", "/") / "feature" / feature / "presentation"
+    )
+    return test_root / destination.parent.relative_to(main_root)
+
+
+@check("every XState has a PREVIEW fixture")
+def check_state_previews() -> list[str]:
+    problems = []
+    for feature in feature_names():
+        directory = presentation_dir(feature)
+        for state in sorted(directory.rglob("*State.kt")) if directory.is_dir() else []:
+            if not re.search(r"\bval PREVIEW\b", state.read_text()):
+                problems.append(problem(state, None, "no `val PREVIEW` — it is the preview fixture and the usual initialState"))
+    return problems
+
+
+@check("no ViewModel clears its loading state in an init block")
+def check_no_loading_in_init() -> list[str]:
+    """
+    `BaseViewModel` takes `initialState`, and `execute` drives the overlay. An
+    `init { uiState.update { ... loading = null } }` is the pattern that once left a forgotten line
+    stranding a screen behind a permanent spinner.
+
+    Subscribing to a flow from `init` and updating `data` is fine — see `SettingsViewModel` — so
+    only writes that touch `loading` are flagged.
+    """
+    problems = []
+    for feature in feature_names():
+        directory = presentation_dir(feature)
+        for view_model in sorted(directory.rglob("*ViewModel.kt")) if directory.is_dir() else []:
+            lines = view_model.read_text().split("\n")
+            for number, line in enumerate(lines):
+                if line.strip() != "init {":
+                    continue
+                body = "\n".join(lines[number: block_end(lines, number) + 1])
+                if re.search(r"uiState\.update\s*\{[^}]*\bloading\s*=", body, re.DOTALL):
+                    problems.append(
+                        problem(view_model, number + 1, "init block writes `loading` — pass initialState and let execute drive the overlay")
+                    )
+    return problems
+
+
+@check("no feature presentation depends on another feature's presentation")
+def check_cross_feature_presentation() -> list[str]:
+    problems = []
+    for feature in feature_names():
+        build_file = REPO_ROOT / "feature" / feature / "presentation/build.gradle.kts"
+        if not build_file.is_file():
+            continue
+        for number, line in enumerate(build_file.read_text().split("\n"), start=1):
+            match = re.search(r"projects\.feature\.(\w+)\.presentation", line)
+            if match and match.group(1) != feature:
+                problems.append(
+                    problem(build_file, number, f"depends on :feature:{match.group(1)}:presentation — pass a lambda from AppNavHost instead")
+                )
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Registration
+# --------------------------------------------------------------------------------------------
+
+FEATURE_BLOCK = re.compile(r'includeFeatureModule\(\s*"([^"]+)",\s*((?:ModuleSuffix\.\w+,\s*)*)\)')
+CORE_BLOCK = re.compile(r"includeCoreModule\(\s*((?:ModuleSuffix\.\w+,\s*)*)\)")
+SERVICE_BLOCK = re.compile(r'includeServiceModule\(\s*"([^"]+)",\s*((?:ModuleSuffix\.\w+,\s*)*)\)')
+
+
+def registered_modules() -> set[str]:
+    """Every module path settings.gradle.kts includes, as a repo-relative directory."""
+    text = SETTINGS_FILE.read_text()
+    paths = set()
+
+    def layers(raw: str) -> list[str]:
+        return [SUFFIX_TO_LAYER[s] for s in re.findall(r"ModuleSuffix\.(\w+)", raw) if s in SUFFIX_TO_LAYER]
+
+    for name, raw in FEATURE_BLOCK.findall(text):
+        paths.update(f"feature/{name}/{layer}" for layer in layers(raw))
+    for name, raw in SERVICE_BLOCK.findall(text):
+        paths.update(f"service/{name}/{layer}" for layer in layers(raw))
+    for raw in CORE_BLOCK.findall(text):
+        paths.update(f"core/{layer}" for layer in layers(raw))
+    if re.search(r'include\("?:app"?\)', text) or 'include(":app")' in text:
+        paths.add("app")
+    return paths
+
+
+@check("every module on disk is included in settings.gradle.kts")
+def check_modules_registered() -> list[str]:
+    included = registered_modules()
+    problems = []
+    for build_file in build_files(REPO_ROOT):
+        module = build_file.parent
+        if module == REPO_ROOT or "buildSrc" in module.parts:
+            continue
+        relative = relative_to_repo(module)
+        if relative not in included:
+            problems.append(problem(build_file, None, f"module '{relative}' is not in settings.gradle.kts"))
+    return problems
+
+
+@check("every feature di module is wired into Koin")
+def check_koin_registration() -> list[str]:
+    if not KOIN_FILE.is_file():
+        return [problem(KOIN_FILE, None, "not found")]
+
+    koin = KOIN_FILE.read_text()
+    core_di_build = CORE_DI_BUILD_FILE.read_text() if CORE_DI_BUILD_FILE.is_file() else ""
+    problems = []
+
+    for feature in feature_names():
+        di_dir = (
+            REPO_ROOT / "feature" / feature / "di/src/main/kotlin"
+            / BASE_PACKAGE.replace(".", "/") / "feature" / feature / "di"
+        )
+        for module_file in sorted(di_dir.glob("*Module.kt")) if di_dir.is_dir() else []:
+            if feature == TEMPLATE_FEATURE:
+                continue
+            if f"{module_file.stem}.module," not in koin:
+                problems.append(problem(KOIN_FILE, None, f"{module_file.stem}.module is not in initKoin()"))
+            if f"api(projects.feature.{feature}.di)" not in core_di_build:
+                problems.append(problem(CORE_DI_BUILD_FILE, None, f"missing api(projects.feature.{feature}.di)"))
+    return problems
+
+
+@check("every ViewModel is registered in its feature's Koin module")
+def check_view_models_registered() -> list[str]:
+    problems = []
+    for feature in feature_names():
+        directory = presentation_dir(feature)
+        if not directory.is_dir():
+            continue
+        di_dir = (
+            REPO_ROOT / "feature" / feature / "di/src/main/kotlin"
+            / BASE_PACKAGE.replace(".", "/") / "feature" / feature / "di"
+        )
+        di_text = "\n".join(p.read_text() for p in di_dir.glob("*Module.kt")) if di_dir.is_dir() else ""
+        for view_model in sorted(directory.rglob("*ViewModel.kt")):
+            if f"viewModelOf(::{view_model.stem})" not in di_text:
+                problems.append(problem(view_model, None, f"no viewModelOf(::{view_model.stem}) in feature/{feature}/di"))
+    return problems
+
+
+@check("every destination is registered in AppNavHost")
+def check_destinations_registered() -> list[str]:
+    if not APP_NAV_HOST_FILE.is_file():
+        return [problem(APP_NAV_HOST_FILE, None, "not found")]
+
+    nav_host = APP_NAV_HOST_FILE.read_text()
+    problems = []
+    for feature in feature_names():
+        # The template feature is compiled but deliberately unreachable.
+        if feature == TEMPLATE_FEATURE:
+            continue
+        directory = presentation_dir(feature)
+        for destination in sorted(directory.rglob("*Destination.kt")) if directory.is_dir() else []:
+            for function in re.findall(r"fun NavGraphBuilder\.(\w+)\(", destination.read_text()):
+                if f"{function}(" not in nav_host:
+                    problems.append(problem(destination, None, f"{function}() is never called in AppNavHost.kt"))
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Layer direction
+# --------------------------------------------------------------------------------------------
+
+# What each layer of a feature is allowed to depend on. The table in CLAUDE.md, enforced.
+ALLOWED_FEATURE_DEPENDENCIES = {
+    "domain": {"domain"},
+    "gateway": {"domain", "gateway"},
+    "data": {"domain", "gateway", "data"},
+    "presentation": {"domain", "presentation"},
+    "di": {"domain", "gateway", "data", "presentation", "di"},
+}
+
+FEATURE_PROJECT_ACCESSOR = re.compile(r"projects\.feature\.(\w+)\.(\w+)")
+
+
+@check("feature layers depend only downwards")
+def check_layer_direction() -> list[str]:
+    """
+    `presentation` reaching into `data` or `gateway` compiles perfectly well and quietly undoes the
+    layering — the ViewModel ends up talking to a data source instead of a repository. The
+    cross-feature rule is checked separately; this one is about layers within a feature.
+    """
+    problems = []
+    for feature in feature_names():
+        for layer, allowed in ALLOWED_FEATURE_DEPENDENCIES.items():
+            build_file = REPO_ROOT / "feature" / feature / layer / "build.gradle.kts"
+            if not build_file.is_file():
+                continue
+            for number, line in enumerate(build_file.read_text().split("\n"), start=1):
+                match = FEATURE_PROJECT_ACCESSOR.search(line)
+                if not match:
+                    continue
+                target_feature, target_layer = match.group(1), match.group(2)
+                if target_feature != feature:
+                    continue  # cross-feature deps are check_cross_feature_presentation's business
+                if target_layer not in allowed:
+                    problems.append(
+                        problem(
+                            build_file,
+                            number,
+                            f"{layer} must not depend on {target_layer} — allowed: {', '.join(sorted(allowed))}",
+                        )
+                    )
+    return problems
+
+
+SERVICE_LAYER_ALLOWED = {"domain": set(), "data": {"domain"}, "ui": {"domain"}}
+
+
+@check("service layers depend only downwards")
+def check_service_layer_direction() -> list[str]:
+    problems = []
+    for module in sorted((REPO_ROOT / "service").glob("*/*")) if (REPO_ROOT / "service").is_dir() else []:
+        build_file = module / "build.gradle.kts"
+        allowed = SERVICE_LAYER_ALLOWED.get(module.name)
+        if not build_file.is_file() or allowed is None:
+            continue
+        for number, line in enumerate(build_file.read_text().split("\n"), start=1):
+            match = re.search(r"projects\.service\.\w+\.(\w+)", line)
+            if match and match.group(1) not in allowed:
+                problems.append(
+                    problem(build_file, number, f"service {module.name} must not depend on {match.group(1)}")
+                )
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Compose conventions
+# --------------------------------------------------------------------------------------------
+
+PUBLIC_COMPOSABLE = re.compile(r"^(?:@\w+(?:\([^)]*\))?\s*)*fun ([A-Z]\w*)\s*\(")
+
+
+@check("every public composable takes a Modifier parameter")
+def check_modifier_parameter() -> list[str]:
+    """
+    The first rule in Compose's own API guidelines: a composable that emits UI takes
+    `modifier: Modifier = Modifier` so its caller can position it. Previews and screen-level
+    composables that fill the window are exempt.
+    """
+    problems = []
+    roots = [REPO_ROOT / "core/ui", REPO_ROOT / "service/core/ui"]
+    roots += [REPO_ROOT / "feature" / f / "presentation" for f in feature_names()]
+
+    for root in roots:
+        for path in kotlin_files(root):
+            text = path.read_text()
+            if "@Composable" not in text:
+                continue
+            lines = text.split("\n")
+            for number, line in enumerate(lines):
+                if line.strip() != "@Composable":
+                    continue
+                # find the fun declaration that follows the annotation block
+                index = number + 1
+                while index < len(lines) and not lines[index].lstrip().startswith("fun "):
+                    if lines[index].lstrip().startswith("private fun ") or lines[index].strip() == "":
+                        break
+                    index += 1
+                if index >= len(lines):
+                    continue
+                declaration = lines[index].lstrip()
+                if not declaration.startswith("fun "):
+                    continue
+                name = declaration[4:].split("(")[0].split("<")[0].strip()
+                # An extension (`fun UiText.resolve()`) is a helper, not something that emits UI.
+                if "." in name or not name[:1].isupper():
+                    continue
+                body = "\n".join(lines[index:index + 60])
+                # Match parens rather than splitting on the first ")": a parameter list is full of
+                # them (`onConfirm: () -> Unit`), and splitting truncates before `modifier`.
+                start = body.index("(")
+                depth, end = 0, start
+                for position in range(start, len(body)):
+                    depth += (body[position] == "(") - (body[position] == ")")
+                    if depth == 0:
+                        end = position
+                        break
+                signature = body[start:end + 1]
+                returns_value = re.match(r"\s*:\s*(?!Unit\b)\w", body[end + 1:])
+                # Exempt what has nothing to position: a value-returning helper, a theme or
+                # CompositionLocal wrapper, a preview, and a screen-level composable that fills
+                # the window it is given.
+                if returns_value or name.endswith(("Screen", "Preview", "Theme", "Provider")):
+                    continue
+                if "modifier: Modifier" not in signature:
+                    problems.append(
+                        problem(path, index + 1, f"composable '{name}' takes no `modifier: Modifier = Modifier`")
+                    )
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Provenance
+# --------------------------------------------------------------------------------------------
+
+# Identifiers that must never appear in this repo. This template's architecture evolved from a
+# client codebase; a name carried in by a hurried copy-paste is the way that becomes a problem.
+FOREIGN_IDENTIFIERS = [
+    "mcedison",
+    "prometheus",
+    "com.mobile.plugin",
+]
+
+
+@check("no foreign project identifiers")
+def check_foreign_identifiers() -> list[str]:
+    problems = []
+    skip_dirs = {".git", "build", ".gradle", "__pycache__", ".idea", ".kotlin"}
+    for path in sorted(REPO_ROOT.rglob("*")):
+        if not path.is_file() or path.suffix not in {".kt", ".kts", ".py", ".xml", ".toml", ".md", ".yml", ".pro"}:
+            continue
+        if set(path.relative_to(REPO_ROOT).parts) & skip_dirs:
+            continue
+        if path.name == "doctor.py":
+            continue  # this list lives here
+        lowered = path.read_text(errors="ignore").lower()
+        for identifier in FOREIGN_IDENTIFIERS:
+            if identifier in lowered:
+                problems.append(problem(path, None, f"contains '{identifier}' — see the provenance note in README.md"))
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Build files
+# --------------------------------------------------------------------------------------------
+
+HARDCODED_COORDINATE = re.compile(
+    r"^\s*(?:api|implementation|compileOnly|runtimeOnly|testImplementation|androidTestImplementation|debugImplementation)"
+    r"\s*\(\s*(?:platform\(\s*)?\"[\w.\-]+:[\w.\-]+"
+)
+
+
+@check("no dependency version is hardcoded outside the version catalog")
+def check_no_hardcoded_versions() -> list[str]:
+    problems = []
+    for path in build_files(REPO_ROOT):
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            if HARDCODED_COORDINATE.match(line):
+                problems.append(problem(path, number, f"hardcoded coordinate: {line.strip()} — use libs.versions.toml"))
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Check this project's architectural conventions.")
+    parser.add_argument("--list", action="store_true", help="List the checks and exit.")
+    args = parser.parse_args()
+
+    if args.list:
+        for name, _ in CHECKS:
+            print(f"  {name}")
+        return
+
+    failed = 0
+    for name, function in CHECKS:
+        problems = function()
+        if problems:
+            failed += 1
+            print(f"[FAIL] {name}")
+            for line in problems:
+                print(f"         {line}")
+        else:
+            print(f"[ ok ] {name}")
+
+    print()
+    if failed:
+        print(f"{failed} of {len(CHECKS)} checks failed.")
+        sys.exit(1)
+    print(f"All {len(CHECKS)} checks passed.")
+
+
+if __name__ == "__main__":
+    main()

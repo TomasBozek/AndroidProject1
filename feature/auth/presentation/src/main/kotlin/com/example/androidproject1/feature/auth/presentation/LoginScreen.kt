@@ -30,7 +30,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            // The activity is edge to edge, so a screen without a Scaffold pads itself.
+            // Edge to edge: a screen without a Scaffold pads itself.
             .safeDrawingPadding()
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
@@ -70,6 +70,10 @@ fun LoginScreen(
 
         TextButton(onClick = { onEvent(LoginEvent.SkipLoginClicked) }) {
             Text(text = stringResource(R.string.login_skip))
+        }
+
+        TextButton(onClick = { onEvent(LoginEvent.SignUpClicked) }) {
+            Text(text = stringResource(R.string.login_sign_up))
         }
     }
 }

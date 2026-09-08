@@ -21,8 +21,21 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    lint {
+        // Shared configuration; see lint.xml at the repo root.
+        lintConfig = rootProject.file("lint.xml")
+        warningsAsErrors = false
+        abortOnError = true
+    }
+
     buildFeatures {
         compose = true
+    }
+
+    // Ships MainDispatcherRule to every module that tests a ViewModel, so none of them re-writes
+    // Dispatchers.setMain/resetMain. Consume with `testImplementation(testFixtures(projects...))`.
+    testFixtures {
+        enable = true
     }
 }
 
@@ -35,7 +48,12 @@ dependencies {
     api(libs.bundles.compose.core)
     debugImplementation(libs.androidx.compose.ui.tooling)
     api(libs.androidx.lifecycle.viewmodel.ktx)
+    // SavedStateHandle + toRoute(): BaseViewModel reads typed navigation arguments.
+    api(libs.androidx.lifecycle.viewmodel.savedstate)
+    api(libs.androidx.navigation.compose)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
+    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
+
+    testImplementation(libs.bundles.testing)
 }

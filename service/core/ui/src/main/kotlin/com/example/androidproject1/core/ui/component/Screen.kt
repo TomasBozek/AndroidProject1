@@ -7,63 +7,88 @@ import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.androidproject1.core.ui.CommonEvent
-import com.example.androidproject1.core.ui.CommonUiCommand
-import com.example.androidproject1.core.ui.Event
-import com.example.androidproject1.core.ui.util.CommandEffect
+import com.example.androidproject1.core.ui.event.SystemEvent
+import com.example.androidproject1.core.ui.event.UiCommand
+import com.example.androidproject1.core.ui.event.UiEvent
+import com.example.androidproject1.core.ui.util.CollectEffect
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Wraps a feature's stateless screen composable.
  *
- * This is the single place in the app where state is collected and where [CommonUiCommand]s are
- * interpreted, and it renders the loading overlay and alert dialog centrally. The feature's own
- * [screen] lambda therefore only ever receives a non-null state.
+ * The single place that collects state, interprets [UiCommand]s, renders the loading overlay, the
+ * alert dialog and empty/error content, and delivers navigation intents. The [content] lambda
+ * therefore only ever receives a non-null state, and a destination never writes a collector.
+ *
+ * @param onNavigation turns this screen's navigation intents into `navController` calls. Collected
+ * only while the UI is at least STARTED; an intent emitted below that is buffered and delivered on
+ * resume rather than dropped.
  */
 @Composable
-fun <State, E : Event, Direction> Screen(
-    viewModel: BaseViewModel<State, E, Direction>,
+fun <State, Event : UiEvent, Navigation : Any> Screen(
+    viewModel: BaseViewModel<State, Event, Navigation>,
     isTransparent: Boolean = false,
-    screen: @Composable (State, (E) -> Unit) -> Unit,
+    onNavigation: (Navigation) -> Unit = {},
+    content: @Composable (State, (Event) -> Unit) -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
 
-    ScreenWrapper(
+    ScreenSurface(
         isTransparent = isTransparent,
         modifier = Modifier.fillMaxSize(),
     ) {
-        uiState.data?.let { screen(it, viewModel::onUiEvent) }
+        // A failure or empty state stands in for the content rather than covering it: there is
+        // nothing behind it worth showing.
+        val contentState = uiState.content
+        if (contentState != null) {
+            ContentMessage(
+                state = contentState,
+                onAction = { viewModel.onSystemEvent(SystemEvent.ContentAction(contentState.id)) },
+            )
+        } else {
+            uiState.data?.let { content(it, viewModel::onUiEvent) }
+        }
 
         uiState.alert?.let { alert ->
-            AppAlertDialog(
+            StateAlertDialog(
                 state = alert,
-                onPrimaryClick = {
-                    viewModel.onCommonEvent(
-                        CommonEvent.AlertDialogAction.PrimaryClicked(alert.id, alert.data),
-                    )
+                onConfirm = {
+                    viewModel.onSystemEvent(SystemEvent.AlertResult.Confirmed(alert.id, alert.payload))
                 },
-                onSecondaryClick = {
-                    viewModel.onCommonEvent(
-                        CommonEvent.AlertDialogAction.SecondaryClicked(alert.id, alert.data),
-                    )
+                onDecline = {
+                    viewModel.onSystemEvent(SystemEvent.AlertResult.Declined(alert.id, alert.payload))
                 },
                 onDismiss = {
-                    viewModel.onCommonEvent(
-                        CommonEvent.AlertDialogAction.Dismissed(alert.id, alert.data),
-                    )
+                    viewModel.onSystemEvent(SystemEvent.AlertResult.Dismissed(alert.id, alert.payload))
                 },
             )
         }
 
-        uiState.loading?.let { ModalLoadingOverlay(state = it) }
+        uiState.loading?.let { LoadingOverlay(state = it) }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
     }
 
     val context = LocalContext.current
@@ -71,38 +96,55 @@ fun <State, E : Event, Direction> Screen(
     val activity = LocalActivity.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
-    CommandEffect(commandFlow = viewModel.commonUiCommand) { command ->
+    CollectEffect(flow = viewModel.navigation, action = onNavigation)
+
+    CollectEffect(flow = viewModel.command) { command ->
         when (command) {
-            is CommonUiCommand.ShowToast ->
-                Toast.makeText(context, command.message.getString(context), Toast.LENGTH_SHORT).show()
+            is UiCommand.ShowToast ->
+                Toast.makeText(context, command.message.resolve(context), Toast.LENGTH_SHORT).show()
 
-            is CommonUiCommand.PressBack -> backDispatcher?.onBackPressed()
-
-            is CommonUiCommand.CloseApp -> activity?.finishAndRemoveTask()
-
-            is CommonUiCommand.OpenUri -> when (command) {
-                is CommonUiCommand.OpenUri.ExternalBrowser -> uriHandler.openUri(command.uri)
-
-                is CommonUiCommand.OpenUri.AppSettings -> context.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            is UiCommand.ShowSnackbar -> snackbarScope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = command.message.resolve(context),
+                    actionLabel = command.actionLabel?.resolve(context),
+                    withDismissAction = command.withDismissAction,
+                    duration = if (command.actionLabel == null) {
+                        SnackbarDuration.Short
+                    } else {
+                        SnackbarDuration.Long
                     },
                 )
+                if (result == SnackbarResult.ActionPerformed) command.onAction()
             }
+
+            is UiCommand.NavigateBack -> backDispatcher?.onBackPressed()
+
+            is UiCommand.CloseApp -> activity?.finishAndRemoveTask()
+
+            is UiCommand.OpenBrowser -> uriHandler.openUri(command.url)
+
+            is UiCommand.OpenAppSettings -> context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                },
+            )
         }
     }
 }
 
+// Always a Box inside, so the snackbar host has a BoxScope to align itself in.
 @Composable
-private fun ScreenWrapper(
+private fun ScreenSurface(
     isTransparent: Boolean,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     if (isTransparent) {
-        Box(modifier = modifier) { content() }
+        Box(modifier = modifier, content = content)
     } else {
-        Surface(modifier = modifier) { content() }
+        Surface(modifier = modifier) {
+            Box(modifier = Modifier.fillMaxSize(), content = content)
+        }
     }
 }

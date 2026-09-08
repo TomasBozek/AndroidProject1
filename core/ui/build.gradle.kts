@@ -19,6 +19,13 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    lint {
+        // Shared configuration; see lint.xml at the repo root.
+        lintConfig = rootProject.file("lint.xml")
+        warningsAsErrors = false
+        abortOnError = true
+    }
+
     buildFeatures {
         compose = true
     }

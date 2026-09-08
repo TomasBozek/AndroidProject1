@@ -1,22 +1,27 @@
 package com.example.androidproject1.core.ui.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.androidproject1.core.domain.DataResult
+import androidx.navigation.toRoute
 import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.exception.DomainException
-import com.example.androidproject1.core.domain.exception.NetworkErrorException
-import com.example.androidproject1.core.domain.exception.ServerErrorException
-import com.example.androidproject1.core.ui.AppString
-import com.example.androidproject1.core.ui.CommonEvent
-import com.example.androidproject1.core.ui.CommonUiCommand
-import com.example.androidproject1.core.ui.Event
-import com.example.androidproject1.core.ui.state.ModalLoadingState
+import com.example.androidproject1.core.domain.error.DomainError
+import com.example.androidproject1.core.domain.error.NetworkError
+import com.example.androidproject1.core.domain.error.ServerError
+import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.ui.event.SystemEvent
+import com.example.androidproject1.core.ui.event.UiCommand
+import com.example.androidproject1.core.ui.event.UiEvent
+import com.example.androidproject1.core.ui.state.ContentState
+import com.example.androidproject1.core.ui.state.LoadingState
 import com.example.androidproject1.core.ui.state.UiState
 import com.example.androidproject1.core.ui.state.clearAlert
+import com.example.androidproject1.core.ui.state.clearContent
 import com.example.androidproject1.core.ui.state.isLoading
 import com.example.androidproject1.core.ui.state.setAlert
-import com.example.androidproject1.core.ui.toText
+import com.example.androidproject1.core.ui.state.setContent
+import com.example.androidproject1.core.ui.text.UiText
+import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -30,231 +35,305 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Base class for every ViewModel in the app.
+ * Base class for every ViewModel, on a **State / Event / Navigation** contract: `State` is what the
+ * screen renders, `Event` is what the user did, `Navigation` is a one-off navigation intent.
  *
- * The contract is **State / Event / Direction**:
- * - `State` is the data the screen renders, wrapped in a [UiState] envelope.
- * - `E` is what the user did, sent in via [onUiEvent].
- * - `Direction` is a one-off navigation intent, observed by the screen's destination function.
- *
- * Subclasses should normally not write try/catch or touch a loading flag — [domainCall] handles
- * loading, error dialogs and cancellation for them.
+ * Subclasses should not write try/catch or touch a loading flag — [execute] and [observe] handle
+ * loading, error dialogs and cancellation.
  *
  * @param initialState the state the screen renders immediately. Pass `null` only for a screen that
- * genuinely cannot render until something is loaded — [Screen][com.example.androidproject1.core.ui.component.Screen]
- * draws nothing while `data` is `null`, so a `null` initial state also starts the loading overlay.
+ * cannot render until something is loaded; nothing is drawn while `data` is `null`, so `null` also
+ * starts the loading overlay.
+ * @param savedStateHandle required only by a screen that takes navigation arguments; read them with
+ * [navArgs]. Koin injects it into any ViewModel that declares it.
  */
-abstract class BaseViewModel<State, E : Event, Direction>(
+abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     initialState: State?,
     protected val logger: Logger,
+    private val savedStateHandle: SavedStateHandle? = null,
 ) : ViewModel() {
 
     companion object {
 
-        const val ALERT_ID_DOMAIN_ERROR = "domain_error"
+        const val ALERT_ID_ERROR = "error"
     }
 
     protected val uiState = MutableStateFlow(
         UiState<State?>(
             data = initialState,
-            // Having no state to render is itself the thing being waited for.
-            loading = if (initialState == null) ModalLoadingState() else null,
+            loading = if (initialState == null) LoadingState() else null,
         ),
     )
     val state: StateFlow<UiState<State?>> = uiState.asStateFlow()
 
-    // Buffered channels rather than a MutableSharedFlow: a shared flow with no replay and no buffer
-    // silently drops emissions made while nothing is collecting, which loses a navigation issued
-    // while the screen is below STARTED. receiveAsFlow() is single-consumer, which is exactly right
-    // for a one-shot event — each is delivered once, to whichever collector is current.
-    private val directionChannel = Channel<Direction>(Channel.BUFFERED)
-    val direction: Flow<Direction> = directionChannel.receiveAsFlow()
+    // Buffered channels, not a MutableSharedFlow: a shared flow with no replay silently drops what
+    // is emitted while nothing collects, losing a navigation issued below STARTED. receiveAsFlow()
+    // is single-consumer, which is what a one-shot event wants.
+    private val navigationChannel = Channel<Navigation>(Channel.BUFFERED)
+    val navigation: Flow<Navigation> = navigationChannel.receiveAsFlow()
 
-    private val commonUiCommandChannel = Channel<CommonUiCommand>(Channel.BUFFERED)
-    val commonUiCommand: Flow<CommonUiCommand> = commonUiCommandChannel.receiveAsFlow()
+    private val commandChannel = Channel<UiCommand>(Channel.BUFFERED)
+    val command: Flow<UiCommand> = commandChannel.receiveAsFlow()
 
-    /**
-     * Number of [domainCall]s currently in flight. Counted rather than flagged so that the overlay
-     * from a long call is not dismissed by a short one finishing first.
-     */
-    private val activeLoadingCount = AtomicInteger(0)
+    // Counted rather than flagged so the overlay from a long call is not dismissed by a short one.
+    private val activeCallCount = AtomicInteger(0)
 
-    /** Handles an event raised by this screen. */
-    open fun onUiEvent(event: E) = Unit
+    // Set by a failed [ErrorDisplay.Inline] call so the retry button can re-run it. Keeping the
+    // lambda here rather than in ContentState is what lets the state stay a comparable data class.
+    private var pendingRetry: (() -> Unit)? = null
 
     /**
-     * Handles a framework-level event. The default clears the alert; override to react to a
-     * specific alert's buttons, and call `super` for the ones you don't handle.
+     * This screen's navigation arguments, decoded from the route that opened it.
+     *
+     * Available in `init`, and restored for free after process death — the back stack entry is
+     * saved by the framework, so [T] comes back with it. That is the whole reason arguments belong
+     * here rather than in a `load()` the destination calls from a `LaunchedEffect`.
+     *
+     * ```
+     * private val args = navArgs<ProductsDestination>()
+     * ```
+     *
+     * @throws IllegalStateException if the ViewModel was built without a [SavedStateHandle].
      */
-    open fun onCommonEvent(event: CommonEvent) {
+    protected inline fun <reified T : Any> navArgs(): T = requireSavedStateHandle().toRoute<T>()
+
+    @PublishedApi
+    internal fun requireSavedStateHandle(): SavedStateHandle = checkNotNull(savedStateHandle) {
+        "${this::class.simpleName} reads navigation arguments but takes no SavedStateHandle. " +
+            "Add it as a constructor parameter — Koin injects it automatically."
+    }
+
+    open fun onUiEvent(event: Event) = Unit
+
+    /**
+     * The default dismisses the alert and retries a failed call; override to react to a specific
+     * alert or content action, delegating the rest to `super`.
+     */
+    open fun onSystemEvent(event: SystemEvent) {
         when (event) {
-            is CommonEvent.AlertDialogAction -> uiState.clearAlert()
+            is SystemEvent.AlertResult -> uiState.clearAlert()
+
+            is SystemEvent.ContentAction -> {
+                uiState.clearContent()
+                // Re-runs the call that failed, with the same arguments and handlers.
+                pendingRetry?.also { pendingRetry = null }?.invoke()
+            }
         }
     }
 
-    protected fun navigate(direction: Direction) {
-        if (directionChannel.trySend(direction).isFailure) {
-            logger.w { "Dropped direction $direction — channel full or closed" }
+    protected fun showContent(state: ContentState) = uiState.setContent(state)
+
+    protected fun clearContent() = uiState.clearContent()
+
+    protected fun navigate(navigation: Navigation) {
+        if (navigationChannel.trySend(navigation).isFailure) {
+            logger.w { "Dropped navigation $navigation — channel full or closed" }
         }
     }
 
-    protected fun sendCommand(command: CommonUiCommand) {
-        if (commonUiCommandChannel.trySend(command).isFailure) {
+    protected fun sendCommand(command: UiCommand) {
+        if (commandChannel.trySend(command).isFailure) {
             logger.w { "Dropped command $command — channel full or closed" }
         }
     }
 
-    protected fun showToast(message: AppString) = sendCommand(CommonUiCommand.ShowToast(message))
+    protected fun showToast(message: UiText) = sendCommand(UiCommand.ShowToast(message))
 
     /**
-     * Reflects an in-flight [domainCall] in the modal loading overlay. Nested and overlapping calls
-     * are reference-counted, so the overlay stays up until the last one finishes.
+     * Prefer this to [showToast] for anything the user might want to act on or dismiss — it is
+     * rendered inside the screen by `Screen()`'s host, so it respects the app's theme and insets.
      */
+    protected fun showSnackbar(
+        message: UiText,
+        actionLabel: UiText? = null,
+        withDismissAction: Boolean = false,
+        onAction: () -> Unit = {},
+    ) = sendCommand(
+        UiCommand.ShowSnackbar(
+            message = message,
+            actionLabel = actionLabel,
+            withDismissAction = withDismissAction,
+            onAction = onAction,
+        ),
+    )
+
+    /** Reference-counted, so the overlay stays up until the last in-flight call finishes. */
     protected open fun setLoading(active: Boolean) {
         val count = if (active) {
-            activeLoadingCount.incrementAndGet()
+            activeCallCount.incrementAndGet()
         } else {
-            activeLoadingCount.updateAndGet { (it - 1).coerceAtLeast(0) }
+            activeCallCount.updateAndGet { (it - 1).coerceAtLeast(0) }
         }
         uiState.isLoading = count > 0
     }
 
     /**
-     * Runs a one-shot domain [action], showing a loading overlay while it runs and converting any
-     * [DataResult.Error] into an alert.
+     * Runs a one-shot domain [action], showing the loading overlay while it runs and turning an
+     * [Outcome.Failure] into an alert.
      *
-     * @param loading how to reflect the in-flight state; defaults to the modal loading overlay.
-     * Pass `{}` when the screen renders its own inline loading.
-     * @param errorHandler return `true` to claim an error and suppress the default alert.
+     * @param loading how to reflect the in-flight state. Pass `{}` when the screen renders its own
+     * inline loading.
+     * @param onError return `true` to claim an error and suppress the default presentation.
+     * @param errorDisplay where a failure goes: a dialog over the screen, a retryable message in
+     * place of it, or nowhere. [ErrorDisplay.Inline] is usually right for the call that loads a
+     * screen, and [ErrorDisplay.Alert] for one the user triggered.
      */
-    protected fun <T> domainCall(
+    protected fun <T> execute(
         loading: (Boolean) -> Unit = { setLoading(it) },
         scope: CoroutineScope = viewModelScope,
-        errorHandler: suspend (DomainException) -> Boolean = { false },
-        errorDialogId: String = ALERT_ID_DOMAIN_ERROR,
-        action: suspend () -> DataResult<T>,
-        handleData: suspend (T) -> Unit,
-    ): Job = scope.launch {
-        loading(true)
-        try {
-            when (val result = action()) {
-                is DataResult.Success -> runCatching { handleData(result.data) }
-                    .onFailure { handleException(it, errorHandler, errorDialogId) }
+        onError: suspend (DomainError) -> Boolean = { false },
+        alertId: String = ALERT_ID_ERROR,
+        errorDisplay: ErrorDisplay = ErrorDisplay.Alert,
+        action: suspend () -> Outcome<T>,
+        onData: suspend (T) -> Unit,
+    ): Job {
+        // Captured so SystemEvent.ContentAction can re-run exactly this call. Only meaningful for
+        // Inline, which is the only display mode that offers the user a retry.
+        if (errorDisplay == ErrorDisplay.Inline) {
+            pendingRetry = { execute(loading, scope, onError, alertId, errorDisplay, action, onData) }
+        }
 
-                is DataResult.Error -> handleException(result.exception, errorHandler, errorDialogId)
+        return scope.launch {
+            loading(true)
+            try {
+                when (val outcome = action()) {
+                    is Outcome.Success -> runCatching { onData(outcome.data) }
+                        .onFailure { handleError(it, onError, alertId, errorDisplay) }
+
+                    is Outcome.Failure -> handleError(outcome.error, onError, alertId, errorDisplay)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                handleError(e, onError, alertId, errorDisplay)
+            } finally {
+                loading(false)
             }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Throwable) {
-            handleException(e, errorHandler, errorDialogId)
-        } finally {
-            loading(false)
         }
     }
 
     /**
-     * Collects a domain [flow], clearing the loading state after the first emission and converting
-     * any [DataResult.Error] into an alert.
+     * Collects a domain [flow], clearing the loading state after its first emission.
      *
-     * The loading state is cleared on the first emission whether it succeeded or failed. The
-     * `finally` below is not enough on its own: this overload exists for long-lived flows, which
-     * never complete, so an error emission would otherwise leave the overlay up for good.
+     * That first emission clears the overlay whether it succeeded or failed. The `finally` is not
+     * enough on its own: this is for long-lived flows, which never complete, so a failed emission
+     * would otherwise leave the overlay up for good.
+     *
+     * Exactly one `loading(false)` runs per `loading(true)`, whichever path gets there first. That
+     * balance matters because [setLoading] is reference-counted: an unconditional `finally` on top
+     * of the first-emission call would decrement twice, and the spare decrement would dismiss the
+     * overlay belonging to whatever [execute] happened to be in flight at the time.
      */
-    protected fun <T> domainCall(
-        flow: suspend () -> Flow<DataResult<T>>,
+    protected fun <T> observe(
+        flow: suspend () -> Flow<Outcome<T>>,
         loading: (Boolean) -> Unit = { setLoading(it) },
         scope: CoroutineScope = viewModelScope,
-        errorHandler: suspend (DomainException) -> Boolean = { false },
-        errorDialogId: String = ALERT_ID_DOMAIN_ERROR,
-        handleData: suspend (T) -> Unit,
+        onError: suspend (DomainError) -> Boolean = { false },
+        alertId: String = ALERT_ID_ERROR,
+        errorDisplay: ErrorDisplay = ErrorDisplay.Alert,
+        onData: suspend (T) -> Unit,
     ): Job = scope.launch {
+        val loadingOwed = AtomicBoolean(true)
+        fun clearLoading() {
+            if (loadingOwed.compareAndSet(true, false)) loading(false)
+        }
+
         try {
             loading(true)
-            var firstEmission = true
             flow()
-                .onEach { result ->
-                    when (result) {
-                        is DataResult.Success -> runCatching { handleData(result.data) }
-                            .onFailure { handleException(it, errorHandler, errorDialogId) }
+                .onEach { outcome ->
+                    when (outcome) {
+                        is Outcome.Success -> runCatching { onData(outcome.data) }
+                            .onFailure { handleError(it, onError, alertId, errorDisplay) }
 
-                        is DataResult.Error ->
-                            handleException(result.exception, errorHandler, errorDialogId)
+                        is Outcome.Failure -> handleError(outcome.error, onError, alertId, errorDisplay)
                     }
 
-                    if (firstEmission) {
-                        firstEmission = false
-                        loading(false)
-                    }
+                    clearLoading()
                 }
-                .catch { handleException(it, errorHandler, errorDialogId) }
+                .catch { handleError(it, onError, alertId, errorDisplay) }
                 .collect()
         } finally {
-            loading(false)
+            clearLoading()
         }
     }
 
-    private suspend fun handleException(
+    private suspend fun handleError(
         throwable: Throwable,
-        errorHandler: suspend (DomainException) -> Boolean,
-        errorDialogId: String,
+        onError: suspend (DomainError) -> Boolean,
+        alertId: String,
+        errorDisplay: ErrorDisplay,
     ) {
         if (throwable is CancellationException) throw throwable
 
-        if (throwable is DomainException) {
-            logger.d(throwable = throwable) { "Caught domain exception" }
-            if (errorHandler(throwable) || handleIoDomainException(throwable, errorDialogId)) {
+        val message = if (throwable is DomainError) {
+            logger.d(throwable = throwable) { "Caught domain error" }
+            if (onError(throwable)) return
+
+            // A server outage is transient and not the user's problem to solve, so in Alert mode it
+            // gets a toast rather than a dialog. Inline has nowhere quieter to put it.
+            if (throwable is ServerError && errorDisplay == ErrorDisplay.Alert) {
+                showToast(R.string.core_error_server_unavailable.toUiText())
                 return
             }
-            setErrorAlert(
-                id = errorDialogId,
-                message = throwable.displayMessage?.toText()
-                    ?: R.string.core_general_error_try_again_description.toText(),
-            )
+            commonErrorMessage(throwable)
+                ?: throwable.displayMessage?.toUiText()
+                ?: R.string.core_error_unexpected.toUiText()
         } else {
             logger.w(throwable = throwable) { "Unhandled exception" }
-            showInternalErrorDialog(errorDialogId)
+            R.string.core_error_unexpected.toUiText()
         }
-    }
 
-    protected fun showInternalErrorDialog(errorDialogId: String = ALERT_ID_DOMAIN_ERROR) {
-        setErrorAlert(
-            id = errorDialogId,
-            message = R.string.core_general_error_try_again_description.toText(),
-        )
-    }
+        when (errorDisplay) {
+            ErrorDisplay.Alert -> showErrorAlert(id = alertId, message = message)
 
-    /** Handles the I/O errors every screen treats the same way. Returns `true` if consumed. */
-    protected fun handleIoDomainException(
-        exception: DomainException,
-        errorDialogId: String,
-    ): Boolean {
-        when (exception) {
-            is ServerErrorException -> showToast(R.string.core_error_server.toText())
-
-            is NetworkErrorException -> setErrorAlert(
-                id = errorDialogId,
-                message = R.string.core_error_network_message.toText(),
+            ErrorDisplay.Inline -> uiState.setContent(
+                ContentState.Error(id = alertId, message = message),
             )
 
-            else -> return false
+            ErrorDisplay.Silent -> Unit
         }
-        return true
     }
 
-    /**
-     * Shows an alert titled as an error. The error title lives here rather than in
-     * [AlertState][com.example.androidproject1.core.ui.state.AlertState]'s defaults so that an
-     * ordinary confirmation dialog is not labelled "something went wrong".
-     */
-    private fun setErrorAlert(id: String, message: AppString) {
+    protected fun showUnexpectedErrorAlert(alertId: String = ALERT_ID_ERROR) {
+        showErrorAlert(id = alertId, message = R.string.core_error_unexpected.toUiText())
+    }
+
+    /** Wording for the I/O failures every screen describes the same way. */
+    protected fun commonErrorMessage(error: DomainError): UiText? = when (error) {
+        is ServerError -> R.string.core_error_server_unavailable.toUiText()
+        is NetworkError -> R.string.core_error_no_connection.toUiText()
+        else -> null
+    }
+
+    // The error title lives here, not in AlertState's defaults, so an ordinary confirmation dialog
+    // is not labelled "something went wrong".
+    private fun showErrorAlert(id: String, message: UiText) {
         uiState.setAlert(
             id = id,
-            title = R.string.core_general_error_title.toText(),
+            title = R.string.core_alert_error_title.toUiText(),
             message = message,
         )
     }
+}
+
+/** Where a failure is shown. */
+enum class ErrorDisplay {
+
+    /** A dialog over the screen. Right for a call the user triggered on a screen already drawn. */
+    Alert,
+
+    /**
+     * A retryable message in place of the content. Right for the call that loads a screen, where a
+     * dialog would leave nothing behind it.
+     */
+    Inline,
+
+    /** Nowhere — the caller handles it, or the failure genuinely does not matter. */
+    Silent,
 }

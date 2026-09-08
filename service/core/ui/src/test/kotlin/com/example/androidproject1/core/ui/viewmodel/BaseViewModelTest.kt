@@ -1,9 +1,9 @@
 package com.example.androidproject1.core.ui.viewmodel
 
-import com.example.androidproject1.core.domain.DataResult
 import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.exception.NotFoundException
-import com.example.androidproject1.core.ui.Event
+import com.example.androidproject1.core.domain.error.NotFoundError
+import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.ui.event.UiEvent
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,12 +26,12 @@ class BaseViewModelTest {
 
     private data class TestState(val value: String)
 
-    private sealed interface TestEvent : Event {
+    private sealed interface TestEvent : UiEvent {
         data object Tapped : TestEvent
     }
 
-    private sealed interface TestDirection {
-        data object Next : TestDirection
+    private sealed interface TestNavigation {
+        data object Next : TestNavigation
     }
 
     private class FakeLogger : Logger {
@@ -44,18 +44,18 @@ class BaseViewModelTest {
     /** Exposes the protected members so the base class can be driven from a test. */
     private class TestViewModel(
         initialState: TestState?,
-    ) : BaseViewModel<TestState, TestEvent, TestDirection>(
+    ) : BaseViewModel<TestState, TestEvent, TestNavigation>(
         initialState = initialState,
         logger = FakeLogger(),
     ) {
 
-        fun <T> oneShot(action: suspend () -> DataResult<T>) =
-            domainCall(action = action, handleData = {})
+        fun <T> oneShot(action: suspend () -> Outcome<T>) =
+            execute(action = action, onData = {})
 
-        fun <T> observe(flow: () -> Flow<DataResult<T>>) =
-            domainCall(flow = { flow() }, handleData = {})
+        fun <T> stream(flow: () -> Flow<Outcome<T>>) =
+            observe(flow = { flow() }, onData = {})
 
-        fun go(direction: TestDirection) = navigate(direction)
+        fun go(navigation: TestNavigation) = navigate(navigation)
     }
 
     @Before
@@ -97,10 +97,10 @@ class BaseViewModelTest {
     fun `an error from a long-lived flow clears the loading overlay`() = runTest {
         val viewModel = TestViewModel(TestState("ready"))
         // replay = 1 with no completion: exactly the shape of an observe-forever flow.
-        val source = MutableSharedFlow<DataResult<String>>(replay = 1)
-        source.emit(DataResult.Error(NotFoundException(message = "gone")))
+        val source = MutableSharedFlow<Outcome<String>>(replay = 1)
+        source.emit(Outcome.Failure(NotFoundError(message = "gone")))
 
-        viewModel.observe { source }
+        viewModel.stream { source }
 
         assertNull(viewModel.state.value.loading)
         assertNotNull(viewModel.state.value.alert)
@@ -109,10 +109,10 @@ class BaseViewModelTest {
     @Test
     fun `a success from a long-lived flow clears the loading overlay`() = runTest {
         val viewModel = TestViewModel(TestState("ready"))
-        val source = MutableSharedFlow<DataResult<String>>(replay = 1)
-        source.emit(DataResult.Success("value"))
+        val source = MutableSharedFlow<Outcome<String>>(replay = 1)
+        source.emit(Outcome.Success("value"))
 
-        viewModel.observe { source }
+        viewModel.stream { source }
 
         assertNull(viewModel.state.value.loading)
         assertNull(viewModel.state.value.alert)
@@ -125,8 +125,8 @@ class BaseViewModelTest {
         val slow = CompletableDeferred<Unit>()
         val quick = CompletableDeferred<Unit>()
 
-        viewModel.oneShot { slow.await(); DataResult.Success(Unit) }
-        viewModel.oneShot { quick.await(); DataResult.Success(Unit) }
+        viewModel.oneShot { slow.await(); Outcome.Success(Unit) }
+        viewModel.oneShot { quick.await(); Outcome.Success(Unit) }
         assertNotNull(viewModel.state.value.loading)
 
         quick.complete(Unit)
@@ -142,11 +142,11 @@ class BaseViewModelTest {
     fun `a domain error becomes an alert that is titled as an error`() = runTest {
         val viewModel = TestViewModel(TestState("ready"))
 
-        viewModel.oneShot { DataResult.Error(NotFoundException(message = "gone")) }
+        viewModel.oneShot { Outcome.Failure(NotFoundError(message = "gone")) }
 
         val alert = viewModel.state.value.alert
         assertNotNull(alert)
-        assertEquals(BaseViewModel.ALERT_ID_DOMAIN_ERROR, alert!!.id)
+        assertEquals(BaseViewModel.ALERT_ID_ERROR, alert!!.id)
         assertNotNull("the error path supplies the error title", alert.title)
     }
 
@@ -157,11 +157,11 @@ class BaseViewModelTest {
      * discarded anything emitted while the screen was not collecting.
      */
     @Test
-    fun `a direction emitted before anything collects is still delivered`() = runTest {
+    fun `a navigation emitted before anything collects is still delivered`() = runTest {
         val viewModel = TestViewModel(TestState("ready"))
 
-        viewModel.go(TestDirection.Next)
+        viewModel.go(TestNavigation.Next)
 
-        assertEquals(TestDirection.Next, viewModel.direction.first())
+        assertEquals(TestNavigation.Next, viewModel.navigation.first())
     }
 }

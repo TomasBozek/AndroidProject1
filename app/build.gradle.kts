@@ -23,8 +23,10 @@ android {
 
     buildTypes {
         release {
+            // R8 on from the start: the keep-rule surface is one screen big today and grows with
+            // every reflection-based library. Rules live in src/main/keepRules/.
             optimization {
-                enable = false
+                enable = true
             }
         }
     }
@@ -32,6 +34,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    lint {
+        // Shared configuration; see lint.xml at the repo root.
+        lintConfig = rootProject.file("lint.xml")
+        warningsAsErrors = false
+        abortOnError = true
+        checkDependencies = true
     }
 
     buildFeatures {
@@ -42,7 +52,8 @@ android {
 
 dependencies {
     // Pulls in every core layer and every feature's `di` module, and through them the whole graph.
-    api(projects.core.di)
+    // `implementation`, not `api`: nothing consumes the application module.
+    implementation(projects.core.di)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -58,7 +69,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.compose)
 
-    testImplementation(libs.junit)
+    testImplementation(platform(libs.koin.bom))
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ScreenPreview
-import com.example.androidproject1.core.ui.getComposableString
+import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 
 @Composable
@@ -25,19 +25,23 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            // The activity is edge to edge, so a screen without a Scaffold pads itself.
+            // Edge to edge: a screen without a Scaffold pads itself.
             .safeDrawingPadding()
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = state.greeting.getComposableString(),
+            text = state.greeting.resolve(),
             style = MaterialTheme.typography.headlineMedium,
         )
 
         Button(onClick = { onEvent(HomeEvent.SettingsClicked) }) {
             Text(text = stringResource(R.string.home_settings))
+        }
+
+        Button(onClick = { onEvent(HomeEvent.BrowseCatalogClicked) }) {
+            Text(text = stringResource(R.string.home_browse_catalog))
         }
     }
 }

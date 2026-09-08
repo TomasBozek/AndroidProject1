@@ -10,6 +10,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  conventions:
+    # Runs first and is fast: doctor.py checks the rules no compiler enforces, and exits non-zero
+    # specifically so it can gate here. A convention violation fails before the slow build starts.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check architectural conventions
+        run: python3 scripts/doctor.py
+
+      - name: Test the scaffolding scripts
+        run: python3 scripts/test_scripts.py
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -25,3 +42,13 @@ jobs:
 
       - name: Build, lint and test
         run: ./gradlew build
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/lint-results-*.html
+            **/build/reports/tests/**
+          if-no-files-found: ignore

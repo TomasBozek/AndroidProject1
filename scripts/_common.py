@@ -11,69 +11,110 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 BASE_PACKAGE = "com.example.androidproject1"
 BASE_PATH = BASE_PACKAGE.replace(".", "/")
 
-TEMPLATE_FEATURE = "example"
-TEMPLATE_CLASS = "Example"
+TEMPLATE_FEATURE = "template"
+TEMPLATE_CLASS = "Template"
+
+# String resources in the template are named `template_*`; generated code renames the prefix so that
+# two screens in one feature cannot collide on `template_title`.
+TEMPLATE_RESOURCE_PREFIX = "template"
+
+# Where new features are inserted in settings.gradle.kts: the template block stays last.
+TEMPLATE_ANCHOR = f'includeFeatureModule(\n    "{TEMPLATE_FEATURE}",'
 
 SETTINGS_FILE = REPO_ROOT / "settings.gradle.kts"
 KOIN_FILE = REPO_ROOT / "core/di/src/main/kotlin" / BASE_PATH / "core/di/Koin.kt"
 CORE_DI_BUILD_FILE = REPO_ROOT / "core/di/build.gradle.kts"
+APP_NAV_HOST_FILE = REPO_ROOT / "app/src/main/java" / BASE_PATH / "AppNavHost.kt"
+VERSION_CATALOG_FILE = REPO_ROOT / "gradle/libs.versions.toml"
 
 # Order matters: this is also the order layers are listed in settings.gradle.kts.
-ALL_LAYERS = ["domain", "infrastructure", "data", "presentation", "di"]
+ALL_LAYERS = ["domain", "gateway", "data", "presentation", "di"]
 
 LAYER_SUFFIX = {
     "domain": "Domain",
-    "infrastructure": "Infrastructure",
+    "gateway": "Gateway",
     "data": "Data",
     "presentation": "Presentation",
     "di": "Di",
 }
 
+# The nav graphs declared in AppNavHost.kt, keyed by the `--graph` value the scripts accept.
+NAV_GRAPHS = {
+    "main": "MainNavGraph",
+    "auth": "AuthNavGraph",
+}
+
+STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
+
+
+# --------------------------------------------------------------------------------------------
+# Naming
+# --------------------------------------------------------------------------------------------
+
 
 def split_words(name: str) -> list[str]:
-    """Splits `chatRoom`, `chat_room`, `chat-room` and `ChatRoom` into ['chat', 'room']."""
+    """Splits `userProfile`, `user_profile`, `user-profile` and `UserProfile` into ['user', 'profile']."""
     spaced = re.sub(r"[_\-\s]+", " ", name)
     spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", spaced)
     return [w.lower() for w in spaced.split() if w]
 
 
 def to_flat(name: str) -> str:
-    """`chatRoom` -> `chatroom`. Used for package and directory names."""
+    """`userProfile` -> `userprofile`. Used for package and directory names."""
     return "".join(split_words(name))
 
 
 def to_pascal(name: str) -> str:
-    """`chatRoom` -> `ChatRoom`. Used for class names."""
+    """`userProfile` -> `UserProfile`. Used for class names."""
     return "".join(w.capitalize() for w in split_words(name))
 
 
 def to_camel(name: str) -> str:
-    """`ChatRoom` -> `chatRoom`. Used for function names."""
+    """`UserProfile` -> `userProfile`. Used for function names."""
     pascal = to_pascal(name)
     return pascal[:1].lower() + pascal[1:]
+
+
+def to_snake(name: str) -> str:
+    """`UserProfile` -> `user_profile`. Used for resource name prefixes."""
+    return "_".join(split_words(name))
+
+
+# --------------------------------------------------------------------------------------------
+# Source rewriting
+# --------------------------------------------------------------------------------------------
 
 
 def rewrite_source(text: str, flat: str, pascal: str) -> str:
     """
     Rewrites template identifiers to the target feature's.
 
-    The replacements are deliberately narrow rather than a blanket `example` -> `<name>`: the
-    base package is `com.example.androidproject1`, so a global replace would corrupt it.
+    Targeted rather than a blanket `template` -> `<name>` so that the word appearing in a comment
+    or a string is left alone.
     """
     text = text.replace(f"feature.{TEMPLATE_FEATURE}", f"feature.{flat}")
     text = text.replace(f"feature/{TEMPLATE_FEATURE}", f"feature/{flat}")
-    # camelCase identifiers such as `exampleDestination`.
+    # camelCase identifiers such as `templateDestination`.
     text = re.sub(rf"\b{TEMPLATE_FEATURE}(?=[A-Z])", flat, text)
     text = text.replace(TEMPLATE_CLASS, pascal)
     return text
 
 
+def rewrite_resource_names(text: str, prefix: str) -> str:
+    """
+    Renames `template_foo` to `<prefix>_foo`, in both `R.string.template_foo` and `name="template_foo"`.
+
+    `rewrite_source` cannot: its camelCase rule needs an uppercase letter after `template`, and
+    resource names are snake_case. Skipping this leaves a generated screen pointing at a string that
+    exists only in the template feature.
+    """
+    return re.sub(rf"\b{TEMPLATE_RESOURCE_PREFIX}_(\w+)", rf"{prefix}_\1", text)
+
+
 def rewrite_relative_path(relative: Path, flat: str, pascal: str) -> Path:
     """
-    Maps a path inside the template module to the generated module.
-
-    Only the `.../feature/example/...` package segment is rewritten — the `example` directory in
-    `com/example/androidproject1` must be left alone.
+    Maps a path inside the template module to the generated module. Only the
+    `.../feature/template/...` package segment is rewritten.
     """
     as_posix = relative.as_posix()
     as_posix = as_posix.replace(
@@ -85,25 +126,195 @@ def rewrite_relative_path(relative: Path, flat: str, pascal: str) -> Path:
     return Path("/".join(parts))
 
 
+# --------------------------------------------------------------------------------------------
+# File I/O
+# --------------------------------------------------------------------------------------------
+
+
+def relative_to_repo(path: Path) -> str:
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def write_file(path: Path, content: str, dry_run: bool) -> None:
     if dry_run:
-        print(f"  would write {path.relative_to(REPO_ROOT)}")
+        print(f"  would write {relative_to_repo(path)}")
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)
-    print(f"  wrote {path.relative_to(REPO_ROOT)}")
+    print(f"  wrote {relative_to_repo(path)}")
 
 
 def edit_file(path: Path, transform, dry_run: bool, label: str) -> bool:
     """Applies `transform` to a file's text. Returns True if it changed anything."""
+    if not path.is_file():
+        print(f"  {label}: {relative_to_repo(path)} not found, skipped")
+        return False
     original = path.read_text()
     updated = transform(original)
     if updated == original:
         print(f"  {label}: no change needed")
         return False
     if dry_run:
-        print(f"  would update {path.relative_to(REPO_ROOT)} ({label})")
+        print(f"  would update {relative_to_repo(path)} ({label})")
         return True
     path.write_text(updated)
-    print(f"  updated {path.relative_to(REPO_ROOT)} ({label})")
+    print(f"  updated {relative_to_repo(path)} ({label})")
     return True
+
+
+# --------------------------------------------------------------------------------------------
+# Module paths
+# --------------------------------------------------------------------------------------------
+
+
+def feature_module_dir(flat: str, layer: str) -> Path:
+    return REPO_ROOT / "feature" / flat / layer
+
+
+def feature_source_dir(flat: str, layer: str) -> Path:
+    """The package directory holding a layer's Kotlin sources."""
+    return feature_module_dir(flat, layer) / "src/main/kotlin" / BASE_PATH / "feature" / flat / layer
+
+
+def feature_package(flat: str, layer: str) -> str:
+    return f"{BASE_PACKAGE}.feature.{flat}.{layer}"
+
+
+def module_namespace(module_dir: Path, fallback: str) -> str:
+    """Reads `namespace = "..."` out of a module's build file, so `R` is resolved correctly."""
+    build_file = module_dir / "build.gradle.kts"
+    if build_file.is_file():
+        match = re.search(r'namespace\s*=\s*"([^"]+)"', build_file.read_text())
+        if match:
+            return match.group(1)
+    return fallback
+
+
+def feature_koin_module_file(flat: str) -> Path | None:
+    """The feature's `XModule.kt`, or None if the feature has no `di` layer yet."""
+    di_dir = feature_source_dir(flat, "di")
+    modules = sorted(di_dir.glob("*Module.kt")) if di_dir.is_dir() else []
+    return modules[0] if modules else None
+
+
+# --------------------------------------------------------------------------------------------
+# Kotlin source edits
+# --------------------------------------------------------------------------------------------
+
+
+def insert_import(lines: list[str], import_line: str) -> None:
+    """Inserts an import into an already sorted import block, in place."""
+    if import_line in lines:
+        return
+    import_indexes = [i for i, line in enumerate(lines) if line.startswith("import ")]
+    insert_at = next(
+        (i for i in import_indexes if lines[i] > import_line),
+        import_indexes[-1] + 1 if import_indexes else 0,
+    )
+    lines.insert(insert_at, import_line)
+
+
+def block_end(lines: list[str], start: int) -> int:
+    """Index of the line closing the brace opened on `lines[start]`."""
+    depth = 0
+    for i in range(start, len(lines)):
+        depth += lines[i].count("{") - lines[i].count("}")
+        if depth <= 0 and i > start:
+            return i
+    raise ValueError(f"unbalanced braces from line {start + 1}")
+
+
+def insert_after_last(lines: list[str], pattern: re.Pattern[str], entry: str, fallback: re.Pattern[str], fallback_indent: str) -> None:
+    """
+    Inserts `entry` after the last line matching `pattern`, keeping that line's indent.
+
+    Falls back to inserting after the first line matching `fallback` (e.g. the opening `module {`)
+    when there is no existing entry to anchor to.
+    """
+    matches = [i for i, line in enumerate(lines) if pattern.match(line)]
+    if matches:
+        anchor = matches[-1]
+        indent = pattern.match(lines[anchor]).group(1)
+    else:
+        anchor = next(i for i, line in enumerate(lines) if fallback.match(line))
+        indent = fallback_indent
+    lines.insert(anchor + 1, f"{indent}{entry}")
+
+
+def remove_lines(text: str, predicate) -> str:
+    """Drops every line for which `predicate(line)` is true."""
+    return "\n".join(line for line in text.split("\n") if not predicate(line))
+
+
+# --------------------------------------------------------------------------------------------
+# String resources
+# --------------------------------------------------------------------------------------------
+
+_STRING_ENTRY = re.compile(r'<string\s+name="([^"]+)"\s*>(.*?)</string>', re.DOTALL)
+
+
+def read_string_resources(path: Path) -> dict[str, str]:
+    if not path.is_file():
+        return {}
+    return {name: value for name, value in _STRING_ENTRY.findall(path.read_text())}
+
+
+def merge_strings_xml(path: Path, entries: dict[str, str], dry_run: bool) -> None:
+    """Adds `entries` to a `strings.xml`, creating it if needed and skipping names already there."""
+    if not entries:
+        return
+
+    existing = read_string_resources(path)
+    missing = {name: value for name, value in entries.items() if name not in existing}
+    if not missing:
+        print(f"  strings: {relative_to_repo(path)} already has {', '.join(entries)}")
+        return
+
+    text = path.read_text() if path.is_file() else STRINGS_XML_TEMPLATE
+    block = "".join(f'    <string name="{name}">{value}</string>\n' for name, value in missing.items())
+    if "</resources>" in text:
+        text = text.replace("</resources>", block + "</resources>", 1)
+    else:
+        text = text.rstrip("\n") + "\n" + block
+
+    write_file(path, text, dry_run)
+
+
+# --------------------------------------------------------------------------------------------
+# AppNavHost registration
+# --------------------------------------------------------------------------------------------
+
+
+def register_destination(import_line: str, call_line: str, graph: str, dry_run: bool) -> None:
+    """Adds `xDestination(navController = navController)` to a nav graph in AppNavHost.kt."""
+    if graph == "none":
+        print("  AppNavHost: --graph none, registration skipped")
+        return
+
+    graph_class = NAV_GRAPHS[graph]
+    call_name = call_line.split("(")[0]
+
+    def transform(text: str) -> str:
+        lines = text.split("\n")
+        if any(line.strip().startswith(f"{call_name}(") for line in lines):
+            return text
+
+        start = next((i for i, line in enumerate(lines) if f"navigation<{graph_class}>" in line), None)
+        if start is None:
+            print(f"  AppNavHost: no navigation<{graph_class}> block — add the destination by hand")
+            return text
+
+        end = block_end(lines, start)
+        indent = re.match(r"\s*", lines[start]).group(0) + " " * 4
+        # A blank line between destinations only if the graph already has one.
+        if lines[end - 1].strip():
+            lines.insert(end, f"{indent}{call_line}")
+        else:
+            lines.insert(end - 1, f"{indent}{call_line}")
+        insert_import(lines, import_line)
+        return "\n".join(lines)
+
+    edit_file(APP_NAV_HOST_FILE, transform, dry_run, f"register destination in {graph_class}")

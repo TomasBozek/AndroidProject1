@@ -8,7 +8,7 @@ import com.example.androidproject1.feature.auth.domain.AuthService
 class LoginViewModel(
     logger: Logger,
     private val authService: AuthService,
-) : BaseViewModel<LoginState, LoginEvent, LoginDirection>(
+) : BaseViewModel<LoginState, LoginEvent, LoginNavigation>(
     initialState = LoginState(),
     logger = logger.withTag("LoginViewModel"),
 ) {
@@ -22,11 +22,13 @@ class LoginViewModel(
             LoginEvent.LoginClicked -> login(email = uiState.value.data?.email.orEmpty())
 
             LoginEvent.SkipLoginClicked -> login(email = "")
+
+            LoginEvent.SignUpClicked -> navigate(LoginNavigation.SignUp)
         }
     }
 
-    private fun login(email: String) = domainCall(
+    private fun login(email: String) = execute(
         action = { authService.login(email) },
-        handleData = { logger.d { "Signed in" } },
+        onData = { logger.d { "Signed in" } },
     )
 }

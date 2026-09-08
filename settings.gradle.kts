@@ -37,17 +37,13 @@ sealed class ModuleSuffix(name: String) {
 
     data object Di : ModuleSuffix("di")
     data object Domain : ModuleSuffix("domain")
-    data object Infrastructure : ModuleSuffix("infrastructure")
+    data object Gateway : ModuleSuffix("gateway")
     data object Data : ModuleSuffix("data")
     data object Presentation : ModuleSuffix("presentation")
     data object Ui : ModuleSuffix("ui")
 }
 
-/**
- * Includes a module and fails fast, at settings time, if its directory or build file is missing.
- * This turns a mistyped or half-generated module into a clear error instead of a confusing
- * "project not found" later in the build.
- */
+/** Includes a module, failing at settings time if its directory or build file is missing. */
 fun includeModule(fullName: String, path: String) {
     include(fullName)
     val project = project(fullName)
@@ -56,11 +52,7 @@ fun includeModule(fullName: String, path: String) {
     require(project.buildFile.isFile) { "${project.buildFile} doesn't exist" }
 }
 
-/**
- * Includes a layer of a reusable `service` module. These modules are deliberately free of any
- * app-specific code so that the whole `service/<name>` directory can be copied into another
- * project as-is.
- */
+/** Includes a layer of a reusable `service` module — copyable into another project as-is. */
 fun includeServiceModule(name: String, vararg suffixes: ModuleSuffix) {
     suffixes.forEach { includeModule(":service:$name:${it.projectPath}", "service/$name/${it.filePath}") }
 }
@@ -75,8 +67,7 @@ fun includeFeatureModule(name: String, vararg suffixes: ModuleSuffix) {
 
 include(":app")
 
-// The reusable architecture: DataResult, BaseRepository, BaseViewModel, UiState, Screen().
-// Nothing here knows about this app's features, theme or DI graph.
+// The reusable architecture. Nothing here knows this app's features, theme or DI graph.
 includeServiceModule(
     "core",
     ModuleSuffix.Domain,
@@ -93,7 +84,7 @@ includeCoreModule(
 includeFeatureModule(
     "auth",
     ModuleSuffix.Domain,
-    ModuleSuffix.Infrastructure,
+    ModuleSuffix.Gateway,
     ModuleSuffix.Data,
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,
@@ -111,12 +102,26 @@ includeFeatureModule(
     ModuleSuffix.Di,
 )
 
-// Template module cloned by scripts/create_feature.py. It is included so that `./gradlew build`
-// compile-verifies the generator's source template; nothing depends on it.
 includeFeatureModule(
-    "example",
+    "launch",
+    ModuleSuffix.Presentation,
+    ModuleSuffix.Di,
+)
+
+includeFeatureModule(
+    "catalog",
     ModuleSuffix.Domain,
-    ModuleSuffix.Infrastructure,
+    ModuleSuffix.Gateway,
+    ModuleSuffix.Data,
+    ModuleSuffix.Presentation,
+    ModuleSuffix.Di,
+)
+
+// Cloned by scripts/create_feature.py. Included so `./gradlew build` keeps the template compiling.
+includeFeatureModule(
+    "template",
+    ModuleSuffix.Domain,
+    ModuleSuffix.Gateway,
     ModuleSuffix.Data,
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,

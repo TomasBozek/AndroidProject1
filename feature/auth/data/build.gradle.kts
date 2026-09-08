@@ -17,10 +17,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    lint {
+        // Shared configuration; see lint.xml at the repo root.
+        lintConfig = rootProject.file("lint.xml")
+        warningsAsErrors = false
+        abortOnError = true
+    }
 }
 
 dependencies {
     api(projects.service.core.data)
     api(projects.feature.auth.domain)
-    api(projects.feature.auth.infrastructure)
+    api(projects.feature.auth.gateway)
 }

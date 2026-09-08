@@ -4,7 +4,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.androidproject1.core.ui.component.Screen
-import com.example.androidproject1.core.ui.util.CommandEffect
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
@@ -12,27 +11,30 @@ import org.koin.androidx.compose.koinViewModel
 data object HomeDestination
 
 /**
- * @param navigateToSettings supplied by the app module. Passing cross-feature navigation in as a
- * lambda is what keeps this module from depending on `:feature:settings:presentation`.
+ * @param navigateToSettings wired in AppNavHost, so this module needs no dependency on settings.
+ * @param navigateToCatalog wired in AppNavHost, so this module needs no dependency on catalog.
  */
 fun NavGraphBuilder.homeDestination(
     navController: NavHostController,
     navigateToSettings: () -> Unit,
+    navigateToCatalog: () -> Unit,
 ) {
     composable<HomeDestination> {
         val viewModel: HomeViewModel = koinViewModel()
 
-        Screen(viewModel = viewModel) { state, onEvent ->
+        Screen(
+            viewModel = viewModel,
+            onNavigation = { navigation ->
+                when (navigation) {
+                    HomeNavigation.Settings -> navigateToSettings()
+                    HomeNavigation.Catalog -> navigateToCatalog()
+                }
+            },
+        ) { state, onEvent ->
             HomeScreen(
                 state = state,
                 onEvent = onEvent,
             )
-        }
-
-        CommandEffect(commandFlow = viewModel.direction) { direction ->
-            when (direction) {
-                HomeDirection.Settings -> navigateToSettings()
-            }
         }
     }
 }
