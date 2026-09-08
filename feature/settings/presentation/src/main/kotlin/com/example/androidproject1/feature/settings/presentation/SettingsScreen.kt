@@ -40,6 +40,13 @@ fun SettingsScreen(
             )
 
             AppButton(
+                label = stringResource(R.string.settings_components),
+                onClick = { onEvent(SettingsEvent.ComponentsClicked) },
+                kind = ButtonKind.Outline,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            AppButton(
                 label = stringResource(R.string.settings_permissions),
                 onClick = { onEvent(SettingsEvent.PermissionsClicked) },
                 kind = ButtonKind.Outline,

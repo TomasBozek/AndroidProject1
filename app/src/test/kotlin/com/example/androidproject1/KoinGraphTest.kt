@@ -6,6 +6,8 @@ import com.example.androidproject1.feature.catalog.presentation.ProductDetailDes
 import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
 import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel
+import com.example.androidproject1.feature.gallery.presentation.GalleryDetailDestination
+import com.example.androidproject1.feature.gallery.presentation.GalleryDetailViewModel
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -42,6 +44,7 @@ class KoinGraphTest {
             // screen; `doctor.py` fails if one is missing, and `create_screen.py --with-args`
             // writes it.
             injections = injectedParameters(
+                definition<GalleryDetailViewModel>(GalleryDetailDestination::class),
                 definition<ProductsViewModel>(ProductsDestination::class),
                 definition<ProductDetailViewModel>(ProductDetailDestination::class),
             ),

@@ -10,6 +10,7 @@ dependencies {
     api(projects.feature.home.di)
     api(projects.feature.settings.di)
     api(projects.feature.catalog.di)
+    api(projects.feature.gallery.di)
 
     implementation(projects.service.core.data)
     implementation(projects.service.core.domain)

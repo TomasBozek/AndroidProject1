@@ -6,5 +6,7 @@ sealed interface SettingsEvent : UiEvent {
 
     data object PermissionsClicked : SettingsEvent
 
+    data object ComponentsClicked : SettingsEvent
+
     data object LogoutClicked : SettingsEvent
 }

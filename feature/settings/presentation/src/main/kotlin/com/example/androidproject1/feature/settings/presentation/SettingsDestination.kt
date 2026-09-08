@@ -10,7 +10,14 @@ import org.koin.androidx.compose.koinViewModel
 @Serializable
 data object SettingsDestination : NavKey
 
-fun EntryProviderScope<NavKey>.settingsDestination(backStack: NavBackStack<NavKey>) {
+/**
+ * @param navigateToComponents where the gallery lives. A presentation module never depends on
+ *   another feature's presentation, so the jump arrives as a lambda and is wired in `AppNavHost`.
+ */
+fun EntryProviderScope<NavKey>.settingsDestination(
+    backStack: NavBackStack<NavKey>,
+    navigateToComponents: () -> Unit,
+) {
     entry<SettingsDestination> {
         val viewModel: SettingsViewModel = koinViewModel()
 
@@ -19,6 +26,7 @@ fun EntryProviderScope<NavKey>.settingsDestination(backStack: NavBackStack<NavKe
             onNavigation = { navigation ->
                 when (navigation) {
                     SettingsNavigation.Permissions -> backStack.add(SettingsPermissionsDestination)
+                    SettingsNavigation.Components -> navigateToComponents()
                 }
             },
         ) { state, onEvent ->

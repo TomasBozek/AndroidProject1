@@ -18,4 +18,5 @@
     <string name="settings_permissions_notifications_message">Allow notifications so the app can tell you when something happens.</string>
     <string name="settings_permissions_allow">Allow</string>
     <string name="settings_permissions_open_settings">Open system settings</string>
+    <string name="settings_components">Components</string>
 </resources>

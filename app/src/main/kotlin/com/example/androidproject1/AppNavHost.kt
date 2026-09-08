@@ -25,6 +25,9 @@ import com.example.androidproject1.feature.auth.presentation.signUpDestination
 import com.example.androidproject1.feature.catalog.presentation.categoriesDestination
 import com.example.androidproject1.feature.catalog.presentation.productDetailDestination
 import com.example.androidproject1.feature.catalog.presentation.productsDestination
+import com.example.androidproject1.feature.gallery.presentation.GalleryDestination
+import com.example.androidproject1.feature.gallery.presentation.galleryDestination
+import com.example.androidproject1.feature.gallery.presentation.galleryDetailDestination
 import com.example.androidproject1.feature.home.presentation.homeDestination
 import com.example.androidproject1.feature.settings.presentation.settingsDestination
 import com.example.androidproject1.feature.settings.presentation.settingsPermissionsDestination
@@ -148,6 +151,7 @@ private fun EntryProviderScope<NavKey>.mainEntries(backStack: NavBackStack<NavKe
     homeEntries(backStack)
     catalogEntries(backStack)
     settingsEntries(backStack)
+    galleryDetailDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {
@@ -161,6 +165,10 @@ private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<Na
 }
 
 private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<NavKey>) {
-    settingsDestination(backStack = backStack)
+    settingsDestination(
+        backStack = backStack,
+        navigateToComponents = { backStack.add(GalleryDestination) },
+    )
     settingsPermissionsDestination(backStack = backStack)
+    galleryDestination(backStack = backStack)
 }

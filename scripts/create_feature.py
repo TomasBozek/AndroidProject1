@@ -76,6 +76,18 @@ def strip_args_strings(text: str) -> str:
     )
 
 
+def strip_args_registration(text: str) -> str:
+    """Drops the args screen's Koin lines.
+
+    `is_copyable` skips the args screen by file name, which leaves the di module — one file
+    naming both ViewModels — importing and registering one that was never copied. Without this
+    the generated feature does not compile.
+    """
+    return "\n".join(
+        line for line in text.split("\n") if f"{EXCLUDED_PREFIX}ViewModel" not in line
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Scaffold a feature module from feature/template.",
@@ -162,6 +174,8 @@ def copy_layer(
             text = source_file.read_text()
             if source_file.name == "strings.xml":
                 text = strip_args_strings(text)
+            if source_file.name == "TemplateModule.kt":
+                text = strip_args_registration(text)
             text = rewrite_source(text, flat, pascal, camel)
             # `template_title` -> `user_profile_title`, in the Kotlin references and in strings.xml.
             text = rewrite_resource_names(text, snake)
