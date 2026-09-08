@@ -23,10 +23,15 @@ data class UiState<Data>(
     val content: ContentState? = null,
 )
 
-/** Updates the wrapped [UiState.data], doing nothing while it is still `null`. */
-fun <Data> MutableStateFlow<UiState<Data?>>.updateData(action: Data.(Data) -> Data) {
+/**
+ * Updates the wrapped [UiState.data] in place, doing nothing while it is still `null`.
+ *
+ * [action] runs with the current data as its receiver, so the body is the `copy(...)` and nothing
+ * else: `uiState.updateData { copy(email = email) }`.
+ */
+fun <Data> MutableStateFlow<UiState<Data?>>.updateData(action: Data.() -> Data) {
     update { state ->
         val data = state.data ?: return@update state
-        state.copy(data = data.action(data))
+        state.copy(data = data.action())
     }
 }

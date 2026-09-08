@@ -7,8 +7,9 @@ Removes a feature module and every registration `create_feature.py` made for it.
 
 This is the inverse of `create_feature.py`: it deletes `feature/<name>/`, the
 `includeFeatureModule` block in `settings.gradle.kts`, the `:core:di` dependency, the Koin module
-entry and the destinations registered in `AppNavHost.kt` — the same four places that are easy to
-leave half-edited by hand, which is what turns a throwaway experiment into a broken build.
+entry, the destinations registered in `AppNavHost.kt` and the module tree in `CLAUDE.md` — the same
+five places that are easy to leave half-edited by hand, which is what turns a throwaway experiment
+into a broken build.
 
 Cross-feature references (a `navigateToX = { ... }` lambda in another destination, say) cannot be
 removed safely and are reported instead.
@@ -36,6 +37,7 @@ from _common import (  # noqa: E402
     relative_to_repo,
     remove_lines,
     to_flat,
+    unregister_from_feature_tree,
 )
 
 # Directories scanned for leftover references once the module is gone.
@@ -50,7 +52,7 @@ def parse_args() -> argparse.Namespace:
             '  python3 scripts/delete_feature.py userProfile\n'
             '  python3 scripts/delete_feature.py userProfile --dry-run\n'
             '\n'
-            'Undoes the four registrations create_feature.py made, then greps for what it could not remove\n'
+            'Undoes the five registrations create_feature.py made, then greps for what it could not remove\n'
             'safely — a cross-feature navigation lambda, typically. Run doctor.py afterwards.'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -201,6 +203,7 @@ def main() -> None:
     unregister_from_koin(flat, module_class, args.dry_run)
     unregister_from_core_di_build(flat, args.dry_run)
     unregister_from_settings(flat, args.dry_run)
+    unregister_from_feature_tree(flat, args.dry_run)
     delete_directory(flat, args.dry_run)
 
     if not args.dry_run:

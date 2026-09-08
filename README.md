@@ -2,7 +2,7 @@
 
 A multi-module Android template — Kotlin, Jetpack Compose, Koin, single activity, type-safe
 navigation. It exists to be copied: the structure and the conventions are the product, and the
-three sample features are there to demonstrate them.
+five sample features are there to demonstrate them.
 
 If you are an agent working in this repo, read [CLAUDE.md](CLAUDE.md) instead — it is the rulebook.
 This file is the orientation. [docs/PLAN.md](docs/PLAN.md) is what is being worked on next.
@@ -10,7 +10,7 @@ This file is the orientation. [docs/PLAN.md](docs/PLAN.md) is what is being work
 ## Start a project from it
 
 ```bash
-python3 scripts/doctor.py   # 16 checks; should pass on a clean tree
+python3 scripts/doctor.py   # 17 checks; should pass on a clean tree
 ./gradlew build
 ```
 
@@ -20,7 +20,7 @@ Then make it yours — one command, on a clean tree:
 python3 scripts/init_project.py --package com.acme.tracker --name "Field Tracker"
 ```
 
-It rewrites the base package across every source file, moves the package directories in all 39
+It rewrites the base package across every source file, moves the package directories in all 38
 source sets, and renames the Gradle project, the Android theme, the launcher label and
 `scripts/_common.py` so the other generators keep working. Add `--dry-run` to see the plan first.
 It refuses to run on a dirty working tree, so `git checkout .` stays an escape hatch.
@@ -56,9 +56,9 @@ swap a network source for a cache without touching anything above it.
 ## A screen is seven files
 
 `XDestination`, `XScreen`, `XState`, `XEvent`, `XNavigation`, `XViewModel`, `XViewModelTest`. Generate
-them; do not write them by hand, because four registrations (`settings.gradle.kts`,
-`core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt`) are easy to forget and `doctor.py` will fail
-on every one you miss.
+them; do not write them by hand, because five registrations (`settings.gradle.kts`,
+`core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt` and the module tree in `CLAUDE.md`) are easy
+to forget and `doctor.py` will fail on every one you miss.
 
 `create_screen.py` and `create_feature.py` generate all seven, and `doctor.py` fails if one is
 missing. `MainDispatcherRule` and `FakeLogger` come from `testFixtures(projects.service.core.ui)`,
@@ -123,7 +123,7 @@ What is different here, and why:
 | Change | Reason |
 |---|---|
 | `service/` vs `core/` split, and `export_service.py` | The original had no portability story; reuse meant copying files and fixing imports by hand. |
-| Python generators + `doctor.py` (16 checks) | The original had two bash scripts and no verification. Conventions that nothing checks decay. |
+| Python generators + `doctor.py` (17 checks) | The original had two bash scripts and no verification. Conventions that nothing checks decay. |
 | Buffered channels for navigation and commands | The original used `MutableSharedFlow`, which silently drops anything emitted while the UI is below `STARTED`. |
 | `initialState` as the first constructor parameter | The original always started from `UiState(data = null)`, so every screen began behind a spinner whether it needed to or not. |
 | Reference-counted loading | The original's boolean let a short call dismiss a long call's overlay. |

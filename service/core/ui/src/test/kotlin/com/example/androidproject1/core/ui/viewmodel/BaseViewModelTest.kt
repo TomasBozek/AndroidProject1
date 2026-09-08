@@ -3,7 +3,10 @@ package com.example.androidproject1.core.ui.viewmodel
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.error.NotFoundError
 import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiEvent
+import com.example.androidproject1.core.ui.text.UiText
+import com.example.androidproject1.core.ui.text.toUiText
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,8 +52,18 @@ class BaseViewModelTest {
         logger = FakeLogger(),
     ) {
 
-        fun <T> oneShot(action: suspend () -> Outcome<T>) =
-            execute(action = action, onData = {})
+        fun <T> oneShot(
+            loadingMessage: UiText? = null,
+            action: suspend () -> Outcome<T>,
+        ) = execute(loadingMessage = loadingMessage, action = action, onData = {})
+
+        /** An [ErrorDisplay.Inline] call, which is the only kind that registers a retry. */
+        fun <T> inlineLoad(contentId: String, action: suspend () -> Outcome<T>) = execute(
+            alertId = contentId,
+            errorDisplay = ErrorDisplay.Inline,
+            action = action,
+            onData = {},
+        )
 
         fun <T> stream(flow: () -> Flow<Outcome<T>>) =
             observe(flow = { flow() }, onData = {})
@@ -136,6 +149,30 @@ class BaseViewModelTest {
         assertNull(viewModel.state.value.loading)
     }
 
+    /**
+     * Regression: the overlay was rebuilt from a bare `LoadingState()` on every change, so a second
+     * call starting — or finishing — threw away the wording the first one asked for.
+     */
+    @Test
+    fun `a loading message survives another call starting and finishing`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+        val message = "Signing in".toUiText()
+        val slow = CompletableDeferred<Unit>()
+        val quick = CompletableDeferred<Unit>()
+
+        viewModel.oneShot(loadingMessage = message) { slow.await(); Outcome.Success(Unit) }
+        assertEquals(message, viewModel.state.value.loading?.message)
+
+        viewModel.oneShot { quick.await(); Outcome.Success(Unit) }
+        assertEquals("a message-less call must not blank the wording", message, viewModel.state.value.loading?.message)
+
+        quick.complete(Unit)
+        assertEquals(message, viewModel.state.value.loading?.message)
+
+        slow.complete(Unit)
+        assertNull(viewModel.state.value.loading)
+    }
+
     // --- errors ---
 
     @Test
@@ -148,6 +185,58 @@ class BaseViewModelTest {
         assertNotNull(alert)
         assertEquals(BaseViewModel.ALERT_ID_ERROR, alert!!.id)
         assertNotNull("the error path supplies the error title", alert.title)
+    }
+
+    /**
+     * Regression: the retry was a single lambda slot, so with two inline loads in flight it always
+     * held the call that started last. Retrying the first failure re-ran the second call.
+     */
+    @Test
+    fun `two concurrent inline failures each retry their own call`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+        var firstRuns = 0
+        var secondRuns = 0
+
+        viewModel.inlineLoad("first") {
+            firstRuns++
+            Outcome.Failure(NotFoundError(message = "gone"))
+        }
+        viewModel.inlineLoad("second") {
+            secondRuns++
+            Outcome.Failure(NotFoundError(message = "gone"))
+        }
+        assertEquals(1, firstRuns)
+        assertEquals(1, secondRuns)
+
+        viewModel.onSystemEvent(SystemEvent.ContentAction("first"))
+
+        assertEquals("the first call is the one that runs again", 2, firstRuns)
+        assertEquals(1, secondRuns)
+
+        viewModel.onSystemEvent(SystemEvent.ContentAction("second"))
+
+        assertEquals(2, secondRuns)
+    }
+
+    @Test
+    fun `a content action for an unknown id clears the content and re-runs nothing`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+        var runs = 0
+
+        viewModel.inlineLoad("first") {
+            runs++
+            Outcome.Failure(NotFoundError(message = "gone"))
+        }
+        assertNotNull(viewModel.state.value.content)
+
+        viewModel.onSystemEvent(SystemEvent.ContentAction("nobody"))
+
+        assertNull(viewModel.state.value.content)
+        assertEquals(1, runs)
+
+        // The retry registered for "first" is untouched by an action meant for another id.
+        viewModel.onSystemEvent(SystemEvent.ContentAction("first"))
+        assertEquals(2, runs)
     }
 
     // --- one-shot events ---

@@ -9,6 +9,7 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -85,9 +86,13 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
 
         uiState.loading?.let { LoadingOverlay(state = it) }
 
+        // The activity is edge to edge and `Screen()` applies no insets to its content, so the
+        // host pads itself — without this the snackbar sits under the gesture-navigation bar.
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .safeDrawingPadding(),
         )
     }
 

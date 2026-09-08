@@ -44,7 +44,8 @@ SKIP_DIRS = {".git", "build", ".gradle", ".idea", ".kotlin", "__pycache__", ".cx
 # leave it unable to rename anything a second time.
 SKIP_FILES = {"init_project.py"}
 
-# Source-set roots are `src/<set>/<kotlin|java>`; both layouts are in use (`:app` is `java`).
+# Every module here keeps its sources in `src/<set>/kotlin`; `java` is matched too so a source set
+# added later in the other layout is still moved rather than silently left behind.
 SOURCE_ROOT = re.compile(r"src/[^/]+/(kotlin|java)$")
 
 

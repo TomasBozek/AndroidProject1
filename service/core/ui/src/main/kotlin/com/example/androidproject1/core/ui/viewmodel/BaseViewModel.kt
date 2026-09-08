@@ -17,7 +17,6 @@ import com.example.androidproject1.core.ui.state.LoadingState
 import com.example.androidproject1.core.ui.state.UiState
 import com.example.androidproject1.core.ui.state.clearAlert
 import com.example.androidproject1.core.ui.state.clearContent
-import com.example.androidproject1.core.ui.state.isLoading
 import com.example.androidproject1.core.ui.state.setAlert
 import com.example.androidproject1.core.ui.state.setContent
 import com.example.androidproject1.core.ui.text.UiText
@@ -34,7 +33,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
@@ -83,9 +84,18 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     // Counted rather than flagged so the overlay from a long call is not dismissed by a short one.
     private val activeCallCount = AtomicInteger(0)
 
-    // Set by a failed [ErrorDisplay.Inline] call so the retry button can re-run it. Keeping the
-    // lambda here rather than in ContentState is what lets the state stay a comparable data class.
-    private var pendingRetry: (() -> Unit)? = null
+    // Set by an [ErrorDisplay.Inline] call so the retry button can re-run it, keyed by the content
+    // id the failure is shown under. Keeping the lambdas here rather than in ContentState is what
+    // lets the state stay a comparable data class; keying them is what lets two inline loads be in
+    // flight at once — a single slot always holds the call that started last, not the one that
+    // failed, so the wrong call is retried.
+    private val pendingRetries = ConcurrentHashMap<String, () -> Unit>()
+
+    // The wording of the overlay currently up, kept beside the counter. Rebuilding a bare
+    // LoadingState on every change would discard the message a caller asked for as soon as a
+    // second call started or finished.
+    @Volatile
+    private var loadingMessage: UiText? = null
 
     /**
      * This screen's navigation arguments, decoded from the route that opened it.
@@ -120,8 +130,8 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
 
             is SystemEvent.ContentAction -> {
                 uiState.clearContent()
-                // Re-runs the call that failed, with the same arguments and handlers.
-                pendingRetry?.also { pendingRetry = null }?.invoke()
+                // Re-runs the call that failed under this id, with the same arguments and handlers.
+                pendingRetries.remove(event.id)?.invoke()
             }
         }
     }
@@ -162,20 +172,29 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         ),
     )
 
-    /** Reference-counted, so the overlay stays up until the last in-flight call finishes. */
-    protected open fun setLoading(active: Boolean) {
+    /**
+     * Reference-counted, so the overlay stays up until the last in-flight call finishes.
+     *
+     * @param message wording for the overlay. The most recent one wins while calls overlap, and is
+     * forgotten once the last of them finishes.
+     */
+    protected open fun setLoading(active: Boolean, message: UiText? = null) {
+        if (active && message != null) loadingMessage = message
         val count = if (active) {
             activeCallCount.incrementAndGet()
         } else {
             activeCallCount.updateAndGet { (it - 1).coerceAtLeast(0) }
         }
-        uiState.isLoading = count > 0
+        if (count == 0) loadingMessage = null
+        val state = if (count > 0) loadingMessage?.let(::LoadingState) ?: LoadingState() else null
+        uiState.update { it.copy(loading = state) }
     }
 
     /**
      * Runs a one-shot domain [action], showing the loading overlay while it runs and turning an
      * [Outcome.Failure] into an alert.
      *
+     * @param loadingMessage wording for the loading overlay while this call runs.
      * @param loading how to reflect the in-flight state. Pass `{}` when the screen renders its own
      * inline loading.
      * @param onError return `true` to claim an error and suppress the default presentation.
@@ -184,7 +203,8 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
      * screen, and [ErrorDisplay.Alert] for one the user triggered.
      */
     protected fun <T> execute(
-        loading: (Boolean) -> Unit = { setLoading(it) },
+        loadingMessage: UiText? = null,
+        loading: (Boolean) -> Unit = { setLoading(it, loadingMessage) },
         scope: CoroutineScope = viewModelScope,
         onError: suspend (DomainError) -> Boolean = { false },
         alertId: String = ALERT_ID_ERROR,
@@ -195,7 +215,18 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         // Captured so SystemEvent.ContentAction can re-run exactly this call. Only meaningful for
         // Inline, which is the only display mode that offers the user a retry.
         if (errorDisplay == ErrorDisplay.Inline) {
-            pendingRetry = { execute(loading, scope, onError, alertId, errorDisplay, action, onData) }
+            pendingRetries[alertId] = {
+                execute(
+                    loadingMessage = loadingMessage,
+                    loading = loading,
+                    scope = scope,
+                    onError = onError,
+                    alertId = alertId,
+                    errorDisplay = errorDisplay,
+                    action = action,
+                    onData = onData,
+                )
+            }
         }
 
         return scope.launch {
@@ -231,7 +262,8 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
      */
     protected fun <T> observe(
         flow: suspend () -> Flow<Outcome<T>>,
-        loading: (Boolean) -> Unit = { setLoading(it) },
+        loadingMessage: UiText? = null,
+        loading: (Boolean) -> Unit = { setLoading(it, loadingMessage) },
         scope: CoroutineScope = viewModelScope,
         onError: suspend (DomainError) -> Boolean = { false },
         alertId: String = ALERT_ID_ERROR,

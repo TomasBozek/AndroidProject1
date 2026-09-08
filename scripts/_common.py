@@ -22,9 +22,10 @@ TEMPLATE_RESOURCE_PREFIX = "template"
 TEMPLATE_ANCHOR = f'includeFeatureModule(\n    "{TEMPLATE_FEATURE}",'
 
 SETTINGS_FILE = REPO_ROOT / "settings.gradle.kts"
+CLAUDE_MD_FILE = REPO_ROOT / "CLAUDE.md"
 KOIN_FILE = REPO_ROOT / "core/di/src/main/kotlin" / BASE_PATH / "core/di/Koin.kt"
 CORE_DI_BUILD_FILE = REPO_ROOT / "core/di/build.gradle.kts"
-APP_NAV_HOST_FILE = REPO_ROOT / "app/src/main/java" / BASE_PATH / "AppNavHost.kt"
+APP_NAV_HOST_FILE = REPO_ROOT / "app/src/main/kotlin" / BASE_PATH / "AppNavHost.kt"
 VERSION_CATALOG_FILE = REPO_ROOT / "gradle/libs.versions.toml"
 
 # Order matters: this is also the order layers are listed in settings.gradle.kts.
@@ -45,6 +46,15 @@ NAV_GRAPHS = {
 }
 
 STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
+
+# A line of the module tree in CLAUDE.md, e.g.
+# `:feature:auth:{domain,gateway,data,presentation,di}       full stack; owns the session`.
+# doctor.py fails when the tree and the directories on disk disagree, so the generators keep it
+# in step — it is the fifth registration, and the only one a compiler could never catch.
+FEATURE_TREE_ENTRY = re.compile(r"^:feature:(\w+):\{([\w,]*)\}(?:\s+(.*))?$")
+
+# Column the descriptions in that tree start at.
+FEATURE_TREE_COLUMN = 57
 
 
 # --------------------------------------------------------------------------------------------
@@ -85,17 +95,21 @@ def to_snake(name: str) -> str:
 # --------------------------------------------------------------------------------------------
 
 
-def rewrite_source(text: str, flat: str, pascal: str) -> str:
+def rewrite_source(text: str, flat: str, pascal: str, camel: str) -> str:
     """
     Rewrites template identifiers to the target feature's.
 
     Targeted rather than a blanket `template` -> `<name>` so that the word appearing in a comment
     or a string is left alone.
+
+    Two spellings of the name, and the difference matters: packages and directories are flat
+    lowercase (`feature.userprofile`), Kotlin identifiers are camelCase (`userProfileDestination`),
+    the same spelling `create_screen.py` produces.
     """
     text = text.replace(f"feature.{TEMPLATE_FEATURE}", f"feature.{flat}")
     text = text.replace(f"feature/{TEMPLATE_FEATURE}", f"feature/{flat}")
     # camelCase identifiers such as `templateDestination`.
-    text = re.sub(rf"\b{TEMPLATE_FEATURE}(?=[A-Z])", flat, text)
+    text = re.sub(rf"\b{TEMPLATE_FEATURE}(?=[A-Z])", camel, text)
     text = text.replace(TEMPLATE_CLASS, pascal)
     return text
 
@@ -318,3 +332,56 @@ def register_destination(import_line: str, call_line: str, graph: str, dry_run: 
         return "\n".join(lines)
 
     edit_file(APP_NAV_HOST_FILE, transform, dry_run, f"register destination in {graph_class}")
+
+
+# --------------------------------------------------------------------------------------------
+# CLAUDE.md module tree
+# --------------------------------------------------------------------------------------------
+
+
+def feature_tree_line(flat: str, layers: list[str], description: str) -> str:
+    path = f":feature:{flat}:{{{','.join(layers)}}}"
+    if not description:
+        return path
+    return f"{path}{' ' * max(2, FEATURE_TREE_COLUMN - len(path))}{description}"
+
+
+def _tree_entries(lines: list[str]) -> list[tuple[int, str]]:
+    """`(line index, feature name)` for every module-tree entry, in the order they appear."""
+    return [(i, m.group(1)) for i, line in enumerate(lines) if (m := FEATURE_TREE_ENTRY.match(line))]
+
+
+def register_in_feature_tree(flat: str, layers: list[str], description: str, dry_run: bool) -> None:
+    """Lists the feature in CLAUDE.md's module tree, alphabetically, with the template last."""
+    line = feature_tree_line(flat, layers, description)
+
+    def transform(text: str) -> str:
+        lines = text.split("\n")
+        entries = _tree_entries(lines)
+        if not entries:
+            print("  CLAUDE.md: no module tree found — list the feature by hand")
+            return text
+
+        existing = next((i for i, name in entries if name == flat), None)
+        if existing is not None:
+            # A second `--layers ... --force` run grows the feature; the tree grows with it.
+            lines[existing] = line
+            return "\n".join(lines)
+
+        others = [(i, name) for i, name in entries if name != TEMPLATE_FEATURE]
+        after = next((i for i, name in others if name > flat), None)
+        if after is None:
+            after = others[-1][0] + 1 if others else entries[0][0]
+        lines.insert(after, line)
+        return "\n".join(lines)
+
+    edit_file(CLAUDE_MD_FILE, transform, dry_run, "list the module in CLAUDE.md")
+
+
+def unregister_from_feature_tree(flat: str, dry_run: bool) -> None:
+    def transform(text: str) -> str:
+        lines = text.split("\n")
+        drop = {i for i, name in _tree_entries(lines) if name == flat}
+        return "\n".join(line for i, line in enumerate(lines) if i not in drop)
+
+    edit_file(CLAUDE_MD_FILE, transform, dry_run, "remove the module from CLAUDE.md")

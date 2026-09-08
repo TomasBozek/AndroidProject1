@@ -106,22 +106,35 @@ def data_source_implementation(flat: str, source: str, key: str) -> str:
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import {BASE_PACKAGE}.core.data.DataStoreProvider
+import {BASE_PACKAGE}.core.domain.coroutines.DispatcherProvider
 import {feature_package(flat, "gateway")}.{source}DataSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
+/**
+ * Switching to IO is this class's job, not the repository's: `BaseRepository` runs on the caller's
+ * context and the caller is `viewModelScope`, which is `Dispatchers.Main`. Keep the `flowOn` and
+ * `withContext` when you replace DataStore with the real source.
+ */
 class Default{source}DataSource(
     dataStoreProvider: DataStoreProvider,
+    private val dispatcherProvider: DispatcherProvider,
 ) : {source}DataSource {{
 
     private val dataStore = dataStoreProvider.dataStore
 
-    override fun observeValue(): Flow<String?> = dataStore.data.map {{ it[KEY_VALUE] }}
+    override fun observeValue(): Flow<String?> =
+        dataStore.data
+            .map {{ it[KEY_VALUE] }}
+            .flowOn(dispatcherProvider.io)
 
-    override suspend fun setValue(value: String?) {{
+    override suspend fun setValue(value: String?) = withContext(dispatcherProvider.io) {{
         dataStore.edit {{ preferences ->
             if (value == null) preferences.remove(KEY_VALUE) else preferences[KEY_VALUE] = value
         }}
+        Unit
     }}
 
     private companion object {{

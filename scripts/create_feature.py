@@ -8,7 +8,8 @@ Scaffolds a new feature module from `feature/template`.
     python3 scripts/create_feature.py userProfile --dry-run
 
 Unlike a plain copy, this also performs every registration step the new module needs:
-`settings.gradle.kts`, `:core:di`'s build file, the Koin module list and `AppNavHost.kt`.
+`settings.gradle.kts`, `:core:di`'s build file, the Koin module list, `AppNavHost.kt` and the
+module tree in `CLAUDE.md`.
 """
 
 from __future__ import annotations
@@ -35,9 +36,11 @@ from _common import (  # noqa: E402
     edit_file,
     insert_import,
     register_destination,
+    register_in_feature_tree,
     rewrite_relative_path,
     rewrite_resource_names,
     rewrite_source,
+    to_camel,
     to_flat,
     to_pascal,
     to_snake,
@@ -132,6 +135,7 @@ def copy_layer(
     layer: str,
     flat: str,
     pascal: str,
+    camel: str,
     snake: str,
     layers: list[str],
     dry_run: bool,
@@ -158,7 +162,7 @@ def copy_layer(
             text = source_file.read_text()
             if source_file.name == "strings.xml":
                 text = strip_args_strings(text)
-            text = rewrite_source(text, flat, pascal)
+            text = rewrite_source(text, flat, pascal, camel)
             # `template_title` -> `user_profile_title`, in the Kotlin references and in strings.xml.
             text = rewrite_resource_names(text, snake)
             if source_file.name == "build.gradle.kts":
@@ -216,6 +220,15 @@ def register_in_settings(flat: str, layers: list[str], dry_run: bool) -> None:
     edit_file(SETTINGS_FILE, transform, dry_run, "register modules")
 
 
+def tree_description(layers: list[str]) -> str:
+    """The note beside the module in CLAUDE.md's tree, so a reader can see the shape at a glance."""
+    if layers == ALL_LAYERS:
+        return "full stack"
+    if layers == ["presentation", "di"]:
+        return "screen only"
+    return "partial stack"
+
+
 def register_in_core_di_build(flat: str, dry_run: bool) -> None:
     """
     Adds `api(projects.feature.<name>.di)` to `:core:di`, without which `Koin.kt` cannot see the
@@ -268,6 +281,7 @@ def main() -> None:
     args = parse_args()
     flat = to_flat(args.name)
     pascal = to_pascal(args.name)
+    camel = to_camel(args.name)
     snake = to_snake(args.name)
     layers = resolve_layers(args.layers)
 
@@ -282,12 +296,19 @@ def main() -> None:
     created = [
         layer
         for layer in layers
-        if copy_layer(layer, flat, pascal, snake, layers, args.dry_run, args.force)
+        if copy_layer(layer, flat, pascal, camel, snake, layers, args.dry_run, args.force)
     ]
     if not created:
         sys.exit("Nothing was generated.")
 
     register_in_settings(flat, created, args.dry_run)
+    # The tree documents what is on disk, which after `--layers ... --force` is more than was
+    # just generated.
+    present = [
+        layer for layer in ALL_LAYERS
+        if layer in created or (REPO_ROOT / "feature" / flat / layer).is_dir()
+    ]
+    register_in_feature_tree(flat, present, tree_description(present), args.dry_run)
     if "di" in created:
         register_in_core_di_build(flat, args.dry_run)
         register_in_koin(flat, pascal, args.dry_run)
@@ -296,8 +317,8 @@ def main() -> None:
 
     if "presentation" in created:
         register_destination(
-            import_line=f"import {BASE_PACKAGE}.feature.{flat}.presentation.{flat}Destination",
-            call_line=f"{flat}Destination(navController = navController)",
+            import_line=f"import {BASE_PACKAGE}.feature.{flat}.presentation.{camel}Destination",
+            call_line=f"{camel}Destination(navController = navController)",
             graph=args.graph,
             dry_run=args.dry_run,
         )

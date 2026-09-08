@@ -21,9 +21,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _common import (  # noqa: E402
+    ALL_LAYERS,
     APP_NAV_HOST_FILE,
     BASE_PACKAGE,
+    CLAUDE_MD_FILE,
     CORE_DI_BUILD_FILE,
+    FEATURE_TREE_ENTRY,
     KOIN_FILE,
     REPO_ROOT,
     SETTINGS_FILE,
@@ -319,6 +322,44 @@ def check_view_models_registered() -> list[str]:
         for view_model in sorted(directory.rglob("*ViewModel.kt")):
             if f"viewModelOf(::{view_model.stem})" not in di_text:
                 problems.append(problem(view_model, None, f"no viewModelOf(::{view_model.stem}) in feature/{feature}/di"))
+    return problems
+
+
+@check("every feature is listed in CLAUDE.md's module tree")
+def check_feature_tree() -> list[str]:
+    """
+    CLAUDE.md is the rulebook a cold session reads before touching anything, and a module tree
+    that has drifted teaches the wrong structure. The generators keep the tree in step; this is
+    what makes forgetting visible when a feature is added by hand.
+    """
+    if not CLAUDE_MD_FILE.is_file():
+        return [problem(CLAUDE_MD_FILE, None, "not found")]
+
+    listed = {}
+    for number, line in enumerate(CLAUDE_MD_FILE.read_text().split("\n"), start=1):
+        match = FEATURE_TREE_ENTRY.match(line)
+        if match:
+            listed[match.group(1)] = (number, [l for l in match.group(2).split(",") if l])
+
+    on_disk = feature_names()
+    problems = []
+    for feature in on_disk:
+        layers = [l for l in ALL_LAYERS if (REPO_ROOT / "feature" / feature / l).is_dir()]
+        if feature not in listed:
+            problems.append(problem(CLAUDE_MD_FILE, None, f"feature/{feature} is missing from the module tree"))
+            continue
+        number, documented = listed[feature]
+        if documented != layers:
+            problems.append(
+                problem(
+                    CLAUDE_MD_FILE,
+                    number,
+                    f"feature/{feature} has {','.join(layers)}; the tree says {','.join(documented)}",
+                )
+            )
+    for feature, (number, _) in listed.items():
+        if feature not in on_disk:
+            problems.append(problem(CLAUDE_MD_FILE, number, f"lists :feature:{feature}, which does not exist"))
     return problems
 
 

@@ -14,7 +14,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 /**
@@ -26,37 +25,41 @@ import org.koin.dsl.module
 fun coreModule(isDebug: Boolean): Module = module {
     val minLogLevel = if (isDebug) Log.DEBUG else Log.WARN
 
+    // A tag comes from `logger.withTag(...)` at the point of use, so one binding is enough.
     factory<Logger> { AndroidLogger(minLevel = minLogLevel) }
-    factory<Logger>(named(TAGGED_LOGGER)) { (tag: String) -> AndroidLogger(tag, minLogLevel) }
 
     single { DispatcherProvider() }
     single { DataStoreProvider(androidContext()) }
 }
 
-/** Qualifier for a [Logger] that takes its tag as a parameter. */
-const val TAGGED_LOGGER = "tagged"
+/**
+ * Every module this app's graph is assembled from, in registration order.
+ *
+ * One list, so that the graph `KoinGraphTest` verifies is the graph `initKoin` starts: two lists
+ * kept in step by a comment is a drift waiting to happen. `scripts/create_feature.py` edits it, so
+ * keep it formatted one module per line.
+ */
+fun appModules(isDebug: Boolean): List<Module> = listOf(
+    coreModule(isDebug),
+    AuthModule.module,
+    HomeModule.module,
+    SettingsModule.module,
+    LaunchModule.module,
+    CatalogModule.module,
+)
 
 /**
  * The single Koin registration point.
  *
- * `scripts/create_feature.py` edits the module list below, so keep the call formatted one module
- * per line.
+ * @param platformModules bindings only the application module can provide, such as `MainViewModel`.
  */
 fun initKoin(
-    vararg appModules: Module,
+    vararg platformModules: Module,
     isDebug: Boolean = false,
     platformActions: KoinApplication.() -> Unit = {},
 ) {
     startKoin {
         platformActions()
-        modules(
-            *appModules,
-            coreModule(isDebug),
-            AuthModule.module,
-            HomeModule.module,
-            SettingsModule.module,
-            LaunchModule.module,
-            CatalogModule.module,
-        )
+        modules(*platformModules, *appModules(isDebug).toTypedArray())
     }
 }

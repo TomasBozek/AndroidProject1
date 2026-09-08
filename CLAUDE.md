@@ -9,7 +9,7 @@ Keep it current as items land; there is deliberately no second copy anywhere.
 ## Project
 
 Multi-module Android app (Kotlin + Jetpack Compose), base package `com.example.androidproject1`. It is a
-**template**: the structure and conventions matter more than the three sample features. Architecture is
+**template**: the structure and conventions matter more than the five sample features. Architecture is
 modelled on a layered Clean/MVI setup — single activity, type-safe Compose navigation, Koin DI.
 
 - `minSdk = 29`, `targetSdk = compileSdk = 37`, Java 11
@@ -38,10 +38,12 @@ There are three top-level groups, and the split between the first two is the imp
 
 :app                  single activity, AppNavHost, MainViewModel, Application
 
-:feature:auth:{domain,gateway,data,presentation,di}   full stack
-:feature:home:{presentation,di}
-:feature:settings:{presentation,di}
-:feature:template:{domain,gateway,data,presentation,di} template for the generators
+:feature:auth:{domain,gateway,data,presentation,di}       full stack; owns the session
+:feature:catalog:{domain,gateway,data,presentation,di}   full stack; three screens, one with args
+:feature:home:{presentation,di}                          screen only
+:feature:launch:{presentation,di}                        screen only; the splash held by MainViewModel
+:feature:settings:{presentation,di}                      screen only; reads :feature:auth:domain
+:feature:template:{domain,gateway,data,presentation,di}  what the generators clone
 ```
 
 `service/` holds **reusable** modules — the architecture, with no knowledge of this app's features,
@@ -144,9 +146,9 @@ compile. Both edits are made automatically by `create_feature.py`.
 
 ## Recipes
 
-Start here for any new code. **Do not create these files by hand.** The scripts perform the four
-registrations a manual copy silently skips — `settings.gradle.kts`, `:core:di`'s build file, `Koin.kt`
-and `AppNavHost.kt` — and `doctor.py` fails on the ones you forget. If a script cannot do what you
+Start here for any new code. **Do not create these files by hand.** The scripts perform the five
+registrations a manual copy silently skips — `settings.gradle.kts`, `:core:di`'s build file, `Koin.kt`,
+`AppNavHost.kt` and the module tree above — and `doctor.py` fails on the ones you forget. If a script cannot do what you
 need, extend it rather than working around it; `scripts/test_scripts.py` covers them.
 
 | I need | Command |
@@ -164,8 +166,9 @@ need, extend it rather than working around it; `scripts/test_scripts.py` covers 
 | to reuse `service/` in another project | `python3 scripts/export_service.py --to <dir> --package <pkg> --sync-versions` |
 
 Pass the name in any case — `userProfile`, `user-profile`, `UserProfile` all work. What comes out is fixed:
-directory and package flat lowercase (`userprofile`), classes PascalCase (`UserProfileViewModel`), string
-resources snake_case (`user_profile_title`). Add `--dry-run` to any generator to see the plan before it writes.
+directory and package flat lowercase (`userprofile`), classes PascalCase (`UserProfileViewModel`), functions
+camelCase (`userProfileDestination`), string resources snake_case (`user_profile_title`). Add
+`--dry-run` to any generator to see the plan before it writes.
 
 ### A new feature
 
@@ -213,10 +216,6 @@ the ViewModel in the feature's Koin module and the destination in `AppNavHost.kt
 1–3 above. For a screen that takes an argument, turn its `@Serializable data object XDestination` into
 a `data class` and read it from the nav entry.
 
-Note the destination function names differ by origin: `create_feature.py` produces
-`userprofileDestination` (flat, from the feature name) and `create_screen.py` produces
-`userProfileDetailDestination` (camelCase, from the screen name). Both are registered for you, so read
-the generated file rather than guessing.
 
 ### A new data source
 
@@ -243,7 +242,7 @@ Not scripted, and deliberately: a `presentation` module must never depend on ano
 wire it in `AppNavHost.kt`, the way `homeDestination` reaches settings:
 
 ```kotlin
-userprofileDestination(
+userProfileDestination(
     navController = navController,
     navigateToSettings = { navController.navigate(SettingsDestination) },
 )
@@ -254,7 +253,7 @@ Switching between the auth and main graphs is different again: change the sessio
 
 ### Removing things
 
-`delete_feature.py` removes a whole feature and all four registrations. There is no script for a single
+`delete_feature.py` removes a whole feature and all five registrations. There is no script for a single
 screen: delete its six files, its `user_profile_detail_*` strings, the `viewModelOf(::XViewModel)` line
 and the two `AppNavHost.kt` lines. Run `doctor.py` afterwards — it catches every one of those if you
 miss it.
@@ -288,16 +287,16 @@ python3 scripts/init_project.py --package com.acme.app --name "My App" [--dry-ru
 
 Run once on a fresh clone, before writing anything of your own. Rewrites the base package in every
 source file (both the dotted and slash-separated forms — `scripts/test_scripts.py` holds the latter),
-moves the package directory in all 39 source sets, and renames `rootProject.name`, the Android theme,
+moves the package directory in all 38 source sets, and renames `rootProject.name`, the Android theme,
 the launcher label and `_common.py:BASE_PACKAGE`. Refuses to run on a dirty tree without `--force`.
 
 ```bash
 python3 scripts/create_feature.py userProfile --layers domain,presentation,di
 ```
 
-Clones `feature/template`, rewrites names, and performs **all four** registrations: the modules in
+Clones `feature/template`, rewrites names, and performs **all five** registrations: the modules in
 `settings.gradle.kts`, `api(projects.feature.userprofile.di)` in `core/di/build.gradle.kts`, the Koin
-module entry in `Koin.kt`, and the destination in `AppNavHost.kt`. Dependencies on layers you did not
+module entry in `Koin.kt`, the destination in `AppNavHost.kt`, and the line in the module tree above. Dependencies on layers you did not
 generate are stripped from the generated build files. `--graph main|auth|none` picks the nav graph.
 
 ```bash
@@ -336,7 +335,7 @@ its `Local`/`Remote`/`Cached`/`InMemory` qualifier, matching `LocalAuthDataSourc
 python3 scripts/delete_feature.py userProfile
 ```
 
-The inverse of `create_feature.py`: deletes `feature/<name>/` and undoes the same four registrations,
+The inverse of `create_feature.py`: deletes `feature/<name>/` and undoes the same five registrations,
 then greps for references it could not remove safely (a cross-feature navigation lambda, typically) and
 prints them. It refuses to delete `feature/template` without `--force`.
 
@@ -347,7 +346,8 @@ python3 scripts/doctor.py
 Greps for the conventions in this file that no compiler enforces: `service/` portability, the
 Android-free domain layer, the `core_` resource prefix, the six-file screen unit, `XState.PREVIEW`, an
 `init` block that clears `loading`, cross-feature `presentation` dependencies, module registration in
-`settings.gradle.kts`, ViewModel/Koin/AppNavHost registration and hardcoded dependency coordinates.
+`settings.gradle.kts`, ViewModel/Koin/AppNavHost registration, the module tree above matching the
+`feature/` directories on disk, and hardcoded dependency coordinates.
 Exits non-zero, so it can gate CI; `--list` prints the checks. Since there is no detekt/ktlint here,
 this is the only automated defence these rules have.
 
@@ -385,7 +385,7 @@ python3 scripts/test_scripts.py
 
 Smoke tests for all of the above, on `unittest` so there is nothing to install. Each test copies the
 repo into a temp directory and runs the scripts there as subprocesses; the delete-feature test asserts
-the four registration files come back byte-identical. They check generated text, not that it compiles —
+the five registration files come back byte-identical. They check generated text, not that it compiles —
 `./gradlew build` is still the real gate.
 
 Renaming caveat: `create_feature.py` / `create_screen.py` use targeted replacements

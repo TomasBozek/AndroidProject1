@@ -89,9 +89,20 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("UserProfileModule.module,", koin)
         self.assertIn("import com.example.androidproject1.feature.userprofile.di.UserProfileModule", koin)
 
-        nav_host = self.read(f"app/src/main/java/{BASE_PATH}/AppNavHost.kt")
-        self.assertIn("userprofileDestination(navController = navController)", nav_host)
-        self.assertIn("import com.example.androidproject1.feature.userprofile.presentation.userprofileDestination", nav_host)
+        # camelCase, the same spelling create_screen.py produces; the package stays flat.
+        nav_host = self.read(f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt")
+        self.assertIn("userProfileDestination(navController = navController)", nav_host)
+        self.assertIn("import com.example.androidproject1.feature.userprofile.presentation.userProfileDestination", nav_host)
+        self.assertNotIn("userprofileDestination", nav_host)
+
+        destination = (self.presentation("userprofile") / "UserProfileDestination.kt").read_text()
+        self.assertIn("fun NavGraphBuilder.userProfileDestination(", destination)
+
+        # The fifth registration: CLAUDE.md's module tree, which doctor.py checks.
+        self.assertIn(
+            ":feature:userprofile:{domain,gateway,data,presentation,di}",
+            self.read("CLAUDE.md"),
+        )
 
         self.assert_doctor_passes()
 
@@ -106,6 +117,15 @@ class ScaffoldingTest(unittest.TestCase):
         screen = (self.presentation("userprofile") / "UserProfileScreen.kt").read_text()
         self.assertIn("R.string.user_profile_title", screen)
         self.assertNotIn("template_", screen)
+
+    def test_create_feature_lists_partial_layers_in_the_module_tree(self) -> None:
+        """The tree documents what is on disk; a screen-only feature must not claim five layers."""
+        self.run_script("create_feature.py", "userProfile", "--layers", "presentation,di")
+        self.assertIn(":feature:userprofile:{presentation,di}", self.read("CLAUDE.md"))
+
+        self.run_script("create_feature.py", "userProfile", "--layers", "domain", "--force")
+        self.assertIn(":feature:userprofile:{domain,presentation,di}", self.read("CLAUDE.md"))
+        self.assert_doctor_passes()
 
     def test_create_feature_with_partial_layers(self) -> None:
         self.run_script("create_feature.py", "userProfile", "--layers", "presentation,di")
@@ -148,7 +168,7 @@ class ScaffoldingTest(unittest.TestCase):
         module = self.read(f"feature/userprofile/di/src/main/kotlin/{BASE_PATH}/feature/userprofile/di/UserProfileModule.kt")
         self.assertIn("viewModelOf(::UserProfileListViewModel)", module)
 
-        nav_host = self.read(f"app/src/main/java/{BASE_PATH}/AppNavHost.kt")
+        nav_host = self.read(f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt")
         self.assertIn("userProfileListDestination(navController = navController)", nav_host)
 
         self.assert_doctor_passes()
@@ -199,6 +219,14 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("import org.koin.core.module.dsl.singleOf", module)
         self.assertIn("import org.koin.dsl.bind", module)
 
+        # A data source touches disk, so it switches to IO itself — BaseRepository runs on the
+        # caller's context, and that caller is viewModelScope.
+        implementation = (data / "DefaultLocalUserProfileDataSource.kt").read_text()
+        self.assertIn("import com.example.androidproject1.core.domain.coroutines.DispatcherProvider", implementation)
+        self.assertIn("private val dispatcherProvider: DispatcherProvider,", implementation)
+        self.assertIn(".flowOn(dispatcherProvider.io)", implementation)
+        self.assertIn("withContext(dispatcherProvider.io)", implementation)
+
         self.assert_doctor_passes()
 
     def test_delete_feature_restores_every_registration(self) -> None:
@@ -206,7 +234,8 @@ class ScaffoldingTest(unittest.TestCase):
             "settings.gradle.kts",
             "core/di/build.gradle.kts",
             f"core/di/src/main/kotlin/{BASE_PATH}/core/di/Koin.kt",
-            f"app/src/main/java/{BASE_PATH}/AppNavHost.kt",
+            f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt",
+            "CLAUDE.md",
         ]
         before = {path: self.read(path) for path in watched}
 
@@ -455,7 +484,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertTrue(
             (self.repo / "service/core/ui/src/testFixtures/kotlin/com/acme/tracker/core/ui/test").is_dir()
         )
-        self.assertTrue((self.repo / "app/src/main/java/com/acme/tracker/MainActivity.kt").is_file())
+        self.assertTrue((self.repo / "app/src/main/kotlin/com/acme/tracker/MainActivity.kt").is_file())
         self.assertFalse((self.repo / "service/core/ui/src/main/kotlin/com/example").exists())
 
     def test_init_project_updates_the_project_name_and_label(self) -> None:

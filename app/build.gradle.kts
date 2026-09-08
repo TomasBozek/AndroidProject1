@@ -69,13 +69,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.compose)
 
+    // No androidTest source set: UI tests run under Robolectric as unit tests, so CI needs no
+    // emulator. See plan item 4.3.
     testImplementation(platform(libs.koin.bom))
     testImplementation(libs.bundles.testing)
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

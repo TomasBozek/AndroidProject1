@@ -23,7 +23,7 @@ Hooks are not version controlled, so this does not arrive with the clone.
 python3 scripts/init_project.py --package com.acme.tracker --name "Field Tracker" --dry-run
 ```
 
-Rewrites the base package across every source file, moves the package directory in all 39 source
+Rewrites the base package across every source file, moves the package directory in all 38 source
 sets, and renames the Gradle project, the Android theme, the launcher label and `_common.py`. Run
 it on a fresh clone before writing code of your own; it refuses a dirty working tree so
 `git checkout .` stays an escape hatch.
@@ -36,8 +36,8 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 | `create_screen.py` | The seven-file screen unit in an existing feature | the ViewModel in the feature's Koin module, the destination in `AppNavHost.kt` |
 | `create_component.py` | A Compose component and its preview | nothing — a component needs none |
 | `create_datasource.py` | Data source across `gateway`/`data`, optionally its repository | the Koin bindings |
-| `delete_feature.py` | The inverse of `create_feature.py` | undoes all four |
-| `doctor.py` | 16 checks a compiler cannot make | — |
+| `delete_feature.py` | The inverse of `create_feature.py` | undoes all five |
+| `doctor.py` | 17 checks a compiler cannot make | — |
 | `test_scripts.py` | Tests for everything above | — |
 | `export_service.py` | Copies `service/` into a *different* project | prints the `settings.gradle.kts` block |
 

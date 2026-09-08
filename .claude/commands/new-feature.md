@@ -5,8 +5,9 @@ allowed-tools: Bash(python3 scripts/*), Read, Edit, Glob, Grep
 ---
 
 Create a feature with `scripts/create_feature.py`. Do not write the module files by hand — the
-script performs four registrations that are easy to miss (`settings.gradle.kts`,
-`core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt`), and `doctor.py` fails on each one you skip.
+script performs five registrations that are easy to miss (`settings.gradle.kts`,
+`core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt`, the module tree in `CLAUDE.md`), and
+`doctor.py` fails on each one you skip.
 
 ```bash
 python3 scripts/create_feature.py $ARGUMENTS
