@@ -1,5 +1,4 @@
 [versions]
-screenshot = "0.0.1-alpha16"
 coil = "3.1.0"
 agp = "9.4.0"
 kotlin = "2.4.20"
@@ -26,7 +25,6 @@ dependencyAnalysis = "3.19.1"
 ktlintGradle = "14.2.0"
 
 [libraries]
-android-screenshot-validation-engine = { group = "com.android.tools.screenshot", name = "screenshot-validation-junit-engine", version.ref = "screenshot" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 # The Gradle plugins themselves, so build-logic/ can compile against their DSL. Not for a module.
@@ -99,7 +97,6 @@ testing = [
 ]
 
 [plugins]
-android-screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

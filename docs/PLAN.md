@@ -18,15 +18,14 @@ human orientation. This file is the work list.
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
-| 4 · Testing and quality | Regression coverage that costs nothing to keep | 1 / 4 | `███░░░░░░░` 25% · 4.1 in progress |
+| 4 · Testing and quality | Regression coverage that costs nothing to keep | 1 / 4 | `███░░░░░░░` 25% · 4.1 parked |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
 | **Total** | | **41 / 70** | `██████░░░░` 59% |
 
-**Now:** 4.1 — wired but recording no goldens; six obstacles cleared, still dead. See the item.
-**Next:** 4.3 (which 3.6's `testTag`s unblocked) and 4.4 — neither is blocked by 4.1.
-3.8 whenever D13 is answered. 4.1's screenshot tests are worth much more now than
+**Now:** 4.3 (one Compose UI test as the pattern), then 4.4.
+**Next:** Phase 5. 3.8 whenever D13 is answered; 4.1 when the plugin is past alpha. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
 **Blocked on a decision:** 3.8, on D13 — bundle Source Sans 3's files or use Downloadable Fonts.
 Everything else in Phase 3 is done.
@@ -38,9 +37,9 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 | | Items | What that means |
 |---|---|---|
 | **Done** | 41 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
-| **In progress** | 1 | **4.1** screenshot tests — wired, green, and recording nothing. Six obstacles found and cleared; still dead. Full diagnosis is on the item. |
-| **Blocked** | 1 | **3.8** bundle Source Sans 3, on **D13** — bundle the files or use Downloadable Fonts. The only thing between Phase 3 and complete. |
-| **Not started** | 27 | 4.3, 4.4, all of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **In progress** | 0 | — |
+| **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
+| **Not started** | 26 | 4.3, 4.4, all of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -856,12 +855,12 @@ screens are built from shared components. Order matters: 3.1 before 3.4, 3.2 bef
 Goal: regressions are caught by things that already exist (previews, generators), not by
 new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
 
-- [~] **4.1 Compose Preview Screenshot Testing** (M) — *in progress, not working yet*
+- [ ] **4.1 Compose Preview Screenshot Testing** (M) — *parked; the plugin does not work on this toolchain*
   Why: Plan 1's H3 and D9. Ten screens already carry `@ScreenPreview`; goldens are nearly free.
   Done: plugin applied to presentation modules through the convention plugin;
   `./gradlew updateDebugScreenshotTest` records, `validateDebugScreenshotTest` runs in CI;
   deliberately break one padding value and confirm it fails; goldens committed.
-  **State on 2026-09-08 — wired but recording nothing.** The tasks exist and the build is green;
+  **Attempted and backed out, 2026-09-08.** Wired end to end and it records nothing;
   `updateDebugScreenshotTest` succeeds and produces **zero goldens**. Four obstacles found and
   cleared so far, each of which fails with a message that does not say what is wrong:
   1. `0.0.1-alpha10` refuses AGP 9 outright ("requires between 8.5.0-beta01 and 8.12").
@@ -879,14 +878,20 @@ new manual effort. Do 4.2 before 4.1 so goldens are recorded once.
   6. `debugScreenshotTestRuntimeClasspath` has **no engine on it at all** on AGP 9 — the plugin
      injects `com.android.tools.screenshot:screenshot-validation-junit-engine` itself on 8.x.
      Adding it as `screenshotTestRuntimeOnly` is the current attempt; it still records nothing.
-  Next thing to try: whether the engine needs `testRuntimeOnly` rather than
-  `screenshotTestRuntimeOnly`, or whether discovery wants an explicit
-  `includeEngines("preview-screenshot")`. If it stays dead, this is the detekt situation — record
-  it and revisit when the plugin is past alpha.
-  `core/ui/src/screenshotTest/java/…/ComponentScreenshots.kt` holds four sheets (buttons, form,
-  type and status, and the form at 1.5× font) and is ready the moment discovery works. Note the
-  previews have to be *duplicated* here — the plugin does not see `main`'s `@ComponentPreview`,
-  which is why the file groups components into sheets rather than mirroring all 41.
+  7. The renderer is `layoutlib-16.1.0-**jdk17**` and the daemon is JDK 25, so the task was also
+     pinned to a 17 toolchain. It provisions and runs — and still discovers nothing.
+  With the engine on `debugScreenshotTestRuntimeClasspath`, the sources compiled, the platform
+  selected and a JDK 17 launcher, the engine reports no tests and writes no images. **This is the
+  detekt situation**, so the wiring was backed out rather than left in the template: build
+  machinery that silently does nothing costs more than an open item does. The commits are in the
+  history if it is worth resuming.
+  Revisit when the plugin is past `0.0.1-alpha`. Two things to know when picking it up: previews
+  must be **duplicated** into `screenshotTest` — the plugin does not see `main`'s
+  `@ComponentPreview`, so group components into sheets rather than mirroring all 41 — and the
+  sources must be under `src/screenshotTest/java`, because nothing compiles `.../kotlin` and
+  nothing warns.
+  Its value has gone up, not down: 41 components with previews and three states per screen from
+  4.2 is a lot of coverage sitting unused.
 
 - [x] **4.2 Preview variants in the template** (S) (2026-09-08)
   Why: Plan 1's C7. One preview per screen shows one state.

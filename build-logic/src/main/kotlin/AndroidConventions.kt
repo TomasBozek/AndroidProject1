@@ -1,6 +1,5 @@
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
-import org.gradle.api.tasks.testing.Test
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.getByType
@@ -87,23 +86,6 @@ internal fun Project.configureCompose(extension: CommonExtension) {
     pluginManager.apply(libs.findPlugin("kotlin-compose").get().get().pluginId)
 
     extension.buildFeatures.compose = true
-    // Must be set before the screenshot plugin is applied — it reads the flag while applying,
-    // and the message it gives when the flag is missing does not say so.
-    @Suppress("UnstableApiUsage")
-    extension.experimentalProperties["android.experimental.enableScreenshotTest"] = true
-    // Renders every @Preview in the `screenshotTest` source set and diffs it against a committed
-    // golden. `updateDebugScreenshotTest` records, `validateDebugScreenshotTest` checks.
-    pluginManager.apply(libs.findPlugin("android-screenshot").get().get().pluginId)
-    // Gradle 9 fails a Test task that discovers nothing. A module with no previews in its
-    // screenshotTest source set is normal here, so let it pass rather than gate on emptiness.
-    tasks.withType(Test::class.java).configureEach {
-        failOnNoDiscoveredTests.set(false)
-        // The screenshot engine is a JUnit Platform engine; the rest of the repo is JUnit 4, which
-        // AGP configures by default. Only the screenshot tasks switch.
-        if (name.endsWith("ScreenshotTest")) {
-            useJUnitPlatform()
-        }
-    }
 
     dependencies.apply {
         add("api", platform(libs.findLibrary("androidx-compose-bom").get()))
@@ -114,10 +96,5 @@ internal fun Project.configureCompose(extension: CommonExtension) {
         // doctor.py fails on a `coil3` import anywhere under feature/.
         add("implementation", libs.findLibrary("coil-compose").get())
         add("implementation", libs.findLibrary("coil-network").get())
-        add("screenshotTestImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
-        // The plugin's JUnit Platform engine. It lands on the classpath by itself on AGP 8.x; on
-        // AGP 9 it does not, and without it the task discovers nothing and silently records no
-        // goldens. Declared here so a module cannot be quietly missing it.
-        add("screenshotTestRuntimeOnly", libs.findLibrary("android-screenshot-validation-engine").get())
     }
 }
