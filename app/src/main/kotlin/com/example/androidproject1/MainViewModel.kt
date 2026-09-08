@@ -1,48 +1,62 @@
 package com.example.androidproject1
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.domain.AuthService
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-/** Single owner of the session, and the only thing that switches nav graphs. */
+/**
+ * Single owner of the session, and the only thing that switches between the auth and main flows.
+ *
+ * A plain [ViewModel] rather than a `BaseViewModel`, because it is not a screen: there is no state
+ * to render, no user event to receive, and nothing to put a loading overlay or an error dialog
+ * over. Screens change the session and let this react — see `SettingsViewModel.logout()`.
+ */
 class MainViewModel(
     logger: Logger,
-    authService: AuthService,
-) : BaseViewModel<MainState, MainEvent, MainNavigation>(
-    // Never rendered — MainViewModel owns no screen of its own (the app starts on the launch
-    // screen instead). Non-null only so BaseViewModel doesn't start an overlay nothing shows.
-    initialState = MainState(isLoggedIn = false),
-    logger = logger.withTag("MainViewModel"),
-) {
+    private val authService: AuthService,
+) : ViewModel() {
 
-    // Tracks whether the first real decision has been made, since `data` starts non-null now and
-    // can no longer stand in for "session not known yet".
-    private var sessionKnown = false
+    private val logger = logger.withTag(TAG)
+
+    private val mutableSessionState = MutableStateFlow<SessionState>(SessionState.Unknown)
+
+    /** [SessionState.Unknown] until the stored session has been read once. */
+    val sessionState: StateFlow<SessionState> = mutableSessionState.asStateFlow()
 
     init {
-        observe(
-            // `onStart`'s delay stands in for real startup work (remote config, cache warm-up)
-            // and is what keeps the launch screen up for a deliberate beat instead of a flash.
-            flow = { authService.isLoggedIn().onStart { delay(MIN_LAUNCH_DURATION_MS) } },
-            loading = {},
-        ) { isLoggedIn ->
-            val previous = uiState.value.data?.isLoggedIn
-            uiState.update { it.copy(data = MainState(isLoggedIn = isLoggedIn)) }
+        observeSession()
+    }
 
-            // Also fires on the very first decision: that is what carries the app on from the
-            // launch screen, which never navigates itself — see LaunchNavigation.
-            if (!sessionKnown || previous != isLoggedIn) {
-                sessionKnown = true
-                navigate(if (isLoggedIn) MainNavigation.Main else MainNavigation.Auth)
+    // A member function, not an `init` body: a constructor parameter shadows the property of the
+    // same name inside `init`, so `logger` there would be the untagged one.
+    private fun observeSession() {
+        viewModelScope.launch {
+            authService.isLoggedIn().collect { outcome ->
+                mutableSessionState.value = when (outcome) {
+                    is Outcome.Success -> {
+                        if (outcome.data) SessionState.SignedIn else SessionState.SignedOut
+                    }
+
+                    // `observeSession()` has already retried, and there is no screen to put a
+                    // dialog over. Signed out is the safe reading and the one flow from which the
+                    // user can do something about it.
+                    is Outcome.Failure -> {
+                        logger.w { "Session unreadable (${outcome.error}); treating as signed out" }
+                        SessionState.SignedOut
+                    }
+                }
             }
         }
     }
 
     private companion object {
 
-        const val MIN_LAUNCH_DURATION_MS = 2_000L
+        const val TAG = "MainViewModel"
     }
 }

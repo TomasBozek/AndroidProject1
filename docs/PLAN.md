@@ -6,24 +6,25 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8 landed)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 60 · build green
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8 and 2.2 landed)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 65 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 1 / 8 | `█░░░░░░░░░` 13% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 2 / 8 | `███░░░░░░░` 25% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **23 / 67** | `███░░░░░░░` 34% |
+| **Total** | | **24 / 67** | `████░░░░░░` 36% |
 
-**Now:** nothing in flight.
-**Next:** 2.1 and 2.2 together (splash + `MainViewModel`), then 2.3, 2.4, and 2.5 to 2.7 in any order.
+**Now:** 2.1.
+**Next:** 2.1 (splash; 2.2 landed first because the splash condition is its `SessionState`),
+then 2.3, 2.4, and 2.5 to 2.7 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -71,9 +72,10 @@ six slash commands). See git history for the details.
 | Route arguments | the route key itself | A constructor parameter on the ViewModel, handed over by the destination with `koinViewModel { parametersOf(key) }` |
 | `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
 | `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Defined; not yet used (item 3.3) |
-| `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation` |
+| `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation`; `:app` declares it itself |
 | `FakeLogger` | `testFixtures(projects.service.core.domain)` | Re-exported by `:service:core:ui`'s fixtures, so one line still gets both |
-| `FakeAuthService` | `testFixtures(projects.feature.auth.domain)` | Used by the auth and settings tests |
+| `FakeAuthService` | `testFixtures(projects.feature.auth.domain)` | The auth, settings and `MainViewModel` tests; `sessionError` fails the session flow |
+| `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
 | `appModules(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it |
 | `coreModule(isDebug)` | `core/di/Koin.kt` | WARN-and-above logger in release |
 | `execute(loadingMessage = …)` | `BaseViewModel` | Wording for the overlay; survives overlapping calls |
@@ -448,12 +450,25 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   replaces the whole back stack; `Screen.isTransparent` removed; `themes.xml` uses
   `Theme.SplashScreen`.
 
-- [ ] **2.2 `MainViewModel` is a plain `ViewModel` with a `SessionState`** (S) · D2 decided: yes
+- [x] **2.2 `MainViewModel` is a plain `ViewModel` with a `SessionState`** (S) · 2026-09-08 · D2 decided: yes
   Why: it is not a screen. Today it subclasses `BaseViewModel` with a state nothing renders and a
   `sessionKnown` flag to work around that.
   Done: `sealed interface SessionState { Unknown; SignedIn; SignedOut }` exposed as `StateFlow`;
   a read failure after retries maps to `SignedOut` and a WARN log instead of a modal over nothing;
   `MainNavigation`, `MainEvent`, `MainState` deleted; `KoinGraphTest` green.
+  Landed. Done ahead of 2.1 because the splash's keep-on-screen condition is this item's
+  `SessionState.Unknown`. Two things beyond the Done line, both needed for it to be true:
+  - **`MainActivity` applies the session by asserting an invariant**, not by remembering whether it
+    has already navigated: the flow the user is in *is* the first key on the back stack, so a
+    `LaunchedEffect` replaces the stack when the session's root key and `backStack.first()` disagree
+    and does nothing when they match. The old `sessionKnown` flag had no equivalent, and the
+    obvious replacement — switch on the first non-`Unknown` value — would discard a back stack
+    restored after process death. Still true of the launch screen this commit keeps; 2.1 removes it.
+  - **`MainViewModelTest`, and the `testFixtures(...)` lines in `app/build.gradle.kts` it needs.**
+    `convention.android.application` is not `convention.feature.presentation`, so `:app` had no
+    `MainDispatcherRule`. `FakeAuthService` grew a `sessionError` property — kept apart from
+    `failWith`, so a test of a failing sign-in still reads a session — since nothing could make the
+    session flow fail before.
 
 - [ ] **2.3 Bottom navigation with nested graphs** (M)
   Why: Plan 1's D1. The first thing a real project adds and the one thing the template does not

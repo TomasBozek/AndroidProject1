@@ -5,10 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
-import com.example.androidproject1.core.ui.component.Screen
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.LoginDestination
 import com.example.androidproject1.feature.home.presentation.HomeDestination
@@ -34,26 +36,29 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun MainContent() {
-        // The app always starts on the launch screen; MainViewModel decides when to leave it.
+        val session by viewModel.sessionState.collectAsStateWithLifecycle()
+
+        // The app always starts on the launch screen; the session decides when to leave it.
         // rememberNavBackStack saves the keys, so the stack survives process death.
         val backStack = rememberNavBackStack(LaunchDestination)
 
-        AppNavHost(backStack = backStack)
+        // Which flow the user is in is the identity of the stack's first key, so the session is
+        // applied by asserting that rather than by tracking whether it has already been applied.
+        // Nothing to do while the session is Unknown — the launch screen is already up.
+        val rootKey = session.rootKey()
+        LaunchedEffect(rootKey) {
+            if (rootKey != null && backStack.firstOrNull() != rootKey) backStack.switchTo(rootKey)
+        }
 
-        // MainViewModel owns no screen of its own — Screen() here only surfaces a session error
-        // as a dialog (observeSession() already retries, so this is a last-resort path) and
-        // delivers the graph switch.
-        Screen(
-            viewModel = viewModel,
-            isTransparent = true,
-            onNavigation = { navigation ->
-                when (navigation) {
-                    MainNavigation.Main -> backStack.switchTo(HomeDestination)
-                    MainNavigation.Auth -> backStack.switchTo(LoginDestination)
-                }
-            },
-        ) { _, _ -> }
+        AppNavHost(backStack = backStack)
     }
+}
+
+/** The first key of the flow this session belongs in, or `null` while it is not known yet. */
+private fun SessionState.rootKey(): NavKey? = when (this) {
+    SessionState.Unknown -> null
+    SessionState.SignedIn -> HomeDestination
+    SessionState.SignedOut -> LoginDestination
 }
 
 /**

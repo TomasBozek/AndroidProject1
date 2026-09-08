@@ -7,8 +7,13 @@ dependencies {
     // `implementation`, not `api`: nothing consumes the application module.
     implementation(projects.core.di)
 
-    // Declared rather than reached transitively through :core:di: MainActivity uses AppTheme and
-    // Screen(), and MainViewModel uses AuthService.
+    // Declared rather than reached transitively through :core:di: MainActivity uses AppTheme,
+    // and MainViewModel uses AuthService.
     implementation(projects.core.ui)
     implementation(projects.feature.auth.domain)
+
+    // MainDispatcherRule + FakeLogger, and FakeAuthService, for MainViewModelTest. Every other
+    // module gets the first line from `convention.feature.presentation`; :app is not one.
+    testImplementation(testFixtures(projects.service.core.ui))
+    testImplementation(testFixtures(projects.feature.auth.domain))
 }

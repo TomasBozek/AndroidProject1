@@ -15,19 +15,25 @@ import kotlinx.coroutines.flow.map
  * cross-cutting: `:feature:settings` reads it too, and had grown its own near-copy.
  *
  * @property session settable, so a test can start from a signed-in state without calling [login].
+ * @property sessionError set to make the session flows emit a failure instead of the session. Kept
+ * apart from [failWith] so a test of a failing sign-in still gets a readable session.
  */
 class FakeAuthService(var failWith: DomainError? = null) : AuthService {
 
     val session = MutableStateFlow<Session?>(null)
+
+    var sessionError: DomainError? = null
 
     val loggedInEmails = mutableListOf<String>()
 
     var logoutCount = 0
         private set
 
-    override fun observeSession(): Flow<Outcome<Session?>> = session.map { Outcome.Success(it) }
+    override fun observeSession(): Flow<Outcome<Session?>> =
+        session.map { sessionOutcome(it) }
 
-    override fun isLoggedIn(): Flow<Outcome<Boolean>> = session.map { Outcome.Success(it != null) }
+    override fun isLoggedIn(): Flow<Outcome<Boolean>> =
+        session.map { sessionOutcome(it != null) }
 
     override suspend fun login(email: String): Outcome<Unit> {
         failWith?.let { return Outcome.Failure(it) }
@@ -42,4 +48,7 @@ class FakeAuthService(var failWith: DomainError? = null) : AuthService {
         session.value = null
         return Outcome.Success(Unit)
     }
+
+    private fun <T> sessionOutcome(value: T): Outcome<T> =
+        sessionError?.let { Outcome.Failure(it) } ?: Outcome.Success(value)
 }
