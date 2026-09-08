@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete)
-**Gate at last run:** doctor 19/19 · test_scripts 37 · ktlint clean · unit tests 60 · build green
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8 landed)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 60 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 1 / 8 | `█░░░░░░░░░` 13% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **22 / 67** | `███░░░░░░░` 33% |
+| **Total** | | **23 / 67** | `███░░░░░░░` 34% |
 
 **Now:** nothing in flight.
-**Next:** Phase 2, starting with 2.8 (Navigation 3), which 2.1 to 2.4 are built on.
+**Next:** 2.1 and 2.2 together (splash + `MainViewModel`), then 2.3, 2.4, and 2.5 to 2.7 in any order.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -68,7 +68,7 @@ six slash commands). See git history for the details.
 | `ErrorDisplay.{Alert,Inline,Silent}` | same | `Inline` remembers the failed call **per content id**; retry re-runs that one |
 | `ContentState.{Error,Empty}` | `service/core/ui/.../state/ContentState.kt` | Rendered by `Screen()` instead of content |
 | `Screen(onNavigation = …)` | `service/core/ui/.../component/Screen.kt` | Destinations write no collector |
-| `navArgs<T>()` | `BaseViewModel` | Route args from `SavedStateHandle`. Goes away in 2.8: on Navigation 3 the route key is a plain ViewModel constructor parameter |
+| Route arguments | the route key itself | A constructor parameter on the ViewModel, handed over by the destination with `koinViewModel { parametersOf(key) }` |
 | `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
 | `AppTheme.spacing` | `core/ui/theme/Spacing.kt` | Defined; not yet used (item 3.3) |
 | `MainDispatcherRule` | `testFixtures(projects.service.core.ui)` | Added by `convention.feature.presentation` |
@@ -83,10 +83,17 @@ six slash commands). See git history for the details.
 
 **Gotchas already paid for:**
 
-- A screen with nav arguments needs Robolectric 4.16 (`@RunWith(RobolectricTestRunner::class)`,
-  `@Config(sdk = [34])`). 4.14 cannot read JDK 25 bytecode. Screens without arguments stay on the
-  plain JVM. This gotcha disappears with 2.8: Navigation 3 hands the route key to the ViewModel
-  directly, so there is no `Bundle` to decode and every ViewModel test is a plain JVM test again.
+- ~~A screen with nav arguments needs Robolectric.~~ Gone with 2.8: Navigation 3 hands the route
+  key to the ViewModel directly, so there is no `Bundle` to decode and every ViewModel test is a
+  plain JVM test. Robolectric is out of `convention.feature.presentation` and nothing uses it —
+  item 4.3 will add it back for the screen tests.
+- Koin's `verify()` cannot see a `parametersOf` argument, so a screen with route arguments needs one
+  line in `KoinGraphTest`'s `injectedParameters`. That is the sixth registration;
+  `create_screen.py --with-args` writes it and `doctor.py` check 20 fails if it is missing.
+- `rememberSceneSetupNavEntryDecorator` is internal in navigation3 1.1.7 — `NavDisplay` adds it
+  itself. Pass only the saveable-state and ViewModel-store decorators.
+- `Module.mappings` is `@KoinInternalAPI`, so the route-key injections cannot be derived by walking
+  the graph. They are listed.
 - `testFixtures { enable = true }` works on AGP 9.
 - `lint { checkDependencies }` belongs to `:app` only.
 - `feature/template` holds two screens (`Template*`, `TemplateArgs*`). `create_feature.py` skips
@@ -486,7 +493,7 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   Done: `UiText.Plural(id, quantity, args)` resolving through `getQuantityString`; a `toUiText`
   overload; one test with a `Resources` fake or Robolectric.
 
-- [ ] **2.8 Migrate to Navigation 3** (L) · D6 decided: migrate
+- [x] **2.8 Migrate to Navigation 3** (L) · 2026-09-08
   Why: `Screen(onNavigation)` plus typed `@Serializable` routes already look like a Navigation 3
   back stack of keys. Navigation 3 also removes the `SavedStateHandle` + `toRoute()` detour: the
   route key is handed to the screen and its ViewModel directly, so argument-carrying screens lose
@@ -503,6 +510,24 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   check target the new registration shape; `UiCommand.NavigateBack` still works through the
   back-pressed dispatcher; process death restores the back stack; `CLAUDE.md` and
   `scripts/README.md` updated; gate green.
+  Landed. The versions the item asked to check first: **navigation3 1.1.7** (stable; 1.2.0 is beta)
+  and **lifecycle-viewmodel-navigation3 2.11.0**, matching the lifecycle version already here.
+  Koin's own `koin-compose-navigation3` was **not** used: it registers destinations in the Koin
+  graph, which would move the one place that knows about more than one feature out of `AppNavHost`.
+  Plain `koinViewModel()` resolves against the entry's ViewModelStore, and `parametersOf(key)`
+  passes the route key.
+  Differences from the Done line:
+  - **`AuthNavGraph` and `MainNavGraph` are deleted, not converted.** Navigation 3 has no nested
+    graphs. `AppNavHost` groups the entries into `authEntries()` and `mainEntries()`, which is what
+    `--graph` now writes into, and `MainActivity` switches flows by replacing the back stack.
+  - **A sixth registration appeared**, and could not be avoided: see the `KoinGraphTest` gotcha
+    above. `doctor.py` check 20 covers it.
+  - **Robolectric came back out of `convention.feature.presentation`**, reversing part of 1.1's
+    Landed note — the reason it was there was the `Bundle` decoding this item removes.
+  - Navigation 2 is gone from the catalog with it: `navigation-compose`, `navigationCompose` and
+    `koin-androidx-compose-navigation` (and so from the `koin-android` bundle).
+  Not verified on a device: process-death restoration and predictive back are asserted by
+  `rememberNavBackStack`'s contract, not by a test here. Worth a manual pass with 2.1.
 
 ## Phase 3 · Design system and accessibility
 

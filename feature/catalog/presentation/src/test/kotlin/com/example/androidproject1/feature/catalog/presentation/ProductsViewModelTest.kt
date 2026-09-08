@@ -1,6 +1,5 @@
 package com.example.androidproject1.feature.catalog.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
@@ -10,30 +9,19 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-/**
- * Runs under Robolectric because [androidx.navigation.toRoute] decodes through an
- * `android.os.Bundle`, which a plain JVM test does not have. Only screens that take navigation
- * arguments need this; the rest stay on the JVM.
- */
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class ProductsViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    // What the framework would restore into the ViewModel after process death.
-    private fun savedState() = SavedStateHandle(
-        mapOf("categoryId" to "beverages", "categoryName" to "Beverages"),
-    )
+    // The route key the destination hands in. A plain object on Navigation 3 — no Bundle, and so
+    // no Robolectric.
+    private val route = ProductsDestination(categoryId = "beverages", categoryName = "Beverages")
 
     private fun viewModel(repository: FakeCatalogRepository) = ProductsViewModel(
         logger = FakeLogger(),
-        savedStateHandle = savedState(),
+        args = route,
         catalogRepository = repository,
     )
 

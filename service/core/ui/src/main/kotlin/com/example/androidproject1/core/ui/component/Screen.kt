@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
  * alert dialog and empty/error content, and delivers navigation intents. The [content] lambda
  * therefore only ever receives a non-null state, and a destination never writes a collector.
  *
- * @param onNavigation turns this screen's navigation intents into `navController` calls. Collected
+ * @param onNavigation turns this screen's navigation intents into back-stack calls. Collected
  * only while the UI is at least STARTED; an intent emitted below that is buffered and delivered on
  * resume rather than dropped.
  */

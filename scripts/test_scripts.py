@@ -91,12 +91,12 @@ class ScaffoldingTest(unittest.TestCase):
 
         # camelCase, the same spelling create_screen.py produces; the package stays flat.
         nav_host = self.read(f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt")
-        self.assertIn("userProfileDestination(navController = navController)", nav_host)
+        self.assertIn("userProfileDestination(backStack = backStack)", nav_host)
         self.assertIn("import com.example.androidproject1.feature.userprofile.presentation.userProfileDestination", nav_host)
         self.assertNotIn("userprofileDestination", nav_host)
 
         destination = (self.presentation("userprofile") / "UserProfileDestination.kt").read_text()
-        self.assertIn("fun NavGraphBuilder.userProfileDestination(", destination)
+        self.assertIn("fun EntryProviderScope<NavKey>.userProfileDestination(", destination)
 
         # The fifth registration: CLAUDE.md's module tree, which doctor.py checks.
         self.assertIn(
@@ -169,7 +169,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("viewModelOf(::UserProfileListViewModel)", module)
 
         nav_host = self.read(f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt")
-        self.assertIn("userProfileListDestination(navController = navController)", nav_host)
+        self.assertIn("userProfileListDestination(backStack = backStack)", nav_host)
 
         self.assert_doctor_passes()
 
@@ -278,28 +278,34 @@ class ScaffoldingTest(unittest.TestCase):
 
         destination = (self.presentation("catalog") / "ProductReviewDestination.kt").read_text()
         self.assertIn(
-            "data class ProductReviewDestination(val productId: String, val rating: Int)",
+            "data class ProductReviewDestination(val productId: String, val rating: Int) : NavKey",
             destination,
         )
-        # The route reaches the ViewModel through SavedStateHandle, not a load() call from here.
-        # Match the call, not the word: the template's comment explains why LaunchedEffect is wrong.
+        # The key goes straight into the ViewModel, not into a load() call from here. Match the
+        # call, not the word: the template's comment explains why LaunchedEffect is wrong.
+        self.assertIn("parametersOf(key)", destination)
         self.assertNotIn("LaunchedEffect(", destination)
         self.assertNotIn("viewModel.load(", destination)
 
         view_model = (self.presentation("catalog") / "ProductReviewViewModel.kt").read_text()
-        self.assertIn("savedStateHandle: SavedStateHandle", view_model)
-        self.assertIn("navArgs<ProductReviewDestination>()", view_model)
+        self.assertIn("private val args: ProductReviewDestination", view_model)
+        self.assertNotIn("SavedStateHandle", view_model)
 
-    def test_create_screen_with_args_generates_a_robolectric_test(self) -> None:
+        # The sixth registration: Koin's verify() cannot see a parametersOf argument.
+        graph_test = self.read(f"app/src/test/kotlin/{BASE_PATH}/KoinGraphTest.kt")
+        self.assertIn("definition<ProductReviewViewModel>(ProductReviewDestination::class)", graph_test)
+
+    def test_create_screen_with_args_generates_a_plain_jvm_test(self) -> None:
         self.run_script("create_screen.py", "catalog", "ProductReview", "--with-args", "productId:String")
 
         test = (
             self.repo / f"feature/catalog/presentation/src/test/kotlin/{BASE_PATH}"
             "/feature/catalog/presentation/ProductReviewViewModelTest.kt"
         ).read_text()
-        # toRoute() decodes through an android.os.Bundle, so this one cannot stay on the JVM.
-        self.assertIn("RobolectricTestRunner", test)
-        self.assertIn('mapOf("productId" to "example")', test)
+        # Navigation 3 hands the key over as a plain object, so there is no Bundle to decode and
+        # no Robolectric runner.
+        self.assertIn("ProductReviewDestination(productId = \"example\")", test)
+        self.assertNotIn("RobolectricTestRunner", test)
 
     def test_create_screen_with_args_defaults_to_a_single_id(self) -> None:
         self.run_script("create_screen.py", "catalog", "ProductReview", "--with-args")
@@ -569,8 +575,9 @@ class ScaffoldingTest(unittest.TestCase):
         # All seven convention plugins, not just the two the service modules happen to apply.
         self.assertIn("convention-feature-presentation", catalog["plugins"])
         self.assertIn("convention-android-library", catalog["plugins"])
-        # Declared only inside a convention plugin, as libs.findLibrary("robolectric").
-        self.assertIn("robolectric", catalog["libraries"])
+        # Declared only inside a convention plugin, as libs.findLibrary("androidx-compose-bom") —
+        # no service build file names it any more.
+        self.assertIn("androidx-compose-bom", catalog["libraries"])
         # Version refs the copied build files rely on must come along too.
         self.assertIn("coroutines", catalog["versions"])
         self.assertIn("agp", catalog["versions"])

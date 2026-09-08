@@ -80,11 +80,10 @@ to forget and `doctor.py` will fail on every one you miss.
 missing. `MainDispatcherRule` and `FakeLogger` come from `testFixtures(projects.service.core.ui)`,
 so no module writes its own.
 
-One wrinkle worth knowing before you add a screen with navigation arguments: `toRoute()` decodes
-through an `android.os.Bundle`, so its test needs Robolectric —
-`@RunWith(RobolectricTestRunner::class)` and `@Config(sdk = [34])`, as
-`ProductsViewModelTest` does. Screens without arguments stay on the plain JVM. Note the version
-floor: Robolectric 4.14 cannot read this build's JDK 25 bytecode and 4.16 can.
+A screen with navigation arguments takes its route key as a constructor parameter and the
+destination hands it over with `koinViewModel { parametersOf(key) }`. On Navigation 3 the key is an
+ordinary object the back stack already holds, so there is no `Bundle` to decode and every ViewModel
+test is a plain JVM test — see `ProductsViewModelTest`.
 
 | I need | Command |
 |---|---|
@@ -123,8 +122,8 @@ python3 scripts/install_hooks.py
   loads a screen — it shows a retryable message in place of the content, and the retry button
   re-runs the failed call for you. The default, `ErrorDisplay.Alert`, is right for a call the user
   triggered on a screen that is already drawn.
-- Navigation arguments arrive through `navArgs<XDestination>()`, decoded from the route. They are
-  available in `init` and survive process death.
+- Navigation arguments arrive as the route key itself, a constructor parameter. Available in
+  `init`, and restored with the back stack after process death.
 - Strings a ViewModel needs are `UiText` (`R.string.x.toUiText()`); strings only a composable needs
   use `stringResource(...)`. No literals — lint fails on `HardcodedText`.
 

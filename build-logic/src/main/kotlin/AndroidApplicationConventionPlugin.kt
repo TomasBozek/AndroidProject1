@@ -54,7 +54,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             add("implementation", libs.findBundle("koin-android").get())
 
             add("implementation", libs.findLibrary("kotlinx-serialization-json").get())
-            add("implementation", libs.findLibrary("androidx-navigation-compose").get())
+            add("implementation", libs.findLibrary("androidx-navigation3-ui").get())
+            add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
 
             // No androidTest source set: UI tests run under Robolectric as unit tests, so CI needs
             // no emulator. See plan item 4.3.

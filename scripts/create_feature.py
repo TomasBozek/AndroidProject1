@@ -318,7 +318,7 @@ def main() -> None:
     if "presentation" in created:
         register_destination(
             import_line=f"import {BASE_PACKAGE}.feature.{flat}.presentation.{camel}Destination",
-            call_line=f"{camel}Destination(navController = navController)",
+            call_line=f"{camel}Destination(backStack = backStack)",
             graph=args.graph,
             dry_run=args.dry_run,
         )

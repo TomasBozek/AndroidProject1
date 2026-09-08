@@ -1,6 +1,5 @@
 package com.example.androidproject1.feature.catalog.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiCommand
@@ -13,13 +12,14 @@ import kotlinx.coroutines.flow.update
 
 class ProductDetailViewModel(
     logger: Logger,
-    savedStateHandle: SavedStateHandle,
+    // The route key, handed in by the destination. Available in `init`, and it comes back with
+    // the back stack entry after process death.
+    private val args: ProductDetailDestination,
     private val catalogRepository: CatalogRepository,
 ) : BaseViewModel<ProductDetailState, ProductDetailEvent, ProductDetailNavigation>(
     // Nothing to show until the product named by the route has loaded.
     initialState = null,
     logger = logger.withTag("ProductDetailViewModel"),
-    savedStateHandle = savedStateHandle,
 ) {
 
     companion object {
@@ -27,9 +27,6 @@ class ProductDetailViewModel(
         /** Its own id, so the "go back" action is told apart from a retry of a failed load. */
         const val CONTENT_NOT_FOUND = "product_not_found"
     }
-
-    // Decoded from the route, so it is available here in init and restored after process death.
-    private val args = navArgs<ProductDetailDestination>()
 
     init {
         load()

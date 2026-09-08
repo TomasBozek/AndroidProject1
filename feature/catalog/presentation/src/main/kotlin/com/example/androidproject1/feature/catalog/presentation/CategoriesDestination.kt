@@ -1,24 +1,24 @@
 package com.example.androidproject1.feature.catalog.presentation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.example.androidproject1.core.ui.component.Screen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
 @Serializable
-data object CategoriesDestination
+data object CategoriesDestination : NavKey
 
-fun NavGraphBuilder.categoriesDestination(navController: NavHostController) {
-    composable<CategoriesDestination> {
+fun EntryProviderScope<NavKey>.categoriesDestination(backStack: NavBackStack<NavKey>) {
+    entry<CategoriesDestination> {
         val viewModel: CategoriesViewModel = koinViewModel()
 
         Screen(
             viewModel = viewModel,
             onNavigation = { navigation ->
                 when (navigation) {
-                    is CategoriesNavigation.Products -> navController.navigate(
+                    is CategoriesNavigation.Products -> backStack.add(
                         ProductsDestination(categoryId = navigation.categoryId, categoryName = navigation.categoryName),
                     )
                 }

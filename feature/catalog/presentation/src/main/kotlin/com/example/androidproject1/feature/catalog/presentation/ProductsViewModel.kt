@@ -1,6 +1,5 @@
 package com.example.androidproject1.feature.catalog.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.text.toUiText
@@ -11,17 +10,15 @@ import kotlinx.coroutines.flow.update
 
 class ProductsViewModel(
     logger: Logger,
-    savedStateHandle: SavedStateHandle,
+    // The route key, handed in by the destination. Available in `init`, and it comes back with
+    // the back stack entry after process death.
+    private val args: ProductsDestination,
     private val catalogRepository: CatalogRepository,
 ) : BaseViewModel<ProductsState, ProductsEvent, ProductsNavigation>(
     // Nothing to show until the category named by the route has loaded its products.
     initialState = null,
     logger = logger.withTag("ProductsViewModel"),
-    savedStateHandle = savedStateHandle,
 ) {
-
-    // Decoded from the route, so it is available here in init and restored after process death.
-    private val args = navArgs<ProductsDestination>()
 
     init {
         load()

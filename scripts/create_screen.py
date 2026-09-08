@@ -38,6 +38,7 @@ from _common import (  # noqa: E402
     module_namespace,
     read_string_resources,
     register_destination,
+    register_route_key_injection,
     to_camel,
     to_flat,
     to_pascal,
@@ -353,10 +354,13 @@ def main() -> None:
     package_suffix = f".{sub_package}" if sub_package else ""
     register_destination(
         import_line=f"import {BASE_PACKAGE}.feature.{feature}.presentation{package_suffix}.{screen_camel}Destination",
-        call_line=f"{screen_camel}Destination(navController = navController)",
+        call_line=f"{screen_camel}Destination(backStack = backStack)",
         graph=args.graph,
         dry_run=args.dry_run,
     )
+
+    if arguments:
+        register_route_key_injection(feature, screen_pascal, sub_package, args.dry_run)
 
     print("\nDone. Run ./gradlew build")
 

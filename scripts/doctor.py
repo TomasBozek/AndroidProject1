@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import (  # noqa: E402
     ALL_LAYERS,
     APP_NAV_HOST_FILE,
+    KOIN_GRAPH_TEST_FILE,
     BASE_PACKAGE,
     CLAUDE_MD_FILE,
     CORE_DI_BUILD_FILE,
@@ -379,9 +380,41 @@ def check_destinations_registered() -> list[str]:
             continue
         directory = presentation_dir(feature)
         for destination in sorted(directory.rglob("*Destination.kt")) if directory.is_dir() else []:
-            for function in re.findall(r"fun NavGraphBuilder\.(\w+)\(", destination.read_text()):
+            for function in re.findall(r"fun EntryProviderScope<NavKey>\.(\w+)\(", destination.read_text()):
                 if f"{function}(" not in nav_host:
                     problems.append(problem(destination, None, f"{function}() is never called in AppNavHost.kt"))
+    return problems
+
+
+ROUTE_KEY_PARAMETER = re.compile(r"^\s*(?:private val )?\w+: (\w+Destination),?$", re.MULTILINE)
+
+
+@check("every route key is declared in KoinGraphTest")
+def check_route_keys_verified() -> list[str]:
+    """
+    A screen with navigation arguments takes its route key as a constructor parameter, and the
+    destination passes it in with `parametersOf`. Koin's `verify()` cannot know that, so it reports
+    the key as a missing definition unless `KoinGraphTest` names it — which is a confusing way to
+    find out that a perfectly good screen is fine.
+    """
+    if not KOIN_GRAPH_TEST_FILE.is_file():
+        return [problem(KOIN_GRAPH_TEST_FILE, None, "not found")]
+
+    graph_test = KOIN_GRAPH_TEST_FILE.read_text()
+    problems = []
+    for feature in feature_names():
+        # The template feature is compiled but never registered in the graph.
+        if feature == TEMPLATE_FEATURE:
+            continue
+        directory = presentation_dir(feature)
+        for view_model in sorted(directory.rglob("*ViewModel.kt")) if directory.is_dir() else []:
+            if not ROUTE_KEY_PARAMETER.search(view_model.read_text()):
+                continue
+            entry = f"definition<{view_model.stem}>("
+            if entry not in graph_test:
+                problems.append(
+                    problem(view_model, None, f"takes a route key but {entry}...) is not in KoinGraphTest.kt")
+                )
     return problems
 
 

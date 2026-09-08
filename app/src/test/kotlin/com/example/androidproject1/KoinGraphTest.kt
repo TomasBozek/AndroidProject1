@@ -1,17 +1,22 @@
 package com.example.androidproject1
 
 import android.content.Context
-import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.core.di.appModules
+import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
+import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
+import org.koin.test.verify.definition
+import org.koin.test.verify.injectedParameters
 import org.koin.test.verify.verify
 
 /**
  * Asserts that every dependency every registered class asks for is actually provided.
  *
- * Worth more here than in most projects: the graph spans 27 modules and `create_feature.py`
+ * Worth more here than in most projects: the graph spans 24 modules and `create_feature.py`
  * assembles part of it by editing `Koin.kt` and `core/di/build.gradle.kts`. A missing binding is
  * otherwise a crash at app launch, which is the slowest possible way to find out.
  */
@@ -30,11 +35,15 @@ class KoinGraphTest {
         }
 
         graph.verify(
-            // Supplied at resolution time rather than by a module: Context by androidContext(),
-            // SavedStateHandle by the ViewModel owner.
-            extraTypes = listOf(
-                Context::class,
-                SavedStateHandle::class,
+            // Supplied at resolution time rather than by a module: Context by androidContext().
+            extraTypes = listOf(Context::class),
+            // A screen that takes navigation arguments gets its route key from the destination
+            // through `parametersOf(key)`, so the graph does not provide it. One line per such
+            // screen; `doctor.py` fails if one is missing, and `create_screen.py --with-args`
+            // writes it.
+            injections = injectedParameters(
+                definition<ProductsViewModel>(ProductsDestination::class),
+                definition<ProductDetailViewModel>(ProductDetailDestination::class),
             ),
         )
     }

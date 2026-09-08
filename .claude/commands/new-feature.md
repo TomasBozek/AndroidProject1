@@ -21,7 +21,7 @@ Run it with `--dry-run` first if the arguments look ambiguous. Then, in order:
    a ViewModel needs go into the state as `UiText`. Both live in the feature's own `strings.xml`,
    prefixed with the feature name. Lint fails on a hardcoded literal.
 3. Add cases to `XEvent`, handle them in `XViewModel.onUiEvent`, and emit `XNavigation` to move on.
-   The `onNavigation` lambda in `XDestination.kt` is where an intent becomes a `navController` call.
+   The `onNavigation` lambda in `XDestination.kt` is where an intent becomes a back-stack call.
 4. Fill in `XViewModelTest` — it is generated, so it exists whether or not you use it.
 
 Use `--layers presentation,di` when the feature has no data of its own. Finish with

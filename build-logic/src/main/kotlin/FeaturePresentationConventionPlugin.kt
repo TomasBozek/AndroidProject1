@@ -21,13 +21,9 @@ class FeaturePresentationConventionPlugin : Plugin<Project> {
 
             // @Serializable routes.
             add("implementation", libs.findLibrary("kotlinx-serialization-json").get())
-            add("implementation", libs.findLibrary("androidx-navigation-compose").get())
+            add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
 
             add("testImplementation", libs.findBundle("testing").get())
-            // A screen that takes route arguments decodes them through an android.os.Bundle, so its
-            // test needs Robolectric. Here rather than per module, because `create_screen.py
-            // --with-args` generates such a test into any feature and edits no build file.
-            add("testImplementation", libs.findLibrary("robolectric").get())
             // MainDispatcherRule and FakeLogger, so no screen test rewrites Dispatchers.setMain.
             add("testImplementation", testFixtures(project(":service:core:ui")))
         }

@@ -1,9 +1,7 @@
 package com.example.androidproject1.core.ui.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.error.DomainError
 import com.example.androidproject1.core.domain.error.NetworkError
@@ -50,13 +48,14 @@ import kotlin.coroutines.cancellation.CancellationException
  * @param initialState the state the screen renders immediately. Pass `null` only for a screen that
  * cannot render until something is loaded; nothing is drawn while `data` is `null`, so `null` also
  * starts the loading overlay.
- * @param savedStateHandle required only by a screen that takes navigation arguments; read them with
- * [navArgs]. Koin injects it into any ViewModel that declares it.
+ *
+ * A screen that takes navigation arguments declares its route key as a constructor parameter and
+ * Koin passes it in — see `TemplateArgsViewModel`. There is no `SavedStateHandle` detour on
+ * Navigation 3: the key is an ordinary object the back stack already holds.
  */
 abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     initialState: State?,
     protected val logger: Logger,
-    private val savedStateHandle: SavedStateHandle? = null,
 ) : ViewModel() {
 
     companion object {
@@ -96,27 +95,6 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     // second call started or finished.
     @Volatile
     private var loadingMessage: UiText? = null
-
-    /**
-     * This screen's navigation arguments, decoded from the route that opened it.
-     *
-     * Available in `init`, and restored for free after process death — the back stack entry is
-     * saved by the framework, so [T] comes back with it. That is the whole reason arguments belong
-     * here rather than in a `load()` the destination calls from a `LaunchedEffect`.
-     *
-     * ```
-     * private val args = navArgs<ProductsDestination>()
-     * ```
-     *
-     * @throws IllegalStateException if the ViewModel was built without a [SavedStateHandle].
-     */
-    protected inline fun <reified T : Any> navArgs(): T = requireSavedStateHandle().toRoute<T>()
-
-    @PublishedApi
-    internal fun requireSavedStateHandle(): SavedStateHandle = checkNotNull(savedStateHandle) {
-        "${this::class.simpleName} reads navigation arguments but takes no SavedStateHandle. " +
-            "Add it as a constructor parameter — Koin injects it automatically."
-    }
 
     open fun onUiEvent(event: Event) = Unit
 

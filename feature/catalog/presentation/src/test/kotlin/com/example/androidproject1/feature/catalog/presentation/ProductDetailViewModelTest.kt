@@ -1,6 +1,5 @@
 package com.example.androidproject1.feature.catalog.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiCommand
@@ -13,17 +12,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-/**
- * Runs under Robolectric because [androidx.navigation.toRoute] decodes through an
- * `android.os.Bundle`, which a plain JVM test does not have. Only screens that take navigation
- * arguments need this; the rest stay on the JVM.
- */
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
 class ProductDetailViewModelTest {
 
     @get:Rule
@@ -34,7 +23,9 @@ class ProductDetailViewModelTest {
         productId: String = "coffee",
     ) = ProductDetailViewModel(
         logger = FakeLogger(),
-        savedStateHandle = SavedStateHandle(mapOf("productId" to productId)),
+        // The route key the destination hands in. A plain object on Navigation 3 — no Bundle, and
+        // so no Robolectric.
+        args = ProductDetailDestination(productId = productId),
         catalogRepository = repository,
     )
 

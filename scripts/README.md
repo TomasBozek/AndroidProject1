@@ -49,11 +49,13 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 python3 scripts/create_screen.py catalog ProductReview --with-args 'productId:String,rating:Int'
 ```
 
-It generates the `@Serializable data class` route, a ViewModel taking a `SavedStateHandle` and
-reading `navArgs<XDestination>()`, and a Robolectric-annotated test. Do not hand-convert a
+It generates the `@Serializable data class` route key, a ViewModel taking that key as a
+constructor parameter, the `parametersOf(key)` hand-over in the destination, a plain JVM test and
+the `KoinGraphTest` entry that stops `verify()` calling the key a missing definition. Do not
+hand-convert a
 `data object` route into a `data class` afterwards — that is what produced a screen loading from a
-`LaunchedEffect` instead of its `SavedStateHandle`, which re-fires on recomposition and restores
-nothing after process death.
+`LaunchedEffect` instead of from the key it was handed, which re-fires on recomposition and
+restores nothing after process death.
 
 **`create_datasource.py --repository`** when the data source needs one. Both halves of the source
 land in `data.source` and the repository in `data.repository`; the only thing above `data` that may

@@ -20,9 +20,12 @@ dependencies {
 
     api(libs.androidx.activity.compose)
     api(libs.androidx.lifecycle.viewmodel.ktx)
-    // SavedStateHandle + toRoute(): BaseViewModel reads typed navigation arguments.
     api(libs.androidx.lifecycle.viewmodel.savedstate)
-    api(libs.androidx.navigation.compose)
+    // Navigation 3, re-exported: a feature's XDestination.kt names `NavKey` and
+    // `EntryProviderScope` while depending only on this app's own ui module.
+    api(libs.androidx.navigation3.runtime)
+    api(libs.androidx.navigation3.ui)
+    api(libs.androidx.lifecycle.viewmodel.navigation3)
 
     // Re-exported: a module that takes these fixtures for MainDispatcherRule gets FakeLogger too,
     // so a screen test still needs one testFixtures line rather than two.

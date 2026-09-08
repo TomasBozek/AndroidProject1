@@ -46,7 +46,7 @@ dependencies {
 | `convention.kotlin.jvm` | `org.jetbrains.kotlin.jvm`, Java target, coroutines, JUnit and coroutines-test. Every `domain` module |
 | `convention.feature.data` | android library plus coroutines |
 | `convention.feature.di` | android library plus the Koin BOM and bundle |
-| `convention.feature.presentation` | the compose library plus serialization, Koin, navigation, lifecycle, the `testing` bundle, Robolectric and `testFixtures(:service:core:ui)` |
+| `convention.feature.presentation` | the compose library plus serialization, Koin, Navigation 3's ViewModel decorator, lifecycle, the `testing` bundle and `testFixtures(:service:core:ui)` |
 | `convention.android.application` | `:app`: `com.android.application`, the app identity, R8 on release, `lint.checkDependencies` |
 
 The **namespace is derived** from the project path and `basePackage` in `gradle.properties`:
@@ -100,7 +100,7 @@ Package names under `service/` stay `com.example.androidproject1.core.*`; only t
 `:core:ui` keeps `...core.ui`. Hence the `...service.core.ui.R` imports in `:service:core:ui`.
 
 `:core:ui` re-exports `:service:core:ui` with `api(...)`, so a feature's `presentation` module still
-depends on nothing but `projects.core.ui` and gets both the theme and the architecture. `Previews.kt`
+depends on nothing but `projects.core.ui` and gets the theme, the architecture and Navigation 3. `Previews.kt`
 lives here rather than in `service` because it references `AppTheme`.
 
 Two rules keep `service/` portable, and both are load-bearing:
@@ -150,7 +150,7 @@ Every screen is seven files — six in one package, plus its test in the matchin
 
 | File | Role |
 |---|---|
-| `XDestination.kt` | `@Serializable` route + `NavGraphBuilder.xDestination()`; gets the VM and wires `Screen()`, passing `onNavigation` |
+| `XDestination.kt` | `@Serializable` route key (a `NavKey`) + `EntryProviderScope<NavKey>.xDestination()`; gets the VM and wires `Screen()`, passing `onNavigation` |
 | `XScreen.kt` | Stateless `XScreen(state, onEvent)` + a private `@ScreenPreview` composable |
 | `XState.kt` | `data class XState(...)` with a `companion object { val PREVIEW }` |
 | `XEvent.kt` | `sealed interface XEvent : UiEvent` — what the user did |
@@ -238,7 +238,7 @@ Clones all five layers and registers them everywhere. Then, in order:
    the feature's own `res/values/strings.xml`, prefixed `user_profile_`.
 3. Add cases to `UserProfileEvent`, handle them in `UserProfileViewModel.onUiEvent`, and emit
    `UserProfileNavigation` to move on. The `CollectEffect` block in `UserProfileDestination.kt` is
-   generated empty — that is where a navigation intent turns into a `navController` call.
+   generated empty — that is where a navigation intent turns into a back-stack call.
 
 Use `--layers presentation,di` when the screen has no data of its own; the generated build files drop
 the dependencies on layers you skipped. You can add a layer later with
@@ -253,13 +253,17 @@ python3 scripts/create_screen.py userprofile UserProfileDetail --with-args 'user
 ```
 
 `--with-args` clones a second screen template, `feature/template`'s `TemplateArgs*` set, which
-demonstrates the argument-carrying route: an `@Serializable data class` route, a ViewModel taking a
-`SavedStateHandle` and reading `navArgs<XDestination>()`, and a Robolectric-annotated test (route
-decoding goes through an `android.os.Bundle`). Bare `--with-args` gives one `id: String`. Supported
-types are `String`, `Int`, `Long`, `Boolean`, `Float`, `Double`.
+demonstrates the argument-carrying route: an `@Serializable data class` route key, a ViewModel
+taking that key as a constructor parameter, a destination handing it over with
+`koinViewModel { parametersOf(key) }`, and a plain JVM test. Bare `--with-args` gives one
+`id: String`. Supported types are `String`, `Int`, `Long`, `Boolean`, `Float`, `Double`.
+
+It also adds the key to `KoinGraphTest`'s `injectedParameters`: Koin's `verify()` cannot see a
+`parametersOf` argument and would call the route key a missing definition. That is the sixth
+registration, and `doctor.py` fails if it is missing.
 
 Do not hand-convert a `data object` route into a `data class` — that is what produced a screen
-loading from a `LaunchedEffect` instead of its `SavedStateHandle`.
+loading from a `LaunchedEffect` instead of from the key it was handed.
 
 Note that `create_feature.py` deliberately skips the `TemplateArgs*` files: a new feature starts
 with one screen, and copying the second would leave an unregistered destination behind.
@@ -296,13 +300,13 @@ wire it in `AppNavHost.kt`, the way `homeDestination` reaches settings:
 
 ```kotlin
 userProfileDestination(
-    navController = navController,
-    navigateToSettings = { navController.navigate(SettingsDestination) },
+    backStack = backStack,
+    navigateToSettings = { backStack.add(SettingsDestination) },
 )
 ```
 
-Switching between the auth and main graphs is different again: change the session and let
-`MainViewModel` react. Do not navigate across graphs from a screen.
+Switching between the auth and main flows is different again: change the session and let
+`MainViewModel` react. Do not replace the back stack from a screen.
 
 ### Removing things
 

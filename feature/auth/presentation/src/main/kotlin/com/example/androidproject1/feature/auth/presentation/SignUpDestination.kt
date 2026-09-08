@@ -1,24 +1,24 @@
 package com.example.androidproject1.feature.auth.presentation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.example.androidproject1.core.ui.component.Screen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
 @Serializable
-data object SignUpDestination
+data object SignUpDestination : NavKey
 
-fun NavGraphBuilder.signUpDestination(navController: NavHostController) {
-    composable<SignUpDestination> {
+fun EntryProviderScope<NavKey>.signUpDestination(backStack: NavBackStack<NavKey>) {
+    entry<SignUpDestination> {
         val viewModel: SignUpViewModel = koinViewModel()
 
         Screen(
             viewModel = viewModel,
             onNavigation = { navigation ->
                 when (navigation) {
-                    SignUpNavigation.Login -> navController.popBackStack()
+                    SignUpNavigation.Login -> backStack.removeLastOrNull()
                 }
             },
         ) { state, onEvent ->

@@ -24,6 +24,7 @@ TEMPLATE_ANCHOR = f'includeFeatureModule(\n    "{TEMPLATE_FEATURE}",'
 SETTINGS_FILE = REPO_ROOT / "settings.gradle.kts"
 CLAUDE_MD_FILE = REPO_ROOT / "CLAUDE.md"
 KOIN_FILE = REPO_ROOT / "core/di/src/main/kotlin" / BASE_PATH / "core/di/Koin.kt"
+KOIN_GRAPH_TEST_FILE = REPO_ROOT / "app/src/test/kotlin" / BASE_PATH / "KoinGraphTest.kt"
 CORE_DI_BUILD_FILE = REPO_ROOT / "core/di/build.gradle.kts"
 APP_NAV_HOST_FILE = REPO_ROOT / "app/src/main/kotlin" / BASE_PATH / "AppNavHost.kt"
 VERSION_CATALOG_FILE = REPO_ROOT / "gradle/libs.versions.toml"
@@ -38,10 +39,12 @@ LAYER_SUFFIX = {
     "di": "Di",
 }
 
-# The nav graphs declared in AppNavHost.kt, keyed by the `--graph` value the scripts accept.
+# The entry blocks in AppNavHost.kt, keyed by the `--graph` value the scripts accept. Navigation 3
+# has no nested graphs, so these are grouping functions rather than framework objects — but they are
+# still where a generated destination belongs, and still the thing `--graph` chooses between.
 NAV_GRAPHS = {
-    "main": "MainNavGraph",
-    "auth": "AuthNavGraph",
+    "main": "mainEntries",
+    "auth": "authEntries",
 }
 
 STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
@@ -314,12 +317,12 @@ def merge_strings_xml(path: Path, entries: dict[str, str], dry_run: bool) -> Non
 
 
 def register_destination(import_line: str, call_line: str, graph: str, dry_run: bool) -> None:
-    """Adds `xDestination(navController = navController)` to a nav graph in AppNavHost.kt."""
+    """Adds `xDestination(backStack = backStack)` to an entry block in AppNavHost.kt."""
     if graph == "none":
         print("  AppNavHost: --graph none, registration skipped")
         return
 
-    graph_class = NAV_GRAPHS[graph]
+    graph_function = NAV_GRAPHS[graph]
     call_name = call_line.split("(")[0]
 
     def transform(text: str) -> str:
@@ -327,9 +330,10 @@ def register_destination(import_line: str, call_line: str, graph: str, dry_run: 
         if any(line.strip().startswith(f"{call_name}(") for line in lines):
             return text
 
-        start = next((i for i, line in enumerate(lines) if f"navigation<{graph_class}>" in line), None)
+        anchor = f"fun EntryProviderScope<NavKey>.{graph_function}("
+        start = next((i for i, line in enumerate(lines) if anchor in line), None)
         if start is None:
-            print(f"  AppNavHost: no navigation<{graph_class}> block — add the destination by hand")
+            print(f"  AppNavHost: no {graph_function}() block — add the destination by hand")
             return text
 
         end = block_end(lines, start)
@@ -342,7 +346,34 @@ def register_destination(import_line: str, call_line: str, graph: str, dry_run: 
         insert_import(lines, import_line)
         return "\n".join(lines)
 
-    edit_file(APP_NAV_HOST_FILE, transform, dry_run, f"register destination in {graph_class}")
+    edit_file(APP_NAV_HOST_FILE, transform, dry_run, f"register destination in {graph_function}()")
+
+
+def register_route_key_injection(feature: str, pascal: str, sub_package: str, dry_run: bool) -> None:
+    """
+    Teaches `KoinGraphTest` that a screen's route key comes from `parametersOf`, not the graph.
+
+    Only a screen with navigation arguments needs this. Without it `verify()` reports the route key
+    as a missing definition, which is a confusing way to learn that a generated screen is fine.
+    """
+    package_suffix = f".{sub_package}" if sub_package else ""
+    package = f"{BASE_PACKAGE}.feature.{feature}.presentation{package_suffix}"
+    entry = f"                definition<{pascal}ViewModel>({pascal}Destination::class),"
+
+    def transform(text: str) -> str:
+        if entry.strip() in text:
+            return text
+        lines = text.split("\n")
+        anchor = next((i for i, line in enumerate(lines) if "injectedParameters(" in line), None)
+        if anchor is None:
+            print("  KoinGraphTest: no injectedParameters(...) block — add the route key by hand")
+            return text
+        lines.insert(block_end(lines, anchor), entry)
+        insert_import(lines, f"import {package}.{pascal}Destination")
+        insert_import(lines, f"import {package}.{pascal}ViewModel")
+        return "\n".join(lines)
+
+    edit_file(KOIN_GRAPH_TEST_FILE, transform, dry_run, "register the route key in KoinGraphTest")
 
 
 # --------------------------------------------------------------------------------------------
