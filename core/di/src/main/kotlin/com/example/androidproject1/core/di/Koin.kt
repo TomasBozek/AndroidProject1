@@ -3,7 +3,10 @@ package com.example.androidproject1.core.di
 import android.util.Log
 import com.example.androidproject1.core.data.AndroidLogger
 import com.example.androidproject1.core.data.DataStoreProvider
+import com.example.androidproject1.core.data.TrackingLogger
+import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.Logger
+import com.example.androidproject1.core.domain.LoggingErrorTracker
 import com.example.androidproject1.core.domain.coroutines.DefaultDispatcherProvider
 import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.feature.auth.di.AuthModule
@@ -29,7 +32,14 @@ fun coreModule(isDebug: Boolean): Module = module {
     val minLogLevel = if (isDebug) Log.DEBUG else Log.WARN
 
     // A tag comes from `logger.withTag(...)` at the point of use, so one binding is enough.
-    factory<Logger> { AndroidLogger(minLevel = minLogLevel) }
+    // Where defects are counted. The default reports to the log and nowhere else, which is
+    // correct in debug and correct in a project that never adds a vendor. To swap in Crashlytics
+    // or Sentry, override this one binding in :app — see CLAUDE.md. No vendor SDK is in the repo.
+    single<ErrorTracker> { LoggingErrorTracker(AndroidLogger(minLevel = minLogLevel)) }
+
+    // Every Logger in the app is decorated, so anything logged with a Throwable is reported
+    // without BaseViewModel or BaseRepository taking an extra constructor argument.
+    factory<Logger> { TrackingLogger(AndroidLogger(minLevel = minLogLevel), get()) }
 
     singleOf(::DefaultDispatcherProvider) bind DispatcherProvider::class
     single { DataStoreProvider(androidContext()) }

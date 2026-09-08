@@ -19,12 +19,12 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 4 / 8 | `█████░░░░░` 50% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 5 / 8 | `██████░░░░` 63% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **47 / 70** | `███████░░░` 67% |
+| **Total** | | **48 / 70** | `███████░░░` 69% |
 
-**Now:** 5.3 (`ErrorTracker`), then 5.4.
+**Now:** 5.4 (LeakCanary on debug).
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
 past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 47 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 48 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 20 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 19 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -971,12 +971,24 @@ Goal: a project started from this template can ship without adding infrastructur
   with `keystore.properties is missing: keyAlias, keyPassword`, and no file at all signs as
   `CN=Android Debug` and still assembles.
 
-- [ ] **5.3 `:service:errortracker`** (M) · D8 decided: no vendor SDK in the repo
+- [x] **5.3 `ErrorTracker`** (M) · D8 decided: no vendor SDK in the repo (2026-09-08)
   Why: Plan 1's J1. Four hook points already exist in `BaseRepository` and `BaseViewModel`. A
   template should not carry a vendor SDK or its config file.
   Done: `ErrorTracker` interface in `service/`, a `LoggingErrorTracker` bound by default;
   `handleError` and the repository's `logger.w` paths report through it; a recipe in `CLAUDE.md`
   shows the few lines that swap in Crashlytics or Sentry inside `:app`. No vendor dependency.
+  **Landed as a decorator, not a module.** No `:service:errortracker`: the interface sits beside
+  `Logger` in `:service:core:domain`, and `TrackingLogger` in `:service:core:data` wraps whatever
+  `Logger` is bound and forwards anything logged with a `Throwable`. The alternative — an
+  `errorTracker` parameter on `BaseViewModel` and `BaseRepository` — would have put an
+  infrastructure argument in every ViewModel constructor in the app and in every one the
+  generators will ever write, to reach four call sites that already log the throwable.
+  So the four hook points needed no edit at all; `coreModule` gained two bindings. Six tests cover
+  the seam, including the one that matters: a `w` with no throwable is a note to a developer and
+  is *not* reported, or the real ones get buried.
+  **`setUser` is deliberately unwired.** The sample `AuthService` exposes a boolean and no id, and
+  the right value is an opaque id rather than the email the settings screen happens to have.
+  CLAUDE.md says so rather than the code pretending otherwise.
 
 - [ ] **5.4 LeakCanary and Chucker on debug** (S)
   Why: Plan 1's J4.

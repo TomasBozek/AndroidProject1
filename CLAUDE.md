@@ -287,6 +287,46 @@ Each feature has `object XModule { val module = module { ... } }` in its `di` mo
 `core/di/.../Koin.kt`, and `:core:di` must have an `api(projects.feature.x.di)` dependency for that to
 compile. Both edits are made automatically by `create_feature.py`.
 
+## Crash reporting
+
+`ErrorTracker` in `:service:core:domain` is the seam; `LoggingErrorTracker` is bound by default and
+reports to the log and nowhere else. **The repo carries no vendor SDK and no vendor config file** —
+one would make every project that starts from this template either use that vendor or unpick it
+first.
+
+Nothing calls the tracker directly. `TrackingLogger` decorates whatever `Logger` is bound and
+forwards anything logged with a `Throwable`, so the paths that already report a problem —
+`BaseViewModel.handleError`, `BaseRepository`'s failure paths — report to it with no signature
+changing anywhere. A `w` with no exception stays a note to whoever is reading logcat; reporting
+those would bury the real ones.
+
+To swap in a vendor, add the dependency to `:app` and override the one binding there:
+
+```kotlin
+// app/src/main/kotlin/.../CrashlyticsErrorTracker.kt
+class CrashlyticsErrorTracker : ErrorTracker {
+    private val crashlytics = FirebaseCrashlytics.getInstance()
+
+    override fun recordNonFatal(throwable: Throwable, message: String?) {
+        message?.let(crashlytics::log)
+        crashlytics.recordException(throwable)
+    }
+
+    override fun log(message: String) = crashlytics.log(message)
+
+    override fun setUser(id: String?) = crashlytics.setUserId(id.orEmpty())
+}
+
+// in :app's own Koin module, which is loaded after coreModule and so wins
+single<ErrorTracker> { CrashlyticsErrorTracker() }
+```
+
+`setUser` takes an opaque id — never an email, never a name, because a crash report is not the
+place to put either. **Nothing calls it yet**: the sample `AuthService` exposes only a boolean, so
+there is no id to pass. Call it from wherever the session becomes known once the session carries
+one, and call it with `null` on sign-out so the next person's reports are not attributed to the
+last one.
+
 ## Recipes
 
 Start here for any new code. **Do not create these files by hand.** The scripts perform the five
