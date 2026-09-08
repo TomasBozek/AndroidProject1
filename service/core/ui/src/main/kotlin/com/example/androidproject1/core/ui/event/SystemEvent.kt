@@ -42,4 +42,13 @@ sealed interface SystemEvent : UiEvent {
      * something else.
      */
     data class ContentAction(val id: String) : SystemEvent
+
+    /**
+     * The action button on a [UiCommand.ShowSnackbar] was pressed, carrying that snackbar's id.
+     *
+     * `BaseViewModel` ignores it: a snackbar with an action is asking the screen a question, so
+     * there is no sensible default. Handle the ids you raise in `onSystemEvent` and delegate the
+     * rest to `super`.
+     */
+    data class SnackbarAction(val id: String) : SystemEvent
 }

@@ -172,7 +172,10 @@ Every screen is seven files — six in one package, plus its test in the matchin
 - `UiState(data, loading, alert)` is an envelope. **Loading overlays and alert dialogs are rendered
   centrally by `Screen()`** — never reimplement them in a feature screen.
 - `Screen()` is the only place that calls `collectAsStateWithLifecycle` and the only interpreter of
-  `UiCommand` (toast, back, browser, app settings). A feature screen only ever receives a non-null state.
+  `UiCommand` (toast, snackbar, back, browser, app settings). A feature screen only ever receives a
+  non-null state. Every command is plain data: a snackbar's action button comes back as
+  `SystemEvent.SnackbarAction(id)`, handled in `onSystemEvent` beside the alert results, not as a
+  lambda the command carried.
 - **Use `execute {}` (one-shot) and `observe(flow = …) {}` (flows) rather than try/catch.** They drive
   the loading state, convert `Outcome.Failure` into an alert, and rethrow cancellation. Pass
   `loading = {}` when a screen renders its own inline loading. Overlapping calls are reference-counted.

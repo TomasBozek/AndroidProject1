@@ -4,6 +4,7 @@ import com.example.androidproject1.core.domain.error.NotFoundError
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.event.SystemEvent
+import com.example.androidproject1.core.ui.event.UiCommand
 import com.example.androidproject1.core.ui.event.UiEvent
 import com.example.androidproject1.core.ui.text.UiText
 import com.example.androidproject1.core.ui.text.toUiText
@@ -21,6 +22,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -62,6 +64,21 @@ class BaseViewModelTest {
             observe(flow = { flow() }, onData = {})
 
         fun go(navigation: TestNavigation) = navigate(navigation)
+
+        fun snackbar(id: String, actionLabel: UiText?) =
+            showSnackbar(message = "done".toUiText(), actionLabel = actionLabel, id = id)
+
+        val handledSnackbarActions = mutableListOf<String>()
+
+        override fun onSystemEvent(event: SystemEvent) {
+            when {
+                event is SystemEvent.SnackbarAction && event.id == "undo" -> {
+                    handledSnackbarActions += event.id
+                }
+
+                else -> super.onSystemEvent(event)
+            }
+        }
     }
 
     @Before
@@ -275,5 +292,31 @@ class BaseViewModelTest {
         viewModel.go(TestNavigation.Next)
 
         assertEquals(TestNavigation.Next, viewModel.navigation.first())
+    }
+
+    @Test
+    fun `a snackbar carries its id, and its action comes back as a system event`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+
+        viewModel.snackbar(id = "undo", actionLabel = "Undo".toUiText())
+
+        val command = viewModel.command.first()
+        assertEquals(UiCommand.ShowSnackbar("undo", "done".toUiText(), "Undo".toUiText()), command)
+
+        // What `Screen()` does when the action button is pressed.
+        viewModel.onSystemEvent(SystemEvent.SnackbarAction((command as UiCommand.ShowSnackbar).id))
+
+        assertEquals(listOf("undo"), viewModel.handledSnackbarActions)
+    }
+
+    @Test
+    fun `an unhandled snackbar action is ignored rather than mistaken for something else`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+
+        viewModel.onSystemEvent(SystemEvent.SnackbarAction("nobody"))
+
+        assertTrue(viewModel.handledSnackbarActions.isEmpty())
+        assertNull(viewModel.state.value.alert)
+        assertNull(viewModel.state.value.content)
     }
 }

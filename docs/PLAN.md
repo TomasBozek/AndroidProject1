@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2, 2.1, 2.3 and 2.4 landed)
-**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 63 · build green
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete; 2.8, 2.2, 2.1, 2.3, 2.4 and 2.6 landed)
+**Gate at last run:** doctor 20/20 · test_scripts 37 · ktlint clean · unit tests 65 · build green
 **Repo:** 22 Gradle modules + `build-logic` · 4 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
-| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 5 / 8 | `██████░░░░` 63% |
+| 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 6 / 8 | `████████░░` 75% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 4 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **27 / 67** | `████░░░░░░` 40% |
+| **Total** | | **28 / 67** | `████░░░░░░` 42% |
 
 **Now:** nothing in flight.
-**Next:** 2.5, 2.6 and 2.7, in any order. 2.6 and 2.7 are small; 2.5 is the large one.
+**Next:** 2.7 (small), then 2.5, the large one that closes Phase 2.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### Scope
@@ -568,11 +568,16 @@ and 2.4 are built on Navigation 3; do not build tab graphs on Navigation 2 and m
   the manifest declares, read from `PackageManager`, with status chips. Verified on device in
   all three states: grant, deny once, deny permanently.
 
-- [ ] **2.6 Snackbar action is a `SystemEvent`, not a lambda in a command** (S)
+- [x] **2.6 Snackbar action is a `SystemEvent`, not a lambda in a command** (S) · 2026-09-08
   Why: `UiCommand.ShowSnackbar.onAction` is a function inside a data class, the one command that is
   not plain data. Alerts already solve this with `AlertResult(id)`.
   Done: `ShowSnackbar(id, message, actionLabel, …)` and `SystemEvent.SnackbarAction(id)` handled
   in `onSystemEvent`; `Screen()` routes it; one test.
+  Landed as written. `showSnackbar` takes `id` last with a `SNACKBAR_ID_DEFAULT`, so the common
+  call — a snackbar with no action — is unchanged. `BaseViewModel.onSystemEvent` ignores the event
+  by default: only the screen that raised the snackbar knows what its action means. Two tests, not
+  one: the second is that an id nobody handles is ignored rather than mistaken for an alert result.
+  Nothing in the app raises an actionable snackbar yet, so this is API only.
 
 - [ ] **2.7 `UiText.Plural`** (S)
   Why: quantity strings are a week-one need and `UiText` cannot express them today.

@@ -61,6 +61,8 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     companion object {
 
         const val ALERT_ID_ERROR = "error"
+
+        const val SNACKBAR_ID_DEFAULT = "snackbar"
     }
 
     protected val uiState = MutableStateFlow(
@@ -111,6 +113,10 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
                 // Re-runs the call that failed under this id, with the same arguments and handlers.
                 pendingRetries.remove(event.id)?.invoke()
             }
+
+            // Nothing sensible to do by default: whoever raised the snackbar knows what its action
+            // means. Overriding without delegating to super is what silently swallows the others.
+            is SystemEvent.SnackbarAction -> Unit
         }
     }
 
@@ -136,17 +142,21 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
      * Prefer this to [showToast] for anything the user might want to act on or dismiss — it is
      * rendered inside the screen by `Screen()`'s host, so it respects the app's theme and insets.
      */
+    /**
+     * @param id comes back as [SystemEvent.SnackbarAction] when the action button is pressed.
+     * Only worth naming when the screen raises more than one actionable snackbar.
+     */
     protected fun showSnackbar(
         message: UiText,
         actionLabel: UiText? = null,
         withDismissAction: Boolean = false,
-        onAction: () -> Unit = {},
+        id: String = SNACKBAR_ID_DEFAULT,
     ) = sendCommand(
         UiCommand.ShowSnackbar(
+            id = id,
             message = message,
             actionLabel = actionLabel,
             withDismissAction = withDismissAction,
-            onAction = onAction,
         ),
     )
 

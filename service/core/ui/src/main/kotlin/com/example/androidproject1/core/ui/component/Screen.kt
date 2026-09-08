@@ -115,7 +115,9 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
                         SnackbarDuration.Long
                     },
                 )
-                if (result == SnackbarResult.ActionPerformed) command.onAction()
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.onSystemEvent(SystemEvent.SnackbarAction(command.id))
+                }
             }
 
             is UiCommand.NavigateBack -> backDispatcher?.onBackPressed()

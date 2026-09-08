@@ -18,14 +18,16 @@ sealed interface UiCommand {
      * Material 3's preferred way to acknowledge something, and the only one that can carry an
      * action. Rendered by `Screen()`'s own SnackbarHost, so a feature needs no Scaffold of its own.
      *
+     * @param id identifies this snackbar when its action comes back as
+     * [SystemEvent.SnackbarAction]. Every command is plain data — pressing the action raises an
+     * event like any other button, rather than invoking a lambda the command carried.
      * @param actionLabel shows an action button when non-null.
-     * @param onAction invoked when that button is pressed; ignored without an [actionLabel].
      */
     data class ShowSnackbar(
+        val id: String,
         val message: UiText,
         val actionLabel: UiText? = null,
         val withDismissAction: Boolean = false,
-        val onAction: () -> Unit = {},
     ) : UiCommand
 
     data class OpenBrowser(val url: String) : UiCommand
