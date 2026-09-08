@@ -11,13 +11,31 @@ import kotlinx.coroutines.Dispatchers
  * rather than wrapping every repository method: [com.example.androidproject1.core.data.BaseRepository]
  * runs on the caller's context, and the caller is `viewModelScope`, which is `Dispatchers.Main`.
  *
- * `open` so a test can override the three properties with a single test dispatcher.
+ * A test substitutes its own with a one-liner:
+ *
+ * ```kotlin
+ * private class TestDispatchers(d: CoroutineDispatcher) : DispatcherProvider {
+ *     override val main = d
+ *     override val default = d
+ *     override val io = d
+ * }
+ * ```
  */
-open class DispatcherProvider {
+interface DispatcherProvider {
 
-    open val main: CoroutineDispatcher get() = Dispatchers.Main
+    val main: CoroutineDispatcher
 
-    open val default: CoroutineDispatcher get() = Dispatchers.Default
+    val default: CoroutineDispatcher
 
-    open val io: CoroutineDispatcher get() = Dispatchers.IO
+    val io: CoroutineDispatcher
+}
+
+/** The real dispatchers. The only implementation outside tests. */
+class DefaultDispatcherProvider : DispatcherProvider {
+
+    override val main: CoroutineDispatcher get() = Dispatchers.Main
+
+    override val default: CoroutineDispatcher get() = Dispatchers.Default
+
+    override val io: CoroutineDispatcher get() = Dispatchers.IO
 }

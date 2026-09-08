@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.androidproject1.core.data.AndroidLogger
 import com.example.androidproject1.core.data.DataStoreProvider
 import com.example.androidproject1.core.domain.Logger
+import com.example.androidproject1.core.domain.coroutines.DefaultDispatcherProvider
 import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.feature.auth.di.AuthModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
@@ -14,6 +15,8 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
@@ -28,7 +31,7 @@ fun coreModule(isDebug: Boolean): Module = module {
     // A tag comes from `logger.withTag(...)` at the point of use, so one binding is enough.
     factory<Logger> { AndroidLogger(minLevel = minLogLevel) }
 
-    single { DispatcherProvider() }
+    singleOf(::DefaultDispatcherProvider) bind DispatcherProvider::class
     single { DataStoreProvider(androidContext()) }
 }
 

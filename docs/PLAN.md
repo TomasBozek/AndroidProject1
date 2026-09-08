@@ -6,13 +6,13 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (0.9 landed)
+**Last updated:** 2026-09-08 (0.10 landed)
 **Gate at last run:** doctor 17/17 · test_scripts 37 · unit tests 58 · build green
 **Repo:** 27 Gradle modules · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
-| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 11 / 14 | `████████░░` 79% |
+| 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 12 / 14 | `█████████░` 86% |
 | 1 · Build foundation | Cheaper to build and to change; stable toolchain | 0 / 8 | `░░░░░░░░░░` 0% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
@@ -20,10 +20,10 @@ human orientation. This file is the work list.
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **11 / 67** | `██░░░░░░░░` 16% |
+| **Total** | | **12 / 67** | `██░░░░░░░░` 18% |
 
 **Now:** nothing in flight.
-**Next:** 0.10, 0.11, 0.14 (the rest of Phase 0). Then 1.8, then 1.1.
+**Next:** 0.11, 0.14 (the rest of Phase 0). Then 1.8, then 1.1.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -75,7 +75,7 @@ six slash commands). See git history for the details.
 | `appModules(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it |
 | `coreModule(isDebug)` | `core/di/Koin.kt` | WARN-and-above logger in release |
 | `execute(loadingMessage = …)` | `BaseViewModel` | Wording for the overlay; survives overlapping calls |
-| `DispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
+| `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
 
 **Gotchas already paid for:**
 
@@ -196,11 +196,13 @@ easier to verify.
   Why: see D3.
   Done: default flipped; `BaseViewModel` unchanged in behaviour; `BaseViewModelTest` still green.
 
-- [ ] **0.10 `DispatcherProvider` becomes interface + `DefaultDispatcherProvider`** (S)
+- [x] **0.10 `DispatcherProvider` becomes interface + `DefaultDispatcherProvider`** (S) · 2026-09-08
   Why: the naming rule "Foo / DefaultFoo at every layer" is called rigid in `CLAUDE.md`; this is
   the one type that breaks it (an `open class`).
   Done: interface in `service/core/domain`, default in the same module, Koin binding updated,
   tests use a one-line fake.
+  Landed: no test substituted one yet — the only consumer, `DefaultLocalAuthDataSource`, has no
+  unit test — so the one-line fake is documented in the interface's KDoc rather than written.
 
 - [ ] **0.11 Catalog sample uses the framework it demonstrates** (S)
   Why: `ProductDetail` renders "not found" as inline text while `Products` uses
