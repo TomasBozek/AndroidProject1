@@ -42,8 +42,9 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
 | **Not started** | 18 | **Phase 6** (Ktor, Room) — its own goal says not to build them against mock data and there is no API yet, so this is a deliberate stop, not a gap. Plus **16 backlog items** in Phase 7. |
 
-Two things need you rather than me: **D13** (above), and a look at the app — the design system is
-in and worth an opinion before Phase 5 builds on it.
+Three things need you rather than me: **D13** (above); a look at the app now the design system is
+in; and **what Phase 6 points at** — the phase is deliberately unstarted because there is no real
+API, and that is the decision that unblocks it.
 
 ### Scope
 
