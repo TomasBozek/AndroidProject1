@@ -97,6 +97,11 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             // No androidTest source set: UI tests run under Robolectric as unit tests, so CI needs
             // no emulator. See plan item 4.3.
+            // Debug only, and it installs itself — no code in :app references it. A leaked
+            // Activity or ViewModel is the failure this catches, and it is the one that never
+            // shows up in a test. The stable 2.x line rather than the 3.0 alpha.
+            add("debugImplementation", libs.findLibrary("leakcanary-android").get())
+
             add("testImplementation", platform(libs.findLibrary("koin-bom").get()))
             add("testImplementation", libs.findBundle("testing").get())
             add("testImplementation", libs.findLibrary("koin-test").get())

@@ -19,12 +19,12 @@ human orientation. This file is the work list.
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 8 / 8 | `██████████` 100% |
 | 3 · Design system and accessibility | A theme and components worth copying | 9 / 10 | `█████████░` 90% · 3.8 blocked |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 3 / 4 | `████████░░` 75% · 4.1 parked |
-| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 5 / 8 | `██████░░░░` 63% |
+| 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 6 / 8 | `████████░░` 75% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 2 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 16 | `░░░░░░░░░░` 0% |
-| **Total** | | **48 / 70** | `███████░░░` 69% |
+| **Total** | | **49 / 70** | `███████░░░` 70% |
 
-**Now:** 5.4 (LeakCanary on debug).
+**Now:** 5.8 (session stored encrypted), then 5.6.
 **Next:** Phase 5 (shipping baseline). 3.8 whenever D13 is answered; 4.1 when the plugin is
 past alpha. Phase 4's coverage reading argues for the data layer before more UI. 4.1's screenshot tests are worth much more now than
 when they were written — there are 40 previews to record rather than ten.
@@ -37,10 +37,10 @@ Read this row by row; every claim below is a `[x]`, `[~]` or `[ ]` on an item fu
 
 | | Items | What that means |
 |---|---|---|
-| **Done** | 48 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
+| **Done** | 49 | Phases 0, 1 and 2 in full. Phase 3 bar one item: the KSD design system is imported and every screen in the app is built from it. Phase 4's preview variants. |
 | **In progress** | 0 | — |
 | **Blocked / parked** | 2 | **3.8** bundle Source Sans 3, on **D13** — the only thing between Phase 3 and complete. **4.1** screenshot tests: attempted, backed out, seven obstacles diagnosed on the item; the plugin does not work on AGP 9 + Gradle 9 + JDK 25. |
-| **Not started** | 19 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
+| **Not started** | 18 | The rest of Phase 5 (shipping: flavors, signing, crash reporting, perf), Phase 6 (Ktor + Room, once there is an API), and the Phase 7 backlog. |
 
 Two things need you rather than me: **D13** (above), and a look at the app — the design system is
 in and worth an opinion before Phase 5 builds on it.
@@ -990,9 +990,16 @@ Goal: a project started from this template can ship without adding infrastructur
   the right value is an opaque id rather than the email the settings screen happens to have.
   CLAUDE.md says so rather than the code pretending otherwise.
 
-- [ ] **5.4 LeakCanary and Chucker on debug** (S)
+- [x] **5.4 LeakCanary on debug** (S) (2026-09-08)
   Why: Plan 1's J4.
   Done: both on `debugImplementation`; Chucker wired once 6.1 gives it a client.
+  **Landed: LeakCanary only, and Chucker moved into 6.1.** Chucker is an OkHttp interceptor and a
+  UI for what that interceptor captures; with no client it captures nothing, so putting it on
+  `debugImplementation` today adds a dependency that does not run. It goes in with the client, in
+  the same change, where it can be wired and seen to work — the same reasoning that took the
+  screenshot plugin back out in 4.1.
+  LeakCanary is 2.14, the stable line rather than the 3.0 alpha, and it installs itself: nothing
+  in `:app` references it. Verified absent from `prodReleaseRuntimeClasspath`.
 
 - [x] **5.5 gitleaks in CI** (S) (2026-09-08)
   Why: Plan 1's M3.
@@ -1035,6 +1042,9 @@ against mock data.
   Done: module in `service/` with `api(projects.service.core.domain)` only; a `NetworkError` /
   `ServerError` / `UnauthorizedError` mapping table with tests; `export_service.py` picks it up
   automatically.
+  Also brings in **Chucker** on `debugImplementation` and wires it as an interceptor — moved
+  here from 5.4, because without a client it captures nothing.
+
 
 - [ ] **6.2 Room and offline-first** (L)
   Why: Plan 1's F3 and D7 (Room). The original had `repositoryCall(remote, local, updateLocal)`
