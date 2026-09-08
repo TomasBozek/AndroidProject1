@@ -10,13 +10,21 @@ plugins {
     // but undeclared, and `api` where `implementation` would do. Failing the build on it would
     // make every dependency edit a negotiation with a heuristic.
     alias(libs.plugins.dependency.analysis)
+    alias(libs.plugins.ktlint)
 }
 
+// Real modules only. `:feature` and `:service:core` are path segments with no build file, and
+// applying a plugin to one makes Gradle materialise a build directory for it.
 subprojects {
+    if (!buildFile.isFile) return@subprojects
     apply(plugin = "com.autonomousapps.dependency-analysis")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 }
 
-// No detekt/ktlint here on purpose: detekt 1.23 embeds a Kotlin compiler that cannot read the
-// JDK 25 this build's daemon is pinned to (gradle/gradle-daemon-jvm.properties), and running it
-// on a separate toolchain fights AGP 9's plugin ordering. Formatting is handled by .editorconfig
-// and correctness by `./gradlew lint`. Revisit when detekt 2.x is stable.
+// ktlint runs here; detekt still does not. Re-tested 2026-09-08 on detekt 1.23.8, the current
+// release: its embedded Kotlin compiler rejects the JDK 25 this build's daemon is pinned to
+// (gradle/gradle-daemon-jvm.properties) — first refusing `--jvm-target 25`, then failing on the
+// version string itself once that is pinned to 17. detekt 2.x is still 2.0.0-alpha, and this
+// project takes stable. ktlint has no such problem: it reads .editorconfig, so the rule set lives
+// there rather than in a second config file. `./gradlew ktlintCheck` gates CI; `ktlintFormat`
+// fixes. Revisit detekt when 2.x is stable.

@@ -40,6 +40,10 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Before the build: it is fast, and a style failure should not wait on R8.
+      - name: Check formatting
+        run: ./gradlew ktlintCheck
+
       - name: Build, lint and test
         run: ./gradlew build
 
@@ -50,5 +54,6 @@ jobs:
           name: reports
           path: |
             **/build/reports/lint-results-*.html
+            **/build/reports/ktlint/**
             **/build/reports/tests/**
           if-no-files-found: ignore

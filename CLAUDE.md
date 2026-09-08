@@ -321,7 +321,7 @@ compiling; keep it that way.
 ### Before you call the work done
 
 ```bash
-python3 scripts/doctor.py && ./gradlew build
+python3 scripts/doctor.py && ./gradlew ktlintCheck && ./gradlew build
 ```
 
 Add `python3 scripts/test_scripts.py` if you touched anything under `scripts/`.
@@ -498,9 +498,20 @@ are expected here and must not be "fixed":
 Read the rest. It is also pinned to a plugin version that predates this AGP, and says so on every
 run.
 
-There is no detekt/ktlint: detekt 1.23 embeds a Kotlin compiler that cannot read the JDK 25 the daemon
-is pinned to, and running it on a separate toolchain fights AGP 9's plugin ordering. Formatting comes
-from `.editorconfig`; revisit when detekt 2.x is stable.
+```bash
+./gradlew ktlintCheck
+```
+
+`ktlintFormat` fixes what it can. The rule set lives in `.editorconfig`, not a second config file:
+`intellij_idea` style rather than `ktlint_official`, with `class-signature`, `function-signature`
+and `parameter-list-spacing` off (all three read a multi-line parameter list as if it were on one
+line, so every constructor in the repo would be a violation) and `function-naming` off (a
+`@Composable` is PascalCase and a test name is a backtick-quoted sentence).
+
+**There is still no detekt.** Re-tested 2026-09-08 on 1.23.8, the current release: its embedded
+Kotlin compiler rejects the JDK 25 the daemon is pinned to — it refuses `--jvm-target 25`, and once
+that is pinned to 17 it fails on the JDK's version string instead. detekt 2.x is `2.0.0-alpha`.
+Revisit when 2.x is stable.
 
 Build a single module, e.g. `./gradlew :feature:auth:presentation:assembleDebug` or
 `./gradlew :service:core:ui:assembleDebug`.

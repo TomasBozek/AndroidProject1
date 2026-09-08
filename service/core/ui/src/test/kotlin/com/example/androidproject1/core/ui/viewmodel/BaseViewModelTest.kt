@@ -1,6 +1,5 @@
 package com.example.androidproject1.core.ui.viewmodel
 
-import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.error.NotFoundError
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.core.domain.test.FakeLogger
@@ -132,8 +131,14 @@ class BaseViewModelTest {
         val slow = CompletableDeferred<Unit>()
         val quick = CompletableDeferred<Unit>()
 
-        viewModel.oneShot { slow.await(); Outcome.Success(Unit) }
-        viewModel.oneShot { quick.await(); Outcome.Success(Unit) }
+        viewModel.oneShot {
+            slow.await()
+            Outcome.Success(Unit)
+        }
+        viewModel.oneShot {
+            quick.await()
+            Outcome.Success(Unit)
+        }
         assertNotNull(viewModel.state.value.loading)
 
         quick.complete(Unit)
@@ -154,10 +159,16 @@ class BaseViewModelTest {
         val slow = CompletableDeferred<Unit>()
         val quick = CompletableDeferred<Unit>()
 
-        viewModel.oneShot(loadingMessage = message) { slow.await(); Outcome.Success(Unit) }
+        viewModel.oneShot(loadingMessage = message) {
+            slow.await()
+            Outcome.Success(Unit)
+        }
         assertEquals(message, viewModel.state.value.loading?.message)
 
-        viewModel.oneShot { quick.await(); Outcome.Success(Unit) }
+        viewModel.oneShot {
+            quick.await()
+            Outcome.Success(Unit)
+        }
         assertEquals("a message-less call must not blank the wording", message, viewModel.state.value.loading?.message)
 
         quick.complete(Unit)

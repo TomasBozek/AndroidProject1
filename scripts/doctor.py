@@ -81,8 +81,11 @@ def build_files(root: Path):
 
 
 def feature_names() -> list[str]:
+    """Directories under `feature/`, minus any Gradle output that has landed there."""
     root = REPO_ROOT / "feature"
-    return sorted(p.name for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
+    if not root.is_dir():
+        return []
+    return sorted(p.name for p in root.iterdir() if p.is_dir() and p.name != "build")
 
 
 def presentation_dir(feature: str) -> Path:

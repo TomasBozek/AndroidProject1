@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.catalog.presentation
 
 import androidx.lifecycle.SavedStateHandle
+import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiCommand
 import com.example.androidproject1.core.ui.state.ContentState
-import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

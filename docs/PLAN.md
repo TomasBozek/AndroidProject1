@@ -6,24 +6,24 @@ human orientation. This file is the work list.
 
 ## Status
 
-**Last updated:** 2026-09-08 (Phase 0 complete; 1.8, 1.1, 1.4, 1.2, 1.3, 1.7 and 1.5 landed)
-**Gate at last run:** doctor 19/19 · test_scripts 37 · unit tests 60 · build green
+**Last updated:** 2026-09-08 (Phase 0 and Phase 1 complete)
+**Gate at last run:** doctor 19/19 · test_scripts 37 · ktlint clean · unit tests 60 · build green
 **Repo:** 24 Gradle modules + `build-logic` · 5 sample features + `template` · 10 scripts
 
 | Phase | Goal | Done | Progress |
 |---|---|---|---|
 | 0 · Truth and small defects | Docs match code; the defects found in review are fixed | 14 / 14 | `██████████` 100% |
-| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 7 / 8 | `█████████░` 88% |
+| 1 · Build foundation | Cheaper to build and to change; stable toolchain | 8 / 8 | `██████████` 100% |
 | 2 · App shell and session | What a real app needs on day one, on Navigation 3 | 0 / 8 | `░░░░░░░░░░` 0% |
 | 3 · Design system and accessibility | A theme and components worth copying | 0 / 7 | `░░░░░░░░░░` 0% |
 | 4 · Testing and quality | Regression coverage that costs nothing to keep | 0 / 5 | `░░░░░░░░░░` 0% |
 | 5 · Shipping baseline | Flavors, signing, crash reporting, perf | 0 / 8 | `░░░░░░░░░░` 0% |
 | 6 · Data layer | Network and offline, once there is a real API | 0 / 3 | `░░░░░░░░░░` 0% |
 | 7 · Backlog | Parked items, kept so they are not forgotten | 0 / 14 | `░░░░░░░░░░` 0% |
-| **Total** | | **21 / 67** | `███░░░░░░░` 31% |
+| **Total** | | **22 / 67** | `███░░░░░░░` 33% |
 
 **Now:** nothing in flight.
-**Next:** 1.6 (detekt/ktlint on JDK 25), the last of Phase 1. Then Phase 2, starting with 2.8.
+**Next:** Phase 2, starting with 2.8 (Navigation 3), which 2.1 to 2.4 are built on.
 **Blocked on a decision:** nothing. All ten decisions were made on 2026-09-08; see below.
 
 ### How to keep this file current
@@ -46,7 +46,7 @@ human orientation. This file is the work list.
 The gate, in the order CI runs it:
 
 ```bash
-python3 scripts/doctor.py && python3 scripts/test_scripts.py && ./gradlew build
+python3 scripts/doctor.py && python3 scripts/test_scripts.py && ./gradlew ktlintCheck && ./gradlew build
 ```
 
 ## Done before this plan
@@ -368,12 +368,26 @@ three fewer modules to convert. Then 1.1, then the rest in any order.
   The plugin has to be applied to the subprojects explicitly (root-only application produced no
   reports), and warns that 9.4.0 is past the AGP range it is tested against.
 
-- [ ] **1.6 Re-test detekt 2.x and ktlint on JDK 25** (S)
+- [x] **1.6 Re-test detekt 2.x and ktlint on JDK 25** (S) · 2026-09-08
   Why: Plan 1's I3. The earlier failure was version-specific (Robolectric 4.16 works where 4.14
   did not). If the current release reads JDK 25 bytecode, we get formatting and a few rules for
   free.
   Done: outcome recorded in `CLAUDE.md` and the root `build.gradle.kts` comment. If it works, a
   small rule set plus `detekt` in CI. If not, ktlint CLI as its own CI step on its own JDK.
+  Landed: **detekt still fails, ktlint works as a Gradle plugin** — better than the fallback, so no
+  separate CI step and no second JDK. detekt 1.23.8 (the current release; 2.x is `2.0.0-alpha`)
+  refuses `--jvm-target 25`, and pinning that to 17 only moves the failure to its embedded
+  compiler choking on the JDK's version string. ktlint-gradle 14.2.0 runs on the JDK 25 daemon.
+  The rule set is `.editorconfig` — no second config file — on `intellij_idea` style rather than
+  `ktlint_official`, with four rules disabled: `class-signature`, `function-signature` and
+  `parameter-list-spacing` all read a multi-line parameter list as if it were on one line (572
+  violations became 20 once they were off), and `function-naming` cannot know a `@Composable` is
+  PascalCase or that a test name is a backtick-quoted sentence. The remaining 20 —
+  `statement-wrapping`, `import-ordering`, one unused import — were fixed by `ktlintFormat`.
+  `ktlintCheck` is a CI step ahead of the build, and part of the gate. Applying the two new
+  plugins with `subprojects { }` made Gradle materialise a build directory for `:feature` and the
+  other path-only projects, which `doctor.py` then read as a feature named `build`; the block now
+  skips a project with no build file, and `feature_names()` ignores `build` either way.
 
 - [x] **1.7 Shared test fixtures instead of copies** (S) · 2026-09-08
   Why: `FakeLogger` exists three times (`service/core/data` tests, `service/core/ui` fixtures,

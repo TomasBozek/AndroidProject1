@@ -15,6 +15,24 @@ ij_kotlin_allow_trailing_comma_on_call_site = true
 ij_kotlin_name_count_to_use_star_import = 2147483647
 ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
 
+# ktlint reads this file; `./gradlew ktlintCheck` and `ktlintFormat` enforce it. `intellij_idea`
+# rather than `ktlint_official`: the latter adds a set of opinionated wrapping rules (a multiline
+# expression must start on its own line, a function signature must be split a particular way) that
+# disagree with how this codebase is already written, for no gain in readability.
+ktlint_code_style = intellij_idea
+
+# A @Composable is PascalCase by Compose's own convention, which the naming rule cannot know.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+# Test names are backtick-quoted sentences on purpose: `a non-null initial state renders …`.
+ktlint_standard_function-naming = disabled
+
+# Both of these read a multi-line parameter list as if it were on one line, so every constructor
+# in the repo is a violation. Wrapping is already settled by max_line_length and the IDE.
+ktlint_standard_parameter-list-spacing = disabled
+ktlint_standard_class-signature = disabled
+ktlint_standard_function-signature = disabled
+
 [*.{xml,yml,yaml,json}]
 indent_size = 2
 
