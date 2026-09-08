@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ComponentPreview
@@ -39,7 +40,8 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * people using it.
  *
  * Set [numeric] for money and quantities; it asks for the number keyboard and turns on tabular
- * figures, so digits stop shifting under the caret.
+ * figures, so digits stop shifting under the caret. [password] masks the value and asks for the
+ * password keyboard; [keyboardType] overrides the choice when neither fits, as an email does.
  */
 @Composable
 fun AppTextField(
@@ -52,7 +54,8 @@ fun AppTextField(
     errorText: String? = null,
     enabled: Boolean = true,
     numeric: Boolean = false,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType? = null,
+    password: Boolean = false,
 ) {
     val colors = AppTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -88,9 +91,17 @@ fun AppTextField(
                 enabled = enabled,
                 singleLine = true,
                 interactionSource = interaction,
-                visualTransformation = visualTransformation,
+                visualTransformation = if (password) {
+                    PasswordVisualTransformation()
+                } else {
+                    VisualTransformation.None
+                },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = if (numeric) KeyboardType.Number else KeyboardType.Text,
+                    keyboardType = keyboardType ?: when {
+                        password -> KeyboardType.Password
+                        numeric -> KeyboardType.Number
+                        else -> KeyboardType.Text
+                    },
                 ),
                 textStyle = (if (numeric) AppTheme.typography.numericMd else AppTheme.typography.bodyMd)
                     .copy(color = textColor),
@@ -141,4 +152,5 @@ private fun Preview() = ThemedComponentPreview {
         errorText = "No product with this code",
     )
     AppTextField(value = "Locked", onValueChange = {}, label = "Till", enabled = false)
+    AppTextField(value = "hunter2", onValueChange = {}, label = "Password", password = true)
 }

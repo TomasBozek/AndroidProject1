@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Content description for the back arrow in AppTopBar. Every screen that shows one uses
+         this: the label is a property of the control, not of the screen. -->
+    <string name="app_navigate_up">Navigate up</string>
+</resources>

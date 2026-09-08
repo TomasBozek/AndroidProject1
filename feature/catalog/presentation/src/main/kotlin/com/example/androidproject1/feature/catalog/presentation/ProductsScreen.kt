@@ -1,50 +1,37 @@
 package com.example.androidproject1.feature.catalog.presentation
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
+import com.example.androidproject1.core.ui.component.AppDivider
+import com.example.androidproject1.core.ui.component.AppListItem
+import com.example.androidproject1.core.ui.component.AppScaffold
+import com.example.androidproject1.core.ui.component.AppText
+import com.example.androidproject1.core.ui.component.AppTopBar
+import com.example.androidproject1.core.ui.component.TextRole
 
 @Composable
 fun ProductsScreen(
     state: ProductsState,
     onEvent: (ProductsEvent) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            // Edge to edge: a screen without a Scaffold pads itself.
-            .safeDrawingPadding(),
+    AppScaffold(
+        topBar = { AppTopBar(title = state.categoryName) },
+        contentPadding = false,
     ) {
-        Text(
-            text = state.categoryName,
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(24.dp),
-        )
-
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(state.products, key = { it.id }) { product ->
-                ListItem(
-                    headlineContent = { Text(text = product.name) },
-                    supportingContent = { Text(text = product.price.asPrice()) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onEvent(ProductsEvent.ProductClicked(product)) },
+                AppListItem(
+                    headline = product.name,
+                    onClick = { onEvent(ProductsEvent.ProductClicked(product)) },
+                    // A price is numeric, so it gets tabular figures and lines up down the column.
+                    trailing = { AppText(text = product.price.asPrice(), role = TextRole.Numeric) },
                 )
-                HorizontalDivider()
+                AppDivider()
             }
         }
     }
