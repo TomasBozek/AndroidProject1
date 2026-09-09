@@ -14,6 +14,7 @@ import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
 import com.example.androidproject1.feature.catalog.presentation.CategoriesViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
+import com.example.androidproject1.feature.catalog.presentation.ProductPickerViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -28,6 +29,7 @@ object CatalogModule {
         viewModelOf(::CategoriesViewModel)
         viewModelOf(::ProductsViewModel)
         viewModelOf(::ProductDetailViewModel)
+        viewModelOf(::ProductPickerViewModel)
 
         single {
             Room.databaseBuilder(

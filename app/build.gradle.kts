@@ -11,6 +11,10 @@ dependencies {
     // and MainViewModel uses AuthService.
     implementation(projects.core.ui)
     implementation(projects.feature.auth.domain)
+    // AppNavHost turns a picked product into a cart line and drives the tab badge, so it names
+    // both domains. Another feature's *domain* is allowed; its presentation is not.
+    implementation(projects.feature.cart.domain)
+    implementation(projects.feature.catalog.domain)
 
     // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere.
     implementation(projects.service.network)

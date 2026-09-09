@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.androidproject1.core.di.appModules
 import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
 import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
+import com.example.androidproject1.feature.catalog.presentation.ProductPickerDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductPickerViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
 import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel
 import com.example.androidproject1.feature.gallery.presentation.GalleryDetailDestination
@@ -44,6 +46,7 @@ class KoinGraphTest {
             // screen; `doctor.py` fails if one is missing, and `create_screen.py --with-args`
             // writes it.
             injections = injectedParameters(
+                definition<ProductPickerViewModel>(ProductPickerDestination::class),
                 definition<GalleryDetailViewModel>(GalleryDetailDestination::class),
                 definition<ProductsViewModel>(ProductsDestination::class),
                 definition<ProductDetailViewModel>(ProductDetailDestination::class),

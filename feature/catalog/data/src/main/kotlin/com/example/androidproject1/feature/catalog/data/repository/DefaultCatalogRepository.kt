@@ -35,6 +35,11 @@ class DefaultCatalogRepository(
         write = { localCatalogDataSource.replaceProducts(categoryId, it) },
     )
 
+    // Not cached() either: the picker is reached from the cart, and the catalog has already been
+    // fetched by the tab the user browsed to get there.
+    override fun observeAllProducts(): Flow<Outcome<List<Product>>> =
+        observe(source = localCatalogDataSource.observeAllProducts(), retries = 3)
+
     // Not cached(): detail is always reached from a list, so the product is already in the table.
     // Fetching it again would make opening a product a network round trip for nothing.
     override suspend fun getProduct(productId: String): Outcome<Product?> = execute {

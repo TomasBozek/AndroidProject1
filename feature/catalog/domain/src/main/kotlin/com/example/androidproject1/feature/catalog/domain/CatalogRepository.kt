@@ -17,6 +17,9 @@ interface CatalogRepository {
 
     fun observeProducts(categoryId: String): Flow<Outcome<List<Product>>>
 
+    /** Everything cached, for a picker. Reads the table the lists filled; no fetch of its own. */
+    fun observeAllProducts(): Flow<Outcome<List<Product>>>
+
     /** A single product, read from the cache the lists filled. */
     suspend fun getProduct(productId: String): Outcome<Product?>
 }

@@ -18,6 +18,9 @@ interface LocalCatalogDataSource {
 
     fun observeProducts(categoryId: String): Flow<List<Product>?>
 
+    /** Everything cached, for the picker. Never null: an empty catalog is an empty list here. */
+    fun observeAllProducts(): Flow<List<Product>>
+
     fun observeProduct(productId: String): Flow<Product?>
 
     suspend fun replaceCategories(categories: List<Category>)

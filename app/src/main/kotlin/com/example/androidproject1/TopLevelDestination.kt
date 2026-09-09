@@ -4,9 +4,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.example.androidproject1.feature.cart.presentation.CartDestination
 import com.example.androidproject1.feature.catalog.presentation.CategoriesDestination
 import com.example.androidproject1.feature.home.presentation.HomeDestination
 import com.example.androidproject1.feature.settings.presentation.SettingsDestination
@@ -24,10 +26,18 @@ enum class TopLevelDestination(
     val key: NavKey,
     val label: Int,
     val icon: ImageVector,
+    /**
+     * Whether this tab shows a count on its icon.
+     *
+     * A boolean rather than the flow itself: an enum entry is a constant, and the flow comes from
+     * Koin — which the enum cannot reach and should not know about. `AppNavHost` supplies it.
+     */
+    val hasBadge: Boolean = false,
 ) {
 
     Home(HomeDestination, R.string.tab_home, Icons.Filled.Home),
     Catalog(CategoriesDestination, R.string.tab_catalog, Icons.AutoMirrored.Filled.List),
+    Cart(CartDestination, R.string.tab_cart, Icons.Filled.ShoppingCart, hasBadge = true),
     Settings(SettingsDestination, R.string.tab_settings, Icons.Filled.Settings),
     ;
 

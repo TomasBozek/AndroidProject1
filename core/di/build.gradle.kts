@@ -13,6 +13,7 @@ dependencies {
     api(projects.feature.settings.di)
     api(projects.feature.catalog.di)
     api(projects.feature.gallery.di)
+    api(projects.feature.cart.di)
 
     implementation(projects.service.core.data)
     implementation(projects.service.core.domain)

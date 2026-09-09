@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
+import com.example.androidproject1.core.ui.component.AppButton
 import com.example.androidproject1.core.ui.component.AppIconButton
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppText
@@ -57,6 +58,13 @@ fun ProductDetailScreen(
             }
             AppText(text = product.price.asPrice(), role = TextRole.DisplayLarge)
             AppText(text = product.description, role = TextRole.BodyLarge)
+            AppButton(
+                label = stringResource(R.string.product_detail_add_to_cart),
+                onClick = { onEvent(ProductDetailEvent.AddToCartClicked) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("productDetail_addToCartButton"),
+            )
         }
     }
 }

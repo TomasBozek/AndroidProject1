@@ -13,6 +13,9 @@ interface CatalogDao {
     @Query("SELECT * FROM categories")
     fun observeCategories(): Flow<List<CategoryEntity>>
 
+    @Query("SELECT * FROM products ORDER BY name ASC")
+    fun observeAllProducts(): Flow<List<ProductEntity>>
+
     @Query("SELECT * FROM products WHERE categoryId = :categoryId")
     fun observeProductsIn(categoryId: String): Flow<List<ProductEntity>>
 

@@ -95,6 +95,7 @@ There are three top-level groups, and the split between the first two is the imp
                       TopLevelDestination (the tabs), Application
 
 :feature:auth:{domain,data,presentation,di}       full stack; owns the session
+:feature:cart:{domain,data,presentation,di}       full stack
 :feature:catalog:{domain,data,presentation,di}    full stack; three screens, one with args; a tab
 :feature:gallery:{presentation,di}                screen only
 :feature:home:{presentation,di}                   screen only; a tab

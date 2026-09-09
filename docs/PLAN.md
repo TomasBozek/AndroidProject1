@@ -15,9 +15,9 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 3 / 14 | `██░░░░░░░░` 21 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 4 / 14 | `███░░░░░░░` 29 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 2 / 7 | `███░░░░░░░` 29 % |
-| **Total** | | **11 / 32** | `███░░░░░░░` 34 % |
+| **Total** | | **12 / 32** | `████░░░░░░` 38 % |
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -461,7 +461,7 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   Device-checked on the emulator: seed loads, the heart flips, the favourite is still on Home after
   `force-stop` and a cold start, and the undo snackbar puts a removed favourite back.
 
-- [ ] **feat.2 Cart — proves cross-feature domain, tab badge, plurals, nav results** · L · `stable` · needs core.4, feat.1
+- [x] **feat.2 Cart — proves cross-feature domain, tab badge, plurals, nav results** (2026-09-09) · L · `stable` · needs core.4, feat.1
   Why: `toPluralUiText` and `AlertPayload` are unused API; no feature depends on another's domain.
   Done: `:feature:cart` full stack on its own Room database; add from product detail; a Cart tab
   with a count badge (`TopLevelDestination` gains an optional badge flow); quantity on
@@ -469,6 +469,23 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   clear; "Add item" opens the catalog in picker mode and the product comes back through core.4.
   Verify: ViewModel tests including the plural at 1, 2 and 5; a screen test; the badge updates
   from another tab.
+  **Landed:** the picker is a **screen of its own** (`ProductPicker`, generated with
+  `--with-args resultKey:String`) rather than the catalog in a mode. Categories is a tab key and a
+  `data object`, so it cannot carry a result key, and pushing a tab root as a modal would confuse
+  `currentTab`. The picker reads the cache the tabs already filled — one `observeAllProducts`
+  query — so it shows what has been browsed and fetches nothing.
+  **A cart line is denormalised, not joined.** `feat.5` replaces the catalog table on every
+  refresh, so a joined cart would empty itself when the shop reorganised. The user keeps what they
+  put in the basket, at the price they saw.
+  Two defects found on device, both invisible to the compiler:
+  · **A `UiText` passed as a format argument was not resolved** — it reached `String.format` as an
+  object, and the checkout dialog read "Plural(id=…, quantity=3, args=[3]) will be ordered".
+  `UiText` now resolves nested arguments, which is the fix for every future composed string too.
+  · The badge's flow was **built inside composition**, so it resubscribed every time the bar
+  redrew. Lint caught it; `remember` fixes it.
+  Device-checked end to end on the emulator: add twice from product detail → badge shows 2 → cart
+  reads "2 items" and $9.00 → Add item → picker → Tea → back at "3 items" → Checkout → "Place this
+  order?" → Order → empty cart.
 
 - [ ] **feat.3 Profile — proves PermissionGate and forms** · M · `device` · needs core.5
   Why: `PermissionGate` and `PermissionRationale` ship unused; no sample has a form with rules.

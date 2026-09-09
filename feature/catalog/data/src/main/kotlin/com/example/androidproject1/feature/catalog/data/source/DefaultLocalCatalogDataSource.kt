@@ -29,6 +29,9 @@ class DefaultLocalCatalogDataSource(
             rows.takeIf { it.isNotEmpty() }?.map { it.toDomain() }
         }
 
+    override fun observeAllProducts(): Flow<List<Product>> =
+        catalogDao.observeAllProducts().map { rows -> rows.map { it.toDomain() } }
+
     override fun observeProduct(productId: String): Flow<Product?> =
         catalogDao.observeProduct(productId).map { it?.toDomain() }
 

@@ -34,6 +34,8 @@ class FakeCatalogRepository(
         return emissions(products.filter { it.categoryId == categoryId })
     }
 
+    override fun observeAllProducts(): Flow<Outcome<List<Product>>> = emissions(products)
+
     override suspend fun getProduct(productId: String): Outcome<Product?> =
         failWith?.let { Outcome.Failure(it) } ?: Outcome.Success(products.find { it.id == productId })
 

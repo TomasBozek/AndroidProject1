@@ -5,13 +5,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
@@ -20,11 +26,19 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.core.ui.navigation.ProvideNavResultStore
 import com.example.androidproject1.feature.auth.presentation.loginDestination
 import com.example.androidproject1.feature.auth.presentation.signUpDestination
+import com.example.androidproject1.feature.cart.domain.CartItem
+import com.example.androidproject1.feature.cart.domain.CartRepository
+import com.example.androidproject1.feature.cart.presentation.CART_PICK_RESULT
+import com.example.androidproject1.feature.cart.presentation.cartDestination
+import com.example.androidproject1.feature.catalog.domain.CatalogRepository
+import com.example.androidproject1.feature.catalog.presentation.ProductPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.categoriesDestination
 import com.example.androidproject1.feature.catalog.presentation.productDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.productPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.productsDestination
 import com.example.androidproject1.feature.gallery.presentation.GalleryDestination
 import com.example.androidproject1.feature.gallery.presentation.galleryDestination
@@ -32,6 +46,9 @@ import com.example.androidproject1.feature.gallery.presentation.galleryDetailDes
 import com.example.androidproject1.feature.home.presentation.homeDestination
 import com.example.androidproject1.feature.settings.presentation.settingsDestination
 import com.example.androidproject1.feature.settings.presentation.settingsPermissionsDestination
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 /**
  * The only place that knows about more than one feature. Cross-feature navigation is a lambda.
@@ -70,6 +87,15 @@ private fun AppNavContent(
         return
     }
 
+    // Collected once, here, rather than inside the Cart screen: the badge has to update while the
+    // user is on another tab, which is the whole point of it.
+    val cartRepository: CartRepository = koinInject()
+    // remembered: building the flow inside composition would make a new one on every
+    // recomposition, resubscribing the badge each time the bar redraws.
+    val cartCount by remember(cartRepository) {
+        cartRepository.observeCount().map { (it as? Outcome.Success)?.data ?: 0 }
+    }.collectAsStateWithLifecycle(initialValue = 0)
+
     NavigationSuiteScaffold(
         modifier = modifier,
         navigationSuiteItems = {
@@ -77,7 +103,15 @@ private fun AppNavContent(
                 item(
                     selected = tab == currentTab,
                     onClick = { backStack.selectTab(tab) },
-                    icon = { Icon(imageVector = tab.icon, contentDescription = null) },
+                    icon = {
+                        if (tab.hasBadge && cartCount > 0) {
+                            BadgedBox(badge = { Badge { Text(text = cartCount.toString()) } }) {
+                                Icon(imageVector = tab.icon, contentDescription = null)
+                            }
+                        } else {
+                            Icon(imageVector = tab.icon, contentDescription = null)
+                        }
+                    },
                     label = { Text(text = stringResource(tab.label)) },
                 )
             }
@@ -93,9 +127,32 @@ private fun AppNavDisplay(
     backStack: NavBackStack<NavKey>,
     modifier: Modifier = Modifier,
 ) {
+    // Resolved here rather than inside the entry: `mainEntries` is a plain function, and the
+    // cart needs the catalog to turn a picked id into a line it can hold.
+    val catalogRepository: CatalogRepository = koinInject()
+    val cartRepository: CartRepository = koinInject()
+    val scope = rememberCoroutineScope()
+
+    // Adding from product detail is a write with no screen behind it: the user taps and stays, or
+    // taps and leaves. It runs in the nav host's scope so it is not cancelled either way.
+    val addToCart: (String) -> Unit = { productId ->
+        scope.launch {
+            (catalogRepository.getProduct(productId) as? Outcome.Success)?.data?.let { product ->
+                cartRepository.add(
+                    CartItem(
+                        productId = product.id,
+                        name = product.name,
+                        price = product.price,
+                        quantity = 1,
+                    ),
+                )
+            }
+        }
+    }
+
     val entries = entryProvider<NavKey> {
         authEntries(backStack)
-        mainEntries(backStack)
+        mainEntries(backStack, catalogRepository, addToCart)
     }
 
     NavDisplay(
@@ -161,21 +218,51 @@ private fun EntryProviderScope<NavKey>.authEntries(backStack: NavBackStack<NavKe
 }
 
 /** Shown while signed in, grouped by the tab whose stack the screen is pushed onto. */
-private fun EntryProviderScope<NavKey>.mainEntries(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<NavKey>.mainEntries(
+    backStack: NavBackStack<NavKey>,
+    catalogRepository: CatalogRepository,
+    addToCart: (String) -> Unit,
+) {
     homeEntries(backStack)
-    catalogEntries(backStack)
+    catalogEntries(backStack, addToCart)
     settingsEntries(backStack)
     galleryDetailDestination(backStack = backStack)
+    cartDestination(
+        backStack = backStack,
+        // The only place that knows both features. The cart says "pick a product"; what that
+        // means is decided here, which is what keeps the two presentation modules apart.
+        onPickProduct = { backStack.add(ProductPickerDestination(resultKey = CART_PICK_RESULT)) },
+        onProductPicked = { productId ->
+            // The lookup is the catalog's business, so it happens here rather than in the cart.
+            (catalogRepository.getProduct(productId) as? Outcome.Success)?.data?.let { product ->
+                CartItem(
+                    productId = product.id,
+                    name = product.name,
+                    price = product.price,
+                    quantity = 1,
+                )
+            }
+        },
+    )
+    productPickerDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {
     homeDestination(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<NavKey>.catalogEntries(
+    backStack: NavBackStack<NavKey>,
+    addToCart: (String) -> Unit,
+) {
     categoriesDestination(backStack = backStack)
     productsDestination(backStack = backStack)
-    productDetailDestination(backStack = backStack)
+    productDetailDestination(
+        backStack = backStack,
+        // Fire and forget on the application scope, not a screen's: the user leaves product
+        // detail immediately after tapping, and an add cancelled by that would silently do nothing.
+        onAddToCart = { productId -> addToCart(productId) },
+    )
 }
 
 private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<NavKey>) {

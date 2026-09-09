@@ -14,6 +14,7 @@ import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.core.domain.crypto.Aead
 import com.example.androidproject1.core.network.HttpClientFactory
 import com.example.androidproject1.feature.auth.di.AuthModule
+import com.example.androidproject1.feature.cart.di.CartModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
 import com.example.androidproject1.feature.gallery.di.GalleryModule
 import com.example.androidproject1.feature.home.di.HomeModule
@@ -80,6 +81,7 @@ fun appModules(isDebug: Boolean): List<Module> = listOf(
     SettingsModule.module,
     CatalogModule.module,
     GalleryModule.module,
+    CartModule.module,
 )
 
 /**

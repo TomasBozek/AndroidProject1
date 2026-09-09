@@ -19,7 +19,8 @@ sealed interface UiText {
         val args: List<Any> = emptyList(),
     ) : UiText {
 
-        override fun resolve(context: Context): String = context.getString(id, *args.toTypedArray())
+        override fun resolve(context: Context): String =
+            context.getString(id, *args.resolveNested(context))
     }
 
     /**
@@ -35,7 +36,7 @@ sealed interface UiText {
     ) : UiText {
 
         override fun resolve(context: Context): String =
-            context.resources.getQuantityString(id, quantity, *args.toTypedArray())
+            context.resources.getQuantityString(id, quantity, *args.resolveNested(context))
     }
 
     data class Literal(val value: String) : UiText {
@@ -48,6 +49,17 @@ sealed interface UiText {
         override fun resolve(context: Context): String = ""
     }
 }
+
+/**
+ * Resolves any argument that is itself a [UiText].
+ *
+ * Without this a nested one reaches `String.format` as an object and prints as
+ * `Plural(id=…, quantity=3, args=[3])` — which compiles, type-checks, and is visible only on
+ * screen. Composing one piece of text out of another is ordinary ("3 items will be ordered"), so
+ * it has to work rather than be a rule to remember.
+ */
+private fun List<Any>.resolveNested(context: Context): Array<Any> =
+    map { if (it is UiText) it.resolve(context) else it }.toTypedArray()
 
 @Composable
 fun UiText.resolve(): String = resolve(LocalContext.current)

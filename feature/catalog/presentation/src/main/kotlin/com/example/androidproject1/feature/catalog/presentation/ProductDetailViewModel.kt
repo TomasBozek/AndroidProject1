@@ -37,6 +37,9 @@ class ProductDetailViewModel(
 
     override fun onUiEvent(event: ProductDetailEvent) = when (event) {
         ProductDetailEvent.FavouriteToggled -> toggleFavourite()
+
+        ProductDetailEvent.AddToCartClicked ->
+            navigate(ProductDetailNavigation.AddToCart(args.productId))
     }
 
     override fun onSystemEvent(event: SystemEvent) {

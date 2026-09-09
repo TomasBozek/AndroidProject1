@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cart_title">Cart</string>
+    <string name="cart_empty_title">Your cart is empty</string>
+    <string name="cart_empty_message">Add something from the catalog and it will show up here.</string>
+    <string name="cart_add_item">Add item</string>
+    <string name="cart_checkout">Checkout</string>
+    <string name="cart_total">Total</string>
+    <string name="cart_remove">Remove %1$s</string>
+    <string name="cart_removed">Removed from cart</string>
+    <string name="cart_undo">Undo</string>
+    <string name="cart_checkout_title">Place this order?</string>
+    <string name="cart_checkout_message">%1$s will be ordered and your cart emptied.</string>
+    <string name="cart_checkout_confirm">Order</string>
+    <string name="cart_checkout_cancel">Not yet</string>
+    <string name="cart_checkout_done">Order placed. Thank you.</string>
+    <plurals name="cart_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+</resources>
