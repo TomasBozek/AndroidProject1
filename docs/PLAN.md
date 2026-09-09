@@ -15,9 +15,9 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 2 / 14 | `█░░░░░░░░░` 14 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 3 / 14 | `██░░░░░░░░` 21 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 2 / 7 | `███░░░░░░░` 29 % |
-| **Total** | | **10 / 32** | `███░░░░░░░` 31 % |
+| **Total** | | **11 / 32** | `███░░░░░░░` 34 % |
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -517,12 +517,26 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   precisely so it can be flipped from outside the process; `shell.2`'s debug menu is where it gets
   a switch.
 
-- [ ] **feat.6 Session carries an id; `setUser` wired** · S · `stable`
+- [x] **feat.6 Session carries an id; `setUser` wired** (2026-09-09) · S · `stable`
   Why: `ErrorTracker.setUser` has nothing to be called with, and the docs say so instead of the code.
   Done: `Session(id, email)`; the mock login mints an opaque id; `MainViewModel` calls
   `setUser(id)` on sign-in and `setUser(null)` on sign-out; an old encrypted session reads as
   signed out rather than crashing.
   Verify: `MainViewModelTest` asserts both calls; `AesGcmAeadTest` unchanged.
+  **Landed:** the id is **random, not a hash of the address**. A hash is still the address to
+  anyone holding a list of addresses, and this value is going to a crash reporter.
+  "An old encrypted session reads as signed out rather than crashing" is a **version prefix** on
+  the stored string, not a parse attempt: an unrecognised format is not decoded, it is discarded.
+  Throwing would turn "you upgraded the app" into a crash loop on launch, and the worst a null
+  costs is one sign-in. An absent file, an undecryptable one, an empty one and a foreign format
+  now all read the same way, so there is still no third case.
+  `MainViewModel` reports on the session flow rather than at the login call site, because that is
+  the one place that knows — including the failure path, which clears the user too. A
+  `FakeErrorTracker` joins the fixtures beside `ErrorTracker`, and records a *list* of users:
+  asserting only the latest value would pass even if sign-out never sent `null`.
+  `DefaultAuthRepository`'s Koin binding is spelled out rather than `singleOf`, because the
+  constructor has a defaulted id generator and reflection would try to resolve a `Function0` from
+  the graph.
 
 - [ ] **feat.7 Tests for the data layers that exist** · M · `stable`
   Why: `feature/*/data` is 84 lines at 0 %, the cheapest coverage in the repo.

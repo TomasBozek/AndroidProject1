@@ -38,7 +38,9 @@ class FakeAuthService(var failWith: DomainError? = null) : AuthService {
     override suspend fun login(email: String): Outcome<Unit> {
         failWith?.let { return Outcome.Failure(it) }
         loggedInEmails += email
-        session.value = Session(email = email.ifBlank { "guest@example.com" })
+        // A fixed id rather than a random one: a test that asserts what reached the crash
+        // reporter needs a value it can name.
+        session.value = Session(id = SESSION_ID, email = email.ifBlank { "guest@example.com" })
         return Outcome.Success(Unit)
     }
 
@@ -51,4 +53,9 @@ class FakeAuthService(var failWith: DomainError? = null) : AuthService {
 
     private fun <T> sessionOutcome(value: T): Outcome<T> =
         sessionError?.let { Outcome.Failure(it) } ?: Outcome.Success(value)
+
+    companion object {
+
+        const val SESSION_ID = "session-1"
+    }
 }

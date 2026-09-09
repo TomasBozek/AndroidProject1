@@ -2,6 +2,7 @@ package com.example.androidproject1
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.domain.AuthService
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     logger: Logger,
     private val authService: AuthService,
+    private val errorTracker: ErrorTracker,
 ) : ViewModel() {
 
     private val logger = logger.withTag(TAG)
@@ -37,10 +39,15 @@ class MainViewModel(
     // same name inside `init`, so `logger` there would be the untagged one.
     private fun observeSession() {
         viewModelScope.launch {
-            authService.isLoggedIn().collect { outcome ->
+            authService.observeSession().collect { outcome ->
                 mutableSessionState.value = when (outcome) {
                     is Outcome.Success -> {
-                        if (outcome.data) SessionState.SignedIn else SessionState.SignedOut
+                        // The only place that knows who is signed in, so the only place that can
+                        // tell the tracker. The id is opaque — never the address, because a crash
+                        // report is not the place for one — and null on sign-out, or the next
+                        // person's reports are attributed to the last one.
+                        errorTracker.setUser(outcome.data?.id)
+                        if (outcome.data != null) SessionState.SignedIn else SessionState.SignedOut
                     }
 
                     // `observeSession()` has already retried, and there is no screen to put a
@@ -48,6 +55,7 @@ class MainViewModel(
                     // user can do something about it.
                     is Outcome.Failure -> {
                         logger.w { "Session unreadable (${outcome.error}); treating as signed out" }
+                        errorTracker.setUser(null)
                         SessionState.SignedOut
                     }
                 }

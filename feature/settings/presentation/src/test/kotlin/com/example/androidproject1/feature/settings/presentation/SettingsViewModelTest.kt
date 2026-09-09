@@ -24,7 +24,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `shows the signed-in email`() = runTest {
-        authService.session.value = Session(email = "ada@example.com")
+        authService.session.value = Session(id = "session-1", email = "ada@example.com")
 
         assertEquals("ada@example.com", viewModel().state.value.data?.email)
     }

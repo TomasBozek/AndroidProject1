@@ -21,7 +21,11 @@ object AuthModule {
         viewModelOf(::SignUpViewModel)
 
         singleOf(::DefaultAuthService) bind AuthService::class
-        singleOf(::DefaultAuthRepository) bind AuthRepository::class
+        // Spelled out rather than singleOf: the constructor has a defaulted `newSessionId`
+        // lambda for tests, and reflection would try to resolve a Function0<String> from the graph.
+        single<AuthRepository> {
+            DefaultAuthRepository(logger = get(), localAuthDataSource = get())
+        }
         singleOf(::DefaultLocalAuthDataSource) bind LocalAuthDataSource::class
     }
 }
