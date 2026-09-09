@@ -166,8 +166,9 @@ version of every open item is in the detail file under the same id.
 
 ### ui · design system and adaptive
 
-- [~] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · branch `ui.2-roborazzi` ·
-  needs qa.13 — previews `internal` so the scanner finds them, goldens committed, verify task in CI
+- [~] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · branch `ui.2-roborazzi` —
+  `.includePrivatePreviews()` is what the scanner was missing, not `internal` previews; what is
+  left is where the test lives, the goldens, and the verify task in CI
 - [ ] **ui.3 Component behaviour tests** · M · `stable` — the interactive components asserted by
   tag; the package leaves 22 %
 - [ ] **ui.4 Window size class drives density** · S · `stable` — a tablet gets regular density

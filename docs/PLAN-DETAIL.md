@@ -189,11 +189,20 @@ Done: Roborazzi 1.74.0 and `ComposablePreviewScanner` 0.9.3 applied through
 `@ScreenPreview` without duplicating them; goldens committed; `verifyRoborazziDebug` in the CI
 build job.
 Verify: break one padding value on purpose and the verify task fails on that image only; restore.
-**Landed so far:** the toolchain half passes — both dependencies resolve and the plugin applies
-on AGP 9.4 / Gradle 9.6 / JDK 25. The scanner returns **zero previews**, so the runner generates
-no tests. Every preview in this repo is `private`, and the scanner reflects over the classpath, so
-that is the likely cause: make them `internal` first (one word per preview; it still keeps them
-out of a module's API). If that is not it, point the scanner at a package of non-private wrappers.
+**Landed so far:** the toolchain half passes, re-checked on the D34 layout on 2026-09-09 — both
+dependencies resolve and the plugin applies on AGP 9.4 / Gradle 9.6 / JDK 25.
+**The `private` diagnosis was wrong.** `ComposablePreviewScanner` 0.9.3 already calls ClassGraph's
+`ignoreMethodVisibility()` and `setAccessible(true)`; what the chain was missing is one call.
+Adding `.includePrivatePreviews()` after `scanPackageTrees(...)` returns all 126 of `:core:ui`'s
+previews — 42 components × light, dark and 1.5× — and the parameterised runner then produces a
+test per golden. So **nothing becomes `internal`, and this item never touches `core/ui`'s
+previews**; the wiring on `ui.2-roborazzi` applies unchanged on the new layout.
+What is left is a decision the Done line does not settle: **where the test lives.** A module's
+test only scans its own classpath, so `:core:ui`'s copy covers the 42 components and not one
+screen. Either a copy per `presentation` module — cloned from `feature/template`, so every
+generated feature gets one — or a single copy in `:app`, which sees every module through
+`:core:di` but runs three times over the flavors. Then ~300 goldens to commit, and one
+`verifyRoborazziDebug` step in the CI build job.
 
 **ui.3 Component behaviour tests** · M · `stable`
 Why: `core/ui/component` is 1,709 lines at 22 %. Previews show; nothing asserts, and `ui.6` was
