@@ -8,6 +8,8 @@ on:
   schedule:
     # Weekly, so a release-only regression is found by the schedule rather than by a release.
     - cron: '0 6 * * 1'
+  # For the maestro job: an emulator run before a release, on demand, without waiting for Monday.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -182,3 +184,69 @@ jobs:
 
       - name: Compile what the generators write
         run: python3 scripts/test_scripts.py --with-gradle
+
+  maestro:
+    # An emulator boot plus five flows is minutes, not seconds, and the flows cover golden paths
+    # rather than each change — so this runs weekly and on demand (D30), not on every pull request.
+    # The schedule finds a broken path within a week; the dispatch is what you run before a release.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # An emulator that fails to boot otherwise hangs until the workflow's own six-hour limit.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      # Must match gradle/gradle-daemon-jvm.properties, which pins the daemon's JDK.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Built before the emulator starts, so a compile failure does not pay for a boot first.
+      # `dev` serves the catalog from JSON fixtures (D20), which is what .maestro/config.yaml
+      # names as its appId — a flow asserts the app, never the weather at a server.
+      - name: Assemble the dev debug build
+        run: ./gradlew :app:assembleDevDebug
+
+      # The vendor's install script. `brew install maestro` gives the desktop app with no
+      # `maestro test`, and there is no first-party action.
+      - name: Install the Maestro CLI
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      # Without this the emulator falls back to software rendering and the flows time out.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # Third-party and build-only, so D27 lets it in: it never reaches the release APK, and
+      # there is no first-party action that boots an emulator.
+      - name: Run the flows
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          # An emulator that draws nothing is faster and boots more reliably on a CI runner;
+          # Maestro drives it over adb and needs no window.
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb install -r app/build/outputs/apk/dev/debug/app-dev-debug.apk
+            maestro test .maestro --debug-output maestro-debug
+
+      # The recordings and the view hierarchy Maestro dumps on a failed assertion — which is the
+      # only thing that says *why* an id was not found on a machine nobody can look at.
+      - name: Upload the Maestro output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug
+          path: maestro-debug/**
+          if-no-files-found: ignore
