@@ -16,10 +16,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProject1">
+        <!-- `singleTop` because the app is one activity and a deep link that arrives while it is
+             already running must reach `onNewIntent`, not a second copy of it. Without this, the
+             default `standard` mode stacks another MainActivity: the link's whole path is
+             synthesised again and the user needs one back press per level to return to where they
+             were, with the app they left still underneath. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="${appLabel}"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.AndroidProject1.Starting"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
