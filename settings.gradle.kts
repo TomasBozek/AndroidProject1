@@ -130,6 +130,14 @@ includeFeatureModule(
     ModuleSuffix.Di,
 )
 
+includeFeatureModule(
+    "profile",
+    ModuleSuffix.Domain,
+    ModuleSuffix.Data,
+    ModuleSuffix.Presentation,
+    ModuleSuffix.Di,
+)
+
 // Cloned by scripts/create_feature.py. Included so `./gradlew build` keeps the template compiling.
 includeFeatureModule(
     "template",

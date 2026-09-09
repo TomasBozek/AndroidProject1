@@ -8,6 +8,7 @@
     <string name="settings_logout_confirmation">Are you sure you want to log out?</string>
     <string name="settings_logout_confirm">Log out</string>
     <string name="settings_logout_cancel">Cancel</string>
+    <string name="settings_profile">Profile</string>
     <string name="settings_permissions">Permissions</string>
 
     <string name="settings_permissions_title">Permissions</string>

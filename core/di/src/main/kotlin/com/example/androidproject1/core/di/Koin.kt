@@ -18,6 +18,7 @@ import com.example.androidproject1.feature.cart.di.CartModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
 import com.example.androidproject1.feature.gallery.di.GalleryModule
 import com.example.androidproject1.feature.home.di.HomeModule
+import com.example.androidproject1.feature.profile.di.ProfileModule
 import com.example.androidproject1.feature.settings.di.SettingsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
@@ -82,6 +83,7 @@ fun appModules(isDebug: Boolean): List<Module> = listOf(
     CatalogModule.module,
     GalleryModule.module,
     CartModule.module,
+    ProfileModule.module,
 )
 
 /**

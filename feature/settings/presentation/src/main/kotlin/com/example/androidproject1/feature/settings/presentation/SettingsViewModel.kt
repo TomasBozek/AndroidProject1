@@ -27,6 +27,7 @@ class SettingsViewModel(
 
     override fun onUiEvent(event: SettingsEvent) {
         when (event) {
+            SettingsEvent.ProfileClicked -> navigate(SettingsNavigation.Profile)
             SettingsEvent.PermissionsClicked -> navigate(SettingsNavigation.Permissions)
             SettingsEvent.ComponentsClicked -> navigate(SettingsNavigation.Components)
 

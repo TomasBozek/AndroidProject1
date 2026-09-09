@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Declared by the one feature that uses it, and merged into the app from here. Declaring it
+         is what makes PermissionGate load-bearing: the system refuses ACTION_IMAGE_CAPTURE to an
+         app that asks for CAMERA in its manifest and does not hold it. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- required="false", so a device without a camera can still install this: the Photo Picker
+         needs none, and the gate below is what keeps the camera half out of the way. Without this
+         line Play reads the permission above as "a camera is required" and hides the app from
+         everything that has not got one. -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application>
+
+        <!-- A camera app cannot write to a File; it needs a content:// URI it has been granted
+             access to. ${applicationId} rather than a literal, so the dev, staging and prod
+             builds — whose ids differ by a suffix — do not fight over one authority when they are
+             installed side by side. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.profile.captures"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/profile_file_paths" />
+        </provider>
+    </application>
+
+</manifest>

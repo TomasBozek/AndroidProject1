@@ -44,6 +44,8 @@ import com.example.androidproject1.feature.gallery.presentation.GalleryDestinati
 import com.example.androidproject1.feature.gallery.presentation.galleryDestination
 import com.example.androidproject1.feature.gallery.presentation.galleryDetailDestination
 import com.example.androidproject1.feature.home.presentation.homeDestination
+import com.example.androidproject1.feature.profile.presentation.ProfileDestination
+import com.example.androidproject1.feature.profile.presentation.profileDestination
 import com.example.androidproject1.feature.settings.presentation.settingsDestination
 import com.example.androidproject1.feature.settings.presentation.settingsPermissionsDestination
 import kotlinx.coroutines.flow.map
@@ -268,8 +270,10 @@ private fun EntryProviderScope<NavKey>.catalogEntries(
 private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<NavKey>) {
     settingsDestination(
         backStack = backStack,
+        navigateToProfile = { backStack.add(ProfileDestination) },
         navigateToComponents = { backStack.add(GalleryDestination) },
     )
     settingsPermissionsDestination(backStack = backStack)
     galleryDestination(backStack = backStack)
+    profileDestination(backStack = backStack)
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Only the one directory the camera writes into. A provider that shares more than it has to
+         is how a file this app owns ends up readable by an app that asked nicely. -->
+    <cache-path name="profile_captures" path="captures/" />
+</paths>

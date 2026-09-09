@@ -11,6 +11,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
+import com.example.androidproject1.core.ui.component.AppAvatarPhoto
 import com.example.androidproject1.core.ui.component.AppBadge
 import com.example.androidproject1.core.ui.component.AppBottomActionBar
 import com.example.androidproject1.core.ui.component.AppBottomNav
@@ -280,6 +281,16 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Two names" to { AppAvatar("Jana Nováková") },
         "Another person" to { AppAvatar("Petr Svoboda") },
         "One name" to { AppAvatar("Root") },
+    ),
+    entry(
+        "avatarPhoto",
+        "AppAvatarPhoto",
+        "Status",
+        "The photo if there is one, the initials if there is not. One rule, in one place.",
+        "No photo yet" to { AppAvatarPhoto("Jana Nováková") },
+        "Photo unavailable" to {
+            AppAvatarPhoto("Jana Nováková", photo = "https://example.invalid/avatar.jpg")
+        },
     ),
     entry(
         "spinner",

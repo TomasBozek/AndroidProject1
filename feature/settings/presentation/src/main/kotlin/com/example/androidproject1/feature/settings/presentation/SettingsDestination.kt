@@ -11,11 +11,13 @@ import org.koin.androidx.compose.koinViewModel
 data object SettingsDestination : NavKey
 
 /**
+ * @param navigateToProfile where the profile screen lives.
  * @param navigateToComponents where the gallery lives. A presentation module never depends on
- *   another feature's presentation, so the jump arrives as a lambda and is wired in `AppNavHost`.
+ *   another feature's presentation, so both jumps arrive as lambdas and are wired in `AppNavHost`.
  */
 fun EntryProviderScope<NavKey>.settingsDestination(
     backStack: NavBackStack<NavKey>,
+    navigateToProfile: () -> Unit,
     navigateToComponents: () -> Unit,
 ) {
     entry<SettingsDestination> {
@@ -25,6 +27,7 @@ fun EntryProviderScope<NavKey>.settingsDestination(
             viewModel = viewModel,
             onNavigation = { navigation ->
                 when (navigation) {
+                    SettingsNavigation.Profile -> navigateToProfile()
                     SettingsNavigation.Permissions -> backStack.add(SettingsPermissionsDestination)
                     SettingsNavigation.Components -> navigateToComponents()
                 }

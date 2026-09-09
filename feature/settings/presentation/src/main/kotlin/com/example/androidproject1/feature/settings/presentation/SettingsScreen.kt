@@ -43,6 +43,15 @@ fun SettingsScreen(
             )
 
             AppButton(
+                label = stringResource(R.string.settings_profile),
+                onClick = { onEvent(SettingsEvent.ProfileClicked) },
+                kind = ButtonKind.Outline,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("settings_profileButton"),
+            )
+
+            AppButton(
                 label = stringResource(R.string.settings_components),
                 onClick = { onEvent(SettingsEvent.ComponentsClicked) },
                 kind = ButtonKind.Outline,
