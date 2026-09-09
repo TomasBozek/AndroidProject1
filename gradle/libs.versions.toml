@@ -21,6 +21,8 @@ datastore = "1.2.1"
 
 turbine = "1.2.1"
 robolectric = "4.16"
+roborazzi = "1.74.0"
+previewScanner = "0.9.3"
 
 # KSP decoupled from the Kotlin version at 2.3.0 — the last coupled release was 2.2.21-2.0.5 —
 # so this no longer has to be bumped in lockstep with Kotlin.
@@ -101,6 +103,18 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+
+# Screenshot goldens. Test-only: neither reaches a release build, which is why D28 kept them
+# despite each being a single-maintainer project.
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
+# The bridge between the two: it applies a @Preview's device, uiMode and fontScale to
+# Robolectric before capturing, which is what makes "Dark" render dark rather than five
+# identical copies of the light one.
+roborazzi-preview-scanner = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose-preview-scanner-support", version.ref = "roborazzi" }
+# Finds the @Preview functions that already exist rather than making us write them twice.
+preview-scanner = { group = "io.github.sergio-sastre.ComposablePreviewScanner", name = "android", version.ref = "previewScanner" }
 koin-test = { group = "io.insert-koin", name = "koin-test" }
 koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4" }
 koin-android-test = { group = "io.insert-koin", name = "koin-android-test" }
@@ -146,6 +160,7 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 
 # The convention plugins in build-logic/, an included build — hence "unspecified", which is what
 # Gradle calls a version resolved by composite-build substitution rather than from a repository.

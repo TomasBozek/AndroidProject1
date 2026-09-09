@@ -140,43 +140,6 @@ nothing here knows a feature. Nothing is open: the track closed in round one.
 
 Owns `core/ui` and `feature/gallery`.
 
-**ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · started, parked on `ui.2-roborazzi`
-Why: 47 components × three variants and sixteen screens sit unasserted; a padding change is
-found by eye or not at all.
-Done: Roborazzi 1.74.0 and `ComposablePreviewScanner` 0.9.3 applied through
-`convention.android.library.compose`; the scanner records every `@ComponentPreview` and
-`@ScreenPreview` without duplicating them; goldens committed; `verifyRoborazziDebug` in the CI
-build job.
-Verify: break one padding value on purpose and the verify task fails on that image only; restore.
-**Landed so far:** the toolchain half passes, re-checked on the D34 layout on 2026-09-09 — both
-dependencies resolve and the plugin applies on AGP 9.4 / Gradle 9.6 / JDK 25.
-**The `private` diagnosis was wrong.** `ComposablePreviewScanner` 0.9.3 already calls ClassGraph's
-`ignoreMethodVisibility()` and `setAccessible(true)`; what the chain was missing is one call.
-Adding `.includePrivatePreviews()` after `scanPackageTrees(...)` returned all 126 of `:core:ui`'s
-previews when it was measured — 42 components × light, dark and 1.5×, before `ui.7` added five
-more — and the parameterised runner then produces a test per golden. So **nothing becomes `internal`, and this item never touches `core/ui`'s
-previews**; the wiring on `ui.2-roborazzi` applies unchanged on the new layout.
-What is left is a decision the Done line does not settle: **where the test lives.** A module's
-test only scans its own classpath, so `:core:ui`'s copy covers the components and not one
-screen. Either a copy per `presentation` module — cloned from `feature/template`, so every
-generated feature gets one — or a single copy in `:app`, which sees every module through
-`:core:di` but runs three times over the flavors. Then ~300 goldens to commit, and one
-`verifyRoborazziDebug` step in the CI build job.
-
-
-**ui.10 A text field says its own name** · S · `stable`
-Why: `AppTextField` draws its `label` as a plain `Text` above a `BasicTextField`, and nothing ties
-the two together. The input node therefore reaches the accessibility tree with an empty `text`,
-`content-desc` and `hint`, and `uiautomator` marks it `NAF="true"` — its own "not accessibility
-friendly" verdict. `qa.5` read it off the device on Login's email and password fields; SignUp's
-three, Profile's two and the search field are the same component and the same result. It is not
-only a screen-reader problem: an unnamed node is one a test can only reach by position.
-Done: the input carries its label as its accessible name, whatever the design system decides that
-means for `placeholder`, `helperText` and `errorText`; a component test asserting the name; the
-gallery entry unchanged.
-Verify: `uiautomator dump` on Login shows no `NAF="true"`, and the two fields come back with a
-name.
-
 ### Track app · shell and sample features
 
 Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the app shell; `feat.*`

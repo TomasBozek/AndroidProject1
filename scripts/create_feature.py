@@ -54,8 +54,11 @@ TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro"}
 # for the features only a dev or staging build registers (D16); a new feature is not one.
 KOIN_MODULE_LIST = "appModules"
 
-# Generated or IDE-local directories that must never be cloned into a new module.
-EXCLUDED_DIRS = {"build", ".gradle", ".idea", ".cxx"}
+# Generated or IDE-local directories that must never be cloned into a new module. `screenshots`
+# holds the template's own Roborazzi goldens (ui.2): the generated feature's previews are named
+# after it, so the clone would carry a set of images that no test of its own ever looks at.
+# `recordRoborazziDebug` writes the right ones.
+EXCLUDED_DIRS = {"build", ".gradle", ".idea", ".cxx", "screenshots"}
 EXCLUDED_FILES = {".DS_Store"}
 
 # The template feature holds two screens: the plain one and the `TemplateArgs` variant that

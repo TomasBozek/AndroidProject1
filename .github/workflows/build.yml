@@ -73,6 +73,13 @@ jobs:
       - name: Build, lint and test
         run: ./gradlew build
 
+      # The goldens. Separate from `build` because the capture only happens when this task asks
+      # for it — an ordinary `test` run leaves Roborazzi switched off, so a screenshot regression
+      # would otherwise pass here and be found by eye. A failure writes the actual image and the
+      # diff under build/outputs/roborazzi, which the upload step below collects.
+      - name: Verify the screenshots
+        run: ./gradlew verifyRoborazziDebug
+
       # A signal, not a gate: no threshold, and it never fails the job. `build` has already run
       # the tests, so this only assembles the report.
       - name: Coverage report
@@ -88,6 +95,7 @@ jobs:
             **/build/reports/lint-results-*.html
             **/build/reports/ktlint/**
             **/build/reports/tests/**
+            **/build/outputs/roborazzi/**
             build/reports/kover/**
           if-no-files-found: ignore
 

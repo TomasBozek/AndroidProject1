@@ -242,6 +242,37 @@ Two things it has to say out loud, both of which cost a comment in the file:
 `convention.feature.presentation` carries the dependencies, so a new screen's test needs no
 build-file edit.
 
+### Screenshots
+
+A third test, but one per **module** rather than one per screen: `PreviewScreenshotTest` records a
+golden image for every `@ScreenPreview` and `@ComponentPreview` on its own classpath and fails when
+one of them changes. It is in every `presentation` module and in `:core:ui`, and
+`create_feature.py` clones `feature/template`'s copy, so a generated feature is covered the day it
+is generated.
+
+```bash
+./gradlew recordRoborazziDebug   # write the goldens after a deliberate change
+./gradlew verifyRoborazziDebug   # check them; the CI build job runs this
+```
+
+**The previews are the list.** Nothing is registered anywhere: adding a component with a
+`@ComponentPreview` adds three goldens, adding a screen adds five, and deleting either leaves its
+images for `git status` to point at. The images live in each module's `src/test/screenshots/` and
+are committed — which is the one thing to be careful about, because **a golden nobody looked at is
+a test that passes forever**. Open what `record` wrote before committing it; a blank or clipped
+image asserts the blankness just as firmly as a correct one asserts the layout.
+
+Two details the test file explains and that a new one must keep:
+
+- **The clock is advanced by hand, one frame.** A screen holding a `CircularProgressIndicator`
+  never reaches idle, and a capture that waits for idle waits forever.
+- **`manualAdvance` is added to the preview's own options, not to fresh ones.** Those options carry
+  the `@Preview`'s device, `uiMode` and `fontScale`; replace them and a screen's five variants come
+  out as five identical files that assert nothing.
+
+An ordinary `./gradlew test` leaves Roborazzi switched off, so the class costs the build nothing —
+which is also why CI needs the separate `verifyRoborazziDebug` step.
+
 ### Test identifiers
 
 One id serves the screen reader, the test and the design registry, so there is one to keep in sync
@@ -671,8 +702,11 @@ compiling; keep it that way.
 ### Before you call the work done
 
 ```bash
-python3 scripts/doctor.py && ./gradlew ktlintCheck && ./gradlew build
+python3 scripts/doctor.py && ./gradlew ktlintCheck && ./gradlew build && ./gradlew verifyRoborazziDebug
 ```
+
+The last one is the goldens, which `build` does not check — see *Screenshots*. It is the slow
+step; run it once at the end rather than after every edit.
 
 Add `python3 scripts/test_scripts.py` if you touched anything under `scripts/`.
 
@@ -859,6 +893,15 @@ alongside `basePackage`.
 ```bash
 ./gradlew lint
 ```
+
+```bash
+./gradlew verifyRoborazziDebug
+```
+
+The screenshot goldens, and the one check `./gradlew build` does not make — an ordinary `test` run
+leaves Roborazzi switched off. CI's build job runs it, so a padding change that was not meant is
+found on the pull request; `recordRoborazziDebug` is what you run once you meant it. See
+*Screenshots* above.
 
 ```bash
 python3 scripts/doctor.py && python3 scripts/test_scripts.py
