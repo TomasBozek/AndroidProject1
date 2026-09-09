@@ -1,5 +1,6 @@
 package com.example.androidproject1
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,6 +39,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // `coldStart = true`: the app was launched by this link, so there is no back stack
+        // behind the product and one has to be synthesised or Up closes the app.
+        viewModel.onDeepLink(intent.deepLinkUri(), coldStart = true)
+
         setContent {
             val theme by viewModel.theme.collectAsStateWithLifecycle()
 
@@ -62,12 +67,44 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Nothing to display until the session has named a flow, or a saved stack has come
-                // back. The splash screen is what the user sees until then.
+                // Applied after the flow has put its root on the stack, and only in the
+                // signed-in one: a link followed while signed out lands on Login, and the
+                // pending keys wait rather than being dropped.
+                val deepLink by viewModel.deepLink.collectAsStateWithLifecycle()
+                LaunchedEffect(deepLink, session) {
+                    if (deepLink.isNotEmpty() && session == SessionState.SignedIn) {
+                        backStack.applyDeepLink(deepLink)
+                        viewModel.onDeepLinkApplied()
+                    }
+                }
+
+                // Nothing to display until the session has named a flow, or a saved stack has
+                // come back. The splash screen is what the user sees until then.
                 if (backStack.isNotEmpty()) AppNavHost(backStack = backStack)
             }
         }
     }
+
+    /**
+     * A link that arrived while the app was already running.
+     *
+     * `coldStart = false`: there is a back stack, and the user's place in it is theirs. The
+     * product is pushed onto whatever tab they were on, so Up returns them to it.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        viewModel.onDeepLink(intent.deepLinkUri(), coldStart = false)
+    }
+
+    /**
+     * The link this intent carries, if it is one of ours.
+     *
+     * The scheme is checked here, against the same string resource the manifest's filter uses,
+     * so there is one place that says what the app's scheme is. `DeepLinks` then parses a
+     * plain string and stays an ordinary JVM function.
+     */
+    private fun Intent.deepLinkUri(): String? =
+        data?.takeIf { it.scheme == getString(R.string.deep_link_scheme) }?.toString()
 }
 
 /**
@@ -100,4 +137,18 @@ private fun SessionState.rootKey(): NavKey? = when (this) {
 private fun NavBackStack<NavKey>.switchTo(start: NavKey) {
     clear()
     add(start)
+}
+
+/**
+ * Puts a link's keys on the stack.
+ *
+ * A cold start hands over the whole path and replaces what is there — which is the flow's root
+ * and nothing else. A warm one hands over the target alone and it is pushed, so the user's
+ * place is kept and Up returns them to it. Either way the last key is not added twice when it
+ * is already on top, which is what a second tap on the same link would otherwise do.
+ */
+private fun NavBackStack<NavKey>.applyDeepLink(keys: List<NavKey>) {
+    if (keys.isEmpty() || lastOrNull() == keys.last()) return
+    if (keys.size > 1) clear()
+    addAll(keys)
 }

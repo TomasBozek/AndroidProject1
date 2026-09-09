@@ -6,6 +6,11 @@ import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.Session
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
+import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
+import com.example.androidproject1.feature.catalog.presentation.CategoriesDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
+import com.example.androidproject1.feature.home.presentation.HomeDestination
 import com.example.androidproject1.feature.onboarding.domain.test.FakeOnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.test.FakeThemeRepository
@@ -28,6 +33,7 @@ class MainViewModelTest {
 
     private val logger = FakeLogger()
     private val authService = FakeAuthService()
+    private val catalogRepository = FakeCatalogRepository()
     private val onboardingRepository = FakeOnboardingRepository()
     private val themeRepository = FakeThemeRepository()
     private val errorTracker = FakeErrorTracker()
@@ -35,6 +41,7 @@ class MainViewModelTest {
     private fun viewModel() = MainViewModel(
         logger = logger,
         authService = authService,
+        catalogRepository = catalogRepository,
         onboardingRepository = onboardingRepository,
         themeRepository = themeRepository,
         errorTracker = errorTracker,
@@ -196,6 +203,71 @@ class MainViewModelTest {
 
         assertEquals(ThemePreference.DEFAULT, viewModel().theme.value)
         assertTrue(logger.warnings.isNotEmpty())
+    }
+
+    @Test
+    fun `a cold-start deep link synthesises the path to the product`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onDeepLink("androidproject1://product/coffee", coldStart = true)
+        advanceUntilIdle()
+
+        // Home, Categories, that product's category, then the product — so Up walks back
+        // through the app rather than closing it.
+        assertEquals(
+            listOf(
+                HomeDestination,
+                CategoriesDestination,
+                ProductsDestination(categoryId = "beverages", categoryName = "Beverages"),
+                ProductDetailDestination(productId = "coffee"),
+            ),
+            viewModel.deepLink.value,
+        )
+    }
+
+    @Test
+    fun `a warm-start deep link pushes only the product`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onDeepLink("androidproject1://product/coffee", coldStart = false)
+        advanceUntilIdle()
+
+        // The user's place in the stack is theirs; the product goes on top of it.
+        assertEquals(listOf(ProductDetailDestination(productId = "coffee")), viewModel.deepLink.value)
+    }
+
+    @Test
+    fun `a product not in the cache still opens, without a list it cannot name`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onDeepLink("androidproject1://product/unknown", coldStart = true)
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf(HomeDestination, CategoriesDestination, ProductDetailDestination("unknown")),
+            viewModel.deepLink.value,
+        )
+    }
+
+    @Test
+    fun `a link that is not one of ours leaves the stack alone`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onDeepLink("androidproject1://order/1", coldStart = true)
+        advanceUntilIdle()
+
+        assertTrue(viewModel.deepLink.value.isEmpty())
+    }
+
+    @Test
+    fun `an applied deep link is not applied twice`() = runTest {
+        val viewModel = viewModel()
+        viewModel.onDeepLink("androidproject1://product/coffee", coldStart = false)
+        advanceUntilIdle()
+
+        viewModel.onDeepLinkApplied()
+
+        assertTrue(viewModel.deepLink.value.isEmpty())
     }
 
     @Test

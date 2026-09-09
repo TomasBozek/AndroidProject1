@@ -172,14 +172,6 @@ Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the ap
 is one feature per item, each proving one capability the architecture has and no sample uses.
 Each feature is a worktree of its own — they meet only in the registration files.
 
-**shell.1 Deep links** · M · `device`
-Why: getting the back stack right on a cold-start deep link is the part people get wrong.
-Done: a `VIEW` intent filter on `MainActivity` for `<app>://product/{id}`, the scheme named after
-the app; a `DeepLinks.kt` in `:app` parsing a URI into a `NavKey`; a cold start builds Home →
-Categories → Products → Detail so Up walks back; a warm start pushes onto the current tab.
-Verify: `adb shell am start -d <app>://product/croissant` cold and warm, both land on the
-product with Up working; a `MainViewModelTest` case for the synthesised stack.
-
 **shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
 Why: the channel exists and nothing posts to it.
 Done: the debug menu posts a notification whose `PendingIntent` carries a product deep link.

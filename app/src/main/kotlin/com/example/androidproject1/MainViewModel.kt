@@ -2,10 +2,16 @@ package com.example.androidproject1
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.runtime.NavKey
 import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.domain.AuthService
+import com.example.androidproject1.feature.catalog.domain.CatalogRepository
+import com.example.androidproject1.feature.catalog.presentation.CategoriesDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
+import com.example.androidproject1.feature.home.presentation.HomeDestination
 import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.ThemeRepository
@@ -14,6 +20,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -29,6 +36,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     logger: Logger,
     private val authService: AuthService,
+    private val catalogRepository: CatalogRepository,
     private val onboardingRepository: OnboardingRepository,
     private val themeRepository: ThemeRepository,
     private val errorTracker: ErrorTracker,
@@ -46,6 +54,18 @@ class MainViewModel(
     val sessionState: StateFlow<SessionState> =
         combine(signedIn, onboardingSeen, ::flowFor)
             .stateIn(viewModelScope, SharingStarted.Eagerly, SessionState.Unknown)
+
+    private val mutableDeepLink = MutableStateFlow<List<NavKey>>(emptyList())
+
+    /**
+     * The keys a link asked for, waiting to be applied to the back stack.
+     *
+     * Empty when there is nothing pending. `MainActivity` applies it and calls
+     * [onDeepLinkApplied] — a one-shot handed over as state rather than as an event, because a
+     * link that arrives before the flow is known has to survive until there is a stack to put
+     * it on.
+     */
+    val deepLink: StateFlow<List<NavKey>> = mutableDeepLink.asStateFlow()
 
     private val mutableTheme = MutableStateFlow<ThemePreference?>(null)
 
@@ -66,6 +86,50 @@ class MainViewModel(
 
     // A member function, not an `init` body: a constructor parameter shadows the property of the
     // same name inside `init`, so `logger` there would be the untagged one.
+    /**
+     * Turns an incoming link into the keys it opens onto.
+     *
+     * @param coldStart whether the app was launched by this link. On a cold start the whole
+     * path is synthesised — Home, Categories, that product's category, then the product — so
+     * Up walks back through the app instead of closing it. On a warm one only the product is
+     * pushed, onto whatever tab the user was already on.
+     */
+    fun onDeepLink(uri: String?, coldStart: Boolean) {
+        val link = DeepLinks.parse(uri) ?: return
+        viewModelScope.launch {
+            mutableDeepLink.value = when (link) {
+                is DeepLink.Product -> productKeys(link.productId, coldStart)
+            }
+        }
+    }
+
+    /** Called once the keys are on the back stack, so a rotation does not apply them again. */
+    fun onDeepLinkApplied() {
+        mutableDeepLink.value = emptyList()
+    }
+
+    private suspend fun productKeys(productId: String, coldStart: Boolean): List<NavKey> {
+        val target = ProductDetailDestination(productId = productId)
+        if (!coldStart) return listOf(target)
+
+        // The link names a product, not a path, so the path is looked up. A product that is not
+        // in the cache still opens — its own screen loads it — but Up then goes to Categories
+        // rather than to a list that cannot be named.
+        val product = (catalogRepository.getProduct(productId) as? Outcome.Success)?.data
+        val category = product?.let { found ->
+            (catalogRepository.observeCategories().first() as? Outcome.Success)
+                ?.data
+                ?.firstOrNull { it.id == found.categoryId }
+        }
+
+        return listOfNotNull(
+            HomeDestination,
+            CategoriesDestination,
+            category?.let { ProductsDestination(categoryId = it.id, categoryName = it.name) },
+            target,
+        )
+    }
+
     private fun observeSession() {
         viewModelScope.launch {
             authService.observeSession().collect { outcome ->
