@@ -165,6 +165,8 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **ui.9 Contrast is asserted** · S · `stable` — a JVM test over every
   text-on-surface and border-on-surface pair in both palettes, the design's check five
 
+- [ ] **ui.10 A text field says its own name** · S · `stable` — found by `qa.5`
+
 ### app · shell and sample features
 
 - [x] (2026-09-09) **shell.1 Deep links** · M · `device` — `<app>://product/{id}` cold and
@@ -183,12 +185,18 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **feat.8 A screen test for every screen** · M · `stable` — the seven screens
   without one, then `doctor.py` requires it
 - [ ] **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
+- [ ] **shell.7 A deep link to an uncached product opens on "no longer available"** · M · `stable`
+  — found by `qa.5`
+- [ ] **shell.8 Every screen that is not a root carries an Up control** · S · `stable` — found by
+  `qa.5`
 
 ### quality · tests, CI, release
 
 - [x] (2026-09-09) **qa.4 Generator output compiles in CI** · M · `stable` — on the weekly job
-- [ ] **qa.5 Hardware pass** · M · `device` · needs shell.1 — Keystore, startup benchmark,
-  predictive back, TalkBack
+- [x] (2026-09-10) **qa.5 Hardware pass** · M · `device` D21 — on a Pixel 8 Pro, Android 17: the
+  real Keystore, predictive back on all 16 screens, "don't keep activities" and process death four
+  deep, cold and warm deep links. Two defects fixed in the item, five raised as `ui.10`, `shell.7`,
+  `shell.8`, `qa.15`, `qa.16`; TalkBack checked structurally, not run
 - [x] (2026-09-09) **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint
   enforces it
 - [x] (2026-09-09) **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
@@ -202,5 +210,9 @@ version of every open item is in the detail file under the same id.
   the template and generators cloning that shape, two `doctor.py` checks holding it
 - [x] (2026-09-09) **qa.14 Maestro ids exist in the code** · S · `stable` — a `doctor.py` check
   that every `id:` in a flow is a tag in the code, the design's check four
+- [ ] **qa.15 The baseline profile never reaches the shipping build** · M · `stable` — found by
+  `qa.5`
+- [ ] **qa.16 The tabs have no test ids, and every flow taps them by English text** · S · `stable`
+  — found by `qa.5`; breaks under `feat.9`
 
 Backlog, lessons and the Plan 3 roll call are in [PLAN-DETAIL.md](PLAN-DETAIL.md).

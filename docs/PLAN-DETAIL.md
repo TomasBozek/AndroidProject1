@@ -164,6 +164,19 @@ generated feature gets one — or a single copy in `:app`, which sees every modu
 `verifyRoborazziDebug` step in the CI build job.
 
 
+**ui.10 A text field says its own name** · S · `stable`
+Why: `AppTextField` draws its `label` as a plain `Text` above a `BasicTextField`, and nothing ties
+the two together. The input node therefore reaches the accessibility tree with an empty `text`,
+`content-desc` and `hint`, and `uiautomator` marks it `NAF="true"` — its own "not accessibility
+friendly" verdict. `qa.5` read it off the device on Login's email and password fields; SignUp's
+three, Profile's two and the search field are the same component and the same result. It is not
+only a screen-reader problem: an unnamed node is one a test can only reach by position.
+Done: the input carries its label as its accessible name, whatever the design system decides that
+means for `placeholder`, `helperText` and `errorText`; a component test asserting the name; the
+gallery entry unchanged.
+Verify: `uiautomator dump` on Login shows no `NAF="true"`, and the two fields come back with a
+name.
+
 ### Track app · shell and sample features
 
 Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the app shell; `feat.*`
@@ -180,17 +193,63 @@ preserved.
 Verify: every `<string>` and `<plurals>` name in `values/` has a `values-cs/` counterpart; the
 cart's "N items" reads correctly at 1, 2 and 5 under `cs`; no screen clips at Czech's longer words.
 
+**shell.7 A deep link to an uncached product opens on "no longer available"** · M · `stable`
+Why: `DefaultCatalogRepository.getProduct` reads the local table only — "detail is always reached
+from a list, so the product is already in the table", which `shell.1` stopped being true. `qa.5`
+fired `<app>://product/croissant` at a fresh install and got `ContentState.Empty` with "This
+product is no longer available." and one way out. `MainViewModel.productKeys` says the opposite in
+a comment — "a product that is not in the cache still opens — its own screen loads it" — so the
+link's fallback path was written for behaviour the detail screen does not have. Not a small fix:
+`RemoteCatalogDataSource` has `getCategories` and `getProducts(categoryId)` and no way to ask for
+one product, so this is a data-source decision before it is a repository change.
+Done: a cold link to a product nobody has browsed opens that product.
+Verify: `pm clear`, then `am start -a android.intent.action.VIEW -d "<app>://product/croissant"`
+shows the product; Up still walks Home → Categories → Products → the product.
+
+**shell.8 Every screen that is not a root carries an Up control** · S · `stable`
+Why: `AppTopBar` takes `onNavigateUp` and four non-root screens do not pass it — `ProductsScreen`,
+`ProductPickerScreen` and `GalleryScreen` have a bar with no arrow, and `ProductDetailScreen` has
+no bar at all. `qa.5` saw it on the device: the back gesture is the only way out of a product, and
+the deep link's error state leaves a "Go back" button as the single affordance on the screen.
+`ProductSearchScreen`, `DevMenuScreen`, `GalleryDetailScreen`, `ProfileScreen` and
+`SettingsPermissionsScreen` already do it, so this is four screens catching up with the other five
+rather than a new pattern.
+Verify: every screen whose route is not a tab root and not a flow root shows the arrow; the four
+screen tests assert it emits the navigation event.
+
 ### Track quality · tests, CI, release
 
 Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `baselineprofile/`.
 
-**qa.5 Hardware pass** · M · `device` D21 · needs shell.1
-Why: the Keystore path, the startup benchmark and predictive back have never run outside an
-emulator, and the emulator ANRs.
-Done: on a physical device — session round trip through the real Keystore; `StartupBenchmark`
-with and without the profile, numbers recorded here; predictive back on every screen; "Don't keep
-activities" four screens deep; a cold deep link; TalkBack through Login and Catalog.
-Verify: the numbers, and one line per check here.
+**qa.15 The baseline profile never reaches the shipping build** · M · `stable`
+Why: `qa.5` went to run `StartupBenchmark` and found the profile it measures is worth nothing.
+Two causes, both verified. The variant the generator records against, `nonMinifiedRelease`, is
+**minified**: `./gradlew :app:assembleDevNonMinifiedRelease --dry-run` runs
+`:app:minifyDevNonMinifiedReleaseWithR8`, because the baselineprofile plugin opts out with the
+legacy `isMinifyEnabled` flag and `AndroidApplicationConventionPlugin` turns minification on with
+AGP 9's `optimization { enable = true }`, which supersedes it. So the committed
+`app/src/devRelease/generated/baselineProfiles/baseline-prof.txt` is 6 164 lines of R8-obfuscated
+names — `La0;`, `SPLa20;->A0()V` — of which 43 mention a package a reader would recognise, and
+those names stop matching the moment the mapping moves. And the profile is generated into the
+`devRelease` source set while CI ships `assembleProdRelease`; `:app` declares no
+`baselineProfile { mergeIntoMain = true }`, so `prodRelease` does not see it at all.
+Done: `nonMinifiedRelease` genuinely not minified, so the recorded names are real; the profile in
+a source set the shipping variant reads; `StartupBenchmark`'s two numbers far enough apart to be
+worth quoting.
+Verify: the committed profile reads as ordinary class names; `startupWithProfile` beats
+`startupWithoutProfile` by a margin larger than the run-to-run spread; the profile is present in
+a `prodRelease` APK.
+
+**qa.16 The tabs have no test ids, and every flow taps them by English text** · S · `stable`
+Why: `AppNavHost`'s `NavigationSuiteScaffold` items carry no `Modifier.testTag`, so the four tabs
+are the one part of the app a test cannot address by id. All five Maestro flows therefore say
+`tapOn: "Catalog"`, `"Cart"`, `"Settings"`, `"Home"` — which `CLAUDE.md` forbids in as many words,
+and which `feat.9` breaks the day the app runs under `cs`. `qa.14` cannot catch it: it checks that
+every `id:` a flow drives exists, not that a flow drives ids at all.
+Done: a `testTag` per tab, named by the convention — `tabs_homeTab` and friends; the five flows
+tapping those ids; a `doctor.py` check that a Maestro flow's `tapOn` names an id rather than text.
+Verify: `grep -c 'tapOn: "' .maestro/*.yaml` is 0; the flows pass with the device locale set to
+`cs`.
 
 ## Backlog
 
