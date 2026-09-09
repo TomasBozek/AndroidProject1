@@ -156,3 +156,29 @@ jobs:
             gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk \
               --title "$GITHUB_REF_NAME" --generate-notes
           fi
+
+  generators:
+    # `test_scripts.py` checks the text a generator wrote; this compiles it. Text can be correct
+    # and still not compile — an import the template stopped needing, a `:core:ui` signature that
+    # moved — and nobody finds out until they run a generator on a Monday and get a red project.
+    # Weekly rather than per-pull-request: it is minutes of Gradle to catch a rare regression, and
+    # the ordinary build already compiles `feature/template` itself.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Must match gradle/gradle-daemon-jvm.properties, which pins the daemon's JDK.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile what the generators write
+        run: python3 scripts/test_scripts.py --with-gradle

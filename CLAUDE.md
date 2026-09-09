@@ -787,12 +787,20 @@ gain.
 
 ```bash
 python3 scripts/test_scripts.py
+python3 scripts/test_scripts.py --with-gradle
 ```
 
 Smoke tests for all of the above, on `unittest` so there is nothing to install. Each test copies the
 repo into a temp directory and runs the scripts there as subprocesses; the delete-feature test asserts
 the five registration files come back byte-identical. They check generated text, not that it compiles —
 `./gradlew build` is still the real gate.
+
+`--with-gradle` adds the one test that *does* compile what a generator wrote: it generates a feature
+in the temp copy and assembles its presentation module. Generated text can be correct and still not
+compile — an import the template stopped needing, a `:core:ui` signature that moved — and the ordinary
+build proves only that `feature/template` itself compiles, never that rewriting it works. It costs
+minutes rather than seconds, so it is off by default and the `generators` CI job runs it on the weekly
+schedule only.
 
 Renaming caveat: `create_feature.py` / `create_screen.py` use targeted replacements
 (`feature.template`, `feature/template`, `Template`, `template` followed by an uppercase letter, and

@@ -204,7 +204,7 @@ version of every open item is in the detail file under the same id.
 
 ### quality · tests, CI, release
 
-- [ ] **qa.4 Generator output compiles in CI** · M · `stable` — on the weekly job
+- [x] (2026-09-09) **qa.4 Generator output compiles in CI** · M · `stable` — on the weekly job
 - [ ] **qa.5 Hardware pass** · M · `device` · needs shell.1 — Keystore, startup benchmark,
   predictive back, TalkBack
 - [x] (2026-09-09) **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint

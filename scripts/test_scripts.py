@@ -4,10 +4,14 @@ Smoke tests for the scaffolding scripts.
 
     python3 scripts/test_scripts.py
     python3 scripts/test_scripts.py -v ScaffoldingTest.test_delete_feature_restores_every_registration
+    python3 scripts/test_scripts.py --with-gradle
 
 Each test copies the repository's sources into a temporary directory and runs the scripts there as
 subprocesses, so nothing touches the working tree. They check the registrations and the generated
 text — not that the result compiles; `./gradlew build` is still the real gate.
+
+`--with-gradle` adds the one test that does compile what a generator wrote. It costs minutes
+rather than seconds, so it is off by default and CI runs it on the weekly schedule only.
 
 Plain `unittest`, so there is no dependency to install.
 """
@@ -25,6 +29,12 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BASE_PATH = "com/example/androidproject1"
+
+# Read here rather than in `__main__`, because `skipUnless` below is evaluated when the class is
+# defined — which happens on import, before `__main__` would have had a chance to look at argv.
+WITH_GRADLE = "--with-gradle" in sys.argv
+if WITH_GRADLE:
+    sys.argv.remove("--with-gradle")
 
 # Built rather than written out: init_project.py rewrites the literal forms, so spelling them here
 # would leave this file asserting against whatever the project was renamed to.
@@ -791,6 +801,49 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("sign-in.yaml", result.stdout)
         self.assertIn("login_emailBox", result.stdout)
+
+    @unittest.skipUnless(
+        WITH_GRADLE,
+        "compiles a generated feature; pass --with-gradle (minutes, not seconds)",
+    )
+    def test_generated_feature_compiles(self) -> None:
+        """
+        The half every other test here cannot reach.
+
+        The rest of this file checks the *text* a generator wrote — the registrations, the names,
+        the strings. Text can be perfectly correct and still not compile: an import the template
+        stopped needing, a signature that moved in `:core:ui`, an `R` reference that a sub-package
+        broke. `feature/template` is compiled by the ordinary build, so it is the *rewriting* that
+        is unproven, and nothing notices until someone runs a generator and gets a red project.
+
+        Compiles the presentation module, which is where the generated Compose, the `R` references
+        and the navigation wiring all live, and so where a template change breaks first.
+        """
+        self.run_script("create_feature.py", "userProfile")
+
+        result = subprocess.run(
+            [
+                "./gradlew",
+                ":feature:userprofile:presentation:assembleDebug",
+                "--console=plain",
+                # The temp copy is thrown away, so a stored entry would be written for a project
+                # directory that is about to stop existing.
+                "--no-configuration-cache",
+            ],
+            cwd=self.repo,
+            capture_output=True,
+            text=True,
+            env=hermetic_env(),
+        )
+        if result.returncode != 0:
+            # The compiler's own message, not "exit 1" — this test failing on the weekly job is
+            # someone's Monday, and the error should be in the log rather than reproducible only
+            # by re-running it locally.
+            self.fail(
+                "a generated feature does not compile:\n"
+                f"{result.stdout[-6000:]}\n{result.stderr[-4000:]}"
+            )
+
 
 
 if __name__ == "__main__":

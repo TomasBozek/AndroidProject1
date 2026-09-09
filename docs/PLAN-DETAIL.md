@@ -333,13 +333,6 @@ cart's "N items" reads correctly at 1, 2 and 5 under `cs`; no screen clips at Cz
 
 Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `baselineprofile/`.
 
-**qa.4 Generator output compiles in CI** · M · `stable`
-Why: `test_scripts.py` checks text; a template change that breaks generated code is found by the
-next user.
-Done: `test_scripts.py --with-gradle` generates a feature in the temp copy and compiles its
-presentation module; run on the weekly schedule job only.
-Verify: break `feature/template` on purpose and the weekly job fails.
-
 **qa.5 Hardware pass** · M · `device` D21 · needs shell.1
 Why: the Keystore path, the startup benchmark and predictive back have never run outside an
 emulator, and the emulator ANRs.
