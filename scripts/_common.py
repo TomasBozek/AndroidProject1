@@ -51,6 +51,7 @@ NAV_GRAPHS = {
     "catalog": "catalogEntries",
     "settings": "settingsEntries",
     "auth": "authEntries",
+    "onboarding": "onboardingEntries",
 }
 
 STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'

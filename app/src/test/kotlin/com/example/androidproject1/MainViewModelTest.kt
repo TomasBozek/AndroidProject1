@@ -6,6 +6,7 @@ import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.Session
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
+import com.example.androidproject1.feature.onboarding.domain.test.FakeOnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.test.FakeThemeRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,15 +28,26 @@ class MainViewModelTest {
 
     private val logger = FakeLogger()
     private val authService = FakeAuthService()
+    private val onboardingRepository = FakeOnboardingRepository()
     private val themeRepository = FakeThemeRepository()
     private val errorTracker = FakeErrorTracker()
 
     private fun viewModel() = MainViewModel(
         logger = logger,
         authService = authService,
+        onboardingRepository = onboardingRepository,
         themeRepository = themeRepository,
         errorTracker = errorTracker,
     )
+
+    /**
+     * The tour outranks the session, so every case about the session starts past it. A test
+     * that forgets this asserts `Onboarding` and reads as a session bug.
+     */
+    @Before
+    fun onboardingIsDone() {
+        onboardingRepository.seen.value = true
+    }
 
     @Test
     fun `a stored session reads as signed in`() = runTest {
@@ -98,10 +111,47 @@ class MainViewModelTest {
     }
 
     @Test
+    fun `an unfinished tour is the onboarding flow`() = runTest {
+        onboardingRepository.seen.value = false
+
+        assertEquals(SessionState.Onboarding, viewModel().sessionState.value)
+    }
+
+    @Test
+    fun `an unfinished tour outranks a stored session`() = runTest {
+        // A stored session on a device that has not seen the tour means a reinstall over one,
+        // not that the tour was taken.
+        onboardingRepository.seen.value = false
+        authService.session.value = Session(id = "session-1", email = "ada@example.com")
+
+        assertEquals(SessionState.Onboarding, viewModel().sessionState.value)
+    }
+
+    @Test
+    fun `finishing the tour moves the app on without the screen navigating`() = runTest {
+        onboardingRepository.seen.value = false
+        val viewModel = viewModel()
+
+        onboardingRepository.markSeen()
+        advanceUntilIdle()
+
+        assertEquals(SessionState.SignedOut, viewModel.sessionState.value)
+    }
+
+    @Test
+    fun `an unreadable onboarding flag skips the tour rather than repeating it`() = runTest {
+        onboardingRepository.failWith = UnexpectedError(message = "disk gone")
+
+        assertEquals(SessionState.SignedOut, viewModel().sessionState.value)
+        assertTrue(logger.warnings.isNotEmpty())
+    }
+
+    @Test
     fun `the session is unknown until it has been read`() = runTest {
         // Overrides the rule's UnconfinedTestDispatcher for this one case: under that dispatcher
-        // the collection started in `init` has already produced a value by the time the
-        // constructor returns, which is exactly what hides the state under test.
+        // the collections started in `init` have already produced a value by the time the
+        // constructor returns, which is exactly what hides the state under test. Unknown holds
+        // until *both* the session and the first-run flag have answered.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val viewModel = viewModel()
 

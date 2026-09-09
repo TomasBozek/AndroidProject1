@@ -195,7 +195,7 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **shell.3 Theme setting** · M · `stable` — light / dark / system, stored,
   applied at the root
 - [ ] **shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
-- [ ] **shell.5 Onboarding flow** · M · `stable` · needs qa.13 — a third flow beside auth and
+- [x] (2026-09-09) **shell.5 Onboarding flow** · M · `stable` — a third flow beside auth and
   main, behind a stored flag
 - [x] (2026-09-09) **shell.6 Tests for the app shell** · S · `stable` — tab segments and the session switch;
   the package leaves 12 %

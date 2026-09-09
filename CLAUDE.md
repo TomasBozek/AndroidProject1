@@ -111,6 +111,7 @@ There are three top-level groups, and the split between the first two is the imp
 :feature:devmenu:{presentation,di}                screen only; dev and staging only (D16)
 :feature:gallery:{presentation,di}                screen only; reached from the debug menu
 :feature:home:{presentation,di}                   screen only; a tab
+:feature:onboarding:{domain,data,presentation,di} full stack; the first-run flow, behind a stored flag
 :feature:profile:{domain,data,presentation,di}    full stack
 :feature:settings:{domain,data,presentation,di}   full stack; a tab; reads :feature:auth:domain
 :feature:template:{domain,data,presentation,di}   what the generators clone

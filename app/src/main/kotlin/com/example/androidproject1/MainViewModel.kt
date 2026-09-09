@@ -6,34 +6,46 @@ import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.domain.AuthService
+import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.ThemeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * Single owner of the session and of the stored theme, and the only thing that switches between
- * the auth and main flows.
+ * Single owner of the session, the first-run flag and the stored theme, and the only thing that
+ * switches between the app's three flows.
  *
  * A plain [ViewModel] rather than a `BaseViewModel`, because it is not a screen: there is no state
  * to render, no user event to receive, and nothing to put a loading overlay or an error dialog
- * over. Screens change the session and let this react — see `SettingsViewModel.logout()`.
+ * over. Screens change what is stored and let this react — see `SettingsViewModel.logout()` and
+ * `OnboardingViewModel.finish()`.
  */
 class MainViewModel(
     logger: Logger,
     private val authService: AuthService,
+    private val onboardingRepository: OnboardingRepository,
     private val themeRepository: ThemeRepository,
     private val errorTracker: ErrorTracker,
 ) : ViewModel() {
 
     private val logger = logger.withTag(TAG)
 
-    private val mutableSessionState = MutableStateFlow<SessionState>(SessionState.Unknown)
+    // `null` means "not read yet", which is what makes the combination below say Unknown until
+    // both stores have answered. Two flows rather than one combine over the sources themselves,
+    // so a re-emission of the flag does not re-report the user to the crash tracker.
+    private val signedIn = MutableStateFlow<Boolean?>(null)
+    private val onboardingSeen = MutableStateFlow<Boolean?>(null)
 
-    /** [SessionState.Unknown] until the stored session has been read once. */
-    val sessionState: StateFlow<SessionState> = mutableSessionState.asStateFlow()
+    /** [SessionState.Unknown] until both the stored session and the first-run flag have been read. */
+    val sessionState: StateFlow<SessionState> =
+        combine(signedIn, onboardingSeen, ::flowFor)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, SessionState.Unknown)
 
     private val mutableTheme = MutableStateFlow<ThemePreference?>(null)
 
@@ -48,6 +60,7 @@ class MainViewModel(
 
     init {
         observeSession()
+        observeOnboarding()
         observeTheme()
     }
 
@@ -56,14 +69,14 @@ class MainViewModel(
     private fun observeSession() {
         viewModelScope.launch {
             authService.observeSession().collect { outcome ->
-                mutableSessionState.value = when (outcome) {
+                signedIn.value = when (outcome) {
                     is Outcome.Success -> {
                         // The only place that knows who is signed in, so the only place that can
                         // tell the tracker. The id is opaque — never the address, because a crash
                         // report is not the place for one — and null on sign-out, or the next
                         // person's reports are attributed to the last one.
                         errorTracker.setUser(outcome.data?.id)
-                        if (outcome.data != null) SessionState.SignedIn else SessionState.SignedOut
+                        outcome.data != null
                     }
 
                     // `observeSession()` has already retried, and there is no screen to put a
@@ -72,7 +85,24 @@ class MainViewModel(
                     is Outcome.Failure -> {
                         logger.w { "Session unreadable (${outcome.error}); treating as signed out" }
                         errorTracker.setUser(null)
-                        SessionState.SignedOut
+                        false
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeOnboarding() {
+        viewModelScope.launch {
+            onboardingRepository.observeSeen().collect { outcome ->
+                onboardingSeen.value = when (outcome) {
+                    is Outcome.Success -> outcome.data
+
+                    // Seen, on an unreadable flag: showing the tour to someone who has already
+                    // taken it every time the disk hiccups is worse than skipping it once.
+                    is Outcome.Failure -> {
+                        logger.w { "Onboarding flag unreadable (${outcome.error}); skipping it" }
+                        true
                     }
                 }
             }
@@ -99,5 +129,18 @@ class MainViewModel(
     private companion object {
 
         const val TAG = "MainViewModel"
+
+        /**
+         * The flow both stored facts add up to.
+         *
+         * The tour wins over the session: a stored session on a device that has not seen the tour
+         * means the app was reinstalled over one, not that the tour was taken.
+         */
+        fun flowFor(signedIn: Boolean?, onboardingSeen: Boolean?): SessionState = when {
+            signedIn == null || onboardingSeen == null -> SessionState.Unknown
+            !onboardingSeen -> SessionState.Onboarding
+            signedIn -> SessionState.SignedIn
+            else -> SessionState.SignedOut
+        }
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_page_browse_title">Everything in the shop</string>
+    <string name="onboarding_page_browse_body">Browse the categories, or search when you already know what you are after.</string>
+    <string name="onboarding_page_cart_title">A cart that waits</string>
+    <string name="onboarding_page_cart_body">Add what you like as you go. It is still there when you come back.</string>
+    <string name="onboarding_page_account_title">Your account</string>
+    <string name="onboarding_page_account_body">Sign in to keep your profile, and change how the app looks in Settings.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding_skip">Skip</string>
+</resources>

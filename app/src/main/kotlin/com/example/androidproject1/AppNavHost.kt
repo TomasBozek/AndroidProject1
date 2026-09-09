@@ -49,6 +49,7 @@ import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryD
 import com.example.androidproject1.feature.gallery.presentation.gallery.galleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.galleryDetailDestination
 import com.example.androidproject1.feature.home.presentation.home.homeDestination
+import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileDestination
 import com.example.androidproject1.feature.profile.presentation.profile.profileDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.settingsPermissionsDestination
@@ -159,6 +160,7 @@ private fun AppNavDisplay(
     }
 
     val entries = entryProvider<NavKey> {
+        onboardingEntries(backStack)
         authEntries(backStack)
         mainEntries(backStack, catalogRepository, addToCart)
     }
@@ -225,6 +227,16 @@ private val FADE = tween<Float>(durationMillis = 200)
 private val TAB_ROOT_TRANSITIONS: Map<String, Any> =
     NavDisplay.transitionSpec { fadeIn(FADE) togetherWith fadeOut(FADE) } +
         NavDisplay.popTransitionSpec { fadeIn(FADE) togetherWith fadeOut(FADE) }
+
+/**
+ * Shown until the first-run tour has been finished, whether or not a session is stored.
+ *
+ * A third flow beside [authEntries] and [mainEntries], and like them it is a grouping rather
+ * than a graph: which flow the user is in is decided by what `MainActivity` puts on the stack.
+ */
+private fun EntryProviderScope<NavKey>.onboardingEntries(backStack: NavBackStack<NavKey>) {
+    onboardingDestination(backStack = backStack)
+}
 
 /** Shown while signed out. */
 private fun EntryProviderScope<NavKey>.authEntries(backStack: NavBackStack<NavKey>) {

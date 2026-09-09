@@ -16,6 +16,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.login.LoginDestination
 import com.example.androidproject1.feature.home.presentation.home.HomeDestination
+import com.example.androidproject1.feature.onboarding.presentation.onboarding.OnboardingDestination
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -82,9 +83,10 @@ private fun ThemePreference?.isDark(): Boolean = when (this) {
     ThemePreference.System, null -> isSystemInDarkTheme()
 }
 
-/** The first key of the flow this session belongs in, or `null` while it is not known yet. */
+/** The first key of the flow this state belongs in, or `null` while it is not known yet. */
 private fun SessionState.rootKey(): NavKey? = when (this) {
     SessionState.Unknown -> null
+    SessionState.Onboarding -> OnboardingDestination
     SessionState.SignedIn -> HomeDestination
     SessionState.SignedOut -> LoginDestination
 }

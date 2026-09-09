@@ -185,15 +185,6 @@ Why: the channel exists and nothing posts to it.
 Done: the debug menu posts a notification whose `PendingIntent` carries a product deep link.
 Verify: tapping it from a cold start lands on the product with Up working.
 
-**shell.5 Onboarding flow** · M · `stable`
-Why: a third flow beside auth and main, gated by a stored flag, is the shape of every first-run
-screen and the one flow switch the template does not show.
-Done: `:feature:onboarding` full stack with a `seen` flag in DataStore; `MainViewModel` combines
-it with the session into `Unknown / Onboarding / SignedOut / SignedIn`; the splash holds through
-`Unknown`; three pages on an `AppPager` added to `:core:ui` with `create_component.py` (one new
-file in the ui track's directory).
-Verify: `MainViewModelTest` for all four states; the first cold start shows onboarding then
-Login, the second skips it.
 
 **feat.4 Search — proves inline error per content id** · M · `stable`
 Why: inline retry works per content id and no screen has two content states.

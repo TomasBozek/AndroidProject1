@@ -50,6 +50,10 @@ from _common import (  # noqa: E402
 
 TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro"}
 
+# The list in Koin.kt a new feature joins. Koin.kt holds a second one, `debugMenuModules()`,
+# for the features only a dev or staging build registers (D16); a new feature is not one.
+KOIN_MODULE_LIST = "appModules"
+
 # Generated or IDE-local directories that must never be cloned into a new module.
 EXCLUDED_DIRS = {"build", ".gradle", ".idea", ".cxx"}
 EXCLUDED_FILES = {".DS_Store"}
@@ -283,9 +287,14 @@ def register_in_koin(flat: str, pascal: str, dry_run: bool) -> None:
         lines = text.split("\n")
         insert_import(lines, import_line)
 
-        # Insert the module after the last `XModule.module,` entry in the modules(...) call.
+        # Insert the module after the last `XModule.module,` entry of the appModules(...) list.
+        # Scoped to that list rather than to the file: `debugMenuModules()` below it has the
+        # same shape, and a feature registered there would exist only in dev and staging —
+        # silently, because every check still passes and only a `prod` build is missing it.
         entry_pattern = re.compile(r"^(\s*)\w+Module\.module,$")
-        last_entry = max(i for i, line in enumerate(lines) if entry_pattern.match(line))
+        start = next(i for i, line in enumerate(lines) if line.startswith(f"fun {KOIN_MODULE_LIST}("))
+        end = next(i for i in range(start + 1, len(lines)) if lines[i].rstrip() == ")")
+        last_entry = max(i for i in range(start, end) if entry_pattern.match(lines[i]))
         indent = entry_pattern.match(lines[last_entry]).group(1)
         lines.insert(last_entry + 1, f"{indent}{module_entry}")
 

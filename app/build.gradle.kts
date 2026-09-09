@@ -17,6 +17,8 @@ dependencies {
     implementation(projects.feature.catalog.domain)
     // MainActivity draws the whole app in the stored theme, so it reads the preference.
     implementation(projects.feature.settings.domain)
+    // The stored `seen` flag decides whether the app opens on the tour.
+    implementation(projects.feature.onboarding.domain)
 
     // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere.
     implementation(projects.service.network)
@@ -28,6 +30,7 @@ dependencies {
     testImplementation(testFixtures(projects.service.core.ui))
     testImplementation(testFixtures(projects.feature.auth.domain))
     testImplementation(testFixtures(projects.feature.settings.domain))
+    testImplementation(testFixtures(projects.feature.onboarding.domain))
 
     // The generated startup profile. The module that produces it never ships.
     baselineProfile(projects.baselineprofile)

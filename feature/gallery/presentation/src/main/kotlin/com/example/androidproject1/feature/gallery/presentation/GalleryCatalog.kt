@@ -49,6 +49,7 @@ import com.example.androidproject1.core.ui.component.AppLabelledDivider
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppMenu
 import com.example.androidproject1.core.ui.component.AppNavRail
+import com.example.androidproject1.core.ui.component.AppPager
 import com.example.androidproject1.core.ui.component.AppProgress
 import com.example.androidproject1.core.ui.component.AppRadio
 import com.example.androidproject1.core.ui.component.AppRadioGroup
@@ -688,6 +689,22 @@ val galleryCatalog: List<GalleryEntry> = listOf(
                     selected,
                     onSelect,
                 )
+            }
+        },
+    ),
+    entry(
+        "pager",
+        "AppPager",
+        "Navigation",
+        "Pages read in order and then left — a first-run tour. Dots say how many, not what.",
+        "Three pages" to {
+            AppPager(pageCount = 3) { page ->
+                AppText("Page ${page + 1} of 3", role = TextRole.Title)
+            }
+        },
+        "Two pages" to {
+            AppPager(pageCount = 2) { page ->
+                AppText(if (page == 0) "Swipe left" else "And back again", role = TextRole.Title)
             }
         },
     ),
