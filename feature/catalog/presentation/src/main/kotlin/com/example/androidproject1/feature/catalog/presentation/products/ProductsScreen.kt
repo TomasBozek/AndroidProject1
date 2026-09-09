@@ -14,7 +14,7 @@ import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.feature.catalog.presentation.asPrice
+import com.example.androidproject1.core.ui.format.LocalFormats
 
 @Composable
 fun ProductsScreen(
@@ -26,6 +26,7 @@ fun ProductsScreen(
         topBar = { AppTopBar(title = state.categoryName) },
         contentPadding = false,
     ) {
+        val formats = LocalFormats.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -37,7 +38,7 @@ fun ProductsScreen(
                     onClick = { onEvent(ProductsEvent.ProductClicked(product)) },
                     modifier = Modifier.testTag("products_item"),
                     // A price is numeric, so it gets tabular figures and lines up down the column.
-                    trailing = { AppText(text = product.price.asPrice(), role = TextRole.Numeric) },
+                    trailing = { AppText(text = formats.money(product.price), role = TextRole.Numeric) },
                 )
                 AppDivider()
             }

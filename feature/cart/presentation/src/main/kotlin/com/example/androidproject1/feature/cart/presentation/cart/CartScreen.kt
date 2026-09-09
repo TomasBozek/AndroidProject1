@@ -25,10 +25,10 @@ import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
+import com.example.androidproject1.core.ui.format.LocalFormats
 import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.cart.presentation.R
-import com.example.androidproject1.feature.cart.presentation.asPrice
 
 @Composable
 fun CartScreen(
@@ -39,6 +39,7 @@ fun CartScreen(
         screenId = "CartScreen",
         topBar = { AppTopBar(title = stringResource(R.string.cart_title)) },
     ) {
+        val formats = LocalFormats.current
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.sm),
@@ -65,7 +66,7 @@ fun CartScreen(
                 items(items = state.items, key = { it.productId }) { item ->
                     AppListItem(
                         headline = item.name,
-                        supporting = item.lineTotal.asPrice(),
+                        supporting = formats.money(item.lineTotal),
                         modifier = Modifier.testTag("cart_item"),
                         trailing = {
                             AppIconButton(
@@ -98,7 +99,7 @@ fun CartScreen(
                 actionLabel = stringResource(R.string.cart_checkout),
                 onAction = { onEvent(CartEvent.CheckoutClicked) },
                 label = stringResource(R.string.cart_total),
-                value = state.total.asPrice(),
+                value = formats.money(state.total),
                 modifier = Modifier.testTag("cart_checkoutButton"),
             )
         }

@@ -608,6 +608,14 @@ RAW_COLOR = re.compile(r"\bColor\(0x|\bMaterialTheme\.colorScheme\b")
 # Swapping the image loader should be a change to AppImage and nothing else.
 IMAGE_LIBRARY = re.compile(r"^import coil3?\.", re.MULTILINE)
 
+# A number a person reads has a role, the same way a colour does — see core.10. What this catches
+# is the two copies of `Price.kt` that grew before there was one: a feature formatting its own
+# money, and doing it slightly differently in each place.
+NUMBER_FORMATTER = re.compile(
+    r"^import (java\.text\.(?:NumberFormat|DecimalFormat)|java\.time\.format\.DateTimeFormatter)$",
+    re.MULTILINE,
+)
+
 # Material types a screen legitimately names because they are types, not widgets: they appear in
 # a component's own signature and a feature has to spell them to call it.
 MATERIAL_TYPE_ALLOWLIST = {
@@ -658,6 +666,16 @@ def check_features_use_the_design_system() -> list[str]:
                 line = text[: match.start()].count("\n") + 1
                 problems.append(
                     problem(path, line, "names a colour directly — ask AppTheme.colors for a role")
+                )
+            for match in NUMBER_FORMATTER.finditer(text):
+                line = text[: match.start()].count("\n") + 1
+                problems.append(
+                    problem(
+                        path,
+                        line,
+                        f"formats a number itself with {match.group(1).rsplit('.', 1)[1]} — ask "
+                        "LocalFormats.current for a role (money, weight, percent, date, ...)",
+                    )
                 )
     return problems
 

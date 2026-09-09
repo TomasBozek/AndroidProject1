@@ -13,9 +13,9 @@ import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppTopBar
+import com.example.androidproject1.core.ui.format.LocalFormats
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.catalog.presentation.R
-import com.example.androidproject1.feature.catalog.presentation.asPrice
 
 @Composable
 fun ProductPickerScreen(
@@ -26,6 +26,7 @@ fun ProductPickerScreen(
         screenId = "ProductPickerScreen",
         topBar = { AppTopBar(title = stringResource(R.string.product_picker_title)) },
     ) {
+        val formats = LocalFormats.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -35,7 +36,7 @@ fun ProductPickerScreen(
             items(items = state.products, key = { it.id }) { product ->
                 AppListItem(
                     headline = product.name,
-                    supporting = product.price.asPrice(),
+                    supporting = formats.money(product.price),
                     onClick = { onEvent(ProductPickerEvent.ProductClicked(product)) },
                     modifier = Modifier.testTag("productPicker_item"),
                 )

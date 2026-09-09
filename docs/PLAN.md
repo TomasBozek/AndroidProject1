@@ -161,7 +161,7 @@ version of every open item is in the detail file under the same id.
   idempotent requests only, tested on `MockEngine`
 - [ ] **core.9 Permission helpers tested** · S · `stable` — Robolectric tests for the four
   statuses and the gate
-- [ ] **core.10 Format roles** · S · `stable` — money, weight, quantity, percent, time, date and
+- [x] (2026-09-09) **core.10 Format roles** · S · `stable` — money, weight, quantity, percent, time, date and
   duration as one set in `:service:core:ui`; the two `Price.kt` copies go
 
 ### ui · design system and adaptive

@@ -20,9 +20,9 @@ import com.example.androidproject1.core.ui.component.AppIconButton
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.TextRole
+import com.example.androidproject1.core.ui.format.LocalFormats
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.catalog.presentation.R
-import com.example.androidproject1.feature.catalog.presentation.asPrice
 
 @Composable
 fun ProductDetailScreen(
@@ -58,7 +58,7 @@ fun ProductDetailScreen(
                     modifier = Modifier.testTag("productDetail_favouriteButton"),
                 )
             }
-            AppText(text = product.price.asPrice(), role = TextRole.DisplayLarge)
+            AppText(text = LocalFormats.current.money(product.price), role = TextRole.DisplayLarge)
             AppText(text = product.description, role = TextRole.BodyLarge)
             AppButton(
                 label = stringResource(R.string.product_detail_add_to_cart),

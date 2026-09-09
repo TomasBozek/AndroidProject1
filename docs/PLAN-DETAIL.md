@@ -176,18 +176,6 @@ content only while the permission is held; `rememberDeclaredPermissions` lists w
 asks for.
 Verify: the package leaves 48 % in the report; each test fails when its branch is removed.
 
-**core.10 Format roles** · S · `stable`
-Why: the design defines money, weight, quantity, percent, time, date, duration and receipt
-number as system roles with fixed forms — `1 248,50`, `0,420 kg`, `21 %`, `2 h 10 m`. The code
-has two copies of a `Price.kt`, in the catalog and cart presentations, each calling the platform
-currency formatter: a duplicate the rulebook forbids, and no role at all.
-Done: `service/core/ui/format/` — a `Formats(locale)` with `money`, `moneyShort`, `weight`,
-`quantity`, `percent`, `time`, `date`, `duration`, read from composition through a
-`LocalFormats`; negative values keep the minus sign; both `Price.kt` deleted and their callers on
-the role. Tabular figures stay the type role's job.
-Verify: JVM tests for `cs` and `en` at 0, 1 248,50 and −24,00; the two `Price.kt` are gone and
-`doctor.py`'s "no feature draws" check gains `NumberFormat` in a feature.
-
 ### Track ui · design system and adaptive
 
 Owns `core/ui` and `feature/gallery`. `ui.5` also edits `app/AppNavHost.kt` and the catalog

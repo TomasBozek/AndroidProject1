@@ -87,7 +87,8 @@ There are three top-level groups, and the split between the first two is the imp
 :service:core:domain  result/Outcome, error/DomainError hierarchy, Logger (interface only)
 :service:core:data    BaseRepository, DataStoreProvider, AndroidLogger
 :service:core:ui      viewmodel/BaseViewModel, state/UiState, component/Screen(), event/UiEvent,
-                      event/UiCommand, text/UiText, util/CollectEffect, error strings
+                      event/UiCommand, text/UiText, format/Formats, util/CollectEffect,
+                      error strings
 
 :core:ui              this app's Compose theme + the @ScreenPreview/@ComponentPreview helpers
 :core:di              initKoin() + coreModule — the single Koin registration point
@@ -186,6 +187,8 @@ losing its portability — picks up the system for free.
 - no `androidx.compose.material3.*` — every widget a screen needs has an `App*` counterpart
 - no `.dp` or `.sp` literal — ask `AppTheme.spacing` for a role, `AppTheme.typography` for a role
 - no `Color(...)` and no `MaterialTheme.colorScheme` — ask `AppTheme.colors` for a role
+- no `NumberFormat`, `DecimalFormat` or `DateTimeFormatter` — ask `LocalFormats.current` for a
+  role: `money`, `moneyShort`, `weight`, `quantity`, `percent`, `time`, `date`, `duration`
 
 `AppScaffold` is the screen shell: base surface, system insets, an optional `AppTopBar`. A screen
 does not call `safeDrawingPadding()` itself; that is what got screens padded twice.
@@ -331,6 +334,7 @@ Plan 2's reference table, kept here because the plan holds only open work.
 | `ContentState.{Error,Empty}` | `service/core/ui/.../state/ContentState.kt` | Rendered by `Screen()` instead of content; a screen with two of them gives each its own `id` |
 | `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act; see `SettingsViewModel` |
 | `UiCommand` | `event/UiCommand.kt` | Toast, snackbar (action comes back as `SystemEvent.SnackbarAction(id)`), back, close, browser, app settings |
+| `Formats` / `LocalFormats` | `service/core/ui/.../format/` | `money`, `moneyShort`, `weight`, `quantity`, `percent`, `time`, `date`, `duration`, all from one `Locale`. A screen never formats a number itself; `doctor.py` fails on a `NumberFormat` in a feature. Tabular figures stay `TextRole.Numeric` |
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
 | `Aead` / `AesGcmAead` / `KeystoreAead` | `service/core/domain/crypto/`, `service/core/data/crypto/` | `EncryptedDataStoreProvider` stores the session with it; the logic is in `AesGcmAead` and JVM-tested, the Keystore fetch is fifteen lines |
 | `ErrorTracker` / `TrackingLogger` | `service/core/domain/`, `service/core/data/` | See Crash reporting above |
