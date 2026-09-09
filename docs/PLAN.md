@@ -180,8 +180,8 @@ version of every open item is in the detail file under the same id.
   each of the 42 audited against `03-Komponenty`; the gap table is written, the gaps are not closed
 - [x] (2026-09-09) **ui.8 Icon roles** · S · `stable` D33 · needs qa.13 — `AppTheme.icons` with the three
   sizes; no icon size literal outside the theme
-- [ ] **ui.9 Contrast is asserted** · S · `stable` — a JVM test over every text-on-surface and
-  border-on-surface pair in both palettes, the design's check five
+- [x] (2026-09-09) **ui.9 Contrast is asserted** · S · `stable` — a JVM test over every
+  text-on-surface and border-on-surface pair in both palettes, the design's check five
 
 ### app · shell and sample features
 

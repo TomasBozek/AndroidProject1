@@ -70,8 +70,9 @@ data class AppColors(
     /** Hairline between rows — decorative, so it is allowed to be quiet. */
     val border: Color,
     /**
-     * The edge of something you can press or type into. Held at 3:1 against [surfaceBase] in both
-     * themes, which is why it is `Gray500` on each side rather than a step of the surface.
+     * The edge of something you can press or type into. Held at 3:1 against every surface in both
+     * themes — including [surfaceRaised], which is the one a field inside a card or a dialog sits
+     * on, and the one a border a step away from the surface loses. `ContrastTest` asserts it.
      */
     val borderStrong: Color,
     /** Keyboard focus, on every platform. Never removed — a till is driven by keyboard too. */
@@ -118,6 +119,11 @@ fun lightAppColors(): AppColors = AppColors(
  * Dark. A role is not re-picked by hand — it moves along its ramp against the light theme, so green
  * still reads as green on a dark ground. A solid action is 400 on a 600 edge with a 900 label; the
  * soft pair is 800 on 200.
+ *
+ * The greys are the exception, and `ContrastTest` is why: the three dark surfaces sit far closer
+ * together in luminance than the three light ones, so a role mirrored step for step lands short on
+ * [surfaceRaised]. [textSecondary] and [borderStrong] are one step lighter than the mirror would
+ * give — which is where Material's own dark `onSurfaceVariant` and `outline` sit too.
  */
 fun darkAppColors(): AppColors = AppColors(
     surfaceSunken = Ramp.Gray950,
@@ -126,7 +132,7 @@ fun darkAppColors(): AppColors = AppColors(
     surfaceInverse = Ramp.Gray50,
     textOnInverse = Ramp.Gray900,
     textPrimary = Ramp.Gray50,
-    textSecondary = Ramp.Gray400,
+    textSecondary = Ramp.Gray300,
     textTertiary = Ramp.Gray500,
     textDisabled = Ramp.Gray500,
     confirm = ActionColors(Ramp.Green400, Ramp.Green600, Ramp.Green900, Ramp.Green800, Ramp.Green200),
@@ -135,7 +141,7 @@ fun darkAppColors(): AppColors = AppColors(
     warning = ActionColors(Ramp.Amber400, Ramp.Amber600, Ramp.Amber900, Ramp.Amber800, Ramp.Amber200),
     neutral = ActionColors(Ramp.DarkRaised, Ramp.Gray950, Ramp.Gray50, Ramp.Gray800, Ramp.Gray300),
     border = Ramp.Gray700,
-    borderStrong = Ramp.Gray500,
+    borderStrong = Ramp.Gray400,
     focusRing = Ramp.Blue400,
     scrim = Ramp.Gray950,
     scrimAlpha = 0.60f,

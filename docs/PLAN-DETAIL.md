@@ -254,15 +254,6 @@ built on this template adds the ones it needs with `create_component.py`.
 | SyncStatusBar · OfflineBanner | a snackbar in `feat.5` | **gap:** the document wants a bar that never covers content |
 | Popover, ActionSheet, FullScreenModal, FilterBar, SideDrawer, SettingsList, ProfileMenu, CommandPalette, ScreenOffline, UpdateBanner, DeviceStatusStrip, FirstRunChecklist and the B–H composites | — | product-specific; a project adds what it needs |
 
-**ui.9 Contrast is asserted** · S · `stable`
-Why: the design's check five — text 4.5:1, large text and borders 3:1, in both themes, checked
-by machine and never by eye — is the one a rebrand needs first, and it is a pure function of two
-colours. Nothing in the repo computes it.
-Done: a JVM test in `:core:ui` over every text role on every surface role and every border on
-every surface, for `LightColors` and `DarkColors`, computing WCAG contrast; pairs that fail
-today are listed in the test as known exceptions with their reason, then fixed or accepted in
-the design.
-Verify: darken one text role on purpose and the test names the pair and the theme.
 
 ### Track app · shell and sample features
 
@@ -394,6 +385,10 @@ Whoever next edits the project there should take them; nothing here blocks an it
   twice.
 - Two breakpoint tables disagree (720 / 1280 versus 600 / 1000 dp). The code uses the first.
 - Two id grammars disagree between documents 02 and 05. The code and the flows use 02's.
+- Two dark greys were a step short. `textSecondary` on a raised surface measured 4.17:1 and
+  `borderStrong` 2.54:1, because the three dark surfaces sit far closer together in luminance than
+  the three light ones, so a role mirrored step for step from light lands under the threshold on a
+  card. The code moved both one step lighter (`ui.9`); the source's dark palette wants the same.
 - Small slips: four elevation levels announced and five tabled; a checkbox radius of 6 that no
   shape role has; "four variants" of a button that lists six; a `primary` role in the token
   example that the role table never defines.
