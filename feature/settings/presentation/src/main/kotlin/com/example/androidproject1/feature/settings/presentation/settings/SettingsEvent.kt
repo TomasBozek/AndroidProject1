@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.settings.presentation.settings
 
 import com.example.androidproject1.core.ui.event.UiEvent
+import com.example.androidproject1.feature.settings.domain.ThemePreference
 
 sealed interface SettingsEvent : UiEvent {
 
@@ -18,6 +19,9 @@ sealed interface SettingsEvent : UiEvent {
     data class DebugMenuAvailable(val available: Boolean) : SettingsEvent
 
     data object DebugMenuClicked : SettingsEvent
+
+    /** A palette picked on the segmented control; stored, and applied at the root. */
+    data class ThemeSelected(val theme: ThemePreference) : SettingsEvent
 
     data object LogoutClicked : SettingsEvent
 }

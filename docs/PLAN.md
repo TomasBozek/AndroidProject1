@@ -192,7 +192,7 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **shell.2 Debug menu, dev and staging only** · M · `stable` D16 — build
   info, session, crash test, the offline toggle as a switch; the gallery moves here and R8 drops
   it from prod
-- [ ] **shell.3 Theme setting** · M · `stable` · needs qa.13 — light / dark / system, stored,
+- [x] (2026-09-09) **shell.3 Theme setting** · M · `stable` — light / dark / system, stored,
   applied at the root
 - [ ] **shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
 - [ ] **shell.5 Onboarding flow** · M · `stable` · needs qa.13 — a third flow beside auth and

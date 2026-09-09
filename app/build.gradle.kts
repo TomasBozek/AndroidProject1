@@ -15,6 +15,8 @@ dependencies {
     // both domains. Another feature's *domain* is allowed; its presentation is not.
     implementation(projects.feature.cart.domain)
     implementation(projects.feature.catalog.domain)
+    // MainActivity draws the whole app in the stored theme, so it reads the preference.
+    implementation(projects.feature.settings.domain)
 
     // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere.
     implementation(projects.service.network)
@@ -25,6 +27,7 @@ dependencies {
     // module gets the first line from `convention.feature.presentation`; :app is not one.
     testImplementation(testFixtures(projects.service.core.ui))
     testImplementation(testFixtures(projects.feature.auth.domain))
+    testImplementation(testFixtures(projects.feature.settings.domain))
 
     // The generated startup profile. The module that produces it never ships.
     baselineProfile(projects.baselineprofile)

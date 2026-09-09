@@ -7,11 +7,13 @@ import com.example.androidproject1.core.ui.state.updateData
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.auth.domain.AuthService
+import com.example.androidproject1.feature.settings.domain.ThemeRepository
 import com.example.androidproject1.feature.settings.presentation.R
 
 class SettingsViewModel(
     logger: Logger,
     private val authService: AuthService,
+    private val themeRepository: ThemeRepository,
 ) : BaseViewModel<SettingsState, SettingsEvent, SettingsNavigation>(
     initialState = SettingsState(email = null),
     logger = logger.withTag("SettingsViewModel"),
@@ -26,6 +28,15 @@ class SettingsViewModel(
             // the destination and a rebuilt state would drop it on the next session emission.
             uiState.updateData { copy(email = session?.email) }
         }
+
+        // Observed rather than read once: the root applies the same flow, so a choice made
+        // here has to come back through the store rather than be held in this state alone.
+        observe(
+            flow = { themeRepository.observeTheme() },
+            loading = {},
+        ) { theme ->
+            uiState.updateData { copy(theme = theme) }
+        }
     }
 
     override fun onUiEvent(event: SettingsEvent) {
@@ -36,6 +47,16 @@ class SettingsViewModel(
 
             is SettingsEvent.DebugMenuAvailable ->
                 uiState.updateData { copy(debugMenuEnabled = event.available) }
+
+            // No optimistic update: the flow above re-emits, so writing the state here as
+            // well would show a choice the store may have refused.
+            is SettingsEvent.ThemeSelected -> execute(
+                // No overlay: the whole app repaints as soon as the store emits, and a spinner
+                // over a repaint the user is already watching says nothing.
+                loading = {},
+                action = { themeRepository.setTheme(event.theme) },
+                onData = {},
+            )
 
             SettingsEvent.LogoutClicked -> uiState.setAlert(
                 id = ALERT_ID_LOGOUT,

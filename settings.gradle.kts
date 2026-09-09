@@ -104,6 +104,8 @@ includeFeatureModule(
 
 includeFeatureModule(
     "settings",
+    ModuleSuffix.Domain,
+    ModuleSuffix.Data,
     ModuleSuffix.Presentation,
     ModuleSuffix.Di,
 )

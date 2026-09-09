@@ -6,12 +6,15 @@ import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.Session
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
+import com.example.androidproject1.feature.settings.domain.ThemePreference
+import com.example.androidproject1.feature.settings.domain.test.FakeThemeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -23,10 +26,15 @@ class MainViewModelTest {
 
     private val logger = FakeLogger()
     private val authService = FakeAuthService()
+    private val themeRepository = FakeThemeRepository()
     private val errorTracker = FakeErrorTracker()
 
-    private fun viewModel() =
-        MainViewModel(logger = logger, authService = authService, errorTracker = errorTracker)
+    private fun viewModel() = MainViewModel(
+        logger = logger,
+        authService = authService,
+        themeRepository = themeRepository,
+        errorTracker = errorTracker,
+    )
 
     @Test
     fun `a stored session reads as signed in`() = runTest {
@@ -101,6 +109,43 @@ class MainViewModelTest {
 
         advanceUntilIdle()
         assertEquals(SessionState.SignedOut, viewModel.sessionState.value)
+    }
+
+    @Test
+    fun `the stored theme is what the app draws in`() = runTest {
+        themeRepository.theme.value = ThemePreference.Dark
+
+        assertEquals(ThemePreference.Dark, viewModel().theme.value)
+    }
+
+    @Test
+    fun `changing the theme reaches the root`() = runTest {
+        val viewModel = viewModel()
+
+        themeRepository.setTheme(ThemePreference.Light)
+        advanceUntilIdle()
+
+        assertEquals(ThemePreference.Light, viewModel.theme.value)
+    }
+
+    @Test
+    fun `the theme is null until it has been read, so the splash holds`() = runTest {
+        // Same dispatcher swap as the session case above, and for the same reason.
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val viewModel = viewModel()
+
+        assertNull(viewModel.theme.value)
+
+        advanceUntilIdle()
+        assertEquals(ThemePreference.System, viewModel.theme.value)
+    }
+
+    @Test
+    fun `an unreadable theme falls back to the default rather than holding the splash`() = runTest {
+        themeRepository.failWith = UnexpectedError(message = "disk gone")
+
+        assertEquals(ThemePreference.DEFAULT, viewModel().theme.value)
+        assertTrue(logger.warnings.isNotEmpty())
     }
 
     @Test

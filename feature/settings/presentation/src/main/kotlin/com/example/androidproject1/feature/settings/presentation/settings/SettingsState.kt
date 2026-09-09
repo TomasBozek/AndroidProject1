@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.settings.presentation.settings
 
 import androidx.compose.runtime.Immutable
+import com.example.androidproject1.feature.settings.domain.ThemePreference
 
 @Immutable
 data class SettingsState(
@@ -10,6 +11,8 @@ data class SettingsState(
      * property of the build, so `:app` reports it through `SettingsDestination`.
      */
     val debugMenuEnabled: Boolean = false,
+    /** Which palette the app draws in. `System` until the stored choice has been read. */
+    val theme: ThemePreference = ThemePreference.DEFAULT,
 ) {
 
     companion object {
@@ -17,6 +20,7 @@ data class SettingsState(
         val PREVIEW = SettingsState(
             email = "ada@example.com",
             debugMenuEnabled = true,
+            theme = ThemePreference.System,
         )
     }
 }

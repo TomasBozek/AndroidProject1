@@ -180,14 +180,6 @@ Categories → Products → Detail so Up walks back; a warm start pushes onto th
 Verify: `adb shell am start -d <app>://product/croissant` cold and warm, both land on the
 product with Up working; a `MainViewModelTest` case for the synthesised stack.
 
-**shell.3 Theme setting** · M · `stable`
-Why: light / dark / system is the first preference every app grows, and no sample shows a
-preference read at the root.
-Done: `:feature:settings` gains `domain` and `data` (`--layers domain,data --force`) with a
-`ThemePreference` in Preferences DataStore; a segmented control on Settings; `MainActivity`
-applies it through `AppTheme(darkTheme = …)`.
-Verify: `SettingsViewModelTest` and a screen test; the choice survives a restart on the emulator.
-
 **shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
 Why: the channel exists and nothing posts to it.
 Done: the debug menu posts a notification whose `PendingIntent` carries a product deep link.

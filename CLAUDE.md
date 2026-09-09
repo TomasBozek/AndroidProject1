@@ -112,7 +112,7 @@ There are three top-level groups, and the split between the first two is the imp
 :feature:gallery:{presentation,di}                screen only; reached from the debug menu
 :feature:home:{presentation,di}                   screen only; a tab
 :feature:profile:{domain,data,presentation,di}    full stack
-:feature:settings:{presentation,di}               screen only; a tab; reads :feature:auth:domain
+:feature:settings:{domain,data,presentation,di}   full stack; a tab; reads :feature:auth:domain
 :feature:template:{domain,data,presentation,di}   what the generators clone
 ```
 

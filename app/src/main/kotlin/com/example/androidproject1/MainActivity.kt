@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -14,6 +16,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.login.LoginDestination
 import com.example.androidproject1.feature.home.presentation.home.HomeDestination
+import com.example.androidproject1.feature.settings.domain.ThemePreference
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /** The app's only Activity; everything else is a composable destination. */
@@ -25,16 +28,20 @@ class MainActivity : ComponentActivity() {
         // Before super.onCreate, so the system splash screen is installed before the first frame.
         // It stays up for exactly as long as reading the session takes — there is no minimum hold,
         // and nothing to tune if that read ever grows into real startup work.
+        // Both reads, not just the session: the theme decides what the first frame is painted
+        // in, so drawing before it lands is a light flash in front of someone who chose dark.
         installSplashScreen().setKeepOnScreenCondition {
-            viewModel.sessionState.value == SessionState.Unknown
+            viewModel.sessionState.value == SessionState.Unknown || viewModel.theme.value == null
         }
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
+            val theme by viewModel.theme.collectAsStateWithLifecycle()
+
             // No KoinContext wrapper: since Koin 4.2, startKoin() sets the Compose context up.
-            AppTheme {
+            AppTheme(darkTheme = theme.isDark()) {
                 val session by viewModel.sessionState.collectAsStateWithLifecycle()
 
                 // Starts empty and is filled once the session says which flow the user is in — and
@@ -60,6 +67,19 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+/**
+ * Whether to draw dark, for a preference that may not have been read yet.
+ *
+ * `null` and [ThemePreference.System] answer the same way — follow the device — so an
+ * unfinished read looks like the default rather than like a choice nobody made.
+ */
+@Composable
+private fun ThemePreference?.isDark(): Boolean = when (this) {
+    ThemePreference.Light -> false
+    ThemePreference.Dark -> true
+    ThemePreference.System, null -> isSystemInDarkTheme()
 }
 
 /** The first key of the flow this session belongs in, or `null` while it is not known yet. */
