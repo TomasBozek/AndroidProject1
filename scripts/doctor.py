@@ -748,11 +748,11 @@ FOREIGN_IDENTIFIERS = [
 @check("no foreign project identifiers")
 def check_foreign_identifiers() -> list[str]:
     problems = []
-    skip_dirs = {".git", "build", ".gradle", "__pycache__", ".idea", ".kotlin"}
     for path in sorted(REPO_ROOT.rglob("*")):
         if not path.is_file() or path.suffix not in {".kt", ".kts", ".py", ".xml", ".toml", ".md", ".yml", ".pro"}:
             continue
-        if set(path.relative_to(REPO_ROOT).parts) & skip_dirs:
+        parts = path.relative_to(REPO_ROOT).parts
+        if skipped_part(parts) or "__pycache__" in parts:
             continue
         if path.name == "doctor.py":
             continue  # this list lives here
@@ -924,7 +924,7 @@ def main_source_kotlin_files():
     """Every `src/main` Kotlin file in the repo — what actually ships, so what a flow can drive."""
     for path in sorted(REPO_ROOT.rglob("*.kt")):
         parts = path.relative_to(REPO_ROOT).parts
-        if "build" in parts or "src" not in parts:
+        if skipped_part(parts) or "src" not in parts:
             continue
         if parts[parts.index("src") + 1] != "main":
             continue
@@ -1100,7 +1100,7 @@ def default_string_files() -> list[Path]:
     return sorted(
         path
         for path in REPO_ROOT.rglob("src/main/res/values/strings.xml")
-        if "build" not in path.relative_to(REPO_ROOT).parts
+        if not skipped_part(path.relative_to(REPO_ROOT).parts)
     )
 
 
@@ -1183,7 +1183,7 @@ def check_translated_plurals_are_complete() -> list[str]:
     problems = []
     for locale, quantities in PLURAL_QUANTITIES.items():
         for path in sorted(REPO_ROOT.rglob(f"src/main/res/values-{locale}/strings.xml")):
-            if "build" in path.relative_to(REPO_ROOT).parts:
+            if skipped_part(path.relative_to(REPO_ROOT).parts):
                 continue
             try:
                 root = ElementTree.parse(path).getroot()
