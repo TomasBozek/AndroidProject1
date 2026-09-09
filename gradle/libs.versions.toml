@@ -26,6 +26,7 @@ robolectric = "4.16"
 # so this no longer has to be bumped in lockstep with Kotlin.
 ksp = "2.3.11"
 room = "2.8.4"
+ktor = "3.5.2"
 
 junit = "4.13.2"
 
@@ -77,6 +78,16 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
+# The client is engine-agnostic on purpose: the factory takes its engine as a parameter, so `dev`
+# can hand it MockEngine (D20) and :app the OkHttp one, without :service:network knowing either.
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
+
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koinBom" }
 koin-core = { group = "io.insert-koin", name = "koin-core" }
 koin-android = { group = "io.insert-koin", name = "koin-android" }
@@ -106,6 +117,15 @@ compose-core = [
     "androidx-lifecycle-runtime-compose",
 ]
 koin-android = ["koin-core", "koin-android", "koin-compose"]
+
+# One HTTP set for the network module. Split per module and the catalog becomes unmaintainable.
+ktor-client = [
+    "ktor-client-core",
+    "ktor-client-auth",
+    "ktor-client-logging",
+    "ktor-client-content-negotiation",
+    "ktor-serialization-json",
+]
 
 # Everything a module needs to write unit tests. Add with `testImplementation(libs.bundles.testing)`.
 testing = [
@@ -138,5 +158,6 @@ convention-android-library-compose = { id = "convention.android.library.compose"
 convention-kotlin-jvm = { id = "convention.kotlin.jvm", version = "unspecified" }
 convention-feature-data = { id = "convention.feature.data", version = "unspecified" }
 convention-android-room = { id = "convention.android.room", version = "unspecified" }
+convention-service-network = { id = "convention.service.network", version = "unspecified" }
 convention-feature-di = { id = "convention.feature.di", version = "unspecified" }
 convention-feature-presentation = { id = "convention.feature.presentation", version = "unspecified" }

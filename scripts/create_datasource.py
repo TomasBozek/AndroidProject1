@@ -49,6 +49,7 @@ def parse_args() -> argparse.Namespace:
             '  python3 scripts/create_datasource.py userprofile LocalUserProfile\n'
             '  python3 scripts/create_datasource.py userprofile LocalUserProfile --repository\n'
             '  python3 scripts/create_datasource.py userprofile RemoteUserProfile --repository UserProfile\n'
+            '  python3 scripts/create_datasource.py userprofile RemoteUserProfile --remote --repository\n'
             '\n'
             'Both halves of the source land in data.source; the repository in data.repository.'
         ),
@@ -64,6 +65,12 @@ def parse_args() -> argparse.Namespace:
         metavar="NAME",
         help="Also generate a repository. Defaults to the data source name without its "
              f"{'/'.join(SOURCE_QUALIFIERS)} qualifier.",
+    )
+    parser.add_argument(
+        "--remote",
+        action="store_true",
+        help="Generate a Ktor-backed data source against :service:network instead of a "
+             "DataStore-backed one.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Show what would happen, change nothing.")
     parser.add_argument("--force", action="store_true", help="Overwrite files that already exist.")
@@ -145,6 +152,65 @@ class Default{source}DataSource(
 """
 
 
+def remote_data_source_interface(flat: str, source: str) -> str:
+    return f"""package {feature_package(flat, "data", "source")}
+
+/**
+ * Internal to the data layer: it sits beside its implementation, and nothing above
+ * `:feature:{flat}:data` names it. What the rest of the app depends on is the repository
+ * interface in `domain`.
+ */
+interface {source}DataSource {{
+
+    // TODO: replace with the real endpoints.
+    suspend fun fetch(id: String): {source}Dto
+}}
+"""
+
+
+def remote_data_source_implementation(flat: str, source: str, path: str) -> str:
+    return f"""package {feature_package(flat, "data", "source")}
+
+import {BASE_PACKAGE}.core.domain.coroutines.DispatcherProvider
+import {BASE_PACKAGE}.core.network.HttpErrorMapper
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+
+/**
+ * The wire shape, deliberately not the domain's: a DTO changes when the API does, and mapping it
+ * here is what stops that reaching a ViewModel. Add the mapper beside it.
+ */
+@Serializable
+data class {source}Dto(
+    val id: String,
+    val name: String,
+)
+
+/**
+ * Switching to IO is this class's job, not the repository's: `BaseRepository` runs on the caller's
+ * context and the caller is `viewModelScope`, which is `Dispatchers.Main`.
+ *
+ * Failures are mapped here so the repository above sees a `DomainError` and never an HTTP status.
+ */
+class Default{source}DataSource(
+    private val client: HttpClient,
+    private val dispatcherProvider: DispatcherProvider,
+) : {source}DataSource {{
+
+    override suspend fun fetch(id: String): {source}Dto = withContext(dispatcherProvider.io) {{
+        try {{
+            client.get("{path}/$id").body()
+        }} catch (throwable: Throwable) {{
+            throw HttpErrorMapper.map(throwable)
+        }}
+    }}
+}}
+"""
+
+
 def repository_interface(flat: str, repository: str) -> str:
     return f"""package {feature_package(flat, "domain")}
 
@@ -189,6 +255,59 @@ class Default{repository}Repository(
         {field}.setValue(value)
     }}
 }}
+"""
+
+
+def remote_repository_interface(flat: str, repository: str) -> str:
+    return f"""package {feature_package(flat, "domain")}
+
+import {BASE_PACKAGE}.core.domain.result.Outcome
+
+/**
+ * Implemented in the data layer. Declared here so the domain layer depends on nothing.
+ */
+interface {repository}Repository {{
+
+    // TODO: replace with the real operations. Add a cached read with
+    // `BaseRepository.cached(...)` once core.2 lands.
+    suspend fun get(id: String): Outcome<{repository}>
+}}
+"""
+
+
+def remote_repository_implementation(flat: str, repository: str, source: str) -> str:
+    field = to_camel(source) + "DataSource"
+    return f"""package {feature_package(flat, "data", "repository")}
+
+import {BASE_PACKAGE}.core.data.BaseRepository
+import {BASE_PACKAGE}.core.domain.Logger
+import {BASE_PACKAGE}.core.domain.result.Outcome
+import {feature_package(flat, "data", "source")}.{source}DataSource
+import {feature_package(flat, "domain")}.{repository}
+import {feature_package(flat, "domain")}.{repository}Repository
+
+class Default{repository}Repository(
+    logger: Logger,
+    private val {field}: {source}DataSource,
+) : {repository}Repository, BaseRepository(logger = logger.withTag("Default{repository}Repository")) {{
+
+    // The DTO is mapped here rather than returned: what the API sends is the data layer's
+    // business, and the domain type is what everything above depends on.
+    override suspend fun get(id: String): Outcome<{repository}> = execute {{
+        {field}.fetch(id).let {{ dto -> {repository}(id = dto.id, name = dto.name) }}
+    }}
+}}
+"""
+
+
+def remote_domain_model(flat: str, repository: str) -> str:
+    return f"""package {feature_package(flat, "domain")}
+
+/** What the app reasons about. The wire shape is `{repository}Dto`, in the data layer. */
+data class {repository}(
+    val id: String,
+    val name: String,
+)
 """
 
 
@@ -275,7 +394,7 @@ def main() -> None:
     if wants_repository:
         require_layer(flat, "domain")
 
-    print(f"Creating {source}DataSource in feature '{flat}'")
+    print(f"Creating {source}DataSource in feature '{flat}'" + (" (Ktor-backed)" if args.remote else ""))
     if wants_repository:
         print(f"With repository {repository}Repository")
     if args.dry_run:
@@ -283,13 +402,15 @@ def main() -> None:
 
     emit(
         feature_source_dir(flat, "data", "source") / f"{source}DataSource.kt",
-        data_source_interface(flat, source),
+        remote_data_source_interface(flat, source) if args.remote else data_source_interface(flat, source),
         args.force,
         args.dry_run,
     )
     emit(
         feature_source_dir(flat, "data", "source") / f"Default{source}DataSource.kt",
-        data_source_implementation(flat, source, to_snake(source)),
+        remote_data_source_implementation(flat, source, "/" + to_snake(source).replace("_", "-"))
+        if args.remote
+        else data_source_implementation(flat, source, to_snake(source)),
         args.force,
         args.dry_run,
     )
@@ -297,15 +418,25 @@ def main() -> None:
     bindings = [(f"Default{source}DataSource", f"{source}DataSource", feature_package(flat, "data", "source"))]
 
     if wants_repository:
+        if args.remote:
+            # The remote repository returns a domain type, so the domain type has to exist.
+            emit(
+                feature_source_dir(flat, "domain") / f"{repository}.kt",
+                remote_domain_model(flat, repository),
+                args.force,
+                args.dry_run,
+            )
         emit(
             feature_source_dir(flat, "domain") / f"{repository}Repository.kt",
-            repository_interface(flat, repository),
+            remote_repository_interface(flat, repository) if args.remote else repository_interface(flat, repository),
             args.force,
             args.dry_run,
         )
         emit(
             feature_source_dir(flat, "data", "repository") / f"Default{repository}Repository.kt",
-            repository_implementation(flat, repository, source),
+            remote_repository_implementation(flat, repository, source)
+            if args.remote
+            else repository_implementation(flat, repository, source),
             args.force,
             args.dry_run,
         )
@@ -314,6 +445,12 @@ def main() -> None:
 
     register_in_koin(flat, bindings, args.dry_run)
 
+    if args.remote:
+        print(
+            "\nThe generated source needs :service:network. Add to "
+            f"feature/{flat}/data/build.gradle.kts:\n"
+            "    api(projects.service.network)"
+        )
     print("\nDone. Run ./gradlew build")
 
 

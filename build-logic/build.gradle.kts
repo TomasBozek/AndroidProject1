@@ -59,6 +59,10 @@ gradlePlugin {
             id = "convention.android.room"
             implementationClass = "AndroidRoomConventionPlugin"
         }
+        register("serviceNetwork") {
+            id = "convention.service.network"
+            implementationClass = "ServiceNetworkConventionPlugin"
+        }
         register("featureData") {
             id = "convention.feature.data"
             implementationClass = "FeatureDataConventionPlugin"

@@ -102,6 +102,9 @@ There are three top-level groups, and the split between the first two is the imp
 :feature:template:{domain,data,presentation,di}   what the generators clone
 ```
 
+:service:network        HttpClientFactory (engine is a parameter), HttpErrorMapper,
+                       TokenStore/TokenRefresher + SingleFlightTokenRefresher
+
 `service/` holds **reusable** modules — the architecture, with no knowledge of this app's features,
 theme or DI graph. Reuse is by directory copy: drop `service/core` into a new project, add the three
 `includeServiceModule` lines, then create that project's own `core/` and `feature/`. So keep it

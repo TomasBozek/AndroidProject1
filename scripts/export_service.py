@@ -76,6 +76,10 @@ def discover_service_modules() -> dict[str, list[str]]:
         ]
         if layers:
             modules[module.name] = sorted(layers, key=SERVICE_LAYER_ORDER.index)
+        elif (module / "build.gradle.kts").is_file():
+            # A flat service: one module, no domain/data/ui split. `service/network` is one, and
+            # an empty layer list is what tells settings_snippet to print includeModule instead.
+            modules[module.name] = []
     return modules
 
 
@@ -421,6 +425,9 @@ def copy_build_logic(target_root: Path, package: str, dry_run: bool, force: bool
 def settings_snippet(modules: list[str]) -> str:
     lines = []
     for name in modules:
+        if not SERVICE_MODULES[name]:
+            lines.append(f'includeModule(":service:{name}", "service/{name}")')
+            continue
         suffixes = "\n".join(f"    ModuleSuffix.{LAYER_SUFFIXES[layer]}," for layer in SERVICE_MODULES[name])
         lines.append(f'includeServiceModule(\n    "{name}",\n{suffixes}\n)')
     return "\n\n".join(lines)
@@ -446,7 +453,7 @@ def main() -> None:
         sys.exit("Target is this project. Pass --to with a different directory.")
 
     print(f"Exporting service modules to {target_root}")
-    print(f"Modules: {', '.join(f'{m} ({", ".join(SERVICE_MODULES[m])})' for m in modules)}")
+    print(f"Modules: {', '.join(f'{m} ({", ".join(SERVICE_MODULES[m]) or "flat"})' for m in modules)}")
     print(f"Package: {BASE_PACKAGE} -> {args.package}")
     if args.dry_run:
         print("-- dry run, nothing will be written --")

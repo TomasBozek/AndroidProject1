@@ -9,19 +9,19 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 **Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 45 · ktlint clean · build green
 **Coverage:** 38 % lines — architecture and ViewModels tested; data layers 0 %, components 10 %
-**Repo:** 25 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
+**Repo:** 26 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 6 | `░░░░░░░░░░` 0 % |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 1 / 6 | `█░░░░░░░░░` 17 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **2 / 32** | `█░░░░░░░░░` 6 % |
+| **Total** | | **3 / 32** | `█░░░░░░░░░` 9 % |
 
-**Start now, one worktree each:** `core.1` · `ui.1`. Neither waits on a question, and neither
-touches the other's files. `qa.3` landed, so every screen generated from here ships a screen test;
-`feat.1` landed, so Room is wired and `feat.2` / `feat.5` are unblocked.
+**Start now:** `ui.1`, and `core.2` / `core.4` / `core.5` are open in the core track. `qa.3`
+landed, so every generated screen ships a screen test; `feat.1` wired Room; `core.1` wired Ktor,
+so `feat.5` now waits only on `core.2`.
 **Waiting on you:** nothing. Every question is answered — D19–D29, taken 2026-09-09. `qa.1` and
 `qa.9` were dropped in the same pass; `qa.6` was parked in the backlog with its config intact and
 can be finished any time. The only thing between here and `core.1` is committing this file.
@@ -194,7 +194,7 @@ Independent: `core.3` `core.6` `ui.3` `shell.3` `shell.5` `feat.4` `feat.6` `fea
 Owns `service/`, `core/di`, `build-logic/`. Every item here is API the app track then uses;
 nothing here knows a feature.
 
-- [ ] **core.1 `:service:network` — Ktor client** · L · `stable`
+- [x] **core.1 `:service:network` — Ktor client** (2026-09-09) · L · `stable`
   Why: nothing crosses a network. The reusable half — client, error mapping, auth, refresh — is
   API-agnostic.
   Done: module on Ktor **3.5.2** with `api(projects.service.core.domain)` only; `HttpClient` factory
@@ -206,6 +206,29 @@ nothing here knows a feature.
   emits the Ktor-backed variant (was 7.16); `export_service.py` picks the module up unedited.
   Verify: `MockEngine` tests for every row of the mapping table and for two parallel 401s causing
   one refresh; a `test_scripts.py` case for `--remote`; the `Logging` plugin absent from `prodRelease`.
+  **Landed:** the module is **Kotlin/JVM, not an Android library** — nothing in it touches
+  `android.*`, so the compiler enforces the portability rather than a convention, exactly as
+  `:service:core:domain` does. It is also flat rather than layered: one port to the outside world
+  has no domain/data split to make, so it is registered with `includeModule(":service:network",
+  "service/network")`.
+  Three things the Done line was wrong about:
+  · **`export_service.py` did not pick it up unedited.** Its discovery only recognised
+  `service/<name>/<layer>`, so a flat module was invisible and silently not copied. Fixed here:
+  an empty layer list now means flat, and `settings_snippet` prints `includeModule` for it.
+  `doctor.py` needed the same — its settings parser matched `include("…")` but not
+  `includeModule("…", "…")`, so the new module read as unregistered.
+  · **The `Logging` plugin cannot be "absent from `prodRelease`"** the way Chucker was: it is an
+  ordinary library dependency, not a `debugImplementation`. What is actually controlled is that
+  `HttpClientFactory` installs it only when a `Logger` is passed, and `NetworkConfig.logBodies`
+  gates headers and bodies — both off unless a caller asks. That is the guarantee; the wording
+  promised something the dependency graph cannot give.
+  · `create_datasource.py --remote` needed **repository templates of its own**. The existing pair
+  is written against `observeValue`/`setValue`, which a Ktor source does not have, so `--remote
+  --repository` would have generated a repository that does not compile. It now emits a matching
+  `get(id)` pair plus the domain model it returns.
+  Single-flight is a mutex plus a token comparison rather than a shared `Deferred`: a waiting
+  caller re-reads the store and takes what the winner saved, so a cancelled caller cannot cancel
+  the refresh another one is waiting on. Six tests cover it, including five parallel callers.
 
 - [ ] **core.2 Offline-first combinator** · M · `stable`
   Why: was 6.2's first half. Cache-then-network is the shape every remote-backed screen needs.

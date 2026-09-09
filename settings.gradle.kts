@@ -78,6 +78,10 @@ includeServiceModule(
     ModuleSuffix.Ui,
 )
 
+// Reusable too, but flat rather than layered: it is one port to the outside world, so there is no
+// domain/data split to make. `includeServiceModule` takes layer suffixes, which this has none of.
+includeModule(":service:network", "service/network")
+
 // What is genuinely this app's: the Compose theme and the Koin registration point.
 includeCoreModule(
     ModuleSuffix.Ui,

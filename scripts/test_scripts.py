@@ -338,6 +338,41 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("ProductReviewDestination(productId = \"example\")", test)
         self.assertNotIn("RobolectricTestRunner", test)
 
+    def test_create_datasource_remote_generates_a_ktor_source(self) -> None:
+        self.run_script("create_datasource.py", "catalog", "RemoteWeather", "--remote", "--repository")
+
+        source = self.read(
+            f"feature/catalog/data/src/main/kotlin/{BASE_PATH}"
+            "/feature/catalog/data/source/DefaultRemoteWeatherDataSource.kt"
+        )
+        # Ktor, not DataStore — and the status table is applied at the source, so the repository
+        # above it sees a DomainError and never an HTTP code.
+        self.assertIn("io.ktor.client.HttpClient", source)
+        self.assertIn("HttpErrorMapper.map(throwable)", source)
+        self.assertNotIn("DataStoreProvider", source)
+        # The DTO is the wire shape and stays in the data layer.
+        self.assertIn("data class RemoteWeatherDto", source)
+
+        repository = self.read(
+            f"feature/catalog/data/src/main/kotlin/{BASE_PATH}"
+            "/feature/catalog/data/repository/DefaultWeatherRepository.kt"
+        )
+        self.assertIn("execute {", repository)
+        # The repository returns the domain type; the DTO does not escape the data layer.
+        self.assertIn("Outcome<Weather>", repository)
+        self.assertNotIn("RemoteWeatherDto", repository)
+
+    def test_create_datasource_without_remote_is_unchanged(self) -> None:
+        """The default path must not pick up the Ktor template."""
+        self.run_script("create_datasource.py", "catalog", "LocalWeather", "--repository")
+
+        source = self.read(
+            f"feature/catalog/data/src/main/kotlin/{BASE_PATH}"
+            "/feature/catalog/data/source/DefaultLocalWeatherDataSource.kt"
+        )
+        self.assertIn("DataStoreProvider", source)
+        self.assertNotIn("io.ktor", source)
+
     def test_create_screen_generates_a_screen_test(self) -> None:
         self.run_script("create_screen.py", "catalog", "ProductReview")
 

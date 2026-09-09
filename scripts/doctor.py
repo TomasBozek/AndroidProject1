@@ -271,6 +271,11 @@ def registered_modules() -> set[str]:
     # and `:baselineprofile`. Parsed rather than listed, so the next one needs no edit here.
     for path in re.findall(r'include\(\s*"(:[\w:-]+)"\s*\)', text):
         paths.add(path.removeprefix(":").replace(":", "/"))
+    # `includeModule(":service:network", "service/network")` — a service that is one module rather
+    # than a set of layers, so `includeServiceModule`'s suffixes have nothing to say about it. The
+    # interpolated calls inside the helpers do not match: `$` is not in the character class.
+    for path in re.findall(r'includeModule\(\s*"(:[\w:-]+)"', text):
+        paths.add(path.removeprefix(":").replace(":", "/"))
     return paths
 
 
