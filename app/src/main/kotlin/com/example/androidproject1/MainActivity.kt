@@ -99,12 +99,12 @@ class MainActivity : ComponentActivity() {
     /**
      * The link this intent carries, if it is one of ours.
      *
-     * The scheme is checked here, against the same string resource the manifest's filter uses,
-     * so there is one place that says what the app's scheme is. `DeepLinks` then parses a
-     * plain string and stays an ordinary JVM function.
+     * The scheme is checked here, against the same `applicationId` the manifest's filter is
+     * built from, so there is one place that says what the app's scheme is and nothing to keep
+     * in step. `DeepLinks` then parses a plain string and stays an ordinary JVM function.
      */
     private fun Intent.deepLinkUri(): String? =
-        data?.takeIf { it.scheme == getString(R.string.deep_link_scheme) }?.toString()
+        data?.takeIf { it.scheme == BuildConfig.APPLICATION_ID }?.toString()
 }
 
 /**

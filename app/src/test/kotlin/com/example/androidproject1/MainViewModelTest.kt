@@ -209,7 +209,7 @@ class MainViewModelTest {
     fun `a cold-start deep link synthesises the path to the product`() = runTest {
         val viewModel = viewModel()
 
-        viewModel.onDeepLink("androidproject1://product/coffee", coldStart = true)
+        viewModel.onDeepLink("app://product/coffee", coldStart = true)
         advanceUntilIdle()
 
         // Home, Categories, that product's category, then the product — so Up walks back
@@ -229,7 +229,7 @@ class MainViewModelTest {
     fun `a warm-start deep link pushes only the product`() = runTest {
         val viewModel = viewModel()
 
-        viewModel.onDeepLink("androidproject1://product/coffee", coldStart = false)
+        viewModel.onDeepLink("app://product/coffee", coldStart = false)
         advanceUntilIdle()
 
         // The user's place in the stack is theirs; the product goes on top of it.
@@ -240,7 +240,7 @@ class MainViewModelTest {
     fun `a product not in the cache still opens, without a list it cannot name`() = runTest {
         val viewModel = viewModel()
 
-        viewModel.onDeepLink("androidproject1://product/unknown", coldStart = true)
+        viewModel.onDeepLink("app://product/unknown", coldStart = true)
         advanceUntilIdle()
 
         assertEquals(
@@ -253,7 +253,7 @@ class MainViewModelTest {
     fun `a link that is not one of ours leaves the stack alone`() = runTest {
         val viewModel = viewModel()
 
-        viewModel.onDeepLink("androidproject1://order/1", coldStart = true)
+        viewModel.onDeepLink("app://order/1", coldStart = true)
         advanceUntilIdle()
 
         assertTrue(viewModel.deepLink.value.isEmpty())
@@ -262,7 +262,7 @@ class MainViewModelTest {
     @Test
     fun `an applied deep link is not applied twice`() = runTest {
         val viewModel = viewModel()
-        viewModel.onDeepLink("androidproject1://product/coffee", coldStart = false)
+        viewModel.onDeepLink("app://product/coffee", coldStart = false)
         advanceUntilIdle()
 
         viewModel.onDeepLinkApplied()

@@ -28,9 +28,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- `<scheme>://product/<id>`. The scheme is the app's own rather than a domain,
-                 so it needs no assetlinks.json and no site to host one; a real product would
-                 add an `android:autoVerify` https filter beside this, not instead of it.
+            <!-- `<applicationId>://product/<id>`. The scheme is the app's own rather than a
+                 domain, so it needs no assetlinks.json and no site to host one; a real product
+                 would add an `android:autoVerify` https filter beside this, not instead of it.
+                 The applicationId rather than a name of its own, so `init_project.py` has
+                 nothing to rename here and the three flavors get three schemes — a dev link
+                 opens the dev build rather than whichever of them the system picks.
                  BROWSABLE is what lets the link be followed from another app. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -38,7 +41,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="@string/deep_link_scheme" />
+                <data android:scheme="${applicationId}" />
             </intent-filter>
         </activity>
     </application>

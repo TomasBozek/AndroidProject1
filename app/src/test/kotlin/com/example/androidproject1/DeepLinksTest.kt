@@ -6,7 +6,8 @@ import org.junit.Test
 
 /**
  * The parser takes a string rather than an `android.net.Uri`, so this is a plain JVM test with
- * nothing to stub. The scheme itself is `MainActivity`'s to check.
+ * nothing to stub. The scheme itself is `MainActivity`'s to check — against `applicationId` —
+ * which is why the URIs here carry a neutral one and this file does not name the project.
  */
 class DeepLinksTest {
 
@@ -14,7 +15,7 @@ class DeepLinksTest {
     fun `a product link names the product`() {
         assertEquals(
             DeepLink.Product(productId = "croissant"),
-            DeepLinks.parse("androidproject1://product/croissant"),
+            DeepLinks.parse("app://product/croissant"),
         )
     }
 
@@ -22,24 +23,24 @@ class DeepLinksTest {
     fun `a trailing slash is not a second path segment`() {
         assertEquals(
             DeepLink.Product(productId = "croissant"),
-            DeepLinks.parse("androidproject1://product/croissant/"),
+            DeepLinks.parse("app://product/croissant/"),
         )
     }
 
     @Test
     fun `a host the app does not serve is not a link`() {
-        assertNull(DeepLinks.parse("androidproject1://order/1"))
+        assertNull(DeepLinks.parse("app://order/1"))
     }
 
     @Test
     fun `a product link with no product is not a link`() {
-        assertNull(DeepLinks.parse("androidproject1://product"))
-        assertNull(DeepLinks.parse("androidproject1://product/"))
+        assertNull(DeepLinks.parse("app://product"))
+        assertNull(DeepLinks.parse("app://product/"))
     }
 
     @Test
     fun `a deeper path is not a link, rather than one with the first segment taken`() {
-        assertNull(DeepLinks.parse("androidproject1://product/croissant/reviews"))
+        assertNull(DeepLinks.parse("app://product/croissant/reviews"))
     }
 
     @Test

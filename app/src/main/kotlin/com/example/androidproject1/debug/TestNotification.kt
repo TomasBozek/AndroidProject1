@@ -1,12 +1,17 @@
 package com.example.androidproject1.debug
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.example.androidproject1.App
+import com.example.androidproject1.BuildConfig
 import com.example.androidproject1.R
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 
@@ -24,9 +29,19 @@ import com.example.androidproject1.feature.devmenu.presentation.NotificationTest
 class TestNotification(private val context: Context) : NotificationTester {
 
     override fun post(): Boolean {
+        // Written out rather than folded into a helper, because this is also the shape lint reads
+        // as a guard for `notify` — `areNotificationsEnabled()` alone is not one, and neither is a
+        // `runCatching` around the call.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return false
+        }
+
         val manager = NotificationManagerCompat.from(context)
-        // Both are refusals with the same outcome: the permission was never granted, or the
-        // channel was turned off in system settings afterwards.
+        // A second refusal with the same outcome: the permission is held, but the channel was
+        // turned off in system settings afterwards.
         if (!manager.areNotificationsEnabled()) return false
 
         val notification = NotificationCompat.Builder(context, App.CHANNEL_ID_GENERAL)
@@ -48,9 +63,8 @@ class TestNotification(private val context: Context) : NotificationTester {
      * `adb shell am start -d …`, which is what the deep link was verified with.
      */
     private fun deepLinkIntent(): PendingIntent {
-        val scheme = context.getString(R.string.deep_link_scheme)
-        val intent = Intent(Intent.ACTION_VIEW, "$scheme://product/$PRODUCT_ID".toUri())
-            .setPackage(context.packageName)
+        val uri = "${BuildConfig.APPLICATION_ID}://product/$PRODUCT_ID".toUri()
+        val intent = Intent(Intent.ACTION_VIEW, uri).setPackage(context.packageName)
 
         return PendingIntent.getActivity(
             context,
