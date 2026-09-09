@@ -217,7 +217,7 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **qa.13 A directory per screen, a file per component** · L · `stable` D34 — every
   screen's unit in its own sub-package, a feature's composables in `component/` one file each,
   the template and generators cloning that shape, two `doctor.py` checks holding it
-- [ ] **qa.14 Maestro ids exist in the code** · S · `stable` — a `doctor.py` check that every
-  `id:` in a flow is a tag in the code, the design's check four
+- [x] (2026-09-09) **qa.14 Maestro ids exist in the code** · S · `stable` — a `doctor.py` check
+  that every `id:` in a flow is a tag in the code, the design's check four
 
 Backlog, lessons and the Plan 3 roll call are in [PLAN-DETAIL.md](PLAN-DETAIL.md).

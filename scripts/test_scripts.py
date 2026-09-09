@@ -782,6 +782,15 @@ class ScaffoldingTest(unittest.TestCase):
         result = self.run_script("doctor.py", expect_success=False)
         self.assertNotEqual(0, result.returncode)
         self.assertIn("is not part of screen 'Home'", result.stdout)
+    def test_doctor_catches_a_maestro_id_that_is_not_in_the_code(self) -> None:
+        """A renamed tag breaks a flow silently; the grep is what finds it before the emulator."""
+        flow = self.repo / ".maestro/sign-in.yaml"
+        flow.write_text(flow.read_text().replace("login_emailField", "login_emailBox"))
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("sign-in.yaml", result.stdout)
+        self.assertIn("login_emailBox", result.stdout)
 
 
 if __name__ == "__main__":

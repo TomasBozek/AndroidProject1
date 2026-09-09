@@ -885,6 +885,81 @@ def check_screen_files_hold_only_the_screen() -> list[str]:
 
 
 
+# Maestro flows
+# --------------------------------------------------------------------------------------------
+
+# Notes a check wants printed without failing the run. Advisory only — main() prints them after
+# the checks, and they never change the exit code.
+NOTES: list[str] = []
+
+MAESTRO_DIR = REPO_ROOT / ".maestro"
+
+# `id: "login_emailField"` under a tapOn or an assertVisible, quoted or not. `appId:` does not
+# match, because the key has to start the line.
+MAESTRO_ID = re.compile(r'^\s*-?\s*id:\s*"?([^"\n]+?)"?\s*$')
+
+# The three ways an id reaches the device: a literal tag, the screen's own name, and the tag
+# constants the shared components expose (`ALERT_DIALOG_TAG` and friends).
+TEST_TAG_LITERAL = re.compile(r'testTag\(\s*"([^"]+)"')
+SCREEN_ID_LITERAL = re.compile(r'screenId\s*=\s*"([^"]+)"')
+TAG_CONSTANT = re.compile(r'const\s+val\s+[A-Z0-9_]*_TAG\s*(?::\s*String\s*)?=\s*"([^"]+)"')
+
+
+def main_source_kotlin_files():
+    """Every `src/main` Kotlin file in the repo — what actually ships, so what a flow can drive."""
+    for path in sorted(REPO_ROOT.rglob("*.kt")):
+        parts = path.relative_to(REPO_ROOT).parts
+        if "build" in parts or "src" not in parts:
+            continue
+        if parts[parts.index("src") + 1] != "main":
+            continue
+        yield path
+
+
+def declared_test_ids() -> set[str]:
+    ids: set[str] = set()
+    for path in main_source_kotlin_files():
+        text = path.read_text()
+        ids |= set(TEST_TAG_LITERAL.findall(text))
+        ids |= set(SCREEN_ID_LITERAL.findall(text))
+        ids |= set(TAG_CONSTANT.findall(text))
+    return ids
+
+
+@check("every Maestro id exists in the code")
+def check_maestro_ids_exist() -> list[str]:
+    """
+    A flow finds by id, and nothing tells it the id is gone until an emulator runs it — an hour of
+    CI, or a week if the flows are on a schedule. Renaming a `testTag` is a one-line change that
+    breaks a flow silently, so the grep is the cheap half of the design's check four.
+
+    The reverse — a tag no flow uses — is a note rather than a failure: most tags exist for the
+    screen tests, and only the golden paths have flows.
+    """
+    if not MAESTRO_DIR.is_dir():
+        return []
+
+    used: dict[str, list[str]] = {}
+    for path in sorted(MAESTRO_DIR.glob("*.yaml")):
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            match = MAESTRO_ID.match(line)
+            if match:
+                used.setdefault(match.group(1), []).append(f"{relative_to_repo(path)}:{number}")
+
+    declared = declared_test_ids()
+    problems = [
+        f"{where}: id '{identifier}' is in no testTag, screenId or tag constant"
+        for identifier, locations in sorted(used.items())
+        if identifier not in declared
+        for where in locations
+    ]
+
+    unused = sorted(declared - set(used))
+    if unused:
+        NOTES.append(f"{len(unused)} test id(s) no Maestro flow drives: {', '.join(unused)}")
+    return problems
+
+
 # --------------------------------------------------------------------------------------------
 
 
@@ -919,6 +994,9 @@ def main() -> None:
                 print(f"         {line}")
         else:
             print(f"[ ok ] {name}")
+
+    for note in NOTES:
+        print(f"[note] {note}")
 
     print()
     if failed:

@@ -421,15 +421,6 @@ matter. Edits `build-logic/` (core's directory).
 Verify: tag `v1.1.0` on a scratch branch — `aapt2 dump badging` reads 1.1.0 with a code above 1,
 and the release appears with notes; delete the scratch tag.
 
-**qa.14 Maestro ids exist in the code** · S · `stable`
-Why: a flow finds by id and nothing checks the id exists until an emulator runs it. The design's
-check four wants the registry and the code compared both ways on every pull request; the cheap
-half is a grep.
-Done: a `doctor.py` check that every `id:` in `.maestro/*.yaml` appears in the code as a
-`testTag`, a `screenId` or one of the alert dialog's ids; the reverse — tags no flow uses — is
-printed, not failed. The generated `Ids` object the design describes stays in the backlog.
-Verify: rename an id in a flow on purpose and `doctor.py` names the flow and the id.
-
 ## Backlog
 
 Parked, not scheduled. Promote by moving onto the board with the next number in a track.

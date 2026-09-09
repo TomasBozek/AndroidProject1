@@ -682,7 +682,9 @@ it lives in, a screen file holding nothing but the screen, `XState.PREVIEW`, an
 `init` block that clears `loading`, cross-feature `presentation` dependencies, a repository importing a
 data source implementation, module registration in `settings.gradle.kts`, ViewModel/Koin/AppNavHost
 registration, the module tree above matching the `feature/` directories on disk, a module build file
-repeating the shared Android configuration, and hardcoded dependency coordinates.
+repeating the shared Android configuration, hardcoded dependency coordinates, and every `id:` a
+Maestro flow drives existing in the code as a `testTag` or a `screenId` — the reverse, a tag no flow
+uses, is printed as a note rather than failed.
 Exits non-zero, so it can gate CI; `--list` prints the checks. Since there is no detekt/ktlint here,
 this is the only automated defence these rules have.
 
