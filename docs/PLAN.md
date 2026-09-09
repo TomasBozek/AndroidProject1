@@ -111,7 +111,8 @@ D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is
 | D32 | Store upload | **Decided 2026-09-09 with `qa.12`: none.** A GitHub release carrying the APK is the release |
 | D33 | Icon set | **Decided 2026-09-09: Material icons stay; the three sizes are `AppTheme.icons.sm/md/lg`.** The design names Lucide, which has no first-party Compose artifact |
 | D34 | Presentation layout | **Decided 2026-09-09: a directory per screen, even a lone one, and a file per component in the feature's `component/`** |
-| D35 | `ui.2` test home | **Decided 2026-09-09: one screenshot test per `presentation` module, cloned from `feature/template`** — a generated feature gets one for free, and nothing runs three times over the flavors |
+| D35 | Where a screenshot test lives | **Decided 2026-09-10 with `ui.2`: one per `presentation` module and one in `:core:ui`, cloned from `feature/template`.** A single copy in `:app` sees every module but runs three times over the flavors |
+| D36 | `ComposablePreviewScanner` | **Decided 2026-09-10 with `ui.2`: in, under D27's test-only leniency.** Single maintainer, never in a release build; it reads the `@Preview` functions that already exist, and the alternative is a second list of all 349 goldens kept in step by hand |
 
 ## Dependencies
 
@@ -146,9 +147,9 @@ version of every open item is in the detail file under the same id.
 
 ### ui · design system and adaptive
 
-- [~] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · branch `ui.2-roborazzi` —
-  `.includePrivatePreviews()` is what the scanner was missing, not `internal` previews; what is
-  left is where the test lives, the goldens, and the verify task in CI
+- [x] (2026-09-09) **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 — one
+  `PreviewScreenshotTest` per presentation module and in `:core:ui` (D35), scanned from the
+  previews that already exist; the goldens committed and `verifyRoborazziDebug` in the CI build job
 - [x] (2026-09-09) **ui.3 Component behaviour tests** · M · `stable` — the interactive components
   asserted by tag; the package leaves 22 %
 - [x] (2026-09-09) **ui.4 Window size class drives density** · S · `stable` — a tablet gets

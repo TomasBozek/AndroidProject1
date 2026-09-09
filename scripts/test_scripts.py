@@ -43,7 +43,12 @@ TEMPLATE_PACKAGE_WORD = "android" + "project1"
 TEMPLATE_PROJECT_NAME = "Android" + "Project1"
 
 # Build output and IDE state; everything else is copied so the scripts see a realistic repo.
-IGNORED = shutil.ignore_patterns("build", ".gradle", ".git", ".idea", ".kotlin", "__pycache__", ".DS_Store")
+# `screenshots` is the Roborazzi goldens (ui.2) — megabytes of PNG that no script reads, copied
+# once per test. What matters about them, that a clone does not carry them, is asserted by
+# `test_create_feature_does_not_clone_the_goldens`, which writes one of its own.
+IGNORED = shutil.ignore_patterns(
+    "build", ".gradle", ".git", ".idea", ".kotlin", "__pycache__", ".DS_Store", "screenshots"
+)
 
 
 def hermetic_env() -> dict[str, str]:
@@ -145,6 +150,31 @@ class ScaffoldingTest(unittest.TestCase):
         )
 
         self.assert_doctor_passes()
+
+    def test_create_feature_does_not_clone_the_goldens(self) -> None:
+        """The screenshot test is cloned; the images it recorded for the template are not.
+
+        A generated feature's previews are named after the feature, so the template's goldens
+        match nothing in it — they would sit there unverified while `verifyRoborazziDebug` failed
+        on the images that are genuinely missing. `recordRoborazziDebug` writes the right ones.
+        """
+        goldens = self.repo / "feature/template/presentation/src/test/screenshots"
+        goldens.mkdir(parents=True, exist_ok=True)
+        (goldens / "TemplateScreenKt.Preview.Light.png").write_bytes(b"\x89PNG\r\n")
+
+        self.run_script("create_feature.py", "userProfile")
+
+        self.assertFalse(
+            (self.repo / "feature/userprofile/presentation/src/test/screenshots").exists(),
+            "the template's goldens were cloned into the generated feature",
+        )
+
+        test = self.presentation("userprofile", "test") / "screenshot/PreviewScreenshotTest.kt"
+        self.assertTrue(test.is_file(), "the screenshot test was not cloned")
+        self.assertIn(
+            'scanPackageTrees("com.example.androidproject1.feature.userprofile.presentation")',
+            test.read_text(),
+        )
 
     def test_create_feature_renames_string_resources(self) -> None:
         """The template's `template_title` must not survive into a generated feature."""
