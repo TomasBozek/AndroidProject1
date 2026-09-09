@@ -194,7 +194,7 @@ version of every open item is in the detail file under the same id.
 - [ ] **shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
 - [ ] **shell.5 Onboarding flow** · M · `stable` · needs qa.13 — a third flow beside auth and
   main, behind a stored flag
-- [ ] **shell.6 Tests for the app shell** · S · `stable` — tab segments and the session switch;
+- [x] (2026-09-09) **shell.6 Tests for the app shell** · S · `stable` — tab segments and the session switch;
   the package leaves 12 %
 - [ ] **feat.4 Search — proves inline error per content id** · M · `stable` · needs qa.13
 - [x] (2026-09-09) **feat.8 A screen test for every screen** · M · `stable` · needs qa.13 — the seven screens

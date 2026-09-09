@@ -51,6 +51,37 @@ class MainViewModelTest {
     }
 
     @Test
+    fun `signing in later switches the session forward`() = runTest {
+        // The other direction of `signing out later switches the session back`: nothing but the
+        // session changing moves the app between the auth flow and the tabs, so both ways have to
+        // be asserted or half the switch is untested.
+        val viewModel = viewModel()
+        assertEquals(SessionState.SignedOut, viewModel.sessionState.value)
+
+        authService.login("ada@example.com")
+
+        assertEquals(SessionState.SignedIn, viewModel.sessionState.value)
+        assertEquals(listOf(null, FakeAuthService.SESSION_ID), errorTracker.users)
+    }
+
+    @Test
+    fun `a session that becomes unreadable mid-flight falls back to signed out`() = runTest {
+        // `observeSession()` has already retried by the time a failure reaches here, and there is
+        // no screen to put a dialog over — so the flow drops to the one state the user can act
+        // from, and says so in the log rather than in their face.
+        authService.session.value = Session(id = "session-1", email = "ada@example.com")
+        val viewModel = viewModel()
+        assertEquals(SessionState.SignedIn, viewModel.sessionState.value)
+
+        authService.sessionError = UnexpectedError(message = "disk gone")
+        authService.session.value = null
+        advanceUntilIdle()
+
+        assertEquals(SessionState.SignedOut, viewModel.sessionState.value)
+        assertTrue(logger.warnings.isNotEmpty())
+    }
+
+    @Test
     fun `an unreadable session is signed out, with a warning rather than a dialog`() = runTest {
         authService.sessionError = UnexpectedError(message = "disk gone")
 

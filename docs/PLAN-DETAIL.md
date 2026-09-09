@@ -341,15 +341,6 @@ file in the ui track's directory).
 Verify: `MainViewModelTest` for all four states; the first cold start shows onboarding then
 Login, the second skips it.
 
-**shell.6 Tests for the app shell** · S · `stable`
-Why: `:app` is 213 lines at 12 %. `currentTab` and `selectTab` are the back-stack arithmetic
-every tab switch depends on, they are plain functions on a list, and nothing asserts them.
-Done: JVM tests for `currentTab` (the last tab key wins; `null` in the auth flow), `selectTab`
-(an unvisited tab is appended, a visited tab's whole segment moves to the end, the current tab is
-left alone) and the segment boundary; `MainViewModelTest` extended to the session switch in both
-directions.
-Verify: the package leaves 12 % in the report.
-
 **feat.4 Search — proves inline error per content id** · M · `stable`
 Why: inline retry works per content id and no screen has two content states.
 Done: a search screen from the Categories top bar; `AppSearchField` with a 300 ms debounce and
