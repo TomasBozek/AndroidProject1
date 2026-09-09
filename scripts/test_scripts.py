@@ -72,8 +72,16 @@ class ScaffoldingTest(unittest.TestCase):
     def read(self, relative: str) -> str:
         return (self.repo / relative).read_text()
 
-    def presentation(self, feature: str) -> Path:
-        return self.repo / f"feature/{feature}/presentation/src/main/kotlin/{BASE_PATH}/feature/{feature}/presentation"
+    def presentation(self, feature: str, source_set: str = "main") -> Path:
+        return self.repo / f"feature/{feature}/presentation/src/{source_set}/kotlin/{BASE_PATH}/feature/{feature}/presentation"
+
+    def screen(self, feature: str, name: str, source_set: str = "main") -> Path:
+        """A screen's directory since D34: `presentation/<the screen name, flat lowercase>/`."""
+        return self.presentation(feature, source_set) / name.lower()
+
+    def component(self, feature: str) -> Path:
+        """A feature's own components, since D34: `presentation/component/`."""
+        return self.presentation(feature) / "component"
 
     def assert_doctor_passes(self) -> None:
         result = self.run_script("doctor.py", expect_success=False)
@@ -107,10 +115,13 @@ class ScaffoldingTest(unittest.TestCase):
         # camelCase, the same spelling create_screen.py produces; the package stays flat.
         nav_host = self.read(f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt")
         self.assertIn("userProfileDestination(backStack = backStack)", nav_host)
-        self.assertIn("import com.example.androidproject1.feature.userprofile.presentation.userProfileDestination", nav_host)
-        self.assertNotIn("userprofileDestination", nav_host)
+        self.assertIn(
+            "import com.example.androidproject1.feature.userprofile.presentation.userprofile.userProfileDestination",
+            nav_host,
+        )
+        self.assertNotIn("userprofileDestination(", nav_host)
 
-        destination = (self.presentation("userprofile") / "UserProfileDestination.kt").read_text()
+        destination = (self.screen("userprofile", "UserProfile") / "UserProfileDestination.kt").read_text()
         self.assertIn("fun EntryProviderScope<NavKey>.userProfileDestination(", destination)
 
         # The fifth registration: CLAUDE.md's module tree, which doctor.py checks.
@@ -129,7 +140,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn('name="user_profile_title"', strings)
         self.assertNotIn("template_", strings)
 
-        screen = (self.presentation("userprofile") / "UserProfileScreen.kt").read_text()
+        screen = (self.screen("userprofile", "UserProfile") / "UserProfileScreen.kt").read_text()
         self.assertIn("R.string.user_profile_title", screen)
         self.assertNotIn("template_", screen)
 
@@ -187,9 +198,11 @@ class ScaffoldingTest(unittest.TestCase):
         self.run_script("create_feature.py", "userProfile")
         self.run_script("create_screen.py", "userprofile", "UserProfileList")
 
-        directory = self.presentation("userprofile")
+        # D34: the unit lands in a directory named after the screen, not in the flat package.
+        directory = self.screen("userprofile", "UserProfileList")
         for suffix in ("Destination", "Screen", "State", "Event", "Navigation", "ViewModel"):
             self.assertTrue((directory / f"UserProfileList{suffix}.kt").is_file(), suffix)
+        self.assertFalse((self.presentation("userprofile") / "UserProfileListScreen.kt").exists())
 
         # The bug this test exists for: the screen used to reference a string it did not bring.
         strings = self.read("feature/userprofile/presentation/src/main/res/values/strings.xml")
@@ -210,6 +223,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.run_script("create_screen.py", "userprofile", "UserProfileDetail", "--sub", "detail")
 
         screen = (self.presentation("userprofile") / "detail/UserProfileDetailScreen.kt").read_text()
+        self.assertFalse((self.presentation("userprofile") / "userprofiledetail").exists())
         self.assertIn("package com.example.androidproject1.feature.userprofile.presentation.detail", screen)
         self.assertIn("import com.example.androidproject1.feature.userprofile.presentation.R", screen)
 
@@ -307,7 +321,7 @@ class ScaffoldingTest(unittest.TestCase):
             "--with-args", "productId:String,rating:Int",
         )
 
-        destination = (self.presentation("catalog") / "ProductReviewDestination.kt").read_text()
+        destination = (self.screen("catalog", "ProductReview") / "ProductReviewDestination.kt").read_text()
         self.assertIn(
             "data class ProductReviewDestination(val productId: String, val rating: Int) : NavKey",
             destination,
@@ -318,7 +332,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertNotIn("LaunchedEffect(", destination)
         self.assertNotIn("viewModel.load(", destination)
 
-        view_model = (self.presentation("catalog") / "ProductReviewViewModel.kt").read_text()
+        view_model = (self.screen("catalog", "ProductReview") / "ProductReviewViewModel.kt").read_text()
         self.assertIn("private val args: ProductReviewDestination", view_model)
         self.assertNotIn("SavedStateHandle", view_model)
 
@@ -330,8 +344,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.run_script("create_screen.py", "catalog", "ProductReview", "--with-args", "productId:String")
 
         test = (
-            self.repo / f"feature/catalog/presentation/src/test/kotlin/{BASE_PATH}"
-            "/feature/catalog/presentation/ProductReviewViewModelTest.kt"
+            self.screen("catalog", "ProductReview", "test") / "ProductReviewViewModelTest.kt"
         ).read_text()
         # Navigation 3 hands the key over as a plain object, so there is no Bundle to decode and
         # no Robolectric runner.
@@ -377,8 +390,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.run_script("create_screen.py", "catalog", "ProductReview")
 
         test = (
-            self.repo / f"feature/catalog/presentation/src/test/kotlin/{BASE_PATH}"
-            "/feature/catalog/presentation/ProductReviewScreenTest.kt"
+            self.screen("catalog", "ProductReview", "test") / "ProductReviewScreenTest.kt"
         ).read_text()
         # The half a ViewModel test cannot reach: what is on screen, and what a tap does.
         self.assertIn("class ProductReviewScreenTest", test)
@@ -389,9 +401,8 @@ class ScaffoldingTest(unittest.TestCase):
         """A tag's stem is camelCase; the resource beside it is snake_case. They rewrite apart."""
         self.run_script("create_screen.py", "catalog", "ProductReview")
 
-        base = self.repo / f"feature/catalog/presentation/src"
-        screen = (base / f"main/kotlin/{BASE_PATH}/feature/catalog/presentation/ProductReviewScreen.kt").read_text()
-        test = (base / f"test/kotlin/{BASE_PATH}/feature/catalog/presentation/ProductReviewScreenTest.kt").read_text()
+        screen = (self.screen("catalog", "ProductReview") / "ProductReviewScreen.kt").read_text()
+        test = (self.screen("catalog", "ProductReview", "test") / "ProductReviewScreenTest.kt").read_text()
 
         # camelCase stem in both, so the test can actually find what the screen tags.
         self.assertIn('testTag("productReview_incrementButton")', screen)
@@ -405,15 +416,15 @@ class ScaffoldingTest(unittest.TestCase):
 
         self.assertIn(
             "data class ProductReviewDestination(val id: String)",
-            (self.presentation("catalog") / "ProductReviewDestination.kt").read_text(),
+            (self.screen("catalog", "ProductReview") / "ProductReviewDestination.kt").read_text(),
         )
 
     def test_create_screen_with_args_names_files_without_the_args_suffix(self) -> None:
         """The template class is `TemplateArgs`; the generated files must not inherit the suffix."""
         self.run_script("create_screen.py", "catalog", "ProductReview", "--with-args")
 
-        self.assertTrue((self.presentation("catalog") / "ProductReviewViewModel.kt").is_file())
-        self.assertFalse((self.presentation("catalog") / "ProductReviewArgsViewModel.kt").exists())
+        self.assertTrue((self.screen("catalog", "ProductReview") / "ProductReviewViewModel.kt").is_file())
+        self.assertFalse((self.screen("catalog", "ProductReview") / "ProductReviewArgsViewModel.kt").exists())
         self.assert_doctor_passes()
 
     def test_create_screen_with_args_rejects_an_unsupported_type(self) -> None:
@@ -428,10 +439,10 @@ class ScaffoldingTest(unittest.TestCase):
         """The plain path must not pick up the args template — `Template*.kt` matches both."""
         self.run_script("create_screen.py", "catalog", "PlainScreen")
 
-        destination = (self.presentation("catalog") / "PlainScreenDestination.kt").read_text()
+        destination = (self.screen("catalog", "PlainScreen") / "PlainScreenDestination.kt").read_text()
         self.assertIn("data object PlainScreenDestination", destination)
-        self.assertFalse((self.presentation("catalog") / "PlainScreenArgsDestination.kt").exists())
-        view_model = (self.presentation("catalog") / "PlainScreenViewModel.kt").read_text()
+        self.assertFalse((self.screen("catalog", "PlainScreen") / "PlainScreenArgsDestination.kt").exists())
+        view_model = (self.screen("catalog", "PlainScreen") / "PlainScreenViewModel.kt").read_text()
         self.assertNotIn("SavedStateHandle", view_model)
         self.assert_doctor_passes()
 
@@ -532,28 +543,29 @@ class ScaffoldingTest(unittest.TestCase):
     def test_create_component_in_a_feature(self) -> None:
         self.run_script("create_component.py", "ProductCard", "--feature", "catalog")
 
-        component = self.presentation("catalog") / "ProductCard.kt"
+        # D34: a feature's own components live in `component/`, never beside a screen.
+        component = self.component("catalog") / "ProductCard.kt"
         self.assertTrue(component.is_file())
-        self.assertIn("feature.catalog.presentation", component.read_text())
+        self.assertIn("feature.catalog.presentation.component", component.read_text())
 
     def test_create_component_with_state_generates_a_preview_fixture(self) -> None:
         self.run_script("create_component.py", "ProductCard", "--feature", "catalog", "--state")
 
-        state = self.presentation("catalog") / "ProductCardState.kt"
+        state = self.component("catalog") / "ProductCardState.kt"
         self.assertTrue(state.is_file())
         state_text = state.read_text()
         # doctor.py requires a PREVIEW on every *State.kt in a presentation module.
         self.assertIn("val PREVIEW", state_text)
         self.assertIn("@Immutable", state_text)
-        self.assertIn("state: ProductCardState", (self.presentation("catalog") / "ProductCard.kt").read_text())
+        self.assertIn("state: ProductCardState", (self.component("catalog") / "ProductCard.kt").read_text())
         self.assert_doctor_passes()
 
     def test_create_component_sub_package(self) -> None:
         self.run_script("create_component.py", "Badge", "--feature", "catalog", "--sub", "product")
 
-        component = self.presentation("catalog") / "product/Badge.kt"
+        component = self.component("catalog") / "product/Badge.kt"
         self.assertTrue(component.is_file())
-        self.assertIn("feature.catalog.presentation.product", component.read_text())
+        self.assertIn("feature.catalog.presentation.component.product", component.read_text())
 
     def test_create_component_refuses_an_unknown_feature(self) -> None:
         result = self.run_script(
@@ -621,7 +633,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.run_script("create_feature.py", "billing")
         self.assertTrue(
             (self.repo / "feature/billing/presentation/src/main/kotlin/com/acme/tracker"
-             "/feature/billing/presentation/BillingViewModel.kt").is_file()
+             "/feature/billing/presentation/billing/BillingViewModel.kt").is_file()
         )
         self.assert_doctor_passes()
 
@@ -688,7 +700,7 @@ class ScaffoldingTest(unittest.TestCase):
 
     def test_doctor_catches_a_feature_drawing_its_own_ui(self) -> None:
         """The rule the design system rests on: a feature composes components, it never draws."""
-        screen = self.repo / f"feature/home/presentation/src/main/kotlin/{BASE_PATH}/feature/home/presentation/HomeScreen.kt"
+        screen = self.screen("home", "Home") / "HomeScreen.kt"
 
         original = screen.read_text()
         for violation, expected in (
@@ -711,7 +723,7 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertNotIn("AndroidProject1", properties)
 
     def test_doctor_catches_a_state_that_is_not_immutable(self) -> None:
-        state = self.repo / f"feature/home/presentation/src/main/kotlin/{BASE_PATH}/feature/home/presentation/HomeState.kt"
+        state = self.screen("home", "Home") / "HomeState.kt"
         state.write_text(state.read_text().replace("@Immutable\n", ""))
 
         result = self.run_script("doctor.py", expect_success=False)
@@ -733,6 +745,44 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("AppButton.kt", result.stdout)
         self.assertIn("@ComponentPreview", result.stdout)
+
+    # -- the presentation layout (D34) --------------------------------------------------------
+
+    def test_create_screen_brings_the_feature_component_it_composes(self) -> None:
+        """The generated screen composes one feature-local component; it has to arrive with it."""
+        self.run_script("create_screen.py", "catalog", "ProductReview")
+
+        component = self.component("catalog") / "ProductReviewHeadline.kt"
+        self.assertTrue(component.is_file())
+        self.assertIn("feature.catalog.presentation.component", component.read_text())
+        self.assertIn("@ComponentPreview", component.read_text())
+        self.assertIn(
+            "import com.example.androidproject1.feature.catalog.presentation.component.ProductReviewHeadline",
+            (self.screen("catalog", "ProductReview") / "ProductReviewScreen.kt").read_text(),
+        )
+        self.assert_doctor_passes()
+
+    def test_doctor_catches_a_composable_left_beside_a_screen(self) -> None:
+        """The other half of D34: a screen file holds the screen and its previews, nothing else."""
+        screen = self.screen("home", "Home") / "HomeScreen.kt"
+        original = screen.read_text()
+        screen.write_text(
+            original + "\n@Composable\nprivate fun Stray(modifier: Modifier = Modifier) {\n}\n"
+        )
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("composable 'Stray' is not the screen", result.stdout)
+        screen.write_text(original)
+
+    def test_doctor_catches_a_stranger_in_a_screen_directory(self) -> None:
+        stray = self.screen("home", "Home") / "Helpers.kt"
+        stray.write_text("package com.example.androidproject1.feature.home.presentation.home\n")
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("is not part of screen 'Home'", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

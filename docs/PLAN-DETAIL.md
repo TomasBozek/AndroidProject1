@@ -453,37 +453,6 @@ matter. Edits `build-logic/` (core's directory).
 Verify: tag `v1.1.0` on a scratch branch — `aapt2 dump badging` reads 1.1.0 with a code above 1,
 and the release appears with notes; delete the scratch tag.
 
-**qa.13 A directory per screen, a file per component** · L · `stable` D34
-Why: every presentation module is one flat package. The catalog's four screens share a directory
-of 24 files, `ProfileScreen.kt` carries seven composables and a `FileProvider` helper, and a
-feature's own component has no place to live — the design's rule that an element is added to the
-component document before a screen uses it has nothing in the code to land on.
-Done, in this order:
-· `feature/template` first, so the generators clone the shape: `template/` and `templateargs/`
-  sub-packages, a `component/` with one sample component and its preview, `TemplateScreen`
-  using it.
-· `create_screen.py` puts a screen in a sub-package named after it by default (`--sub` names a
-  deeper one; the explicit `import ...presentation.R` it already writes for `--sub` becomes the
-  norm); `create_feature.py` follows the template; `create_component.py --feature` writes into
-  `component/`; `test_scripts.py` follows.
-· Every existing screen moved with `git mv` into its directory — `auth/login`, `auth/signup`,
-  `catalog/categories`, `catalog/products`, `catalog/productdetail`, `catalog/productpicker`,
-  `cart/cart`, `home/home`, `settings/settings`, `settings/permissions`, `gallery/gallery`,
-  `gallery/gallerydetail`, `profile/profile` — tests mirroring; `AppNavHost.kt`,
-  `KoinGraphTest.kt` and the Koin modules re-import.
-· The private composables in Profile, Permissions, Cart, Login, Home and ProductDetail move to
-  their feature's `component/`, one file each with a `@ComponentPreview`; `XScreen.kt` keeps the
-  screen and its preview and nothing else. A component two features want goes to `:core:ui`
-  through `create_component.py`, as before.
-· Two `doctor.py` checks: a screen's directory holds nothing but its own unit, and a screen file
-  holds no composable but the screen and its preview.
-· `CLAUDE.md`'s screen table and recipes, `README.md`, `scripts/README.md`.
-Edits every `feature/*/presentation`, `app/AppNavHost.kt` and `app/KoinGraphTest.kt`; lands
-before `ui.2`, `ui.7`, `ui.8`, `feat.4`, `feat.8`, `shell.1`, `shell.2`, `shell.3`, `shell.5`.
-Test ids do not change, so `.maestro/` does not either.
-Verify: the gate; a composable added beside a screen on purpose fails `doctor.py`; the five
-Maestro flows pass unchanged; `git log --follow` reaches every moved file's history.
-
 **qa.14 Maestro ids exist in the code** · S · `stable`
 Why: a flow finds by id and nothing checks the id exists until an emulator runs it. The design's
 check four wants the registry and the code compared both ways on every pull request; the cheap

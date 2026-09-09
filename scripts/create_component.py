@@ -8,7 +8,8 @@ Scaffolds a Compose component with its preview.
     python3 scripts/create_component.py Badge --feature catalog --sub product --dry-run
 
 With no `--feature` the component lands in `:core:ui`, where every feature can reach it. Pass
-`--feature` for one that belongs to a single feature and should not be shared.
+`--feature` for one that belongs to a single feature and should not be shared; it lands in that
+module's `component/` package (D34), never beside a screen.
 
 Unlike `create_feature.py` and `create_screen.py`, this generates from templates held in this file
 rather than cloning `feature/template` — the same choice `create_datasource.py` makes. A component
@@ -76,13 +77,17 @@ def resolve_target(args: argparse.Namespace) -> tuple[Path, str]:
     """Returns the directory to write into and the package to declare."""
     if args.feature:
         feature = to_flat(args.feature)
-        directory = feature_source_dir(feature, "presentation")
-        if not directory.is_dir():
+        presentation = feature_source_dir(feature, "presentation")
+        if not presentation.is_dir():
             sys.exit(
                 f"No presentation module at feature/{feature}/presentation. "
                 f"Create the feature first: python3 scripts/create_feature.py {feature}"
             )
-        package = f"{BASE_PACKAGE}.feature.{feature}.presentation"
+        # One `component/` per feature (D34), beside the screens rather than inside one of them:
+        # a screen-private composable and a feature-shared one would otherwise need two homes,
+        # and the day one is used from a second screen it would have to move.
+        directory = presentation / "component"
+        package = f"{BASE_PACKAGE}.feature.{feature}.presentation.component"
     else:
         directory = CORE_UI_DIR / "component"
         package = f"{CORE_UI_PACKAGE}.component"

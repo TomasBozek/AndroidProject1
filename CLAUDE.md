@@ -244,12 +244,24 @@ travels 3 dp. A blurred shadow makes it a floating card instead of a pressed one
 
 ## Screen structure (the unit of work)
 
-Every screen is eight files — six in one package, plus its two tests in the matching test package:
+Every screen is eight files — six in **a package of its own**, plus its two tests in the matching
+test package. The package is named after the screen, flat lowercase, and a feature gets one even
+when it has a single screen, so every feature reads the same and a second screen never forces a
+move:
+
+```
+feature/catalog/presentation/src/main/kotlin/<base>/feature/catalog/presentation/
+    categories/     CategoriesDestination.kt, CategoriesScreen.kt, …
+    products/       ProductsDestination.kt, …
+    productdetail/
+    productpicker/
+    component/      one file per composable that is not a screen, each with a @ComponentPreview
+```
 
 | File | Role |
 |---|---|
 | `XDestination.kt` | `@Serializable` route key (a `NavKey`) + `EntryProviderScope<NavKey>.xDestination()`; gets the VM and wires `Screen()`, passing `onNavigation` |
-| `XScreen.kt` | Stateless `XScreen(state, onEvent)` + a private `@ScreenPreview` composable |
+| `XScreen.kt` | Stateless `XScreen(state, onEvent)` + its `@ScreenPreview` composables — **and nothing else**. Any other composable goes to the feature's `component/` |
 | `XState.kt` | `data class XState(...)` with a `companion object { val PREVIEW }` |
 | `XEvent.kt` | `sealed interface XEvent : UiEvent` — what the user did |
 | `XNavigation.kt` | `sealed interface XNavigation` — one-off navigation intents |
@@ -259,6 +271,15 @@ Every screen is eight files — six in one package, plus its two tests in the ma
 
 `XState.PREVIEW` is required — it is the preview fixture and usually the value passed as
 `initialState`.
+
+Two `doctor.py` checks hold the shape: a screen's directory holds that screen's six files and
+nothing else, and a screen file holds the screen and its previews and no other composable. So a
+composable a screen grows has exactly one home — **`presentation/component/`, one file each with
+a `@ComponentPreview`**, written with `create_component.py --feature <name>`. One `component/`
+per feature rather than one per screen: a screen-private composable and a feature-shared one
+would otherwise need two homes, and the day one is used from a second screen it would have to
+move. A component a *second feature* wants goes to `:core:ui`, also through
+`create_component.py` — never copied.
 
 ## MVI conventions
 
@@ -380,6 +401,7 @@ need, extend it rather than working around it; `scripts/test_scripts.py` covers 
 | another screen in an existing feature | `python3 scripts/create_screen.py userprofile UserProfileDetail` |
 | a screen that takes route arguments | `python3 scripts/create_screen.py userprofile UserProfileDetail --with-args 'userId:String'` |
 | a shared Compose component | `python3 scripts/create_component.py PrimaryButton` |
+| a component only one feature needs | `python3 scripts/create_component.py ProductCard --feature catalog` |
 | a data source, optionally with its repository | `python3 scripts/create_datasource.py userprofile LocalUserProfile --repository` |
 | to undo a generated feature | `python3 scripts/delete_feature.py userProfile` |
 | to check the conventions still hold | `python3 scripts/doctor.py` |
@@ -438,10 +460,12 @@ loading from a `LaunchedEffect` instead of from the key it was handed.
 Note that `create_feature.py` deliberately skips the `TemplateArgs*` files: a new feature starts
 with one screen, and copying the second would leave an unregistered destination behind.
 
-Writes the six-file unit, adds `user_profile_detail_*` strings to the feature's `strings.xml`, registers
-the ViewModel in the feature's Koin module and the destination in `AppNavHost.kt`. Then follow steps
-1–3 above. For a screen that takes an argument, turn its `@Serializable data object XDestination` into
-a `data class` and read it from the nav entry.
+Writes the six-file unit into `presentation/userprofiledetail/` — a directory named after the
+screen — plus its two tests, plus the one feature-local component the generated screen composes
+in `presentation/component/`. Adds `user_profile_detail_*` strings to the feature's
+`strings.xml`, registers the ViewModel in the feature's Koin module and the destination in
+`AppNavHost.kt`. Then follow steps 1–3 above. `--sub` names that directory instead of deriving
+it, which is what a long screen name wants: `--sub search` rather than `catalogsearch`.
 
 
 ### A new data source
@@ -544,7 +568,7 @@ arrow: the bar is what leaves it.
 ### Removing things
 
 `delete_feature.py` removes a whole feature and all five registrations. There is no script for a single
-screen: delete its six files, its `user_profile_detail_*` strings, the `viewModelOf(::XViewModel)` line
+screen: delete its directory, its `user_profile_detail_*` strings, the `viewModelOf(::XViewModel)` line
 and the two `AppNavHost.kt` lines. Run `doctor.py` afterwards — it catches every one of those if you
 miss it.
 
@@ -603,11 +627,13 @@ generate are stripped from the generated build files. `--graph` picks the entry 
 python3 scripts/create_screen.py userprofile UserProfileList --sub overview
 ```
 
-Clones the six-file screen unit into an existing feature, renames the template's `template_*` strings to
+Clones the six-file screen unit into a directory of its own inside an existing feature — named
+after the screen unless `--sub` names it — along with its two tests and the one feature-local
+component the generated screen composes. Renames the template's `template_*` strings to
 `user_profile_list_*` and merges them into the feature's `strings.xml`, registers the ViewModel in the
-feature's Koin module and the destination in `AppNavHost.kt`. With `--sub` the generated files get an
-explicit `import ...presentation.R`, because `R` lives in the module's namespace package and a
-sub-package is no longer part of it.
+feature's Koin module and the destination in `AppNavHost.kt`. Every generated file gets an explicit
+`import ...presentation.R`, because `R` lives in the module's namespace package and no generated
+file sits in it any more.
 
 ```bash
 python3 scripts/create_component.py PrimaryButton
@@ -615,7 +641,8 @@ python3 scripts/create_component.py ProductCard --feature catalog --state
 ```
 
 Writes a Compose component with a `modifier` parameter and a `@ComponentPreview`. With no
-`--feature` it lands in `:core:ui`, where every feature can reach it; `--feature` keeps it to one.
+`--feature` it lands in `:core:ui`, where every feature can reach it; `--feature` keeps it to one, in that
+module's `component/` package.
 `--state` adds an `@Immutable` `XState` data class with the `PREVIEW` fixture `doctor.py` requires.
 A component needs no registration, which is why this script edits nothing outside the file it
 writes. Templates live in the script rather than in `feature/template` — there is no component
@@ -644,7 +671,8 @@ python3 scripts/doctor.py
 ```
 
 Greps for the conventions in this file that no compiler enforces: `service/` portability, the
-Android-free domain layer, the `core_` resource prefix, the six-file screen unit, `XState.PREVIEW`, an
+Android-free domain layer, the `core_` resource prefix, the six-file screen unit and the directory
+it lives in, a screen file holding nothing but the screen, `XState.PREVIEW`, an
 `init` block that clears `loading`, cross-feature `presentation` dependencies, a repository importing a
 data source implementation, module registration in `settings.gradle.kts`, ViewModel/Koin/AppNavHost
 registration, the module tree above matching the `feature/` directories on disk, a module build file

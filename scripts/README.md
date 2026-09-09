@@ -33,11 +33,11 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 | Script | What it does | Registers |
 |---|---|---|
 | `create_feature.py` | Clones `feature/template` into a new feature | `settings.gradle.kts`, `core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt` |
-| `create_screen.py` | The seven-file screen unit in an existing feature | the ViewModel in the feature's Koin module, the destination in `AppNavHost.kt` |
-| `create_component.py` | A Compose component and its preview | nothing — a component needs none |
+| `create_screen.py` | The eight-file screen unit, in a directory of its own, in an existing feature | the ViewModel in the feature's Koin module, the destination in `AppNavHost.kt` |
+| `create_component.py` | A Compose component and its preview, in `:core:ui` or a feature's `component/` | nothing — a component needs none |
 | `create_datasource.py` | Data source across `data`, optionally its repository in `domain` | the Koin bindings |
 | `delete_feature.py` | The inverse of `create_feature.py` | undoes all five |
-| `doctor.py` | 23 checks a compiler cannot make | — |
+| `doctor.py` | 25 checks a compiler cannot make | — |
 | `test_scripts.py` | Tests for everything above | — |
 | `export_service.py` | Copies `service/` and `build-logic/` into a *different* project | prints the `settings.gradle.kts` block |
 
@@ -57,6 +57,12 @@ hand-convert a
 `LaunchedEffect` instead of from the key it was handed, which re-fires on recomposition and
 restores nothing after process death.
 
+**`create_screen.py --sub`** when the screen's own name makes a poor directory. A screen lands
+in `presentation/<screen name, flat lowercase>/` by default; `--sub search` puts it in
+`presentation/search/` instead. The directory holds that screen's six files and nothing else —
+`doctor.py` fails on a stranger in it, and on a composable left in a screen file. Anything that
+is not the screen goes to the feature's `component/` with `create_component.py --feature`.
+
 **`create_datasource.py --repository`** when the data source needs one. Both halves of the source
 land in `data.source` and the repository in `data.repository`; the only thing above `data` that may
 name any of it is the `XRepository` interface in `domain`.
@@ -74,12 +80,15 @@ them in.
 
 `feature/template` **is** the template. `create_feature.py` and `create_screen.py` clone it and only
 rewrite names, so to change the shape of every future feature or screen, edit `feature/template` —
-not the scripts. It holds two screens:
+not the scripts. It holds two screens and one component:
 
-- `Template*` — the plain screen, cloned by default.
-- `TemplateArgs*` — the argument-carrying variant, cloned by `--with-args`. `create_feature.py`
-  deliberately skips it: a new feature starts with one screen, and copying the second would leave an
-  unregistered destination behind.
+- `template/Template*` — the plain screen, cloned by default.
+- `templateargs/TemplateArgs*` — the argument-carrying variant, cloned by `--with-args`.
+  `create_feature.py` deliberately skips it: a new feature starts with one screen, and copying the
+  second would leave an unregistered destination behind.
+- `component/TemplateHeadline.kt` — the one feature-local composable both screens compose, cloned
+  alongside whichever screen is generated. It is what makes the `component/` package exist in
+  every generated feature rather than being remembered.
 
 Both are compiled by `./gradlew build` and checked by `doctor.py`, so a broken template fails before
 it can generate anything broken.

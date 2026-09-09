@@ -8,9 +8,15 @@ into an existing feature, cloned from `feature/template`.
     python3 scripts/create_screen.py userprofile UserProfileList --graph none
     python3 scripts/create_screen.py userprofile UserProfileList --dry-run
 
-Also renames the template's string resources into the new screen's namespace and merges them into
-the feature's `strings.xml`, registers the ViewModel in the feature's Koin module, and registers
-the destination in `AppNavHost.kt`.
+The unit lands in a sub-package named after the screen (D34) — `presentation/userprofilelist/` —
+so a screen's files sit together and a second screen never forces a move. `--sub` names that
+directory instead, which is what a long screen name wants: `--sub search` rather than
+`catalogsearch`.
+
+Also clones the template's one feature-local component into the feature's `component/`, renames
+the template's string resources into the new screen's namespace and merges them into the
+feature's `strings.xml`, registers the ViewModel in the feature's Koin module, and registers the
+destination in `AppNavHost.kt`.
 """
 
 from __future__ import annotations
@@ -63,6 +69,14 @@ TEMPLATE_ARGS_RESOURCE_PREFIX = "template_args"
 # The one argument the args template declares; --with-args rewrites it into the real list.
 TEMPLATE_ARG_NAME = "templateId"
 
+# The template's two screens each live in a sub-package named after them (D34).
+TEMPLATE_SUB = TEMPLATE_FEATURE
+TEMPLATE_ARGS_SUB = f"{TEMPLATE_FEATURE}args"
+
+# The feature-local component the template screen composes. Cloned alongside the screen so that
+# what comes out compiles, and so that the first composable a new screen needs already has a home.
+TEMPLATE_COMPONENT = f"{TEMPLATE_CLASS}Headline"
+
 SCREEN_SUFFIXES = ["Destination", "Screen", "State", "Event", "Navigation", "ViewModel"]
 # Two tests per screen, and they answer different questions: a ViewModel test says what the
 # state becomes, a screen test says what is on screen and what a tap does.
@@ -102,7 +116,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("feature", help="Existing feature module name, e.g. userprofile")
     parser.add_argument("screen", help="Screen name in PascalCase, e.g. UserProfileList")
-    parser.add_argument("--sub", default="", help="Optional sub-package, e.g. overview or overview/list")
+    parser.add_argument(
+        "--sub",
+        default="",
+        help="Name the screen's directory instead of deriving it from the screen name, e.g. search",
+    )
     parser.add_argument(
         "--graph",
         default="main",
@@ -203,6 +221,16 @@ def rewrite(
     r_import: str,
     with_args: bool = False,
 ) -> str:
+    # The template screen's own directory (D34) comes off first: the generated screen gets its
+    # own below, and the `R` import is re-derived from the module's namespace rather than carried
+    # over — a module that sets `namespace` itself would otherwise import the wrong one.
+    text = re.sub(
+        rf"(\.presentation)\.(?:{TEMPLATE_ARGS_SUB}|{TEMPLATE_SUB})\b",
+        r"\1",
+        text,
+    )
+    text = text.replace(f"import {BASE_PACKAGE}.feature.{TEMPLATE_FEATURE}.presentation.R\n", "")
+
     # The feature's package segment.
     text = text.replace(f"feature.{TEMPLATE_FEATURE}", f"feature.{feature}")
 
@@ -227,16 +255,20 @@ def rewrite(
     text = re.sub(rf"\b{TEMPLATE_RESOURCE_PREFIX}_(\w+)", rf"{screen_snake}_\1", text)
 
     if sub_package:
-        text = text.replace(
-            f"package {BASE_PACKAGE}.feature.{feature}.presentation",
+        # Anchored, so that a file already in a package of its own — `component/` — keeps it.
+        text = re.sub(
+            rf"^package {re.escape(BASE_PACKAGE)}\.feature\.{feature}\.presentation$",
             f"package {BASE_PACKAGE}.feature.{feature}.presentation.{sub_package}",
-            1,
+            text,
+            count=1,
+            flags=re.MULTILINE,
         )
-        # R lives in the module's namespace package, which the sub-package is no longer part of.
-        if re.search(r"\bR\.\w+\.", text):
-            lines = text.split("\n")
-            insert_import(lines, r_import)
-            text = "\n".join(lines)
+
+    # R lives in the module's namespace package, and since D34 nothing generated sits in it.
+    if re.search(r"\bR\.\w+\.", text):
+        lines = text.split("\n")
+        insert_import(lines, r_import)
+        text = "\n".join(lines)
 
     return text
 
@@ -276,7 +308,8 @@ def main() -> None:
     screen_pascal = to_pascal(args.screen)
     screen_camel = to_camel(args.screen)
     screen_snake = to_snake(args.screen)
-    sub_path = args.sub.strip("/")
+    # D34: a screen lives in a directory named after it unless --sub names a different one.
+    sub_path = args.sub.strip("/") or to_flat(args.screen)
     sub_package = sub_path.replace("/", ".")
     arguments = parse_arg_spec(args.with_args) if args.with_args else None
 
@@ -300,15 +333,36 @@ def main() -> None:
 
     dest_dir = screen_dir("main")
 
-    # (template file, where it goes). The seventh file is the ViewModel test, which lives in the
-    # test source set — so a generated screen starts testable rather than becoming testable later.
-    # Named explicitly rather than globbed: `Template*.kt` now matches the args variant too, and a
-    # glob would clone both sets into one screen.
+    # (template file, where it goes, what it is called there). The seventh and eighth files are
+    # the tests, which live in the test source set — so a generated screen starts testable rather
+    # than becoming testable later. Named explicitly rather than globbed: `Template*.kt` matches
+    # the args variant too, and a glob would clone both sets into one screen.
     class_name = TEMPLATE_ARGS_CLASS if arguments else TEMPLATE_CLASS
-    sources = [(TEMPLATE_DIR / f"{class_name}{suffix}.kt", dest_dir) for suffix in SCREEN_SUFFIXES]
-    sources += [(TEMPLATE_TEST_DIR / f"{class_name}{suffix}.kt", screen_dir("test")) for suffix in TEST_SUFFIXES]
+    template_sub = TEMPLATE_ARGS_SUB if arguments else TEMPLATE_SUB
+    component_dir = (
+        feature_presentation / "src/main/kotlin"
+        / BASE_PATH / "feature" / feature / "presentation" / "component"
+    )
+    sources = [
+        (TEMPLATE_DIR / template_sub / f"{class_name}{suffix}.kt", dest_dir, f"{screen_pascal}{suffix}.kt")
+        for suffix in SCREEN_SUFFIXES
+    ]
+    sources += [
+        (TEMPLATE_TEST_DIR / template_sub / f"{class_name}{suffix}.kt", screen_dir("test"), f"{screen_pascal}{suffix}.kt")
+        for suffix in TEST_SUFFIXES
+    ]
+    # The one feature-local composable the screen composes (D34). It carries the plain class name
+    # even in the args variant, so its target name is derived from that rather than from
+    # `class_name`.
+    sources += [
+        (
+            TEMPLATE_DIR / "component" / f"{TEMPLATE_COMPONENT}.kt",
+            component_dir,
+            f"{TEMPLATE_COMPONENT.replace(TEMPLATE_CLASS, screen_pascal)}.kt",
+        )
+    ]
 
-    missing = [s for s, _ in sources if not s.is_file()]
+    missing = [s for s, _, _ in sources if not s.is_file()]
     if missing:
         sys.exit("Template files are missing:\n  " + "\n  ".join(str(m) for m in missing))
 
@@ -320,8 +374,8 @@ def main() -> None:
         print("-- dry run, nothing will be written --")
 
     wrote_any = False
-    for source, target_dir in sources:
-        dest = target_dir / source.name.replace(class_name, screen_pascal)
+    for source, target_dir, name in sources:
+        dest = target_dir / name
         if dest.exists() and not args.force:
             print(f"  skipping {dest.relative_to(REPO_ROOT)}: already exists (use --force)")
             continue
@@ -336,7 +390,9 @@ def main() -> None:
             screen_pascal,
             screen_camel,
             screen_snake,
-            sub_package,
+            # A component is already in a package of its own; only the screen's six files and
+            # their tests move into the screen's directory.
+            "" if target_dir == component_dir else sub_package,
             r_import,
             with_args=bool(arguments),
         )

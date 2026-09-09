@@ -775,6 +775,96 @@ def check_no_hardcoded_versions() -> list[str]:
 
 
 # --------------------------------------------------------------------------------------------
+# Presentation layout (D34)
+# --------------------------------------------------------------------------------------------
+
+PREVIEW_ANNOTATIONS = {"@ScreenPreview", "@ComponentPreview", "@Preview"}
+
+
+def screen_destinations(feature: str):
+    """`(destination file, screen stem)` for every screen in a feature's presentation module."""
+    directory = presentation_dir(feature)
+    if not directory.is_dir():
+        return
+    for destination in sorted(directory.rglob("*Destination.kt")):
+        if NOT_A_SCREEN.search(destination.name):
+            continue
+        yield destination, destination.name[: -len("Destination.kt")]
+
+
+@check("every screen has a directory of its own, holding nothing else")
+def check_screen_directories() -> list[str]:
+    """
+    D34: a screen's eight-file unit lives in a sub-package named after it, even when the feature
+    has only one screen — so a second screen never forces a move, and every feature reads the same.
+
+    What the flat package cost was concrete: the catalog's four screens shared a directory of 24
+    files, and a feature's own composable had nowhere to live but the screen file it was written
+    in. The rule only holds while nothing else moves in beside a screen, which is what this
+    checks: the directory holds that screen's six files and not one more.
+    """
+    problems = []
+    for feature in feature_names():
+        root = presentation_dir(feature)
+        for destination, screen in screen_destinations(feature):
+            directory = destination.parent
+            if directory == root:
+                problems.append(
+                    problem(destination, None, f"screen '{screen}' sits in the presentation package root — give it a directory, as create_screen.py does")
+                )
+                continue
+            own = {f"{screen}{suffix}.kt" for suffix in SCREEN_FILE_SUFFIXES}
+            for path in sorted(directory.glob("*.kt")):
+                if path.name not in own:
+                    problems.append(
+                        problem(path, None, f"is not part of screen '{screen}' — a screen's directory holds its own unit and nothing else; a composable goes to the feature's component/")
+                    )
+            for path in sorted(p for p in directory.iterdir() if p.is_dir()):
+                problems.append(
+                    problem(destination, None, f"screen '{screen}' has a nested directory '{path.name}' — a screen's directory holds its own unit and nothing else")
+                )
+    return problems
+
+
+def top_level_composables(text: str) -> list[tuple[str, set[str], int]]:
+    """`(name, annotations, line number)` for every top-level `@Composable fun` in a file."""
+    found = []
+    annotations: set[str] = set()
+    for number, line in enumerate(text.split("\n"), start=1):
+        if line.startswith("@"):
+            annotations.add(line.split("(")[0].rstrip())
+            continue
+        match = re.match(r"(?:public |internal |private )?fun ([A-Za-z_]\w*)\s*[(<]", line)
+        if match and "@Composable" in annotations:
+            found.append((match.group(1), annotations, number))
+        annotations = set()
+    return found
+
+
+@check("a screen file holds no composable but the screen and its previews")
+def check_screen_files_hold_only_the_screen() -> list[str]:
+    """
+    D34's other half. `ProfileScreen.kt` had grown seven composables and a `FileProvider` helper,
+    which is how a feature's own component ends up unpreviewable and unreachable from a second
+    screen. Anything that is not the screen goes to the feature's `component/`, one to a file with
+    a `@ComponentPreview`; a component a second feature wants goes to `:core:ui` through
+    `create_component.py`.
+    """
+    problems = []
+    for feature in feature_names():
+        for destination, screen in screen_destinations(feature):
+            for path in sorted(destination.parent.glob("*.kt")):
+                for name, annotations, number in top_level_composables(path.read_text()):
+                    if name == f"{screen}Screen" or annotations & PREVIEW_ANNOTATIONS:
+                        continue
+                    problems.append(
+                        problem(path, number, f"composable '{name}' is not the screen — move it to feature/{feature}/presentation/.../component/ with create_component.py --feature {feature}")
+                    )
+    return problems
+
+
+
+# --------------------------------------------------------------------------------------------
 
 
 def main() -> None:

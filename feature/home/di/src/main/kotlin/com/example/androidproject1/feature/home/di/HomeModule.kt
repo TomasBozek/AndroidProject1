@@ -1,6 +1,6 @@
 package com.example.androidproject1.feature.home.di
 
-import com.example.androidproject1.feature.home.presentation.HomeViewModel
+import com.example.androidproject1.feature.home.presentation.home.HomeViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module

@@ -213,7 +213,7 @@ version of every open item is in the detail file under the same id.
   demand
 - [ ] **qa.12 Version and release notes from the tag** · S · `stable` D31 — `versionName` and
   `versionCode` from the tag, a GitHub release with the APK and generated notes
-- [ ] **qa.13 A directory per screen, a file per component** · L · `stable` D34 — every
+- [x] (2026-09-09) **qa.13 A directory per screen, a file per component** · L · `stable` D34 — every
   screen's unit in its own sub-package, a feature's composables in `component/` one file each,
   the template and generators cloning that shape, two `doctor.py` checks holding it
 - [ ] **qa.14 Maestro ids exist in the code** · S · `stable` — a `doctor.py` check that every

@@ -62,6 +62,7 @@ import com.example.androidproject1.core.ui.component.TagTone
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.component.ToastTone
 import com.example.androidproject1.core.ui.theme.AppTheme
+import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryItem
 import kotlin.math.roundToInt
 
 /** One rendered state of a component, with the label that says which state it is. */

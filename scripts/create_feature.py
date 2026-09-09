@@ -334,7 +334,9 @@ def main() -> None:
 
     if "presentation" in created:
         register_destination(
-            import_line=f"import {BASE_PACKAGE}.feature.{flat}.presentation.{camel}Destination",
+            # The screen's own sub-package (D34); a new feature's one screen is named after it,
+            # so the directory is the feature's flat name.
+            import_line=f"import {BASE_PACKAGE}.feature.{flat}.presentation.{flat}.{camel}Destination",
             call_line=f"{camel}Destination(backStack = backStack)",
             graph=args.graph,
             dry_run=args.dry_run,

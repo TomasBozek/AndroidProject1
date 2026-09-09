@@ -116,6 +116,9 @@ def rewrite_source(text: str, flat: str, pascal: str, camel: str) -> str:
     """
     text = text.replace(f"feature.{TEMPLATE_FEATURE}", f"feature.{flat}")
     text = text.replace(f"feature/{TEMPLATE_FEATURE}", f"feature/{flat}")
+    # The screen's own sub-package (D34), in `package ...presentation.template` and in every
+    # import of it. `\b` keeps `presentation.templateargs` — a different screen — out of it.
+    text = re.sub(rf"(\.presentation)\.{TEMPLATE_FEATURE}\b", rf"\1.{flat}", text)
     # camelCase identifiers such as `templateDestination`.
     text = re.sub(rf"\b{TEMPLATE_FEATURE}(?=[A-Z])", camel, text)
     text = text.replace(TEMPLATE_CLASS, pascal)
@@ -152,13 +155,22 @@ def rewrite_test_tags(text: str, camel_stem: str) -> str:
 
 def rewrite_relative_path(relative: Path, flat: str, pascal: str) -> Path:
     """
-    Maps a path inside the template module to the generated module. Only the
-    `.../feature/template/...` package segment is rewritten.
+    Maps a path inside the template module to the generated module.
+
+    Two segments move: the `.../feature/template/...` package directory, and — since D34 gave
+    every screen a directory of its own — the screen's sub-package under `presentation/`, which
+    is named after the screen and so after the feature for the one screen a new feature starts
+    with. `component/` is not a screen and stays where it is.
     """
     as_posix = relative.as_posix()
     as_posix = as_posix.replace(
         f"{BASE_PATH}/feature/{TEMPLATE_FEATURE}/",
         f"{BASE_PATH}/feature/{flat}/",
+    )
+    as_posix = re.sub(
+        rf"(/presentation)/{TEMPLATE_FEATURE}/",
+        rf"\1/{flat}/",
+        as_posix,
     )
     parts = as_posix.split("/")
     parts[-1] = parts[-1].replace(TEMPLATE_CLASS, pascal)

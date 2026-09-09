@@ -70,6 +70,16 @@ app                             one activity, AppNavHost, MainViewModel, the bot
 feature/<name>/{domain,data,presentation,di}
 ```
 
+Inside a `presentation` module, every screen has a directory of its own — named after the screen,
+even when the feature has only one — and every composable that is not a screen lives in the
+module's `component/`, one file each:
+
+```
+feature/catalog/presentation/…/presentation/
+    categories/  products/  productdetail/  productpicker/
+    component/
+```
+
 `service/` is portable: drop the directory into another project, add three `includeServiceModule`
 lines, and you have the architecture without this app's identity. `scripts/export_service.py` does
 the copy, brings `build-logic/` along and rewrites the package.
@@ -101,8 +111,9 @@ A feature's `presentation` must never depend on another feature's `presentation`
 
 ## Generating code
 
-A screen is seven files — `XDestination`, `XScreen`, `XState`, `XEvent`, `XNavigation`,
-`XViewModel`, `XViewModelTest` — plus six registrations that are easy to forget. Generate them.
+A screen is eight files in a directory of its own — `XDestination`, `XScreen`, `XState`,
+`XEvent`, `XNavigation`, `XViewModel`, `XViewModelTest`, `XScreenTest` — plus six registrations
+that are easy to forget. Generate them.
 
 | I need | Command |
 |---|---|
@@ -111,6 +122,7 @@ A screen is seven files — `XDestination`, `XScreen`, `XState`, `XEvent`, `XNav
 | another screen | `python3 scripts/create_screen.py userprofile UserProfileDetail` |
 | a screen with route arguments | `python3 scripts/create_screen.py userprofile Detail --with-args 'id:String'` |
 | a shared UI component | `python3 scripts/create_component.py PrimaryButton` |
+| a component one feature needs | `python3 scripts/create_component.py ProductCard --feature catalog` |
 | a data source | `python3 scripts/create_datasource.py userprofile LocalUserProfile --repository` |
 | to undo a feature | `python3 scripts/delete_feature.py userProfile` |
 | to check the conventions | `python3 scripts/doctor.py` |

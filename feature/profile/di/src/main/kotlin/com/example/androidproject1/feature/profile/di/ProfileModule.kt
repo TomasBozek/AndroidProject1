@@ -6,7 +6,7 @@ import com.example.androidproject1.feature.profile.data.source.DefaultAvatarData
 import com.example.androidproject1.feature.profile.data.source.DefaultLocalProfileDataSource
 import com.example.androidproject1.feature.profile.data.source.LocalProfileDataSource
 import com.example.androidproject1.feature.profile.domain.ProfileRepository
-import com.example.androidproject1.feature.profile.presentation.ProfileViewModel
+import com.example.androidproject1.feature.profile.presentation.profile.ProfileViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf

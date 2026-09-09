@@ -6,7 +6,7 @@ import com.example.androidproject1.feature.cart.data.repository.DefaultCartRepos
 import com.example.androidproject1.feature.cart.data.source.DefaultLocalCartDataSource
 import com.example.androidproject1.feature.cart.data.source.LocalCartDataSource
 import com.example.androidproject1.feature.cart.domain.CartRepository
-import com.example.androidproject1.feature.cart.presentation.CartViewModel
+import com.example.androidproject1.feature.cart.presentation.cart.CartViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf

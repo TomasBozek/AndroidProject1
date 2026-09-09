@@ -2,14 +2,14 @@ package com.example.androidproject1
 
 import android.content.Context
 import com.example.androidproject1.core.di.appModules
-import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
-import com.example.androidproject1.feature.catalog.presentation.ProductPickerDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductPickerViewModel
-import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel
-import com.example.androidproject1.feature.gallery.presentation.GalleryDetailDestination
-import com.example.androidproject1.feature.gallery.presentation.GalleryDetailViewModel
+import com.example.androidproject1.feature.catalog.presentation.productdetail.ProductDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.productdetail.ProductDetailViewModel
+import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerDestination
+import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerViewModel
+import com.example.androidproject1.feature.catalog.presentation.products.ProductsDestination
+import com.example.androidproject1.feature.catalog.presentation.products.ProductsViewModel
+import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailDestination
+import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailViewModel
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module

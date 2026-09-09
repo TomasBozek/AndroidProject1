@@ -12,8 +12,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.example.androidproject1.core.ui.theme.AppTheme
-import com.example.androidproject1.feature.auth.presentation.LoginDestination
-import com.example.androidproject1.feature.home.presentation.HomeDestination
+import com.example.androidproject1.feature.auth.presentation.login.LoginDestination
+import com.example.androidproject1.feature.home.presentation.home.HomeDestination
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /** The app's only Activity; everything else is a composable destination. */

@@ -4,8 +4,11 @@ argument-hint: <feature> <ScreenName> [--with-args 'id:String'] [--sub subpackag
 allowed-tools: Bash(python3 scripts/*), Read, Edit, Glob, Grep
 ---
 
-Add a screen with `scripts/create_screen.py`. It writes the seven-file unit, merges the strings,
-registers the ViewModel in the feature's Koin module and the destination in `AppNavHost.kt`.
+Add a screen with `scripts/create_screen.py`. It writes the eight-file unit into a directory of
+its own — `presentation/<screen name, flat lowercase>/`, or `--sub <name>` to name that directory
+when the screen's own name makes a poor one — merges the strings, brings the one feature-local
+component the generated screen composes, and registers the ViewModel in the feature's Koin module
+and the destination in `AppNavHost.kt`.
 
 ```bash
 python3 scripts/create_screen.py $ARGUMENTS
@@ -26,5 +29,8 @@ Then:
   a retryable message in place of the content, and `BaseViewModel` re-runs the failed call for you.
   Keep the default `Alert` for a call the user triggered on a screen that is already drawn.
 - Never write try/catch, and never touch a loading flag.
+- Keep the screen file to the screen and its previews. Anything else goes to the feature's
+  `component/` with `create_component.py --feature <name>`; `doctor.py` fails on a composable left
+  behind, and on any file in the screen's directory that is not part of its unit.
 
 Finish with `python3 scripts/doctor.py && ./gradlew build`.

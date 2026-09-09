@@ -8,10 +8,10 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import com.example.androidproject1.feature.cart.presentation.CartDestination
-import com.example.androidproject1.feature.catalog.presentation.CategoriesDestination
-import com.example.androidproject1.feature.home.presentation.HomeDestination
-import com.example.androidproject1.feature.settings.presentation.SettingsDestination
+import com.example.androidproject1.feature.cart.presentation.cart.CartDestination
+import com.example.androidproject1.feature.catalog.presentation.categories.CategoriesDestination
+import com.example.androidproject1.feature.home.presentation.home.HomeDestination
+import com.example.androidproject1.feature.settings.presentation.settings.SettingsDestination
 
 /**
  * A tab of the bottom bar: a top-level destination, and the root of its own back stack.
