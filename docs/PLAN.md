@@ -171,8 +171,8 @@ version of every open item is in the detail file under the same id.
   left is where the test lives, the goldens, and the verify task in CI
 - [ ] **ui.3 Component behaviour tests** · M · `stable` — the interactive components asserted by
   tag; the package leaves 22 %
-- [ ] **ui.4 Window size class drives density** · S · `stable` — a tablet gets regular density
-  and typography
+- [x] (2026-09-09) **ui.4 Window size class drives density** · S · `stable` — a tablet gets
+  regular density and typography
 - [ ] **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
 - [x] (2026-09-09) **ui.6 Gallery demos are interactive** · S · `stable` — every demo holds its
   own state, so a checkbox in the gallery toggles; a screen test proves it

@@ -62,7 +62,7 @@ write the new number and the commit on the board.
 | | |
 |---|---|
 | `adb` | `~/Library/Android/sdk/platform-tools/adb`, not on `PATH` |
-| AVDs | one, `medium_phone_1`; `ui.4` and `ui.5` need a tablet profile created first |
+| AVDs | `medium_phone_1` and `medium_tablet_1` (API 37, created by `ui.4` and never started — worker 4 has the phone) |
 | Maestro CLI | `$(brew --prefix maestro)/bin/maestro`, 2.10.0. `brew install maestro` gives the desktop app with no `maestro test`; the CLI is `brew install mobile-dev-inc/tap/maestro` |
 | `gh` | `/opt/homebrew/bin/gh` |
 | Design source | the KSD project in Claude Design. `DesignSync` needs `/design-login` once from an interactive session; until then the Chrome route in the project memory reads the files |
@@ -173,17 +173,6 @@ interactive components — `AppButton` (loading keeps width, disabled emits noth
 (an error always carries text), `AppCheckbox` (indeterminate), `AppSelect`, `AppTabs`,
 `AppStepper` (floor and ceiling), `AppSheet`, `AppDialog`, `AppSwitch`, `AppSegmented`.
 Verify: the package leaves 22 % in the Kover report; each test finds by `testTag`, never by text.
-
-**ui.4 Window size class drives density** · S · `stable`
-Why: `AppTheme.density` has a `SizeClass` and nothing sets it; a tablet gets the phone scale.
-The design also has a fourth density, `mouse`, for a pointer-driven device of any size — 48 dp
-rows and small buttons — which the code does not know at all.
-Done: `AppTheme` reads `currentWindowAdaptiveInfo()` and picks compact or regular density and
-typography from it; a pointer present (`InputDevice` sources) selects the mouse density;
-previews gain a tablet variant. The design's breakpoints are 720 / 1280 in one table and
-600 / 1000 in another; the code keeps 720 / 1280, which is what it already had.
-Verify: the tablet preview shows regular typography and the 56 dp touch target; a preview with
-a pointer shows 48 dp rows.
 
 **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
 Why: the source system runs on tablets, and the catalog is exactly a list–detail shape.

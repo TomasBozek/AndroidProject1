@@ -5,7 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 
 /**
  * The theme every screen composes inside.
@@ -18,12 +18,18 @@ import androidx.compose.ui.platform.LocalConfiguration
  * There is no dynamic colour. The palette is the product — a screen that takes its colours from the
  * wallpaper is a screen that never looks like itself, and the status roles stop meaning anything.
  *
+ * The size class comes from the **window**, not the screen: an app in split screen or in a freeform
+ * window on a desktop is as narrow as its window, and a theme that measured the display would give
+ * it a tablet's typography in a phone-width column.
+ *
  * @param sizeClass override the class derived from window width; useful in previews and tests.
+ * @param pointer override whether a mouse or trackpad is attached; useful in previews and tests.
  */
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    sizeClass: SizeClass = sizeClassFor(LocalConfiguration.current.screenWidthDp),
+    sizeClass: SizeClass = currentSizeClass(),
+    pointer: Boolean = pointerPresent(),
     content: @Composable () -> Unit,
 ) {
     val colors = if (darkTheme) darkAppColors() else lightAppColors()
@@ -39,7 +45,7 @@ fun AppTheme(
         LocalAppShapes provides shapes,
         LocalAppElevation provides AppElevation(),
         LocalAppMotion provides AppMotion(),
-        LocalAppDensity provides densityFor(sizeClass),
+        LocalAppDensity provides densityFor(sizeClass, pointer),
         LocalAppIcons provides AppIcons(),
         LocalSpacing provides Spacing(),
     ) {
@@ -51,6 +57,19 @@ fun AppTheme(
         )
     }
 }
+
+/**
+ * The class this window's width falls into.
+ *
+ * `LocalWindowInfo.containerDpSize` is the window, which is what
+ * `material3-adaptive`'s own `currentWindowDpSize()` returns — one line for one line, without the
+ * artifact. Its `currentWindowAdaptiveInfo().windowSizeClass` is the other half of that library and
+ * is not usable here: it quantises to androidx.window's 600 / 840 breakpoints, and this system's
+ * are 720 / 1280 (see [sizeClassFor]).
+ */
+@Composable
+fun currentSizeClass(): SizeClass =
+    sizeClassFor(LocalWindowInfo.current.containerDpSize.width.value.toInt())
 
 /**
  * This app's design tokens.
