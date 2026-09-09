@@ -380,16 +380,6 @@ on the board through D30.
 Verify: the job passes on the schedule; rename one tag on purpose and the dispatch run fails on
 that flow.
 
-**qa.12 Version and release notes from the tag** · S · `stable` D31 D32
-Why: `VERSION_CODE` is 1 and `VERSION_NAME` "1.0" in `ProjectConfig`, so every release build is
-the same version and a second upload anywhere would be refused.
-Done: `ProjectConfig` reads `versionName` from a `v*` tag and `versionCode` from
-`git rev-list --count HEAD` when the build runs on a tag, and keeps 1 / 1.0 otherwise; the
-release job creates a GitHub release for the tag with the APK attached and notes generated from
-the commits (`gh release create --generate-notes`), which is why `<id> <title>` commit names
-matter. Edits `build-logic/` (core's directory).
-Verify: tag `v1.1.0` on a scratch branch — `aapt2 dump badging` reads 1.1.0 with a code above 1,
-and the release appears with notes; delete the scratch tag.
 
 ## Backlog
 

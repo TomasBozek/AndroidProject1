@@ -95,12 +95,20 @@ jobs:
     # keep that surface honest without slowing every pull request down.
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
     runs-on: ubuntu-latest
+    permissions:
+      # Creating the release for the tag. Stated here rather than left to the repository default,
+      # which is read-only on a new repository and would fail the last step of a release.
+      contents: write
     env:
       # At job level, so the guard on the keystore step can read it — a step's own `env` is not
       # available to its own `if`.
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The whole history and its tags: `versionCode` is `git rev-list --count HEAD`, which on
+          # the default shallow clone is 1 — the very number this stopped being. See ProjectConfig.
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
         with:
@@ -131,3 +139,20 @@ jobs:
           name: prod-release
           path: app/build/outputs/apk/prod/release/*.apk
           if-no-files-found: error
+
+      # Only on a tag: the weekly run of this job exists to keep R8 honest, not to publish. The
+      # notes are generated from the commits since the previous tag, which is why a commit is
+      # named `<id> <title>` — the release page is the commit log, read by someone who was not
+      # here for it. Re-running the job replaces the APK rather than failing on the release that
+      # the first run already created.
+      - name: Publish the GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk \
+              --title "$GITHUB_REF_NAME" --generate-notes
+          fi

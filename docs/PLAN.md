@@ -212,7 +212,7 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
 - [ ] **qa.11 Maestro flows in CI** · M · `plugin` D30 — an emulator job on the schedule and on
   demand
-- [ ] **qa.12 Version and release notes from the tag** · S · `stable` D31 — `versionName` and
+- [x] (2026-09-09) **qa.12 Version and release notes from the tag** · S · `stable` D31 — `versionName` and
   `versionCode` from the tag, a GitHub release with the APK and generated notes
 - [x] (2026-09-09) **qa.13 A directory per screen, a file per component** · L · `stable` D34 — every
   screen's unit in its own sub-package, a feature's composables in `component/` one file each,

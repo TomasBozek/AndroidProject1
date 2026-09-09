@@ -68,7 +68,16 @@ nothing does today. `init_project.py` therefore rewrites one property rather tha
 module, and `applicationId` comes from the same property.
 
 `ProjectConfig` in `build-logic/src/main/kotlin/` holds `minSdk`, `compileSdk`, `targetSdk`, the
-Java version and the app's version code and name. Changing `minSdk` is one edit.
+Java version and the app's fallback version. Changing `minSdk` is one edit.
+
+**A release is a tag, not an edit.** `git tag v1.2.0 && git push origin v1.2.0` — `versionName`
+becomes `1.2.0` (the tag without its `v`) and `versionCode` becomes `git rev-list --count HEAD`,
+which only goes up and needs nothing stored anywhere. Any build that is not on a `v*` tag is
+1 / `"1.0"`: a number that moved on every commit would make two debug APKs indistinguishable from
+the outside. The release job then attaches the signed `prodRelease` APK to a GitHub release whose
+notes are generated from the commits since the previous tag — which is the other reason a commit
+is titled `<id> <title>`. Its checkout is `fetch-depth: 0`, because `rev-list --count` on the
+default shallow clone is 1.
 
 `service/` modules apply the same plugins, so `export_service.py` copies `build-logic/` along with
 them and prints the `includeBuild` line. `doctor.py` fails if a module build file sets `compileSdk`,
@@ -356,7 +365,7 @@ Plan 2's reference table, kept here because the plan holds only open work.
 | `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
 | `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
 | `MainDispatcherRule`, `FakeLogger`, `TestDispatchers`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain` (both middle two), `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first three; the convention plugin adds it, and `convention.feature.data` takes `:service:core:domain`'s directly |
-| `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, version, flavors. One edit each |
+| `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, flavors. One edit each; the version comes from the tag |
 
 ## DI (Koin)
 

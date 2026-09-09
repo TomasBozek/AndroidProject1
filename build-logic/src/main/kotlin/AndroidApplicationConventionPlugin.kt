@@ -23,8 +23,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             defaultConfig {
                 applicationId = basePackage
                 targetSdk = ProjectConfig.TARGET_SDK
-                versionCode = ProjectConfig.VERSION_CODE
-                versionName = ProjectConfig.VERSION_NAME
+                versionCode = releaseVersionCode()
+                versionName = releaseVersionName()
 
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
             }
