@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.catalog.presentation
 
 import com.example.androidproject1.core.domain.Logger
+import com.example.androidproject1.core.domain.error.DomainError
 import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
@@ -30,21 +31,32 @@ class ProductsViewModel(
         }
     }
 
-    // Inline rather than Alert: this is the call that loads the screen, so a dialog would leave
-    // nothing behind it. BaseViewModel remembers the call and the retry button re-runs it.
-    private fun load() = execute(
+    // Cache then network, so a category browsed before opens instantly and offline. Inline
+    // rather than Alert: `cached` emits a refresh failure after the stale list, so the error
+    // lands beside a usable screen instead of replacing it.
+    private fun load() = observe(
+        flow = { catalogRepository.observeProducts(args.categoryId) },
         errorDisplay = ErrorDisplay.Inline,
-        action = { catalogRepository.getProducts(args.categoryId) },
+        onError = ::keepStaleContent,
         onData = { products ->
             if (products.isEmpty()) {
                 showContent(
                     ContentState.Empty(message = R.string.products_empty.toUiText()),
                 )
-                return@execute
+                return@observe
             }
+            // Clear a previous empty state: the list can fill in on the refresh that follows.
+            clearContent()
             uiState.update {
                 it.copy(data = ProductsState(categoryName = args.categoryName, products = products))
             }
         },
     )
+
+    /** See `CategoriesViewModel.keepStaleContent`: a usable list beats an error page. */
+    private fun keepStaleContent(error: DomainError): Boolean {
+        val hasContent = uiState.value.data != null
+        if (hasContent) showSnackbar(R.string.catalog_stale.toUiText())
+        return hasContent
+    }
 }

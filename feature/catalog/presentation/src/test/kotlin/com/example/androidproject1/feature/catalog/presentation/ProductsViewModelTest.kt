@@ -3,6 +3,7 @@ package com.example.androidproject1.feature.catalog.presentation
 import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -32,7 +33,7 @@ class ProductsViewModelTest {
         val state = viewModel(repository).state.value
 
         // The load happens in init from the route, not from a LaunchedEffect in the destination.
-        assertEquals(1, repository.getProductsCallCount)
+        assertEquals(1, repository.observeProductsCallCount)
         assertEquals("Beverages", state.data?.categoryName)
         assertEquals(listOf(FakeCatalogRepository.COFFEE), state.data?.products)
         assertNull(state.loading)

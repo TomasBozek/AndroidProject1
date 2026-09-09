@@ -5,6 +5,7 @@ import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiCommand
 import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

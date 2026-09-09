@@ -1,6 +1,8 @@
 package com.example.androidproject1.feature.catalog.presentation
 
 import com.example.androidproject1.core.domain.Logger
+import com.example.androidproject1.core.domain.error.DomainError
+import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
@@ -27,10 +29,32 @@ class CategoriesViewModel(
         }
     }
 
-    // Inline rather than Alert: this is the call that loads the screen. See ProductsViewModel.
-    private fun loadCategories() = execute(
+    /**
+     * Cache first, then the network — so a cold start with no connection still shows what was
+     * browsed last time, and `observe` keeps the screen current if the cache changes underneath.
+     *
+     * Inline rather than Alert: a dialog over the loading screen would leave nothing behind it.
+     * The refresh failure that follows a stale hit is claimed by [keepStaleContent] instead, so a
+     * usable list is not replaced by an error page.
+     */
+    private fun loadCategories() = observe(
+        flow = { catalogRepository.observeCategories() },
         errorDisplay = ErrorDisplay.Inline,
-        action = { catalogRepository.getCategories() },
+        onError = ::keepStaleContent,
         onData = { categories -> uiState.update { it.copy(data = CategoriesState(categories = categories)) } },
     )
+
+    /**
+     * Keeps a stale list on screen when the refresh behind it fails.
+     *
+     * `cached` emits the cache and then the failure, and `ErrorDisplay.Inline` renders a
+     * `ContentState` *instead of* the content — so without this a screen that had something usable
+     * to show would be replaced by "try again". Returning true claims the error; the snackbar is
+     * what stops the staleness being silent.
+     */
+    private fun keepStaleContent(error: DomainError): Boolean {
+        val hasContent = uiState.value.data != null
+        if (hasContent) showSnackbar(R.string.catalog_stale.toUiText())
+        return hasContent
+    }
 }

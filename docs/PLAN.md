@@ -15,9 +15,9 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 2 / 14 | `█░░░░░░░░░` 14 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **8 / 32** | `███░░░░░░░` 25 % |
+| **Total** | | **9 / 32** | `███░░░░░░░` 28 % |
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -486,7 +486,7 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   Verify: ViewModel test with `advanceTimeBy` for the debounce and one for a failure on one id
   leaving the other; a screen test.
 
-- [ ] **feat.5 Catalog over the network** · M · `stable` D20 · needs core.1, core.2, feat.1
+- [x] **feat.5 Catalog over the network** (2026-09-09) · M · `stable` D20 · needs core.1, core.2, feat.1
   Why: was 6.1's second half. The first remote-backed feature.
   Done: `RemoteCatalogDataSource` on `core.1`, DTOs and mappers in `data`, `DefaultCatalogRepository`
   on `core.2` writing into `feat.1`'s database; JSON fixtures in `dev`'s source set behind a
@@ -494,6 +494,28 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   `BuildConfig.BASE_URL` names the fixture host, so a screen still never writes a URL.
   Verify: repository tests on `MockEngine` for hit, miss and stale; on `dev`, load once, flip the
   toggle, browse from cache. Airplane mode proves nothing here — the engine is in-process.
+  **Landed:** `CatalogRepository` is now **Flow-based**. Cache-then-network cannot be bolted onto a
+  `suspend fun` that returns once, so the interface changed and the three catalog ViewModels moved
+  from `execute` to `observe`. The seed is gone: the database is filled by the network, and the
+  `dev` fixtures are the seed's replacement.
+  Four things this turned up:
+  · **`observe` never registered an inline retry** — only `execute` did. Every offline-first screen
+  would have shown a "Try again" button that does nothing. `BaseViewModel.observe` now has the
+  same contract.
+  · **`ErrorDisplay.Inline` replaces the content**, so a refresh failure over a stale cache wiped a
+  usable list off the screen — the opposite of what offline-first is for. Both list ViewModels now
+  claim that error with `keepStaleContent` and raise a snackbar instead, so stale beats empty.
+  · `@Serializable` was inert in `data` modules: `convention.feature.data` never applied the
+  serialization plugin, and the failure arrives at runtime as "Serializer not found", a long way
+  from the cause. Fixed in the plugin.
+  · `null` versus an empty list is load-bearing in the cache: `LocalCatalogDataSource` returns
+  `null` for "never fetched" and a list for "fetched, and empty", or a genuinely empty category
+  re-fetches on every collection.
+  Device-checked on the emulator: the catalog shows `Pantry` and `Hot chocolate`, which exist only
+  in the fixture JSON; then `run-as … touch files/fail_network`, force-stop, cold start — and the
+  categories are still there with "Showing saved items". The toggle is a file rather than a flag
+  precisely so it can be flipped from outside the process; `shell.2`'s debug menu is where it gets
+  a switch.
 
 - [ ] **feat.6 Session carries an id; `setUser` wired** · S · `stable`
   Why: `ErrorTracker.setUser` has nothing to be called with, and the docs say so instead of the code.

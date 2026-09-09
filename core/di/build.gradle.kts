@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    // The HttpClient is assembled here; the engine arrives from :app.
+    implementation(projects.service.network)
     // `api`, and deliberately: this is the app's single aggregation point, so the destinations each
     // feature's di module re-exports reach :app through here. `buildHealth` reads that as a
     // violation because nothing in Koin.kt's signature mentions them; see CLAUDE.md.

@@ -4,23 +4,39 @@ import com.example.androidproject1.core.data.BaseRepository
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.catalog.data.source.LocalCatalogDataSource
+import com.example.androidproject1.feature.catalog.data.source.RemoteCatalogDataSource
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
+import kotlinx.coroutines.flow.Flow
 
+/**
+ * Cache, then network, then the cache again — `core.2`'s combinator, which is why this class is
+ * four lines of wiring rather than a state machine.
+ *
+ * The remote writes into the same database `feat.1` gave favourites, so a favourited product that
+ * the refresh removes stops appearing on Home without anything here knowing favourites exist.
+ */
 class DefaultCatalogRepository(
     logger: Logger,
     private val localCatalogDataSource: LocalCatalogDataSource,
+    private val remoteCatalogDataSource: RemoteCatalogDataSource,
 ) : CatalogRepository, BaseRepository(logger = logger.withTag("DefaultCatalogRepository")) {
 
-    override suspend fun getCategories(): Outcome<List<Category>> = execute {
-        localCatalogDataSource.getCategories()
-    }
+    override fun observeCategories(): Flow<Outcome<List<Category>>> = cached(
+        local = localCatalogDataSource.observeCategories(),
+        remote = { remoteCatalogDataSource.getCategories() },
+        write = { localCatalogDataSource.replaceCategories(it) },
+    )
 
-    override suspend fun getProducts(categoryId: String): Outcome<List<Product>> = execute {
-        localCatalogDataSource.getProducts(categoryId)
-    }
+    override fun observeProducts(categoryId: String): Flow<Outcome<List<Product>>> = cached(
+        local = localCatalogDataSource.observeProducts(categoryId),
+        remote = { remoteCatalogDataSource.getProducts(categoryId) },
+        write = { localCatalogDataSource.replaceProducts(categoryId, it) },
+    )
 
+    // Not cached(): detail is always reached from a list, so the product is already in the table.
+    // Fetching it again would make opening a product a network round trip for nothing.
     override suspend fun getProduct(productId: String): Outcome<Product?> = execute {
         localCatalogDataSource.getProduct(productId)
     }

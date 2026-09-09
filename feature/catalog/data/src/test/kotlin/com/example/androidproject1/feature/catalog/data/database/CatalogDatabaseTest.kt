@@ -2,14 +2,15 @@ package com.example.androidproject1.feature.catalog.data.database
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.example.androidproject1.feature.catalog.data.source.CatalogSeed
 import com.example.androidproject1.feature.catalog.data.source.DefaultLocalCatalogDataSource
 import com.example.androidproject1.feature.catalog.data.source.DefaultLocalFavouritesDataSource
+import com.example.androidproject1.feature.catalog.domain.Product
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -21,8 +22,7 @@ import org.robolectric.annotation.Config
  * The DAO round trip, against a real SQLite rather than a fake.
  *
  * A fake DAO would assert that this test's own map lookup works; what is worth testing is the SQL
- * — the join that orders favourites, and the `EXISTS` that drives the heart. Room's in-memory
- * builder runs under Robolectric as an ordinary unit test, so `./gradlew test` covers it.
+ * — the join that orders favourites, and the `EXISTS` that drives the heart.
  */
 private const val ROBOLECTRIC_SDK = 35
 
@@ -36,12 +36,22 @@ class CatalogDatabaseTest {
 
     private var clock = 1_000L
 
+    private val coffee = Product("coffee", "beverages", "Coffee", 450, "Ground.")
+    private val tea = Product("tea", "beverages", "Tea", 300, "Loose leaf.")
+
     @Before
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             CatalogDatabase::class.java,
-        ).build()
+        )
+            // Room runs queries on its own executor, which the test scheduler knows nothing
+            // about — so `advanceUntilIdle` returns while a write is still in flight. Running
+            // them inline makes the database part of the test's own timeline.
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
+            .allowMainThreadQueries()
+            .build()
         catalog = DefaultLocalCatalogDataSource(database.catalogDao())
         // A fixed clock, so the ordering assertion below is about the SQL and not about how fast
         // the test machine gets through two inserts.
@@ -51,33 +61,42 @@ class CatalogDatabaseTest {
     @After
     fun tearDown() = database.close()
 
+    private suspend fun givenProducts(vararg products: Product) =
+        catalog.replaceProducts("beverages", products.toList())
+
     @Test
-    fun `the first read seeds the catalog`() = runTest {
-        assertEquals(0, database.catalogDao().productCount())
+    fun `an empty table reads as null, not as an empty list`() = runTest {
+        // The distinction cache-then-network rests on: null is "never fetched", an empty list is
+        // "fetched, and the category really is empty".
+        assertNull(catalog.observeProducts("beverages").first())
 
-        val products = catalog.getProducts("beverages")
+        catalog.replaceProducts("beverages", emptyList())
 
-        assertEquals(CatalogSeed.PRODUCTS.count { it.categoryId == "beverages" }, products.size)
-        assertEquals(CatalogSeed.PRODUCTS.size, database.catalogDao().productCount())
+        assertNull(catalog.observeProducts("beverages").first())
     }
 
     @Test
-    fun `seeding runs once, not on every read`() = runTest {
-        catalog.getCategories()
-        catalog.getCategories()
+    fun `products written by a refresh are readable`() = runTest {
+        givenProducts(coffee, tea)
 
-        assertEquals(CatalogSeed.CATEGORIES.size, database.catalogDao().categories().size)
-    }
-
-    @Test
-    fun `a product is found by id and a missing one is null`() = runTest {
+        assertEquals(listOf("Coffee", "Tea"), catalog.observeProducts("beverages").first()?.map { it.name })
         assertEquals("Coffee", catalog.getProduct("coffee")?.name)
-        assertEquals(null, catalog.getProduct("no-such-product"))
+        assertNull(catalog.getProduct("no-such-product"))
+    }
+
+    @Test
+    fun `a refresh replaces rather than merges`() = runTest {
+        givenProducts(coffee, tea)
+
+        givenProducts(coffee)
+
+        // A product the server dropped has to disappear; an upsert would keep it for ever.
+        assertEquals(listOf("Coffee"), catalog.observeProducts("beverages").first()?.map { it.name })
     }
 
     @Test
     fun `favouriting a product round trips`() = runTest {
-        catalog.getProducts("beverages")
+        givenProducts(coffee)
 
         assertFalse(favourites.observeIsFavourite("coffee").first())
 
@@ -89,7 +108,7 @@ class CatalogDatabaseTest {
 
     @Test
     fun `unfavouriting removes it again`() = runTest {
-        catalog.getProducts("beverages")
+        givenProducts(coffee)
         favourites.setFavourite("coffee", favourite = true)
 
         favourites.setFavourite("coffee", favourite = false)
@@ -100,7 +119,7 @@ class CatalogDatabaseTest {
 
     @Test
     fun `favourites come back most recently added first`() = runTest {
-        catalog.getProducts("beverages")
+        givenProducts(coffee, tea)
 
         clock = 1_000L
         favourites.setFavourite("coffee", favourite = true)
@@ -112,7 +131,7 @@ class CatalogDatabaseTest {
 
     @Test
     fun `re-favouriting moves a product back to the front`() = runTest {
-        catalog.getProducts("beverages")
+        givenProducts(coffee, tea)
         clock = 1_000L
         favourites.setFavourite("coffee", favourite = true)
         clock = 2_000L
@@ -125,10 +144,13 @@ class CatalogDatabaseTest {
     }
 
     @Test
-    fun `a favourite whose product is gone simply does not appear`() = runTest {
-        // What feat.5 will do on every refresh: replace the product table. The favourite row
-        // survives — there is no cascade — and the join stops returning it.
+    fun `a favourite whose product a refresh removed simply does not appear`() = runTest {
+        givenProducts(coffee)
         favourites.setFavourite("coffee", favourite = true)
+
+        // Exactly what feat.5's refresh does when the server drops a product. There is no cascade,
+        // so the favourite survives — and the join stops returning it.
+        givenProducts()
 
         assertTrue(favourites.observeIsFavourite("coffee").first())
         assertEquals(emptyList<String>(), favourites.observeFavourites().first().map { it.name })

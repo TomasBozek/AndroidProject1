@@ -12,6 +12,11 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.feature.auth.domain)
 
+    // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere.
+    implementation(projects.service.network)
+    implementation(libs.ktor.client.okhttp)
+    devImplementation(libs.ktor.client.mock)
+
     // MainDispatcherRule + FakeLogger, and FakeAuthService, for MainViewModelTest. Every other
     // module gets the first line from `convention.feature.presentation`; :app is not one.
     testImplementation(testFixtures(projects.service.core.ui))

@@ -283,30 +283,59 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         alertId: String = ALERT_ID_ERROR,
         errorDisplay: ErrorDisplay = ErrorDisplay.Alert,
         onData: suspend (T) -> Unit,
-    ): Job = scope.launch {
-        val loadingOwed = AtomicBoolean(true)
-        fun clearLoading() {
-            if (loadingOwed.compareAndSet(true, false)) loading(false)
+    ): Job {
+        // The same contract `execute` has: an Inline failure puts a retry button on screen, and
+        // the button has to re-run the call that failed. Without this a screen loaded by `observe`
+        // — which is every offline-first screen — shows a retry that does nothing.
+        var retry: (() -> Unit)? = null
+        if (errorDisplay == ErrorDisplay.Inline) {
+            retry = {
+                observe(
+                    flow = flow,
+                    whileSubscribed = whileSubscribed,
+                    loadingMessage = loadingMessage,
+                    loading = loading,
+                    scope = scope,
+                    onError = onError,
+                    alertId = alertId,
+                    errorDisplay = errorDisplay,
+                    onData = onData,
+                )
+            }
+            pendingRetries[alertId] = retry
         }
 
-        try {
-            loading(true)
-            val source = if (whileSubscribed) flow().whileStateIsCollected() else flow()
-            source
-                .onEach { outcome ->
-                    when (outcome) {
-                        is Outcome.Success -> runCatching { onData(outcome.data) }
-                            .onFailure { handleError(it, onError, alertId, errorDisplay) }
+        // Removed by identity, so a later call that has since claimed this id keeps its own.
+        fun forgetRetry() {
+            retry?.let { pendingRetries.remove(alertId, it) }
+        }
 
-                        is Outcome.Failure -> handleError(outcome.error, onError, alertId, errorDisplay)
+        return scope.launch {
+            val loadingOwed = AtomicBoolean(true)
+            fun clearLoading() {
+                if (loadingOwed.compareAndSet(true, false)) loading(false)
+            }
+
+            try {
+                loading(true)
+                val source = if (whileSubscribed) flow().whileStateIsCollected() else flow()
+                source
+                    .onEach { outcome ->
+                        when (outcome) {
+                            is Outcome.Success -> runCatching { onData(outcome.data) }
+                                .onSuccess { forgetRetry() }
+                                .onFailure { handleError(it, onError, alertId, errorDisplay) }
+
+                            is Outcome.Failure -> handleError(outcome.error, onError, alertId, errorDisplay)
+                        }
+
+                        clearLoading()
                     }
-
-                    clearLoading()
-                }
-                .catch { handleError(it, onError, alertId, errorDisplay) }
-                .collect()
-        } finally {
-            clearLoading()
+                    .catch { handleError(it, onError, alertId, errorDisplay) }
+                    .collect()
+            } finally {
+                clearLoading()
+            }
         }
     }
 

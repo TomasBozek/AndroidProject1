@@ -1,0 +1,6 @@
+[
+  { "id": "beverages", "name": "Beverages" },
+  { "id": "bakery", "name": "Bakery" },
+  { "id": "produce", "name": "Produce" },
+  { "id": "pantry", "name": "Pantry" }
+]

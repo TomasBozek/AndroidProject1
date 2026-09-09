@@ -12,6 +12,7 @@ import com.example.androidproject1.core.domain.LoggingErrorTracker
 import com.example.androidproject1.core.domain.coroutines.DefaultDispatcherProvider
 import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.core.domain.crypto.Aead
+import com.example.androidproject1.core.network.HttpClientFactory
 import com.example.androidproject1.feature.auth.di.AuthModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
 import com.example.androidproject1.feature.gallery.di.GalleryModule
@@ -51,6 +52,18 @@ fun coreModule(isDebug: Boolean): Module = module {
     // preferences store above: encrypting a theme choice costs a cold start and protects nothing.
     single<Aead> { KeystoreAead(alias = SESSION_KEY_ALIAS) }
     single { EncryptedDataStoreProvider(context = androidContext(), aead = get()) }
+
+    // The engine and the config come from :app: the engine because only a flavor knows whether it
+    // is talking to a server or to fixtures (D20), the config because BASE_URL lives in :app's
+    // BuildConfig and :core:di must not read it. The logger is passed only on debug, which is what
+    // keeps request logging out of a release build.
+    single {
+        HttpClientFactory.create(
+            engine = get(),
+            config = get(),
+            logger = if (isDebug) get<Logger>() else null,
+        )
+    }
 }
 
 /**

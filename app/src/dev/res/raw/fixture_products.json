@@ -1,0 +1,14 @@
+[
+  { "id": "coffee", "categoryId": "beverages", "name": "Coffee", "price": 450, "description": "Freshly ground, brewed to order." },
+  { "id": "tea", "categoryId": "beverages", "name": "Tea", "price": 300, "description": "A pot of loose-leaf tea." },
+  { "id": "orange-juice", "categoryId": "beverages", "name": "Orange juice", "price": 350, "description": "Cold-pressed, no added sugar." },
+  { "id": "hot-chocolate", "categoryId": "beverages", "name": "Hot chocolate", "price": 395, "description": "Dark chocolate, steamed milk, no shortcuts." },
+  { "id": "croissant", "categoryId": "bakery", "name": "Croissant", "price": 275, "description": "Buttery, baked fresh every morning." },
+  { "id": "baguette", "categoryId": "bakery", "name": "Baguette", "price": 325, "description": "A crisp, classic French loaf." },
+  { "id": "cinnamon-bun", "categoryId": "bakery", "name": "Cinnamon bun", "price": 350, "description": "Still warm if you get here early." },
+  { "id": "apple", "categoryId": "produce", "name": "Apple", "price": 75, "description": "Crisp and locally grown." },
+  { "id": "banana", "categoryId": "produce", "name": "Banana", "price": 50, "description": "Ripe and ready to eat." },
+  { "id": "avocado", "categoryId": "produce", "name": "Avocado", "price": 180, "description": "Ready tomorrow, which is the honest answer." },
+  { "id": "olive-oil", "categoryId": "pantry", "name": "Olive oil", "price": 890, "description": "Cold pressed, single estate." },
+  { "id": "sea-salt", "categoryId": "pantry", "name": "Sea salt", "price": 240, "description": "Flaky, for finishing." }
+]
