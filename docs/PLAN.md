@@ -207,7 +207,7 @@ version of every open item is in the detail file under the same id.
 - [ ] **qa.4 Generator output compiles in CI** · M · `stable` — on the weekly job
 - [ ] **qa.5 Hardware pass** · M · `device` · needs shell.1 — Keystore, startup benchmark,
   predictive back, TalkBack
-- [ ] **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint
+- [x] (2026-09-09) **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint
   enforces it
 - [x] (2026-09-09) **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
 - [ ] **qa.11 Maestro flows in CI** · M · `plugin` D30 — an emulator job on the schedule and on

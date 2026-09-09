@@ -369,12 +369,6 @@ with and without the profile, numbers recorded here; predictive back on every sc
 activities" four screens deep; a cold deep link; TalkBack through Login and Catalog.
 Verify: the numbers, and one line per check here.
 
-**qa.7 `resourcePrefix` per feature** · S · `stable`
-Why: `CLAUDE.md` asks for `user_profile_` prefixes and nothing enforces them.
-Done: `convention.feature.presentation` derives `resourcePrefix` from the module path; `:core:ui`
-sets `app_`; existing strings already comply.
-Verify: add an unprefixed string on purpose and lint fails.
-
 **qa.11 Maestro flows in CI** · M · `plugin` D30
 Why: five flows pass on a laptop and run nowhere else, and the log-out flow already caught a bug
 no unit test could — a dialog whose ids were invisible to anything driving the device.

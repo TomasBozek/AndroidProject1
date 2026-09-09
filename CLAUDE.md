@@ -130,6 +130,8 @@ Two rules keep `service/` portable, and both are load-bearing:
   library to get around a framework import — move the class into `:service:core:data` instead.
 - **`:service:core:ui` sets `resourcePrefix = "core_"`,** so every string it ships is `core_*` and
   cannot silently collide with a consuming app's. New resources there must carry the prefix.
+  `:core:ui` sets `app_` for the same reason. Lint's `ResourceName` check is an error, so an
+  unprefixed resource in either stops the build.
 
 Test fixtures live with the type they fake: `FakeLogger` and `TestDispatchers` in `testFixtures` of
 `:service:core:domain` alongside `Logger` and `DispatcherProvider`, `MainDispatcherRule` in
@@ -325,6 +327,13 @@ move. A component a *second feature* wants goes to `:core:ui`, also through
   the form, the second fills the `%d`;
   strings used only in a composable use `stringResource(...)`. Each feature's `presentation` module owns
   its `res/values/strings.xml` — no hardcoded literals. See `HomeState.greeting`.
+- **A feature's resource is named after the screen that shows it** — `login_title`,
+  `product_detail_add_to_cart` — or after the feature when two of its screens share one
+  (`catalog_stale`). `doctor.py` checks it, reading the prefixes off the `*Screen.kt` files rather
+  than a list, so a generated screen needs no edit. Not AGP's `resourcePrefix`, which allows one
+  prefix per module: `:feature:auth:presentation` legitimately ships both `login_` and `sign_up_`,
+  and a path-derived prefix could never match `user_profile_title` in a directory called
+  `userprofile`.
 - **A screen without a `Scaffold` pads itself with `.safeDrawingPadding()`.** The activity is edge to
   edge and `Screen()` applies no insets, so `Scaffold`-based screens are not padded twice.
 

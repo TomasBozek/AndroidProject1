@@ -34,6 +34,7 @@ from _common import (  # noqa: E402
     TEMPLATE_FEATURE,
     block_end,
     relative_to_repo,
+    to_snake,
 )
 
 SCREEN_FILE_SUFFIXES = ["Destination", "Screen", "State", "Event", "Navigation", "ViewModel"]
@@ -959,6 +960,76 @@ def check_maestro_ids_exist() -> list[str]:
         NOTES.append(f"{len(unused)} test id(s) no Maestro flow drives: {', '.join(unused)}")
     return problems
 
+
+
+# --------------------------------------------------------------------------------------------
+# Resource prefixes
+# --------------------------------------------------------------------------------------------
+
+# A resource name in a `values*` file, and the file name of anything outside `values*` — a
+# drawable, a font, an xml/ document — which is the resource's name in its own right.
+RESOURCE_NAME = re.compile(r'\bname="([^"]+)"')
+
+
+def screen_prefixes(feature: str) -> set[str]:
+    """
+    The snake_case names a resource in this feature may start with.
+
+    One per screen — `LoginScreen.kt` gives `login_`, `ProductDetailScreen.kt` gives
+    `product_detail_` — plus the feature's own name, which is what a resource shared by two of its
+    screens uses (`catalog_stale`). Read off the files rather than listed, so a screen added by
+    `create_screen.py` needs no edit here and a screen moved into its own directory by D34 is
+    still found.
+    """
+    sources = REPO_ROOT / "feature" / feature / "presentation/src/main/kotlin"
+    prefixes = {to_snake(feature)}
+    if sources.is_dir():
+        prefixes.update(
+            to_snake(path.stem.removesuffix("Screen"))
+            for path in sources.rglob("*Screen.kt")
+            if path.stem != "Screen" and "build" not in path.parts
+        )
+    return {prefix for prefix in prefixes if prefix}
+
+
+@check("every feature resource is prefixed with its screen or its feature")
+def check_feature_resource_prefixes() -> list[str]:
+    """
+    CLAUDE.md asks a feature's strings to be prefixed; nothing enforced it.
+
+    Not AGP's `resourcePrefix`, which allows one prefix per module: this repo prefixes by screen,
+    so `:feature:auth:presentation` legitimately holds both `login_` and `sign_up_`. It also could
+    not match the generators, which write `user_profile_title` into a directory called
+    `userprofile` — a path-derived prefix would fail on the first feature anyone generates.
+    """
+    problems = []
+    for feature in feature_names():
+        res = REPO_ROOT / "feature" / feature / "presentation/src/main/res"
+        if not res.is_dir():
+            continue
+
+        prefixes = screen_prefixes(feature)
+        expected = " or ".join(sorted(f"{prefix}_" for prefix in prefixes))
+
+        for path in sorted(res.rglob("*")):
+            if not path.is_file() or "build" in path.parts:
+                continue
+
+            if path.parent.name.startswith("values"):
+                names = [
+                    (number, name)
+                    for number, line in enumerate(path.read_text().split("\n"), start=1)
+                    for name in RESOURCE_NAME.findall(line)
+                ]
+            else:
+                # Outside `values*` the file is the resource: `xml/profile_file_paths.xml`.
+                names = [(None, path.stem)]
+
+            for number, name in names:
+                if any(name == prefix or name.startswith(f"{prefix}_") for prefix in prefixes):
+                    continue
+                problems.append(problem(path, number, f"resource '{name}' is not prefixed {expected}"))
+    return problems
 
 # --------------------------------------------------------------------------------------------
 
