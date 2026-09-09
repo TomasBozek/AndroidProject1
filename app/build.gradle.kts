@@ -32,6 +32,7 @@ dependencies {
     testImplementation(testFixtures(projects.feature.settings.domain))
     testImplementation(testFixtures(projects.feature.onboarding.domain))
     testImplementation(testFixtures(projects.feature.catalog.domain))
+    testImplementation(testFixtures(projects.feature.cart.domain))
 
     // The generated startup profile. The module that produces it never ships.
     baselineProfile(projects.baselineprofile)

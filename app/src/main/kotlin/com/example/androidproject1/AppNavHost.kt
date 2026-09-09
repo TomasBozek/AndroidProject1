@@ -29,6 +29,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.core.ui.analytics.ProvideAnalytics
 import com.example.androidproject1.core.ui.navigation.ProvideNavResultStore
 import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.feature.auth.presentation.login.loginDestination
@@ -77,9 +78,13 @@ fun AppNavHost(
     val currentTab = backStack.currentTab
 
     // Around the display, not inside an entry: a nav result has to outlive the screen that
-    // produced it being popped. See core.ui.navigation.NavResultStore.
-    ProvideNavResultStore {
-        AppNavContent(backStack = backStack, currentTab = currentTab, modifier = modifier)
+    // produced it being popped, and the analytics has to be in scope for every screen's
+    // `AppScaffold` to report its view through. See core.ui.navigation.NavResultStore and
+    // core.ui.analytics.ScreenViewEffect.
+    ProvideAnalytics(koinInject()) {
+        ProvideNavResultStore {
+            AppNavContent(backStack = backStack, currentTab = currentTab, modifier = modifier)
+        }
     }
 }
 

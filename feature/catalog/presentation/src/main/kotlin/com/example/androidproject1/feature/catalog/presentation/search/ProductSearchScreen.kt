@@ -3,8 +3,6 @@ package com.example.androidproject1.feature.catalog.presentation.search
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -12,18 +10,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
-import com.example.androidproject1.core.ui.component.AppDivider
 import com.example.androidproject1.core.ui.component.AppEmptyState
-import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppSearchField
-import com.example.androidproject1.core.ui.component.AppSectionHeader
-import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTopBar
-import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.catalog.presentation.R
-import com.example.androidproject1.feature.catalog.presentation.asPrice
+import com.example.androidproject1.feature.catalog.presentation.component.RecentSearchList
+import com.example.androidproject1.feature.catalog.presentation.component.SearchResultList
 
 /**
  * Search over what browsing has already cached, with the previous searches underneath.
@@ -66,62 +60,16 @@ fun ProductSearchScreen(
                     modifier = Modifier.testTag("productSearch_resultsEmpty"),
                 )
 
-                state.searched -> ResultList(state = state, onEvent = onEvent)
-
-                else -> RecentList(state = state, onEvent = onEvent)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ResultList(
-    state: ProductSearchState,
-    onEvent: (ProductSearchEvent) -> Unit,
-) {
-    LazyColumn(modifier = Modifier.testTag("productSearch_resultList")) {
-        items(state.results, key = { it.id }) { product ->
-            AppListItem(
-                headline = product.name,
-                onClick = { onEvent(ProductSearchEvent.ProductClicked(product)) },
-                modifier = Modifier.testTag("productSearch_resultItem"),
-                // A price is numeric, so it gets tabular figures and lines up down the column.
-                trailing = { AppText(text = product.price.asPrice(), role = TextRole.Numeric) },
-            )
-            AppDivider()
-        }
-    }
-}
-
-@Composable
-private fun RecentList(
-    state: ProductSearchState,
-    onEvent: (ProductSearchEvent) -> Unit,
-) {
-    if (state.recents.isEmpty()) {
-        AppEmptyState(
-            title = stringResource(R.string.product_search_recents_empty_title),
-            message = stringResource(R.string.product_search_recents_empty_message),
-            modifier = Modifier.testTag("productSearch_recentsEmpty"),
-        )
-        return
-    }
-
-    Column {
-        AppSectionHeader(
-            title = stringResource(R.string.product_search_recents),
-            actionLabel = stringResource(R.string.product_search_recents_clear),
-            onAction = { onEvent(ProductSearchEvent.ClearRecentsClicked) },
-            modifier = Modifier.padding(horizontal = AppTheme.spacing.inset.lg),
-        )
-        LazyColumn(modifier = Modifier.testTag("productSearch_recentList")) {
-            items(state.recents, key = { it }) { recent ->
-                AppListItem(
-                    headline = recent,
-                    onClick = { onEvent(ProductSearchEvent.RecentClicked(recent)) },
-                    modifier = Modifier.testTag("productSearch_recentItem"),
+                state.searched -> SearchResultList(
+                    products = state.results,
+                    onProductClick = { onEvent(ProductSearchEvent.ProductClicked(it)) },
                 )
-                AppDivider()
+
+                else -> RecentSearchList(
+                    recents = state.recents,
+                    onRecentClick = { onEvent(ProductSearchEvent.RecentClicked(it)) },
+                    onClear = { onEvent(ProductSearchEvent.ClearRecentsClicked) },
+                )
             }
         }
     }

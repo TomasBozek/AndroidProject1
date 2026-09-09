@@ -8,10 +8,10 @@ import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
-import com.example.androidproject1.feature.catalog.presentation.CategoriesDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
-import com.example.androidproject1.feature.home.presentation.HomeDestination
+import com.example.androidproject1.feature.catalog.presentation.categories.CategoriesDestination
+import com.example.androidproject1.feature.catalog.presentation.productdetail.ProductDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.products.ProductsDestination
+import com.example.androidproject1.feature.home.presentation.home.HomeDestination
 import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.ThemeRepository

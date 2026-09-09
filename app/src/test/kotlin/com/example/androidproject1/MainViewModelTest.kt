@@ -7,10 +7,10 @@ import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.Session
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
-import com.example.androidproject1.feature.catalog.presentation.CategoriesDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductDetailDestination
-import com.example.androidproject1.feature.catalog.presentation.ProductsDestination
-import com.example.androidproject1.feature.home.presentation.HomeDestination
+import com.example.androidproject1.feature.catalog.presentation.categories.CategoriesDestination
+import com.example.androidproject1.feature.catalog.presentation.productdetail.ProductDetailDestination
+import com.example.androidproject1.feature.catalog.presentation.products.ProductsDestination
+import com.example.androidproject1.feature.home.presentation.home.HomeDestination
 import com.example.androidproject1.feature.onboarding.domain.test.FakeOnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.test.FakeThemeRepository

@@ -442,10 +442,12 @@ with `ErrorTracker`:
 single<Analytics> { FirebaseAnalyticsAdapter(androidContext()) }
 ```
 
-**One wiring line is still open.** Nothing calls `ProvideAnalytics` yet, so the bound `Analytics`
-does not reach composition and `LocalAnalytics` stays `NoOp` at runtime. Wrap the `NavDisplay` in
-`AppNavHost` the way `ProvideNavResultStore` already is — `ProvideAnalytics(koinInject()) { … }` —
-and every screen starts reporting with no further change.
+`AppNavHost` wraps everything below it in `ProvideAnalytics(koinInject())`, beside
+`ProvideNavResultStore` and for the same reason — above the entries, so it outlives any one
+screen. That one call is what makes the binding reach composition: without it `LocalAnalytics`
+falls back to `Analytics.NoOp` and every screen view is silently dropped, with nothing anywhere
+turning red. `AppNavHostAnalyticsTest` in `:app` is what holds it, by composing the real nav host
+over a small Koin graph and asserting the view arrives.
 
 ## Recipes
 
