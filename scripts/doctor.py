@@ -66,11 +66,21 @@ def check(name: str):
     return decorate
 
 
+def skipped_part(parts: tuple[str, ...]) -> bool:
+    """Gradle output, and anything inside a dot directory.
+
+    A nested git worktree — the one an agent harness creates under `.claude/worktrees/` — is a
+    whole second copy of the repo, and every module in it would otherwise be reported as missing
+    from `settings.gradle.kts`.
+    """
+    return "build" in parts or any(part.startswith(".") for part in parts)
+
+
 def kotlin_files(root: Path):
     if not root.is_dir():
         return
     for path in sorted(root.rglob("*.kt")):
-        if "build" in path.relative_to(root).parts:
+        if skipped_part(path.relative_to(root).parts):
             continue
         yield path
 
@@ -79,7 +89,7 @@ def build_files(root: Path):
     if not root.is_dir():
         return
     for path in sorted(root.rglob("build.gradle.kts")):
-        if "build" in path.relative_to(root).parts:
+        if skipped_part(path.relative_to(root).parts):
             continue
         yield path
 

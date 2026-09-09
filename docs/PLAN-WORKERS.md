@@ -305,3 +305,45 @@ the gate result and any file outside your own area. Do not start an emulator.
 When both PRs are open, one merge pass: rebase-merge A then B, gate after each, then recompute
 the dashboard, refresh coverage with `./gradlew koverXmlReport`, and leave `qa.5` as the only
 open item.
+
+## Worker C · qa.5 Hardware pass
+
+Added to round two on 2026-09-09, when a physical device was connected. Branch `r2-qa5`,
+worktree `../AndroidProject1-qa5`. Owns `baselineprofile/` and this item's rows in the plan;
+touches no feature code unless a defect it finds demands a fix, and such a fix is its own commit.
+
+**The device.** A Pixel 8 Pro, Android 17 / SDK 37 — the project's own `targetSdk`. Serial
+`43301FDJG000NH`. `adb` is `~/Library/Android/sdk/platform-tools/adb`, not on `PATH`.
+
+**An emulator may also be attached.** Every `adb` call in this item therefore names the device
+explicitly — `adb -s 43301FDJG000NH …` — because a bare `adb shell` fails with "more than one
+device" and, worse, a bare `install` may land on the wrong one. Never kill or start an emulator;
+it is not this item's to manage.
+
+`:baselineprofile` already holds `StartupBenchmark` and `StartupBaselineProfile`, registered in
+`settings.gradle.kts`. Nothing in it has ever run on hardware, so expect the first run to need
+build configuration rather than new test code.
+
+**What this worker proves on its own,** each with evidence recorded in the item's section:
+
+- the session round trip through the **real Keystore** — Robolectric ships no `AndroidKeyStore`
+  provider, which is why `KeystoreAead` has never been exercised; this is the run that does it
+- `StartupBenchmark` **with and without** the baseline profile, the numbers written down
+- a **cold deep link** (`adb shell am start -a android.intent.action.VIEW -d …`) and a warm one,
+  with Up walking back through a synthesised stack
+- **"Don't keep activities"** four screens deep (`settings put global always_finish_activities 1`,
+  and set back to `0` afterwards — leaving it on makes every later run lie)
+- **predictive back** on every screen, driven and captured with `screencap`
+
+**What it cannot settle, and must not claim it has.** Whether TalkBack *reads sensibly* and
+whether the predictive-back animation *looks* right are perceptual judgements. The worker enables
+TalkBack over `adb`, walks Login and Catalog, dumps the accessibility tree (`uiautomator dump`),
+and asserts what is structural — every control has a label, focus order follows reading order, no
+node is announced twice. It then leaves a short list of what a person should watch, with the
+screenshots or dumps attached. A green structural check is not a passed TalkBack pass.
+
+Done: one line per check in the item's section, the benchmark numbers included. Verify: the
+numbers, and one line per check. Any defect found gets its own commit and, if it is not small, a
+new board item rather than a fix smuggled into this one.
+
+Same gate policy and PR rules as workers A and B. Restore every device setting it changed.
