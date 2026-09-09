@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.androidx.room) apply false
 
     // Advisory, not a gate: `./gradlew buildHealth` reports dependencies declared but unused, used
     // but undeclared, and `api` where `implementation` would do. Failing the build on it would

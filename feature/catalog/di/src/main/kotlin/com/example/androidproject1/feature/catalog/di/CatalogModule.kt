@@ -1,12 +1,19 @@
 package com.example.androidproject1.feature.catalog.di
 
+import androidx.room.Room
+import com.example.androidproject1.feature.catalog.data.database.CatalogDatabase
 import com.example.androidproject1.feature.catalog.data.repository.DefaultCatalogRepository
+import com.example.androidproject1.feature.catalog.data.repository.DefaultFavouritesRepository
 import com.example.androidproject1.feature.catalog.data.source.DefaultLocalCatalogDataSource
+import com.example.androidproject1.feature.catalog.data.source.DefaultLocalFavouritesDataSource
 import com.example.androidproject1.feature.catalog.data.source.LocalCatalogDataSource
+import com.example.androidproject1.feature.catalog.data.source.LocalFavouritesDataSource
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
+import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
 import com.example.androidproject1.feature.catalog.presentation.CategoriesViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductDetailViewModel
 import com.example.androidproject1.feature.catalog.presentation.ProductsViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -20,7 +27,19 @@ object CatalogModule {
         viewModelOf(::ProductsViewModel)
         viewModelOf(::ProductDetailViewModel)
 
+        single {
+            Room.databaseBuilder(
+                androidContext(),
+                CatalogDatabase::class.java,
+                CatalogDatabase.NAME,
+            ).build()
+        }
+        single { get<CatalogDatabase>().catalogDao() }
+        single { get<CatalogDatabase>().favouritesDao() }
+
         singleOf(::DefaultCatalogRepository) bind CatalogRepository::class
+        singleOf(::DefaultFavouritesRepository) bind FavouritesRepository::class
         singleOf(::DefaultLocalCatalogDataSource) bind LocalCatalogDataSource::class
+        single<LocalFavouritesDataSource> { DefaultLocalFavouritesDataSource(favouritesDao = get()) }
     }
 }

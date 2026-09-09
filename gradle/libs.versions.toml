@@ -22,6 +22,11 @@ turbine = "1.2.1"
 mockk = "1.14.11"
 robolectric = "4.16"
 
+# KSP decoupled from the Kotlin version at 2.3.0 — the last coupled release was 2.2.21-2.0.5 —
+# so this no longer has to be bumped in lockstep with Kotlin.
+ksp = "2.3.11"
+room = "2.8.4"
+
 junit = "4.13.2"
 
 dependencyAnalysis = "3.19.1"
@@ -30,6 +35,7 @@ ktlintGradle = "14.2.0"
 [libraries]
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
+androidx-test-core = { group = "androidx.test", name = "core", version = "1.6.1" }
 androidx-test-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version = "2.3.0" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
@@ -38,6 +44,8 @@ coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", versi
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 compose-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "symbol-processing-gradle-plugin", version.ref = "ksp" }
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
@@ -64,6 +72,10 @@ androidx-compose-material3-navigation-suite = { group = "androidx.compose.materi
 androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
 
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koinBom" }
 koin-core = { group = "io.insert-koin", name = "koin-core" }
@@ -114,6 +126,8 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
 
 # The convention plugins in build-logic/, an included build — hence "unspecified", which is what
 # Gradle calls a version resolved by composite-build substitution rather than from a repository.
@@ -123,5 +137,6 @@ convention-android-library = { id = "convention.android.library", version = "uns
 convention-android-library-compose = { id = "convention.android.library.compose", version = "unspecified" }
 convention-kotlin-jvm = { id = "convention.kotlin.jvm", version = "unspecified" }
 convention-feature-data = { id = "convention.feature.data", version = "unspecified" }
+convention-android-room = { id = "convention.android.room", version = "unspecified" }
 convention-feature-di = { id = "convention.feature.di", version = "unspecified" }
 convention-feature-presentation = { id = "convention.feature.presentation", version = "unspecified" }

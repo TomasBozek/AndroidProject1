@@ -6,6 +6,7 @@ import com.example.androidproject1.feature.catalog.domain.Product
 @Immutable
 data class ProductDetailState(
     val product: Product,
+    val isFavourite: Boolean = false,
 ) {
 
     companion object {

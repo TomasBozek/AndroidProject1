@@ -1,80 +1,41 @@
 package com.example.androidproject1.feature.catalog.data.source
 
+import com.example.androidproject1.feature.catalog.data.database.CatalogDao
+import com.example.androidproject1.feature.catalog.data.database.toDomain
+import com.example.androidproject1.feature.catalog.data.database.toEntity
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
 
 /**
- * Mock catalog, held in memory so the app has something to browse. Swap for a network client or a
- * DAO and keep the interface where it is.
+ * The catalog, read from the database.
+ *
+ * Seeding happens on first read rather than in a `RoomDatabase.Callback`: the callback runs on
+ * whichever thread opened the database and cannot suspend, so it would need its own scope and a
+ * second set of insert paths. Checking a count is cheap, the inserts replace on conflict, and the
+ * whole thing is reachable from a test without opening the database twice.
  */
-class DefaultLocalCatalogDataSource : LocalCatalogDataSource {
+class DefaultLocalCatalogDataSource(
+    private val catalogDao: CatalogDao,
+) : LocalCatalogDataSource {
 
-    override suspend fun getCategories(): List<Category> = CATEGORIES
+    override suspend fun getCategories(): List<Category> {
+        seedIfEmpty()
+        return catalogDao.categories().map { it.toDomain() }
+    }
 
-    override suspend fun getProducts(categoryId: String): List<Product> =
-        PRODUCTS.filter { it.categoryId == categoryId }
+    override suspend fun getProducts(categoryId: String): List<Product> {
+        seedIfEmpty()
+        return catalogDao.productsIn(categoryId).map { it.toDomain() }
+    }
 
-    override suspend fun getProduct(productId: String): Product? =
-        PRODUCTS.find { it.id == productId }
+    override suspend fun getProduct(productId: String): Product? {
+        seedIfEmpty()
+        return catalogDao.product(productId)?.toDomain()
+    }
 
-    private companion object {
-
-        val CATEGORIES = listOf(
-            Category(id = "beverages", name = "Beverages"),
-            Category(id = "bakery", name = "Bakery"),
-            Category(id = "produce", name = "Produce"),
-        )
-
-        val PRODUCTS = listOf(
-            Product(
-                id = "coffee",
-                categoryId = "beverages",
-                name = "Coffee",
-                price = 450,
-                description = "Freshly ground, brewed to order.",
-            ),
-            Product(
-                id = "tea",
-                categoryId = "beverages",
-                name = "Tea",
-                price = 300,
-                description = "A pot of loose-leaf tea.",
-            ),
-            Product(
-                id = "orange-juice",
-                categoryId = "beverages",
-                name = "Orange juice",
-                price = 350,
-                description = "Cold-pressed, no added sugar.",
-            ),
-            Product(
-                id = "croissant",
-                categoryId = "bakery",
-                name = "Croissant",
-                price = 275,
-                description = "Buttery, baked fresh every morning.",
-            ),
-            Product(
-                id = "baguette",
-                categoryId = "bakery",
-                name = "Baguette",
-                price = 325,
-                description = "A crisp, classic French loaf.",
-            ),
-            Product(
-                id = "apple",
-                categoryId = "produce",
-                name = "Apple",
-                price = 75,
-                description = "Crisp and locally grown.",
-            ),
-            Product(
-                id = "banana",
-                categoryId = "produce",
-                name = "Banana",
-                price = 50,
-                description = "Ripe and ready to eat.",
-            ),
-        )
+    private suspend fun seedIfEmpty() {
+        if (catalogDao.productCount() > 0) return
+        catalogDao.insertCategories(CatalogSeed.CATEGORIES.map { it.toEntity() })
+        catalogDao.insertProducts(CatalogSeed.PRODUCTS.map { it.toEntity() })
     }
 }

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.convention.feature.data)
+    alias(libs.plugins.convention.android.room)
 }
 
 dependencies {

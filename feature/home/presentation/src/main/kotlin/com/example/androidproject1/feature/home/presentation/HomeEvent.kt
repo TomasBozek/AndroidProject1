@@ -2,5 +2,8 @@ package com.example.androidproject1.feature.home.presentation
 
 import com.example.androidproject1.core.ui.event.UiEvent
 
-/** Empty on purpose: the tabs reach settings and the catalog, so this screen has nothing to do. */
-sealed interface HomeEvent : UiEvent
+sealed interface HomeEvent : UiEvent {
+
+    /** The remove button on a favourite was tapped. The undo lives in the ViewModel. */
+    data class FavouriteRemoved(val productId: String) : HomeEvent
+}

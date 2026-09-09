@@ -10,6 +10,9 @@ class FeatureDataConventionPlugin : Plugin<Project> {
 
         dependencies {
             add("api", libs.findLibrary("kotlinx-coroutines-core").get())
+            // A data module is where the app meets the outside world, so it is the layer most
+            // worth testing — and feat.7 has nothing to write against without this line.
+            add("testImplementation", libs.findBundle("testing").get())
         }
     }
 }

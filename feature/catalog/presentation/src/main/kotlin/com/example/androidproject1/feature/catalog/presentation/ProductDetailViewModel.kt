@@ -8,6 +8,7 @@ import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
+import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
 import kotlinx.coroutines.flow.update
 
 class ProductDetailViewModel(
@@ -16,6 +17,7 @@ class ProductDetailViewModel(
     // the back stack entry after process death.
     private val args: ProductDetailDestination,
     private val catalogRepository: CatalogRepository,
+    private val favouritesRepository: FavouritesRepository,
 ) : BaseViewModel<ProductDetailState, ProductDetailEvent, ProductDetailNavigation>(
     // Nothing to show until the product named by the route has loaded.
     initialState = null,
@@ -30,6 +32,11 @@ class ProductDetailViewModel(
 
     init {
         load()
+        observeFavourite()
+    }
+
+    override fun onUiEvent(event: ProductDetailEvent) = when (event) {
+        ProductDetailEvent.FavouriteToggled -> toggleFavourite()
     }
 
     override fun onSystemEvent(event: SystemEvent) {
@@ -39,6 +46,34 @@ class ProductDetailViewModel(
             return
         }
         super.onSystemEvent(event)
+    }
+
+    /**
+     * The heart follows the database, not the tap.
+     *
+     * Writing the state optimistically and letting the flow confirm it would mean two sources of
+     * truth for one boolean; observing means a favourite removed from Home is already un-hearted
+     * when the user navigates back here. `loading = {}` because a heart is not worth an overlay.
+     */
+    private fun observeFavourite() = observe(
+        flow = { favouritesRepository.observeIsFavourite(args.productId) },
+        loading = {},
+        errorDisplay = ErrorDisplay.Silent,
+        onData = { isFavourite ->
+            uiState.update { state ->
+                state.copy(data = state.data?.copy(isFavourite = isFavourite))
+            }
+        },
+    )
+
+    // Alert on failure: the user asked for this, so silence would look like the tap did nothing.
+    private fun toggleFavourite() {
+        val current = uiState.value.data?.isFavourite ?: return
+        execute(
+            loading = {},
+            action = { favouritesRepository.setFavourite(args.productId, !current) },
+            onData = { },
+        )
     }
 
     // Inline rather than Alert: this is the call that loads the screen, so a dialog would leave

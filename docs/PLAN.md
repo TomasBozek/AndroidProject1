@@ -15,13 +15,13 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 6 | `░░░░░░░░░░` 0 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 0 / 14 | `░░░░░░░░░░` 0 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **1 / 32** | `░░░░░░░░░░` 3 % |
+| **Total** | | **2 / 32** | `█░░░░░░░░░` 6 % |
 
-**Start now, one worktree each:** `core.1` · `ui.1` · `feat.1`. None waits on a question, and
-none touches another's files. `qa.3` landed, so every screen generated from here ships a screen
-test; `feat.8` is now unblocked and retrofits the nine that predate it.
+**Start now, one worktree each:** `core.1` · `ui.1`. Neither waits on a question, and neither
+touches the other's files. `qa.3` landed, so every screen generated from here ships a screen test;
+`feat.1` landed, so Room is wired and `feat.2` / `feat.5` are unblocked.
 **Waiting on you:** nothing. Every question is answered — D19–D29, taken 2026-09-09. `qa.1` and
 `qa.9` were dropped in the same pass; `qa.6` was parked in the backlog with its config intact and
 can be finished any time. The only thing between here and `core.1` is committing this file.
@@ -346,7 +346,7 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   Verify: `MainViewModelTest` for all four states; first cold start shows onboarding then Login,
   the second skips it.
 
-- [ ] **feat.1 Favourites — proves Room** · M · `plugin` D18
+- [x] **feat.1 Favourites — proves Room** (2026-09-09) · M · `plugin` D18
   Why: Room was chosen (D7) and nothing uses it; `SnackbarAction` is API nobody raises.
   Done: `convention.android.room` in `build-logic/` (Room **2.8.4** + KSP **2.3.11**, versions in
   the catalog; KSP decoupled from the Kotlin version at 2.3.0 — last coupled release was
@@ -356,6 +356,23 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   section on Home (Home depends on catalog `domain`, which is allowed); remove with an undo snackbar.
   Verify: a DAO round-trip test under Robolectric; ViewModel tests; a `ProductDetailScreenTest`
   tap toggles the heart; favourites survive a restart.
+  **Landed:** the spike passed — KSP 2.3.11 and Room 2.8.4 run on AGP 9.4 / Gradle 9.6 / JDK 25,
+  `kspDebugKotlin` and `copyRoomSchemas` both execute, so **D18 stands** and `feat.2` and `feat.5`
+  can build on it. Four things are worth knowing:
+  · The database owns **categories and products**, not products alone. Seeding half the catalog
+  would have left `getCategories` on a list and `getProducts` on SQL, and `feat.5` has to replace
+  both from the network anyway.
+  · Seeding runs **on first read**, not in a `RoomDatabase.Callback`: the callback cannot suspend
+  and runs on whichever thread opened the database, so it would need its own scope and a second
+  set of insert paths. `productCount() == 0` is one cheap query and is reachable from a test.
+  · `favourites` has **no foreign key** to `products`. `feat.5` replaces the product table on every
+  refresh and a cascade would delete the user's favourites with it; an orphaned favourite simply
+  fails to join, which is asserted.
+  · `FakeFavouritesRepository` lives in `testFixtures` of `:feature:catalog:domain`, beside the
+  interface it fakes, because `:feature:home` needs it too. `:feature:catalog:domain` gains
+  `java-test-fixtures`, as `:feature:auth:domain` already had.
+  Device-checked on the emulator: seed loads, the heart flips, the favourite is still on Home after
+  `force-stop` and a cold start, and the undo snackbar puts a removed favourite back.
 
 - [ ] **feat.2 Cart — proves cross-feature domain, tab badge, plurals, nav results** · L · `stable` · needs core.4, feat.1
   Why: `toPluralUiText` and `AlertPayload` are unused API; no feature depends on another's domain.
@@ -438,6 +455,12 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
   Why: every device check so far went through `adb` by hand.
   Done: `.maestro/` flows for sign in → Home, browse to a product, log out, grant a permission,
   all by `id:` and never by text; how to run them in `README.md`; CI left for later.
+  Note before starting: `brew install maestro` installs the **cask** — an Electron GUI app with no
+  CLI — and `brew trust mobile-dev-inc/tap` does not change that. `maestro test` needs the CLI from
+  the tap formula (`brew install mobile-dev-inc/tap/maestro`) or the vendor's install script.
+  `feat.1`'s device pass fell back to `adb` + `uiautomator dump`, which works: the tags this repo
+  puts on every screen come through as `resource-id`, so `LoginScreen`, `login_submitButton` and
+  `home_favouriteRemoveButton` are all directly addressable.
   Verify: `maestro test .maestro` passes on the emulator; a flow fails when its tag is renamed.
 
 - [x] **qa.3 The template ships a screen test** (2026-09-09) · S · `stable`

@@ -25,6 +25,10 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
+    // Room's Gradle extension (the `room { schemaDirectory(...) }` block) and KSP's, so the
+    // convention plugin compiles against their DSL without putting them on a module's classpath.
+    compileOnly(libs.room.gradlePlugin)
+    compileOnly(libs.ksp.gradlePlugin)
 }
 
 // One entry per plugin id. The `convention.` prefix means init_project.py never has to rename them
@@ -50,6 +54,10 @@ gradlePlugin {
         register("kotlinJvm") {
             id = "convention.kotlin.jvm"
             implementationClass = "KotlinJvmConventionPlugin"
+        }
+        register("androidRoom") {
+            id = "convention.android.room"
+            implementationClass = "AndroidRoomConventionPlugin"
         }
         register("featureData") {
             id = "convention.feature.data"
