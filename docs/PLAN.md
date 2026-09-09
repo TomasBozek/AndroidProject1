@@ -14,10 +14,10 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | Track | Owns | Done | Progress |
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 3 / 6 | `█████░░░░░` 50 % |
-| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
+| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **5 / 32** | `██░░░░░░░░` 16 % |
+| **Total** | | **6 / 32** | `██░░░░░░░░` 19 % |
 
 **Start now:** `ui.1`, `core.3` / `core.4` / `core.5`, `qa.7` / `qa.8`, and the `shell.*` items.
 `core.1` and `core.2` together unblock **`feat.5`**, which now has every dependency it needs.
@@ -298,11 +298,23 @@ nothing here knows a feature.
 Owns `core/ui` and `feature/gallery`. `ui.5` also edits `app/AppNavHost.kt` and the catalog
 destinations; no app-track item touches those while it is open.
 
-- [ ] **ui.1 Bundle the brand face** · S · `decision` D13
+- [x] **ui.1 Bundle the brand face** (2026-09-09) · S · `decision` D13
   Why: was 3.8. The scale is right and the face is `FontFamily.Default`.
   Done: Source Sans 3 in weights 400/600/700/800 under `core/ui/src/main/res/font/`;
   `AppFontFamily` points at them; the APK delta recorded in this line.
   Verify: every `@ScreenPreview` renders the face offline; `aapt2 dump badging` size before and after.
+  **Landed: one variable font, not four static weights.** The four the scale asks for — 400, 600,
+  700, 800 — are 1.6 MB as separate Adobe TTFs, because each carries Latin, Greek and Cyrillic.
+  `SourceSans3[wght].ttf` is 646 kB on disk, **233 kB in the APK** after deflate, and covers every
+  weight from 200 to 900. `minSdk` is 29 and variable fonts need 26, so nothing had to move.
+  `prodRelease` is 3.5 MB with it in.
+  The `wght` axis is set explicitly per weight rather than left to the default: without it a
+  device that cannot apply variations synthesises the weight instead, and 600 and 700 render
+  identically. The OFL is committed at `licenses/SourceSans3-OFL.txt` — the repo has no licence of
+  its own (D22), but a bundled third-party face still needs its own.
+  Verified by a Robolectric test rather than by eye: it asserts the family is not
+  `FontFamily.Default` and that text composes with no network, which is the situation a preview
+  and a golden are in. A silent fallback to the platform face is the failure this catches.
 
 - [ ] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · needs ui.1
   Why: was 4.1. 41 components × three variants and ten screens × twelve renders sit unasserted.

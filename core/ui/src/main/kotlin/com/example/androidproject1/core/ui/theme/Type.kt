@@ -4,20 +4,49 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.example.androidproject1.core.ui.R
 
 /**
- * The one family the whole system uses.
+ * The one family the whole system uses: Source Sans 3, bundled.
  *
- * The scale below is defined in roles rather than in sizes, so swapping this for a brand face is a
- * single edit and no screen changes. Register the face in `res/font/` and return a [FontFamily]
- * built from it; the weights the scale asks for are 400, 600, 700 and 800.
+ * Bundled rather than fetched, because a preview and a screenshot golden have to render the same
+ * face with no network, and a device without Play Services has no downloadable-fonts provider to
+ * ask. The licence is `licenses/SourceSans3-OFL.txt`.
+ *
+ * **One variable font, not four statics.** The four weights the scale asks for — 400, 600, 700,
+ * 800 — come to 1.6 MB as separate Adobe TTFs, because each carries Latin, Greek and Cyrillic.
+ * The variable file is 646 kB and covers every weight from 200 to 900. `minSdk` is 29 and
+ * variable fonts need 26, so there is no floor to raise.
+ *
+ * The scale is defined in roles rather than sizes, so swapping this for another brand face is
+ * still one edit and no screen changes.
  */
-val AppFontFamily: FontFamily = FontFamily.Default
+val AppFontFamily: FontFamily = FontFamily(
+    SourceSans3(FontWeight.Normal),
+    SourceSans3(FontWeight.SemiBold),
+    SourceSans3(FontWeight.Bold),
+    SourceSans3(FontWeight.ExtraBold),
+)
+
+/**
+ * One weight off the variable axis.
+ *
+ * The `wght` setting is passed explicitly rather than left to the default: without it a device
+ * that cannot apply variations falls back to synthesising the weight, and 600 and 700 render
+ * identically.
+ */
+private fun SourceSans3(weight: FontWeight) = Font(
+    resId = R.font.source_sans_3,
+    weight = weight,
+    variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)),
+)
 
 /** Every monetary and quantity value opts into tabular figures, so columns of digits line up. */
 private const val TABULAR = "tnum"
