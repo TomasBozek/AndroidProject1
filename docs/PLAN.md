@@ -11,19 +11,19 @@ workers, and the brief for the agent that merges their pull requests, is
 
 ## Status
 
-**Updated:** 2026-09-09 · **Gate:** doctor 28/28 · test_scripts 52 · ktlint clean · build green
-**Coverage:** 68.9 % of lines, measured 2026-09-09 at `72af25a` — refresh with
+**Updated:** 2026-09-10 · **Gate:** doctor 30/30 · test_scripts 52 · ktlint clean · build green
+**Coverage:** 73.3 % of lines, measured 2026-09-10 at `7070c1a` — refresh with
 `./gradlew koverXmlReport` and write the commit beside the number
-**Repo:** 42 modules + `build-logic` · 9 sample features + `template` · 16 screens ·
-47 components · 482 tests · 5 Maestro flows · 10 scripts
+**Repo:** 56 modules + `build-logic` · 9 sample features + `template` · 18 screens ·
+47 components · 498 tests · 349 goldens · 6 Maestro flows · 11 scripts
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 5 | `██████████` 100 % |
-| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 7 / 8 | `█████████░` 88 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 8 / 9 | `█████████░` 89 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 7 / 8 | `█████████░` 88 % |
-| **Total** | | **27 / 30** | `█████████░` 90 % |
+| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 8 / 9 | `█████████░` 89 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 9 / 11 | `████████░░` 82 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 8 / 10 | `████████░░` 80 % |
+| **Total** | | **30 / 35** | `█████████░` 86 % |
 
 **Where this plan comes from.** Plan 3 closed at 15 of 32 on 2026-09-09. The 17 it left open
 keep their ids. Thirteen are new: from the health brief of the same day (`core.7` `core.8`
@@ -31,32 +31,31 @@ keep their ids. Thirteen are new: from the health brief of the same day (`core.7
 (`ui.6`), from reading the KSD design documents against the code (`ui.7` `ui.8` `ui.9`
 `core.10` `qa.14`), and from the decision to give every screen a directory (`qa.13`, D34).
 
-**Round one is merged.** Twenty-six items landed across four parallel worktrees on 2026-09-09
-and were rebase-merged in the order `w1-layout`, `w2-core`, `w3-ui`, `w4-app`, with the gate run
-after each; `PLAN-WORKERS.md` holds the split that produced them. Three items are left.
+**Both rounds are merged.** Every one of the thirty items Plan 4 opened with has landed —
+twenty-six across four parallel worktrees on 2026-09-09, then `ui.2`, `feat.9` and `qa.5` on
+2026-09-10. `PLAN-WORKERS.md` holds both splits.
 
-**Start now.** Round two is the three that round one did not take, and they are independent of
-each other:
+**Start now.** The five open items all come from `qa.5`: the hardware pass found what an emulator
+could not, and each one is a defect rather than an idea. Highest value first:
 
-- **`ui.2` Screenshot tests with Roborazzi** — the toolchain is proven and the stated blocker was
-  wrong: previews do **not** become `internal`, the chain was missing `.includePrivatePreviews()`.
-  What is left is one decision (a copy of the test per `presentation` module, cloned from
-  `feature/template`, or one copy in `:app` that runs three times over the flavors), ~300 goldens
-  to commit, and the `verifyRoborazziDebug` step in the CI build job. Start from
-  `ui.2-roborazzi`, not from scratch.
-- **`feat.9` Czech alongside English** — unblocked now that `feat.4` and `feat.8` have landed;
-  every `presentation` module has its strings and every screen has a test to catch a clipped one.
-- **`qa.5` Hardware pass** — needs the physical device and a person holding it (D21); `shell.1`
-  landed, so nothing else is in its way.
+- **`qa.16` The tabs have no test ids** — every Maestro flow taps a tab by its English label, so
+  the flows break the moment a device runs in Czech. `feat.9` has landed, so this is now live.
+- **`shell.7` A deep link to an uncached product** opens on "no longer available". A data-source
+  decision before it is a repository change, so it is the largest of the five.
+- **`qa.15` The baseline profile never reaches the shipping build** — the profile is generated
+  and committed and then not used, which is the whole benefit lost silently.
+- **`shell.8` Up controls** on the four non-root screens that lack one, and **`ui.10` a text
+  field that says its own name** — both small, both accessibility.
 
-Nothing scheduled waits on a decision.
+Nothing waits on a decision, and nothing waits on another item.
 
-**Waiting on you.** Q8 blocks only three backlog items. The design documents can be read through
-Chrome without a login; `/design-login` from an interactive session is the tidier route.
+**Waiting on you.** Q8 blocks only three backlog items. TalkBack was checked structurally by
+`qa.5`, not listened to — whether it *reads* sensibly is still unheard, and that needs a person
+with the device.
 
-**One branch carries unfinished work.** `ui.2-roborazzi` holds the Roborazzi wiring, which still
-applies on the D34 layout. `main` is clean and green without it. The four round-one branches
-(`w1-layout`, `w2-core`, `w3-ui`, `w4-app`) are merged and kept, along with their `wip/` tags.
+**Branches.** `main` is clean and green. The round-one branches (`w1-layout`, `w2-core`,
+`w3-ui`, `w4-app`), the round-two ones (`r2-ui2`, `r2-feat9`, `r2-qa5`), the parked
+`ui.2-roborazzi` and the three `wip/` tags are all merged or superseded and can be deleted.
 
 Legend · size `S` under an hour, `M` half a day, `L` a day or more · risk `stable` known-good
 libraries, `plugin` adds a Gradle plugin or CI action (check its range before writing code),
@@ -116,14 +115,8 @@ D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is
 
 ## Dependencies
 
-Arrows are "must land first". Round one closed every arrow that was drawn here: each of the three
-items still open has had its blocker land, so all three can start today and none waits on another.
-
-| Open item | Waited on | State |
-|---|---|---|
-| `ui.2` Screenshot tests | `qa.13` | landed 2026-09-09 — the wiring on `ui.2-roborazzi` applies to the new layout unchanged |
-| `feat.9` Czech | `feat.4`, `feat.8` | both landed 2026-09-09 — every screen now has its strings and a test |
-| `qa.5` Hardware pass | `shell.1` | landed 2026-09-09 — needs the device and a person (D21) |
+Nothing open waits on anything else. All five items came out of `qa.5` independently, and each
+can start today.
 
 The graph the four-worker round was planned against is `git show 4b9364f:docs/PLAN.md`.
 
@@ -147,7 +140,7 @@ version of every open item is in the detail file under the same id.
 
 ### ui · design system and adaptive
 
-- [x] (2026-09-09) **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 — one
+- [x] (2026-09-10) **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 — one
   `PreviewScreenshotTest` per presentation module and in `:core:ui` (D35), scanned from the
   previews that already exist; the goldens committed and `verifyRoborazziDebug` in the CI build job
 - [x] (2026-09-09) **ui.3 Component behaviour tests** · M · `stable` — the interactive components
