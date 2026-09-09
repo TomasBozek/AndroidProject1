@@ -177,7 +177,9 @@ layers, and the split is what makes a re-brand one file rather than a sweep:
 | 3 · component | `component/*.kt` | Binds a role to an element and its states |
 
 Read layer 2 through `AppTheme`: `AppTheme.colors`, `.typography`, `.shapes`, `.elevation`,
-`.motion`, `.density`, `.spacing`. `toColorScheme()` / `toTypography()` / `toShapes()` also populate
+`.motion`, `.density`, `.spacing`, `.icons` — the last being three icon sizes and only three,
+`sm` 18 in a row or a field, `md` 24 for a control, `lg` 32 where the icon is the thing being
+looked at. A touch target is `AppTheme.density.minTouchTarget` and a different question. `toColorScheme()` / `toTypography()` / `toShapes()` also populate
 Material's own theme, so `service/core/ui`'s `Screen()` — which cannot depend on `:core:ui` without
 losing its portability — picks up the system for free.
 

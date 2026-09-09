@@ -78,7 +78,7 @@ fun AppNavRail(
                             imageVector = item.icon,
                             contentDescription = null,
                             tint = if (selected) colors.destructive.onContainer else colors.textSecondary,
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(AppTheme.icons.md),
                         )
                     }
                     AppBadge(count = item.badge)

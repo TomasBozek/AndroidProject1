@@ -648,8 +648,8 @@ def check_features_use_the_design_system() -> list[str]:
                     problem(
                         path,
                         line,
-                        f"has a bare `{match.group(0)}` — ask AppTheme.spacing or "
-                        "AppTheme.typography for a role",
+                        f"has a bare `{match.group(0)}` — ask AppTheme.spacing, "
+                        "AppTheme.typography or AppTheme.icons for a role",
                     )
                 )
             for match in IMAGE_LIBRARY.finditer(text):

@@ -40,6 +40,7 @@ fun AppTheme(
         LocalAppElevation provides AppElevation(),
         LocalAppMotion provides AppMotion(),
         LocalAppDensity provides densityFor(sizeClass),
+        LocalAppIcons provides AppIcons(),
         LocalSpacing provides Spacing(),
     ) {
         MaterialTheme(
@@ -89,6 +90,11 @@ object AppTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalAppDensity.current
+
+    val icons: AppIcons
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalAppIcons.current
 
     val spacing: Spacing
         @Composable

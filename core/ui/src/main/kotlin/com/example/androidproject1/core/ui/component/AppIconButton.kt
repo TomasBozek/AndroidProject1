@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -43,7 +42,7 @@ fun AppIconButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = if (enabled) AppTheme.colors.textPrimary else AppTheme.colors.textDisabled,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(AppTheme.icons.md),
         )
     }
 }

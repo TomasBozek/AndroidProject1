@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -43,7 +42,7 @@ fun AppEmptyState(
                 imageVector = icon,
                 contentDescription = null,
                 tint = AppTheme.colors.textTertiary,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(AppTheme.icons.lg),
             )
         }
         AppText(text = title, role = TextRole.Title)

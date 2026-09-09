@@ -58,7 +58,7 @@ fun AppImage(
                     imageVector = Icons.Filled.Warning,
                     contentDescription = null,
                     tint = AppTheme.colors.textTertiary,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(AppTheme.icons.md),
                 )
             }
 

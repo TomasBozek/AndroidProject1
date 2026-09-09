@@ -97,7 +97,7 @@ D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is
 | D30 | Maestro in CI | **Default: weekly schedule and on demand, not per pull request** |
 | D31 | Versioning | **Default: name from the `v*` tag, code from the commit count; local builds keep 1 / 1.0** |
 | D32 | Store upload | **Default: none.** A GitHub release carrying the APK is the release |
-| D33 | Icon set | **Default: Material icons stay; the three icon sizes become roles.** The design names Lucide, which has no first-party Compose artifact |
+| D33 | Icon set | **Decided 2026-09-09: Material icons stay; the three sizes are `AppTheme.icons.sm/md/lg`.** The design names Lucide, which has no first-party Compose artifact |
 | D34 | Presentation layout | **Decided 2026-09-09: a directory per screen, even a lone one, and a file per component in the feature's `component/`** |
 
 ## Dependencies
@@ -177,7 +177,7 @@ version of every open item is in the detail file under the same id.
   own state, so a checkbox in the gallery toggles; a screen test proves it
 - [ ] **ui.7 Components match the design's component document** · M · `stable` · needs qa.13 —
   each of the 42 audited against `03-Komponenty`; the gap table is written, the gaps are not closed
-- [ ] **ui.8 Icon roles** · S · `stable` D33 · needs qa.13 — `AppTheme.icons` with the three
+- [x] (2026-09-09) **ui.8 Icon roles** · S · `stable` D33 · needs qa.13 — `AppTheme.icons` with the three
   sizes; no icon size literal outside the theme
 - [ ] **ui.9 Contrast is asserted** · S · `stable` — a JVM test over every text-on-surface and
   border-on-surface pair in both palettes, the design's check five

@@ -78,7 +78,7 @@ fun AppSelect(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = null,
                     tint = colors.textSecondary,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(AppTheme.icons.sm),
                 )
             }
         },

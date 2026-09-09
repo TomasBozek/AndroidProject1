@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -59,7 +58,7 @@ fun AppAccordion(
                 imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                 contentDescription = null,
                 tint = AppTheme.colors.textSecondary,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(AppTheme.icons.md),
             )
         }
         AnimatedVisibility(visible = expanded) {

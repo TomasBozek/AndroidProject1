@@ -284,16 +284,6 @@ built on this template adds the ones it needs with `create_component.py`.
 | SyncStatusBar · OfflineBanner | a snackbar in `feat.5` | **gap:** the document wants a bar that never covers content |
 | Popover, ActionSheet, FullScreenModal, FilterBar, SideDrawer, SettingsList, ProfileMenu, CommandPalette, ScreenOffline, UpdateBanner, DeviceStatusStrip, FirstRunChecklist and the B–H composites | — | product-specific; a project adds what it needs |
 
-**ui.8 Icon roles** · S · `stable` D33 · needs qa.13
-Why: the design sets three icon sizes — 18 in rows and small buttons, 24 default, 32 in keys and
-empty states — and every `Icon(...)` in the code writes whatever size its call site chose. A
-feature cannot write a `.dp`, so a screen that needs a large icon today has no role to ask for.
-Done: `AppTheme.icons` with `sm` / `md` / `lg`; every `Icon` in `core/ui` and in the features
-reads one; the icon set decision recorded as D33; `doctor.py`'s "no feature draws" check gains
-the icon size literal. Edits the features' screens, hence after `qa.13`.
-Verify: no `Icons`-sized literal outside the theme; the gallery's icon-bearing entries show the
-three sizes.
-
 **ui.9 Contrast is asserted** · S · `stable`
 Why: the design's check five — text 4.5:1, large text and borders 3:1, in both themes, checked
 by machine and never by eye — is the one a rebrand needs first, and it is a pure function of two

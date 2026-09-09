@@ -64,7 +64,7 @@ fun AppFab(
             imageVector = icon,
             contentDescription = if (label == null) contentDescription else null,
             tint = family.label,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(AppTheme.icons.md),
         )
         if (label != null) {
             AppText(text = label, role = TextRole.Label, color = family.label)

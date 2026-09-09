@@ -57,7 +57,7 @@ fun AppSearchField(
             imageVector = Icons.Filled.Search,
             contentDescription = null,
             tint = colors.textSecondary,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(AppTheme.icons.sm),
         )
         Box(modifier = Modifier.weight(1f)) {
             if (value.isEmpty() && placeholder.isNotEmpty()) {
