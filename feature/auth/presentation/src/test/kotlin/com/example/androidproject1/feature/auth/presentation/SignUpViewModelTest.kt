@@ -23,12 +23,12 @@ class SignUpViewModelTest {
     fun `submit requires the two passwords to match`() = runTest {
         val viewModel = viewModel()
         viewModel.onUiEvent(SignUpEvent.EmailChanged("ada@example.com"))
-        viewModel.onUiEvent(SignUpEvent.PasswordChanged("hunter2"))
-        viewModel.onUiEvent(SignUpEvent.ConfirmPasswordChanged("hunter3"))
+        viewModel.onUiEvent(SignUpEvent.PasswordChanged("hunter2!!"))
+        viewModel.onUiEvent(SignUpEvent.ConfirmPasswordChanged("hunter3!!"))
 
         assertFalse(viewModel.state.value.data!!.canSubmit)
 
-        viewModel.onUiEvent(SignUpEvent.ConfirmPasswordChanged("hunter2"))
+        viewModel.onUiEvent(SignUpEvent.ConfirmPasswordChanged("hunter2!!"))
         assertTrue(viewModel.state.value.data!!.canSubmit)
     }
 
@@ -36,8 +36,8 @@ class SignUpViewModelTest {
     fun `signing up signs the new account in`() = runTest {
         val viewModel = viewModel()
         viewModel.onUiEvent(SignUpEvent.EmailChanged("ada@example.com"))
-        viewModel.onUiEvent(SignUpEvent.PasswordChanged("hunter2"))
-        viewModel.onUiEvent(SignUpEvent.ConfirmPasswordChanged("hunter2"))
+        viewModel.onUiEvent(SignUpEvent.PasswordChanged("hunter2!!"))
+        viewModel.onUiEvent(SignUpEvent.ConfirmPasswordChanged("hunter2!!"))
 
         viewModel.onUiEvent(SignUpEvent.SignUpClicked)
 

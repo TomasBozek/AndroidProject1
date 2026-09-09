@@ -15,12 +15,15 @@ class SignUpViewModel(
 
     override fun onUiEvent(event: SignUpEvent) {
         when (event) {
-            is SignUpEvent.EmailChanged -> uiState.updateData { copy(email = event.email) }
+            is SignUpEvent.EmailChanged -> uiState.updateData { copy(email = email.changed(event.email)) }
 
-            is SignUpEvent.PasswordChanged -> uiState.updateData { copy(password = event.password) }
+            is SignUpEvent.PasswordChanged ->
+                uiState.updateData { copy(password = password.changed(event.password)) }
 
             is SignUpEvent.ConfirmPasswordChanged ->
-                uiState.updateData { copy(confirmPassword = event.confirmPassword) }
+                uiState.updateData {
+                    copy(confirmPassword = confirmPassword.changed(event.confirmPassword))
+                }
 
             SignUpEvent.SignUpClicked -> signUp()
 
@@ -31,7 +34,7 @@ class SignUpViewModel(
     // Mock sign-up: authService.login() already "records the session locally, verifying nothing",
     // so creating an account and signing in are the same call for now.
     private fun signUp() = execute(
-        action = { authService.login(uiState.value.data?.email.orEmpty()) },
+        action = { authService.login(uiState.value.data?.email?.value.orEmpty()) },
         onData = { logger.d { "Signed up" } },
     )
 }

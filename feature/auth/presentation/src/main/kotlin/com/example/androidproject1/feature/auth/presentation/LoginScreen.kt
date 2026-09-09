@@ -18,6 +18,7 @@ import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTextField
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
+import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.theme.AppTheme
 
 @Composable
@@ -36,7 +37,8 @@ fun LoginScreen(
         ) {
             AppText(text = stringResource(R.string.login_title), role = TextRole.Display)
             AppTextField(
-                value = state.email,
+                value = state.email.value,
+                errorText = state.email.error?.resolve(),
                 onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
                 label = stringResource(R.string.login_email),
                 keyboardType = KeyboardType.Email,
@@ -45,7 +47,8 @@ fun LoginScreen(
                     .testTag("login_emailField"),
             )
             AppTextField(
-                value = state.password,
+                value = state.password.value,
+                errorText = state.password.error?.resolve(),
                 onValueChange = { onEvent(LoginEvent.PasswordChanged(it)) },
                 label = stringResource(R.string.login_password),
                 password = true,
@@ -81,5 +84,14 @@ fun LoginScreen(
 private fun Preview() = ThemedScreenPreview {
     LoginScreen(
         state = LoginState.PREVIEW,
+    ) {}
+}
+
+/** The error text under each field — the state a design review has to be able to see. */
+@ScreenPreview
+@Composable
+private fun InvalidPreview() = ThemedScreenPreview {
+    LoginScreen(
+        state = LoginState.PREVIEW_INVALID,
     ) {}
 }

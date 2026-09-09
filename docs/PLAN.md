@@ -13,11 +13,11 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 3 / 6 | `█████░░░░░` 50 % |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 4 / 6 | `███████░░░` 67 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **6 / 32** | `██░░░░░░░░` 19 % |
+| **Total** | | **7 / 32** | `██░░░░░░░░` 22 % |
 
 **Start now:** `ui.1`, `core.3` / `core.4` / `core.5`, `qa.7` / `qa.8`, and the `shell.*` items.
 `core.1` and `core.2` together unblock **`feat.5`**, which now has every dependency it needs.
@@ -274,7 +274,7 @@ nothing here knows a feature.
   `:core:ui` and `:service:core:ui` can assert what they draw — **`ui.3` no longer has to add
   them**.
 
-- [ ] **core.5 Form validation** · S · `stable`
+- [x] **core.5 Form validation** (2026-09-09) · S · `stable`
   Why: was C10. `LoginState.canSubmit` and `SignUpState.canSubmit` are hand-rolled booleans that
   cannot say *why* submit is disabled.
   Done: `service/core/ui/form/` — `FieldState(value, error: UiText?, touched)`, validators
@@ -282,6 +282,18 @@ nothing here knows a feature.
   `LoginState` and `SignUpState` migrate to it (edits `feature/auth/presentation`, app track's directory).
   Verify: JVM tests per validator; `LoginScreenTest` and both auth ViewModel tests unchanged and
   green; the error text appears under the field in the Login preview.
+  **Landed:** the auth tests could not stay *unchanged* — the field type is the thing that changed,
+  so `LoginState.PREVIEW.copy(email = "")` stops compiling by construction. Two edits, both
+  behaviour-preserving: `LoginScreenTest` uses a new `LoginState.EMPTY` fixture, and
+  `SignUpViewModelTest`'s passwords got longer because sign-up gained a real `minLength(8)` and
+  `"hunter2"` is seven characters — the test is about matching, so it should not fail on length.
+  `touched` is the reason `FieldState` is a type rather than a `String`: a form must not shout at
+  someone who has not typed yet, so a value is validated from the first keystroke but the error
+  stays hidden until the field is touched. `Form.touchAll` is there for the submit that has to
+  reveal everything at once. `matches` takes `() -> String` rather than a value, because a confirm
+  field is checked against whatever the other field holds *now*.
+  A fifth validator was not added: `email` is deliberately permissive — the only way to know an
+  address is real is to send to it, and a strict pattern rejects valid ones.
 
 - [ ] **core.6 Analytics seam** · M · `stable`
   Why: was 7.4. Screen views are the one event every product wants, and the only place that knows

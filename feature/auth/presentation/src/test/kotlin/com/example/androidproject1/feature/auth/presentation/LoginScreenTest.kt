@@ -63,7 +63,7 @@ class LoginScreenTest {
     @Test
     fun `submit is disabled until the form can be submitted`() {
         // canSubmit is derived: blank fields mean it cannot be submitted.
-        render(LoginState.PREVIEW.copy(email = "", password = ""))
+        render(LoginState.EMPTY)
 
         compose.onNodeWithTag("login_submitButton").assertIsNotEnabled()
     }
@@ -77,7 +77,7 @@ class LoginScreenTest {
 
     @Test
     fun `typing an email reports it as an event`() {
-        render(LoginState.PREVIEW.copy(email = ""))
+        render(LoginState.EMPTY)
 
         // AppTextField is a label, an input and a supporting line, and the tag is on the group —
         // the Modifier convention puts a caller's modifier on the outermost element. So a test
@@ -100,7 +100,7 @@ class LoginScreenTest {
 
     @Test
     fun `a disabled submit reports nothing`() {
-        render(LoginState.PREVIEW.copy(email = "", password = ""))
+        render(LoginState.EMPTY)
 
         compose.onNodeWithTag("login_submitButton").performClick()
 

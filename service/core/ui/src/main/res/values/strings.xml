@@ -11,4 +11,13 @@
     <string name="core_empty_message">Nothing to show yet.</string>
     <string name="core_permission_allow">Allow</string>
     <string name="core_permission_open_settings">Open settings</string>
+
+    <!-- Form validation. Shipped here so a feature's form needs no copy of its own. -->
+    <string name="core_field_required">This field is required.</string>
+    <string name="core_field_email">Enter a valid email address.</string>
+    <string name="core_field_mismatch">These do not match.</string>
+    <plurals name="core_field_min_length">
+        <item quantity="one">Must be at least %d character.</item>
+        <item quantity="other">Must be at least %d characters.</item>
+    </plurals>
 </resources>

@@ -17,6 +17,7 @@ import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTextField
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
+import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.theme.AppTheme
 
 @Composable
@@ -35,21 +36,24 @@ fun SignUpScreen(
         ) {
             AppText(text = stringResource(R.string.sign_up_title), role = TextRole.Display)
             AppTextField(
-                value = state.email,
+                value = state.email.value,
+                errorText = state.email.error?.resolve(),
                 onValueChange = { onEvent(SignUpEvent.EmailChanged(it)) },
                 label = stringResource(R.string.sign_up_email),
                 keyboardType = KeyboardType.Email,
                 modifier = Modifier.fillMaxWidth(),
             )
             AppTextField(
-                value = state.password,
+                value = state.password.value,
+                errorText = state.password.error?.resolve(),
                 onValueChange = { onEvent(SignUpEvent.PasswordChanged(it)) },
                 label = stringResource(R.string.sign_up_password),
                 password = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             AppTextField(
-                value = state.confirmPassword,
+                value = state.confirmPassword.value,
+                errorText = state.confirmPassword.error?.resolve(),
                 onValueChange = { onEvent(SignUpEvent.ConfirmPasswordChanged(it)) },
                 label = stringResource(R.string.sign_up_confirm_password),
                 password = true,

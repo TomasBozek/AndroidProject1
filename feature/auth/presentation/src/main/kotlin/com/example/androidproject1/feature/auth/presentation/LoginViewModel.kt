@@ -15,11 +15,12 @@ class LoginViewModel(
 
     override fun onUiEvent(event: LoginEvent) {
         when (event) {
-            is LoginEvent.EmailChanged -> uiState.updateData { copy(email = event.email) }
+            is LoginEvent.EmailChanged -> uiState.updateData { copy(email = email.changed(event.email)) }
 
-            is LoginEvent.PasswordChanged -> uiState.updateData { copy(password = event.password) }
+            is LoginEvent.PasswordChanged ->
+                uiState.updateData { copy(password = password.changed(event.password)) }
 
-            LoginEvent.LoginClicked -> login(email = uiState.value.data?.email.orEmpty())
+            LoginEvent.LoginClicked -> login(email = uiState.value.data?.email?.value.orEmpty())
 
             LoginEvent.SkipLoginClicked -> login(email = "")
 
