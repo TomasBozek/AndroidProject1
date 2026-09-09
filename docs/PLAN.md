@@ -8,8 +8,8 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 ## Status
 
 **Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 45 · ktlint clean · build green
-**Coverage:** 38 % lines — architecture and ViewModels tested; data layers 0 %, components 10 %
-**Repo:** 26 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
+**Coverage:** last measured 38 % before this session's 13 items; re-run `./gradlew koverHtmlReport`
+**Repo:** 30 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
@@ -18,6 +18,13 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | **app** · shell and sample features | `app/`, `feature/*` | 4 / 14 | `███░░░░░░░` 29 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 3 / 7 | `████░░░░░░` 43 % |
 | **Total** | | **13 / 32** | `████░░░░░░` 41 % |
+
+**In flight, 2026-09-09.** Two items were being built in parallel worktrees when the session
+ended and may be unfinished: `feat.7` on branch `feat.7-data-tests` and `feat.3` on branch
+`feat.3-profile`, in `../AndroidProject1-feat.7` and `../AndroidProject1-feat.3`. Check
+`git log <branch>` before restarting either — if the branch has no commit past `qa.2`, the work
+was lost and the item is untouched; remove the worktree and start it cleanly. `ui.2` is parked on
+`ui.2-roborazzi` with its blocker recorded above.
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -349,7 +356,7 @@ destinations; no app-track item touches those while it is open.
   `FontFamily.Default` and that text composes with no network, which is the situation a preview
   and a golden are in. A silent fallback to the platform face is the failure this catches.
 
-- [ ] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · needs ui.1
+- [~] **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · needs ui.1
   Why: was 4.1. 41 components × three variants and ten screens × twelve renders sit unasserted.
   Done: compatibility check first — Roborazzi **1.74.0** and `ComposablePreviewScanner` **0.9.3**
   are both current and stable (checked 2026-09-09), so the spike is only the toolchain: AGP 9.4,
@@ -360,6 +367,17 @@ destinations; no app-track item touches those while it is open.
   Re-tested against D27 on 2026-09-09 and kept — see D28; both dependencies are build-only and
   reach no release build.
   Verify: break one padding value on purpose and the verify task fails on that image only; restore.
+  **Started 2026-09-09, parked on branch `ui.2-roborazzi` (not merged, worktree removed).** The
+  toolchain half of the compatibility check **passes**: Roborazzi 1.74.0 and
+  ComposablePreviewScanner 0.9.3 resolve, and Roborazzi's Gradle plugin applies cleanly through
+  `convention.android.library.compose` on AGP 9.4 / Gradle 9.6 / JDK 25.
+  What blocks it: `AndroidComposablePreviewScanner` returns **zero previews**, so the parameterized
+  runner generates no tests and the task fails with "No tests found". Every `@ScreenPreview` and
+  `@ComponentPreview` in this repo is a **private** composable, which is the likeliest cause — the
+  scanner reflects over the classpath and a private method is not a usable entry point.
+  Next session: try making the preview functions `internal` rather than `private` first. They are
+  private only to keep them out of a module's API, and `internal` preserves that. It is a one-word
+  change per preview. If that is not it, point the scanner at a package of non-private wrappers.
 
 - [ ] **ui.3 Component behaviour tests** · M · `stable`
   Why: `core/ui/component` is 1,689 lines at 10 % coverage. Previews show; nothing asserts.
