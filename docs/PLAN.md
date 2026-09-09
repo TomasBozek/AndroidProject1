@@ -19,12 +19,16 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 3 / 7 | `████░░░░░░` 43 % |
 | **Total** | | **13 / 32** | `████░░░░░░` 41 % |
 
-**In flight, 2026-09-09.** Two items were being built in parallel worktrees when the session
-ended and may be unfinished: `feat.7` on branch `feat.7-data-tests` and `feat.3` on branch
-`feat.3-profile`, in `../AndroidProject1-feat.7` and `../AndroidProject1-feat.3`. Check
-`git log <branch>` before restarting either — if the branch has no commit past `qa.2`, the work
-was lost and the item is untouched; remove the worktree and start it cleanly. `ui.2` is parked on
-`ui.2-roborazzi` with its blocker recorded above.
+**Three branches carry unfinished work, none merged.** `main` is clean and green without them.
+
+| Branch | State |
+|---|---|
+| `ui.2-roborazzi` | Wiring done, blocker diagnosed and written into `ui.2` above. The useful one |
+| `feat.7-data-tests` | **Unverified WIP.** An agent was mid-item; committed only so a restart would not lose it. Has not been through the gate and may not compile |
+| `feat.3-profile` | **Unverified WIP.** Same — includes a new `:feature:profile` and an `AppAvatarPhoto` component |
+
+For the two WIP branches: read the diff and decide. Neither item is marked started, so discarding
+the branch and running the item cleanly is a perfectly good option and often the faster one.
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
