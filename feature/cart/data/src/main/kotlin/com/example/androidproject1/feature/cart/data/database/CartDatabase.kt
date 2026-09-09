@@ -29,7 +29,14 @@ data class CartItemEntity(
 @Dao
 interface CartDao {
 
-    @Query("SELECT * FROM cart_items ORDER BY addedAt ASC")
+    /**
+     * The second sort key is not decoration. `addedAt` is a millisecond, so two products added
+     * inside one are tied, and a tie is ordered by whatever SQLite feels like — which for an
+     * [OnConflictStrategy.REPLACE] upsert is the row's *new* rowid. Topping one of them up
+     * therefore sent it to the bottom of the list under the user's finger, which is exactly what
+     * keeping the original `addedAt` in `DefaultLocalCartDataSource.add` is there to prevent.
+     */
+    @Query("SELECT * FROM cart_items ORDER BY addedAt ASC, productId ASC")
     fun observeItems(): Flow<List<CartItemEntity>>
 
     /** Drives the tab badge, so it is a count and not a list of rows nobody draws. */

@@ -55,7 +55,7 @@ dependencies {
 | `convention.android.library` | `com.android.library`, the SDK levels, Java target, the shared `lint.xml`, the derived namespace. No dependencies |
 | `convention.android.library.compose` | the above plus the Compose compiler plugin, `buildFeatures.compose`, the BOM and the `compose-core` bundle |
 | `convention.kotlin.jvm` | `org.jetbrains.kotlin.jvm`, Java target, coroutines, JUnit and coroutines-test. Every `domain` module |
-| `convention.feature.data` | android library plus coroutines |
+| `convention.feature.data` | android library plus coroutines, and what testing one takes: the `testing` bundle, `testFixtures(:service:core:domain)`, MockEngine, and Robolectric plus `androidx-test-core` — a DataStore wants a `Context` exactly as a DAO does |
 | `convention.feature.di` | android library plus the Koin BOM and bundle |
 | `convention.feature.presentation` | the compose library plus serialization, Koin, Navigation 3's ViewModel decorator, lifecycle, the `testing` bundle and `testFixtures(:service:core:ui)` |
 | `convention.android.application` | `:app`: `com.android.application`, the app identity, R8 on release, `lint.checkDependencies` |
@@ -128,10 +128,11 @@ Two rules keep `service/` portable, and both are load-bearing:
 - **`:service:core:ui` sets `resourcePrefix = "core_"`,** so every string it ships is `core_*` and
   cannot silently collide with a consuming app's. New resources there must carry the prefix.
 
-Test fixtures live with the type they fake: `FakeLogger` in `testFixtures` of `:service:core:domain`
-alongside `Logger`, `MainDispatcherRule` in `:service:core:ui`'s, `FakeAuthService` in
-`:feature:auth:domain`'s. `:service:core:ui` re-exports the first with `testFixturesApi`, so a screen
-test still needs one `testFixtures(...)` line. Never write a second copy of a fake — move the first.
+Test fixtures live with the type they fake: `FakeLogger` and `TestDispatchers` in `testFixtures` of
+`:service:core:domain` alongside `Logger` and `DispatcherProvider`, `MainDispatcherRule` in
+`:service:core:ui`'s, `FakeAuthService` in `:feature:auth:domain`'s. `:service:core:ui` re-exports the
+first two with `testFixturesApi`, so a screen test still needs one `testFixtures(...)` line. Never
+write a second copy of a fake — move the first.
 
 The service modules have JVM unit tests (`src/test/kotlin`) covering `Outcome`, `BaseRepository` and
 `BaseViewModel`. They need no Robolectric — `R.string.x` is only an `Int` and `UiText` defers
@@ -312,7 +313,7 @@ Plan 2's reference table, kept here because the plan holds only open work.
 | `ErrorTracker` / `TrackingLogger` | `service/core/domain/`, `service/core/data/` | See Crash reporting above |
 | `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
 | `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
-| `MainDispatcherRule`, `FakeLogger`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain`, `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first two; the convention plugin adds it |
+| `MainDispatcherRule`, `FakeLogger`, `TestDispatchers`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain` (both middle two), `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first three; the convention plugin adds it, and `convention.feature.data` takes `:service:core:domain`'s directly |
 | `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, version, flavors. One edit each |
 
 ## DI (Koin)

@@ -24,11 +24,8 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
         }
 
         dependencies {
-            // Robolectric only here, not in convention.feature.data: a DAO test needs a real
-            // SQLite and a Context, and a data module without a database should not pay for that.
-            add("testImplementation", libs.findLibrary("robolectric").get())
-            add("testImplementation", libs.findLibrary("androidx-test-core").get())
-
+            // Robolectric and androidx-test-core, which a DAO test needs for a real SQLite and a
+            // Context, arrive with `convention.feature.data` — see there.
             add("api", libs.findLibrary("androidx-room-runtime").get())
             add("api", libs.findLibrary("androidx-room-ktx").get())
             add("ksp", libs.findLibrary("androidx-room-compiler").get())

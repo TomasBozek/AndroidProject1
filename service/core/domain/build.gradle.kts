@@ -4,3 +4,9 @@ plugins {
     // because Logger does; consume with `testImplementation(testFixtures(projects...))`.
     `java-test-fixtures`
 }
+
+dependencies {
+    // TestDispatchers ships from here for the same reason FakeLogger does — DispatcherProvider is
+    // declared in this module — and it is the one fixture needing a library to compile.
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
+}

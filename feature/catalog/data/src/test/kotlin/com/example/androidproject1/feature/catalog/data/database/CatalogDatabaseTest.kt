@@ -144,6 +144,22 @@ class CatalogDatabaseTest {
     }
 
     @Test
+    fun `two products favourited in the same millisecond keep a stable order`() = runTest {
+        givenProducts(coffee, tea)
+        // The clock the app ships is System.currentTimeMillis, so two taps inside one millisecond
+        // tie — and a tie is ordered by whatever SQLite feels like, which the next REPLACE upsert
+        // is free to change. Without a second sort key the list reshuffles for no visible reason.
+        clock = 1_000L
+        favourites.setFavourite("coffee", favourite = true)
+        favourites.setFavourite("tea", favourite = true)
+        val before = favourites.observeFavourites().first().map { it.name }
+
+        favourites.setFavourite("coffee", favourite = true)
+
+        assertEquals(before, favourites.observeFavourites().first().map { it.name })
+    }
+
+    @Test
     fun `a favourite whose product a refresh removed simply does not appear`() = runTest {
         givenProducts(coffee)
         favourites.setFavourite("coffee", favourite = true)
