@@ -20,6 +20,14 @@ interface CatalogRepository {
     /** Everything cached, for a picker. Reads the table the lists filled; no fetch of its own. */
     fun observeAllProducts(): Flow<Outcome<List<Product>>>
 
+    /**
+     * Products whose name contains [query], from the cache the lists filled.
+     *
+     * Matching is the data layer's business rather than a screen's: it is a query, and a
+     * `filter` in a ViewModel is one that cannot be indexed, paged or moved to a server.
+     */
+    fun searchProducts(query: String): Flow<Outcome<List<Product>>>
+
     /** A single product, read from the cache the lists filled. */
     suspend fun getProduct(productId: String): Outcome<Product?>
 }

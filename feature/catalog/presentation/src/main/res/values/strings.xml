@@ -11,4 +11,13 @@
     <string name="product_picker_title">Pick a product</string>
     <string name="product_detail_placeholder_title">Nothing picked yet</string>
     <string name="product_detail_placeholder_message">Choose a product on the left to see it here.</string>
+    <string name="product_search_title">Search</string>
+    <string name="product_search_placeholder">Search products</string>
+    <string name="product_search_no_results_title">Nothing matched</string>
+    <string name="product_search_no_results_message">No product matches “%1$s”.</string>
+    <string name="product_search_recents">Recent searches</string>
+    <string name="product_search_recents_clear">Clear</string>
+    <string name="product_search_recents_empty_title">Search the catalogue</string>
+    <string name="product_search_recents_empty_message">What you look for shows up here, so it is one tap next time.</string>
+    <string name="categories_search">Search</string>
 </resources>

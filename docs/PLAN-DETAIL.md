@@ -186,13 +186,6 @@ Done: the debug menu posts a notification whose `PendingIntent` carries a produc
 Verify: tapping it from a cold start lands on the product with Up working.
 
 
-**feat.4 Search — proves inline error per content id** · M · `stable`
-Why: inline retry works per content id and no screen has two content states.
-Done: a search screen from the Categories top bar; `AppSearchField` with a 300 ms debounce and
-`flatMapLatest`; results and recent searches as two content ids, each with its own inline error
-and empty state; recents in DataStore.
-Verify: a ViewModel test with `advanceTimeBy` for the debounce and one for a failure on one id
-leaving the other; a screen test.
 
 **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
 Why: Czech has four plural forms against English's two, so a second locale is what proves

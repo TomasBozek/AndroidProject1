@@ -43,6 +43,7 @@ import com.example.androidproject1.feature.catalog.presentation.productdetail.pr
 import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.productpicker.productPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.products.productsDestination
+import com.example.androidproject1.feature.catalog.presentation.search.productSearchDestination
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.DevMenuDestination
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.devMenuDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryDestination
@@ -289,6 +290,7 @@ private fun EntryProviderScope<NavKey>.catalogEntries(
         // detail immediately after tapping, and an add cancelled by that would silently do nothing.
         onAddToCart = { productId -> addToCart(productId) },
     )
+    productSearchDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<NavKey>) {

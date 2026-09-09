@@ -38,11 +38,21 @@ class DefaultCatalogRepository(
     // Not cached() either: the picker is reached from the cart, and the catalog has already been
     // fetched by the tab the user browsed to get there.
     override fun observeAllProducts(): Flow<Outcome<List<Product>>> =
-        observe(source = localCatalogDataSource.observeAllProducts(), retries = 3)
+        observe(source = localCatalogDataSource.observeAllProducts(), retries = RETRIES)
+
+    // Not cached() either, and for the same reason: a search reads what browsing has already
+    // fetched. A round trip per keystroke is what the debounce upstream exists to avoid.
+    override fun searchProducts(query: String): Flow<Outcome<List<Product>>> =
+        observe(source = localCatalogDataSource.observeProductsMatching(query), retries = RETRIES)
 
     // Not cached(): detail is always reached from a list, so the product is already in the table.
     // Fetching it again would make opening a product a network round trip for nothing.
     override suspend fun getProduct(productId: String): Outcome<Product?> = execute {
         localCatalogDataSource.getProduct(productId)
+    }
+
+    private companion object {
+
+        const val RETRIES = 3L
     }
 }

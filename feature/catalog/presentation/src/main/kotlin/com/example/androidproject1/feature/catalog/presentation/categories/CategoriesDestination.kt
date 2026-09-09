@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.example.androidproject1.core.ui.component.Screen
 import com.example.androidproject1.feature.catalog.presentation.products.ProductsDestination
+import com.example.androidproject1.feature.catalog.presentation.search.ProductSearchDestination
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
@@ -22,6 +23,8 @@ fun EntryProviderScope<NavKey>.categoriesDestination(backStack: NavBackStack<Nav
                     is CategoriesNavigation.Products -> backStack.add(
                         ProductsDestination(categoryId = navigation.categoryId, categoryName = navigation.categoryName),
                     )
+
+                    CategoriesNavigation.Search -> backStack.add(ProductSearchDestination)
                 }
             },
         ) { state, onEvent ->

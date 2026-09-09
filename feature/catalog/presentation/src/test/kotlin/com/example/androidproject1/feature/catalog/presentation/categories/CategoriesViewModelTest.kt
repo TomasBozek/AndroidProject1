@@ -107,4 +107,13 @@ class CategoriesViewModelTest {
         assertNull(state.data)
         assertNotNull(state.content)
     }
+
+    @Test
+    fun `the search action navigates to search`() = runTest {
+        val viewModel = viewModel(FakeCatalogRepository())
+
+        viewModel.onUiEvent(CategoriesEvent.SearchClicked)
+
+        assertEquals(CategoriesNavigation.Search, viewModel.navigation.first())
+    }
 }

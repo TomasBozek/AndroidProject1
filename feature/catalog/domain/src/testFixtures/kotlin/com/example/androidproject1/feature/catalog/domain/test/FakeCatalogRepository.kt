@@ -27,6 +27,9 @@ class FakeCatalogRepository(
     var observeProductsCallCount = 0
         private set
 
+    /** Every query the search reached the repository with — the debounce is asserted on this. */
+    val searchedFor = mutableListOf<String>()
+
     override fun observeCategories(): Flow<Outcome<List<Category>>> = emissions(categories)
 
     override fun observeProducts(categoryId: String): Flow<Outcome<List<Product>>> {
@@ -35,6 +38,11 @@ class FakeCatalogRepository(
     }
 
     override fun observeAllProducts(): Flow<Outcome<List<Product>>> = emissions(products)
+
+    override fun searchProducts(query: String): Flow<Outcome<List<Product>>> {
+        searchedFor += query
+        return emissions(products.filter { it.name.contains(query, ignoreCase = true) })
+    }
 
     override suspend fun getProduct(productId: String): Outcome<Product?> =
         failWith?.let { Outcome.Failure(it) } ?: Outcome.Success(products.find { it.id == productId })

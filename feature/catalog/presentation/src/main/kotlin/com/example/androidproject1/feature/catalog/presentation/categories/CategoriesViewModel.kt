@@ -24,6 +24,8 @@ class CategoriesViewModel(
 
     override fun onUiEvent(event: CategoriesEvent) {
         when (event) {
+            CategoriesEvent.SearchClicked -> navigate(CategoriesNavigation.Search)
+
             is CategoriesEvent.CategoryClicked -> navigate(
                 CategoriesNavigation.Products(categoryId = event.category.id, categoryName = event.category.name),
             )

@@ -6,4 +6,6 @@ import com.example.androidproject1.feature.catalog.domain.Category
 sealed interface CategoriesEvent : UiEvent {
 
     data class CategoryClicked(val category: Category) : CategoriesEvent
+
+    data object SearchClicked : CategoriesEvent
 }

@@ -16,6 +16,14 @@ interface CatalogDao {
     @Query("SELECT * FROM products ORDER BY name ASC")
     fun observeAllProducts(): Flow<List<ProductEntity>>
 
+    /**
+     * `LIKE` is case-insensitive for ASCII in SQLite, which is what a search box wants; the
+     * wildcards are concatenated rather than written into the parameter so a query containing
+     * `%` searches for a per cent sign instead of matching everything.
+     */
+    @Query("SELECT * FROM products WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
+    fun observeProductsMatching(query: String): Flow<List<ProductEntity>>
+
     @Query("SELECT * FROM products WHERE categoryId = :categoryId")
     fun observeProductsIn(categoryId: String): Flow<List<ProductEntity>>
 

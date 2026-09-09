@@ -372,7 +372,11 @@ def register_destination(import_line: str, call_line: str, graph: str, dry_run: 
             print(f"  AppNavHost: no {graph_function}() block — add the destination by hand")
             return text
 
-        end = block_end(lines, start)
+        # Counted from where the body actually opens, not from the `fun` line: a block with a
+        # multi-line parameter list has no brace there, and `block_end` would then return the
+        # line after the signature — putting the destination inside the parameter list.
+        body = next(i for i in range(start, len(lines)) if "{" in lines[i])
+        end = block_end(lines, body)
         indent = re.match(r"\s*", lines[start]).group(0) + " " * 4
         # A blank line between destinations only if the graph already has one.
         if lines[end - 1].strip():

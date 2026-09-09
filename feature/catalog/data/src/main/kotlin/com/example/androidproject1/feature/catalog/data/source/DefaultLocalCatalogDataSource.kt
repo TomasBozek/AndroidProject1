@@ -32,6 +32,9 @@ class DefaultLocalCatalogDataSource(
     override fun observeAllProducts(): Flow<List<Product>> =
         catalogDao.observeAllProducts().map { rows -> rows.map { it.toDomain() } }
 
+    override fun observeProductsMatching(query: String): Flow<List<Product>> =
+        catalogDao.observeProductsMatching(query).map { rows -> rows.map { it.toDomain() } }
+
     override fun observeProduct(productId: String): Flow<Product?> =
         catalogDao.observeProduct(productId).map { it?.toDomain() }
 
