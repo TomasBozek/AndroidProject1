@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Czech. Every string here is a contentDescription read aloud by TalkBack, so it names the
+    action rather than the icon.
+-->
+<resources>
+    <string name="app_navigate_up">Přejít nahoru</string>
+    <string name="app_search_clear">Vymazat dotaz</string>
+    <string name="app_stepper_decrement">Snížit počet</string>
+    <string name="app_stepper_increment">Zvýšit počet</string>
+</resources>

@@ -32,6 +32,7 @@ from _common import (  # noqa: E402
     REPO_ROOT,
     SETTINGS_FILE,
     TEMPLATE_FEATURE,
+    TRANSLATED_LOCALES,
     block_end,
     relative_to_repo,
     to_snake,
@@ -1079,6 +1080,130 @@ def check_screens_pass_screen_id() -> list[str]:
                 problems.append(
                     problem(path, None, "composes AppScaffold without a screenId")
                 )
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
+# Translations
+# --------------------------------------------------------------------------------------------
+
+# Czech has four CLDR plural categories against English's two, which is why feat.9 chose it: a
+# `values-cs` that ships only `one` and `other` falls back to `other` at 2, and "2 položek" is
+# the kind of wrong that reads as machine translation.
+PLURAL_QUANTITIES = {
+    "cs": {"one", "few", "many", "other"},
+}
+
+
+def default_string_files() -> list[Path]:
+    """Every `res/values/strings.xml` in the repo, in path order."""
+    return sorted(
+        path
+        for path in REPO_ROOT.rglob("src/main/res/values/strings.xml")
+        if "build" not in path.relative_to(REPO_ROOT).parts
+    )
+
+
+def resource_entries(path: Path) -> dict[str, str] | str:
+    """
+    `{name: tag}` for the `<string>` and `<plurals>` a resource file declares, or a message.
+
+    Parsed rather than grepped, so a translation that forgot to escape an `&` fails here with the
+    line number instead of a hundred lines into `mergeDebugResources`. A string marked
+    `translatable="false"` is skipped: it is a brand name or a glyph, and asking a translator for
+    a copy of it is how "—" ends up as "-" in one locale.
+    """
+    import xml.etree.ElementTree as ElementTree
+
+    try:
+        root = ElementTree.parse(path).getroot()
+    except ElementTree.ParseError as error:
+        return f"is not well-formed XML: {error}"
+
+    return {
+        element.get("name"): element.tag
+        for element in root
+        if element.tag in ("string", "plurals")
+        and element.get("name")
+        and element.get("translatable") != "false"
+    }
+
+
+@check("every string resource is translated into every locale")
+def check_translations_are_complete() -> list[str]:
+    """
+    feat.9: a module whose `values-cs` is missing, or is one string short of `values/`.
+
+    Lint's `MissingTranslation` catches the second and not the first — a module with no
+    `values-cs` at all is, as far as lint is concerned, a module that ships one locale, so the
+    failure this exists to prevent is precisely the one lint is quiet about: a feature generated
+    tomorrow whose Czech was never written. The reverse is checked too, because a name that
+    exists only in `values-cs` is a string nothing will ever resolve.
+    """
+    problems = []
+    for default in default_string_files():
+        expected = resource_entries(default)
+        if isinstance(expected, str):
+            problems.append(problem(default, None, expected))
+            continue
+
+        for locale in TRANSLATED_LOCALES:
+            translated = default.parent.parent / f"values-{locale}" / "strings.xml"
+            if not translated.is_file():
+                problems.append(
+                    problem(default, None, f"has no values-{locale}/strings.xml beside it — every string ships in every locale")
+                )
+                continue
+
+            actual = resource_entries(translated)
+            if isinstance(actual, str):
+                problems.append(problem(translated, None, actual))
+                continue
+
+            for name, tag in expected.items():
+                if name not in actual:
+                    problems.append(problem(translated, None, f"is missing '{name}'"))
+                elif actual[name] != tag:
+                    problems.append(problem(translated, None, f"declares '{name}' as <{actual[name]}>, not <{tag}>"))
+            for name in actual:
+                if name not in expected:
+                    problems.append(problem(translated, None, f"translates '{name}', which no values/strings.xml declares"))
+    return problems
+
+
+@check("every translated plurals has the locale's full set of forms")
+def check_translated_plurals_are_complete() -> list[str]:
+    """
+    A `<plurals>` short of a form does not fail to build: Android falls back to `other`, and the
+    screen reads "2 položek" for the rest of the product's life. Czech wants one/few/many/other,
+    and `many` — the decimal form — is the one every hand-written translation forgets.
+    """
+    import xml.etree.ElementTree as ElementTree
+
+    problems = []
+    for locale, quantities in PLURAL_QUANTITIES.items():
+        for path in sorted(REPO_ROOT.rglob(f"src/main/res/values-{locale}/strings.xml")):
+            if "build" in path.relative_to(REPO_ROOT).parts:
+                continue
+            try:
+                root = ElementTree.parse(path).getroot()
+            except ElementTree.ParseError:
+                continue  # Reported by the check above, with its message.
+
+            for element in root:
+                if element.tag != "plurals":
+                    continue
+                present = {item.get("quantity") for item in element}
+                missing = sorted(quantities - present)
+                if missing:
+                    problems.append(
+                        problem(path, None, f"plurals '{element.get('name')}' has no {', '.join(missing)} form")
+                    )
+                extra = sorted(present - quantities)
+                if extra:
+                    problems.append(
+                        problem(path, None, f"plurals '{element.get('name')}' has a {', '.join(extra)} form, which {locale} never selects")
+                    )
     return problems
 
 

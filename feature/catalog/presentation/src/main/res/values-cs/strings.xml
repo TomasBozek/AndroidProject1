@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="categories_title">Kategorie</string>
+    <string name="product_detail_not_found">Tento produkt už není dostupný.</string>
+    <string name="product_detail_go_back">Zpět</string>
+    <string name="catalog_stale">Zobrazuje se uložený obsah – server je nedostupný.</string>
+    <string name="products_empty">V této kategorii nejsou žádné produkty.</string>
+    <string name="product_detail_favourite_add">Přidat do oblíbených</string>
+    <string name="product_detail_favourite_remove">Odebrat z oblíbených</string>
+    <string name="product_detail_add_to_cart">Do košíku</string>
+    <string name="product_picker_title">Vyberte produkt</string>
+    <string name="product_detail_placeholder_title">Zatím nic nevybráno</string>
+    <string name="product_detail_placeholder_message">Vyberte produkt vlevo a zobrazí se zde.</string>
+    <string name="product_search_title">Vyhledávání</string>
+    <string name="product_search_placeholder">Hledat produkty</string>
+    <string name="product_search_no_results_title">Nic nenalezeno</string>
+    <string name="product_search_no_results_message">Žádný produkt neodpovídá dotazu „%1$s“.</string>
+    <string name="product_search_recents">Poslední hledání</string>
+    <string name="product_search_recents_clear">Vymazat</string>
+    <string name="product_search_recents_empty_title">Hledejte v katalogu</string>
+    <string name="product_search_recents_empty_message">Co budete hledat, objeví se tady, takže příště stačí jedno klepnutí.</string>
+    <string name="categories_search">Hledat</string>
+</resources>

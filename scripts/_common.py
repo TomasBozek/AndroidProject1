@@ -56,6 +56,12 @@ NAV_GRAPHS = {
 
 STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
 
+# The locales this app ships beside the default one, as the `values-<code>` suffix. `create_screen.py`
+# writes the new screen's strings into every one of them and `doctor.py` fails on a module that is
+# missing one, so a second locale is this list plus a directory per module — not a sweep through the
+# generators looking for the places `values/` was spelled out.
+TRANSLATED_LOCALES = ["cs"]
+
 # A line of the module tree in CLAUDE.md, e.g.
 # `:feature:auth:{domain,data,presentation,di}       full stack; owns the session`.
 # doctor.py fails when the tree and the directories on disk disagree, so the generators keep it
