@@ -15,6 +15,7 @@ dependencies {
     api(projects.feature.gallery.di)
     api(projects.feature.cart.di)
     api(projects.feature.profile.di)
+    api(projects.feature.devmenu.di)
 
     implementation(projects.service.core.data)
     implementation(projects.service.core.domain)

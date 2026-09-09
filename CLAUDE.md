@@ -108,7 +108,8 @@ There are three top-level groups, and the split between the first two is the imp
 :feature:auth:{domain,data,presentation,di}       full stack; owns the session
 :feature:cart:{domain,data,presentation,di}       full stack
 :feature:catalog:{domain,data,presentation,di}    full stack; three screens, one with args; a tab
-:feature:gallery:{presentation,di}                screen only
+:feature:devmenu:{presentation,di}                screen only; dev and staging only (D16)
+:feature:gallery:{presentation,di}                screen only; reached from the debug menu
 :feature:home:{presentation,di}                   screen only; a tab
 :feature:profile:{domain,data,presentation,di}    full stack
 :feature:settings:{presentation,di}               screen only; a tab; reads :feature:auth:domain

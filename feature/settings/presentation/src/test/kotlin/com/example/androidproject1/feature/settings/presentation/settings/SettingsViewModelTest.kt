@@ -30,6 +30,29 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `the debug menu entry is off until the destination says otherwise`() = runTest {
+        val viewModel = viewModel()
+
+        assertEquals(false, viewModel.state.value.data?.debugMenuEnabled)
+
+        viewModel.onUiEvent(SettingsEvent.DebugMenuAvailable(true))
+
+        assertEquals(true, viewModel.state.value.data?.debugMenuEnabled)
+    }
+
+    @Test
+    fun `a session change does not forget the debug menu entry`() = runTest {
+        // The regression a rebuilt SettingsState causes: the entry appears and then vanishes on
+        // the next emission of the session.
+        val viewModel = viewModel()
+        viewModel.onUiEvent(SettingsEvent.DebugMenuAvailable(true))
+
+        authService.session.value = Session(id = "session-1", email = "ada@example.com")
+
+        assertEquals(true, viewModel.state.value.data?.debugMenuEnabled)
+    }
+
+    @Test
     fun `logging out asks first and does nothing until confirmed`() = runTest {
         val viewModel = viewModel()
 

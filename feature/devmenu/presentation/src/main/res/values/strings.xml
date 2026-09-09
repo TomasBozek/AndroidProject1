@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dev_menu_title">Debug menu</string>
+    <string name="dev_menu_build">Build</string>
+    <string name="dev_menu_flavor">Flavor</string>
+    <string name="dev_menu_application_id">Application id</string>
+    <string name="dev_menu_version">Version</string>
+    <string name="dev_menu_base_url">Base URL</string>
+    <string name="dev_menu_leaks">Leak detection</string>
+    <string name="dev_menu_leaks_on">LeakCanary is watching</string>
+    <string name="dev_menu_leaks_off">Off in this build</string>
+    <string name="dev_menu_session">Session</string>
+    <string name="dev_menu_session_none">Signed out</string>
+    <string name="dev_menu_network">Network</string>
+    <string name="dev_menu_offline">Pretend the server is down</string>
+    <string name="dev_menu_offline_supporting">Every request fails with 503, so the cached screens can be seen by hand.</string>
+    <string name="dev_menu_tools">Tools</string>
+    <string name="dev_menu_components">Components</string>
+    <string name="dev_menu_crash">Record a test report</string>
+    <string name="dev_menu_crash_recorded">Sent to the error tracker</string>
+</resources>

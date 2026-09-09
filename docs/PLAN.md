@@ -189,7 +189,7 @@ version of every open item is in the detail file under the same id.
 
 - [ ] **shell.1 Deep links** · M · `device` · needs qa.13 — `<app>://product/{id}` cold and
   warm, with Up working
-- [ ] **shell.2 Debug menu, dev and staging only** · M · `stable` D16 · needs qa.13 — build
+- [x] (2026-09-09) **shell.2 Debug menu, dev and staging only** · M · `stable` D16 — build
   info, session, crash test, the offline toggle as a switch; the gallery moves here and R8 drops
   it from prod
 - [ ] **shell.3 Theme setting** · M · `stable` · needs qa.13 — light / dark / system, stored,

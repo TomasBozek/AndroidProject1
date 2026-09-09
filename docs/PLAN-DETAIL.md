@@ -180,16 +180,6 @@ Categories → Products → Detail so Up walks back; a warm start pushes onto th
 Verify: `adb shell am start -d <app>://product/croissant` cold and warm, both land on the
 product with Up working; a `MainViewModelTest` case for the synthesised stack.
 
-**shell.2 Debug menu, dev and staging only** · M · `stable` D16
-Why: flavor, base URL, session and "crash now" are what a tester needs, the offline toggle is a
-file nobody should have to `touch` by hand, and the gallery has no business in a prod build.
-Done: `:feature:devmenu` (presentation, di) reached from Settings when a `prod` source set's
-`DebugMenu.enabled` is false and the others' is true, so R8 strips it; shows build info,
-`BASE_URL`, session, an `ErrorTracker` test crash, LeakCanary, and a switch for `feat.5`'s
-`fail_network` toggle; Components moves here from Settings.
-Verify: the `prodRelease` mapping file contains no `feature.gallery` or `feature.devmenu` class;
-a `SettingsScreenTest` case for the entry present and absent.
-
 **shell.3 Theme setting** · M · `stable`
 Why: light / dark / system is the first preference every app grows, and no sample shows a
 preference read at the root.

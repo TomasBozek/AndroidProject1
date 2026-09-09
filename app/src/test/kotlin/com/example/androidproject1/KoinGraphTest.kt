@@ -2,6 +2,8 @@ package com.example.androidproject1
 
 import android.content.Context
 import com.example.androidproject1.core.di.appModules
+import com.example.androidproject1.core.di.debugMenuModules
+import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.feature.catalog.presentation.productdetail.ProductDetailDestination
 import com.example.androidproject1.feature.catalog.presentation.productdetail.ProductDetailViewModel
 import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerDestination
@@ -36,6 +38,9 @@ class KoinGraphTest {
         val graph = module {
             includes(ApplicationModule.module)
             includes(appModules(isDebug = true))
+            // The debug menu and the gallery are registered by :app, behind a const that is false
+            // in `prod` — so this verifies them in exactly the builds that start them.
+            if (DebugMenu.ENABLED) includes(debugMenuModules())
         }
 
         graph.verify(

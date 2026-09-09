@@ -30,6 +30,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.core.ui.navigation.ProvideNavResultStore
+import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.feature.auth.presentation.login.loginDestination
 import com.example.androidproject1.feature.auth.presentation.signup.signUpDestination
 import com.example.androidproject1.feature.cart.domain.CartItem
@@ -42,6 +43,8 @@ import com.example.androidproject1.feature.catalog.presentation.productdetail.pr
 import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.productpicker.productPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.products.productsDestination
+import com.example.androidproject1.feature.devmenu.presentation.devmenu.DevMenuDestination
+import com.example.androidproject1.feature.devmenu.presentation.devmenu.devMenuDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.galleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.galleryDetailDestination
@@ -238,7 +241,6 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     homeEntries(backStack)
     catalogEntries(backStack, addToCart)
     settingsEntries(backStack)
-    galleryDetailDestination(backStack = backStack)
     cartDestination(
         backStack = backStack,
         // The only place that knows both features. The cart says "pick a product"; what that
@@ -281,9 +283,32 @@ private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<N
     settingsDestination(
         backStack = backStack,
         navigateToProfile = { backStack.add(ProfileDestination) },
-        navigateToComponents = { backStack.add(GalleryDestination) },
+        // Null in `prod`, where DebugMenu.ENABLED is a `const false`: the branch folds away at
+        // compile time, so nothing outside it names a debug-menu class and Settings draws no
+        // entry. Passing the lambda *is* how the screen knows this build has one.
+        navigateToDebugMenu = if (DebugMenu.ENABLED) {
+            { backStack.add(DevMenuDestination) }
+        } else {
+            null
+        },
     )
     settingsPermissionsDestination(backStack = backStack)
-    galleryDestination(backStack = backStack)
     profileDestination(backStack = backStack)
+    if (DebugMenu.ENABLED) debugEntries(backStack)
+}
+
+/**
+ * The screens a tester gets and a customer does not (D16).
+ *
+ * Registered behind `DebugMenu.ENABLED`, which is `const` per flavor source set — so in a `prod`
+ * build this call is dead code, R8 removes it, and every class it reaches goes with it: the debug
+ * menu and the whole component gallery.
+ */
+private fun EntryProviderScope<NavKey>.debugEntries(backStack: NavBackStack<NavKey>) {
+    devMenuDestination(
+        backStack = backStack,
+        navigateToComponents = { backStack.add(GalleryDestination) },
+    )
+    galleryDestination(backStack = backStack)
+    galleryDetailDestination(backStack = backStack)
 }

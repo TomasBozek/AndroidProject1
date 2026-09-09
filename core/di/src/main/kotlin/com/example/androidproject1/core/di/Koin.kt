@@ -18,6 +18,7 @@ import com.example.androidproject1.core.network.HttpClientFactory
 import com.example.androidproject1.feature.auth.di.AuthModule
 import com.example.androidproject1.feature.cart.di.CartModule
 import com.example.androidproject1.feature.catalog.di.CatalogModule
+import com.example.androidproject1.feature.devmenu.di.DevMenuModule
 import com.example.androidproject1.feature.gallery.di.GalleryModule
 import com.example.androidproject1.feature.home.di.HomeModule
 import com.example.androidproject1.feature.profile.di.ProfileModule
@@ -78,9 +79,9 @@ fun coreModule(isDebug: Boolean): Module = module {
 /**
  * Every module this app's graph is assembled from, in registration order.
  *
- * One list, so that the graph `KoinGraphTest` verifies is the graph `initKoin` starts: two lists
- * kept in step by a comment is a drift waiting to happen. `scripts/create_feature.py` edits it, so
- * keep it formatted one module per line.
+ * `scripts/create_feature.py` edits this list, so keep it formatted one module per line.
+ * [debugMenuModules] is the one exception to "one list": see the reason there. `KoinGraphTest`
+ * verifies both, and each in the builds that actually register it.
  */
 fun appModules(isDebug: Boolean): List<Module> = listOf(
     coreModule(isDebug),
@@ -88,15 +89,29 @@ fun appModules(isDebug: Boolean): List<Module> = listOf(
     HomeModule.module,
     SettingsModule.module,
     CatalogModule.module,
-    GalleryModule.module,
     CartModule.module,
     ProfileModule.module,
 )
 
 /**
+ * The features only a build with a debug menu registers — the menu itself and the component
+ * gallery it leads to (D16).
+ *
+ * Apart from [appModules] because a Koin module *is* a reference: listing these there would keep
+ * `GalleryViewModel` reachable in a `prod` build, and with it `galleryCatalog` and every component
+ * demo hanging off it — R8 cannot drop what the DI graph still names. `:app` calls this behind its
+ * `DebugMenu.ENABLED` const, which folds to nothing in `prod`, and both features leave the APK.
+ */
+fun debugMenuModules(): List<Module> = listOf(
+    GalleryModule.module,
+    DevMenuModule.module,
+)
+
+/**
  * The single Koin registration point.
  *
- * @param platformModules bindings only the application module can provide, such as `MainViewModel`.
+ * @param platformModules bindings only the application module can provide, such as `MainViewModel`,
+ * and — from a build that has one — [debugMenuModules].
  */
 fun initKoin(
     vararg platformModules: Module,

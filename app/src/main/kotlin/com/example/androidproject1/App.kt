@@ -4,7 +4,9 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import androidx.core.content.getSystemService
+import com.example.androidproject1.core.di.debugMenuModules
 import com.example.androidproject1.core.di.initKoin
+import com.example.androidproject1.debug.DebugMenu
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.logger.Level
@@ -16,6 +18,9 @@ class App : Application() {
 
         initKoin(
             ApplicationModule.module,
+            // Registered from here rather than from `appModules`, so a `prod` build never names
+            // the debug menu or the gallery and R8 can drop both — see `debugMenuModules`.
+            *debugModules().toTypedArray(),
             isDebug = BuildConfig.DEBUG,
         ) {
             androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.NONE)
@@ -38,6 +43,9 @@ class App : Application() {
         )
         getSystemService<NotificationManager>()?.createNotificationChannel(channel)
     }
+
+    /** `DebugMenu.ENABLED` is a `const` per flavor, so in `prod` this folds to an empty list. */
+    private fun debugModules() = if (DebugMenu.ENABLED) debugMenuModules() else emptyList()
 
     companion object {
 

@@ -8,7 +8,16 @@ sealed interface SettingsEvent : UiEvent {
 
     data object PermissionsClicked : SettingsEvent
 
-    data object ComponentsClicked : SettingsEvent
+    /**
+     * Whether this build has a debug menu, reported by the destination.
+     *
+     * A build fact rather than something the user did, handed over the way
+     * `SettingsPermissionsEvent.PermissionsRead` hands over what the system said: the ViewModel
+     * stays the only owner of the state, and the screen still renders from it alone.
+     */
+    data class DebugMenuAvailable(val available: Boolean) : SettingsEvent
+
+    data object DebugMenuClicked : SettingsEvent
 
     data object LogoutClicked : SettingsEvent
 }

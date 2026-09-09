@@ -8,6 +8,6 @@ sealed interface SettingsNavigation {
 
     data object Permissions : SettingsNavigation
 
-    /** The component gallery. Another feature, so the destination takes a lambda for it. */
-    data object Components : SettingsNavigation
+    /** The debug menu, which is where the component gallery now lives. Another feature. */
+    data object DebugMenu : SettingsNavigation
 }

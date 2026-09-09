@@ -3,11 +3,11 @@ package com.example.androidproject1.feature.settings.presentation.settings
 import com.example.androidproject1.core.domain.Logger
 import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.state.setAlert
+import com.example.androidproject1.core.ui.state.updateData
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.settings.presentation.R
-import kotlinx.coroutines.flow.update
 
 class SettingsViewModel(
     logger: Logger,
@@ -22,7 +22,9 @@ class SettingsViewModel(
             flow = { authService.observeSession() },
             loading = {},
         ) { session ->
-            uiState.update { it.copy(data = SettingsState(email = session?.email)) }
+            // updateData, not a fresh SettingsState: `debugMenuEnabled` is reported once by
+            // the destination and a rebuilt state would drop it on the next session emission.
+            uiState.updateData { copy(email = session?.email) }
         }
     }
 
@@ -30,7 +32,10 @@ class SettingsViewModel(
         when (event) {
             SettingsEvent.ProfileClicked -> navigate(SettingsNavigation.Profile)
             SettingsEvent.PermissionsClicked -> navigate(SettingsNavigation.Permissions)
-            SettingsEvent.ComponentsClicked -> navigate(SettingsNavigation.Components)
+            SettingsEvent.DebugMenuClicked -> navigate(SettingsNavigation.DebugMenu)
+
+            is SettingsEvent.DebugMenuAvailable ->
+                uiState.updateData { copy(debugMenuEnabled = event.available) }
 
             SettingsEvent.LogoutClicked -> uiState.setAlert(
                 id = ALERT_ID_LOGOUT,

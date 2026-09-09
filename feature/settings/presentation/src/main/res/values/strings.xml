@@ -10,6 +10,7 @@
     <string name="settings_logout_cancel">Cancel</string>
     <string name="settings_profile">Profile</string>
     <string name="settings_permissions">Permissions</string>
+    <string name="settings_debug_menu">Debug menu</string>
 
     <string name="settings_permissions_title">Permissions</string>
     <string name="settings_permissions_back">Back</string>
@@ -19,5 +20,4 @@
     <string name="settings_permissions_notifications_message">Allow notifications so the app can tell you when something happens.</string>
     <string name="settings_permissions_allow">Allow</string>
     <string name="settings_permissions_open_settings">Open system settings</string>
-    <string name="settings_components">Components</string>
 </resources>

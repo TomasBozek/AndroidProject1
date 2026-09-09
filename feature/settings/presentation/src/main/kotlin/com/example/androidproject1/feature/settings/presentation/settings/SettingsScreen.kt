@@ -52,14 +52,18 @@ fun SettingsScreen(
                     .testTag("settings_profileButton"),
             )
 
-            AppButton(
-                label = stringResource(R.string.settings_components),
-                onClick = { onEvent(SettingsEvent.ComponentsClicked) },
-                kind = ButtonKind.Outline,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("settings_componentsButton"),
-            )
+            // Only dev and staging have one (D16); a prod build reports `false` and the entry
+            // is not drawn. The component gallery lives behind it now.
+            if (state.debugMenuEnabled) {
+                AppButton(
+                    label = stringResource(R.string.settings_debug_menu),
+                    onClick = { onEvent(SettingsEvent.DebugMenuClicked) },
+                    kind = ButtonKind.Outline,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("settings_debugMenuButton"),
+                )
+            }
 
             AppButton(
                 label = stringResource(R.string.settings_permissions),

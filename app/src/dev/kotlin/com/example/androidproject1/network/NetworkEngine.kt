@@ -60,8 +60,8 @@ fun networkEngine(context: Context): HttpClientEngine {
  * adb shell run-as com.example.androidproject1.dev rm files/fail_network      # fix it
  * ```
  *
- * `shell.2`'s debug menu is where this eventually gets a switch; until then a file is the smallest
- * thing that makes the stale-cache path reachable by hand.
+ * The debug menu's offline switch writes the same file, so flipping it there and touching it over
+ * adb are the same thing.
  */
 object FixtureNetwork {
 
@@ -78,6 +78,15 @@ object FixtureNetwork {
 
     internal fun attach(context: Context) {
         filesDir = context.filesDir
+    }
+
+    /**
+     * Writes the marker, so the choice survives the process it was made in — which is what a
+     * tester expects of a switch that says "the server is down".
+     */
+    fun setFailing(context: Context, failing: Boolean) {
+        val marker = java.io.File(context.filesDir, MARKER)
+        if (failing) marker.createNewFile() else marker.delete()
     }
 }
 
