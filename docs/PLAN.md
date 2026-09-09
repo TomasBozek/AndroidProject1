@@ -9,25 +9,19 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 **Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 45 · ktlint clean · build green
 **Coverage:** last measured 38 % before this session's 13 items; re-run `./gradlew koverHtmlReport`
-**Repo:** 30 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
+**Repo:** 34 modules + `build-logic` · 41 components · 5 sample features + `template` · 10 scripts
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 5 / 14 | `████░░░░░░` 36 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 6 / 14 | `████░░░░░░` 43 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 3 / 7 | `████░░░░░░` 43 % |
-| **Total** | | **14 / 32** | `████░░░░░░` 44 % |
+| **Total** | | **15 / 32** | `█████░░░░░` 47 % |
 
-**Two branches carry unfinished work, neither merged.** `main` is clean and green without them.
-
-| Branch | State |
-|---|---|
-| `ui.2-roborazzi` | Wiring done, blocker diagnosed and written into `ui.2` above. The useful one |
-| `feat.3-profile` | **Unverified WIP.** Same — includes a new `:feature:profile` and an `AppAvatarPhoto` component |
-
-For the two WIP branches: read the diff and decide. Neither item is marked started, so discarding
-the branch and running the item cleanly is a perfectly good option and often the faster one.
+**One branch carries unfinished work.** `ui.2-roborazzi` holds the Roborazzi wiring with its
+blocker diagnosed and written into `ui.2` above — start there rather than from scratch. `main` is
+clean and green without it.
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -508,13 +502,33 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   reads "2 items" and $9.00 → Add item → picker → Tea → back at "3 items" → Checkout → "Place this
   order?" → Order → empty cart.
 
-- [ ] **feat.3 Profile — proves PermissionGate and forms** · M · `device` · needs core.5
+- [x] **feat.3 Profile — proves PermissionGate and forms** (2026-09-09) · M · `device` · needs core.5
   Why: `PermissionGate` and `PermissionRationale` ship unused; no sample has a form with rules.
   Done: `:feature:profile` full stack, DataStore-backed; name and e-mail on `FieldState`; avatar
   from the Photo Picker (no permission) or the camera behind `PermissionGate(CAMERA)`; shown with
   `AppImage`; reached from Settings.
   Verify: ViewModel tests for every validator path; a screen test; on the emulator deny the camera
   twice and the gate shows the settings rationale while the picker still works.
+  **Landed:** 25 tests, and the device pass was run — after two denials the button flips from
+  "Allow" to "Open settings" and the Photo Picker is untouched beside it, because it needs no
+  permission.
+  Four things the camera forced, none of them obvious from the Done line:
+  · **The avatar is copied, not referenced.** A picker's URI grant dies with the process and the
+  camera writes into a clearable cache, so an `AvatarDataSource` copies into `filesDir` and returns
+  its own `file://` URI, timestamped so an image cache cannot serve the previous picture.
+  · **A FileProvider was needed** — a camera app cannot write to a `File`. This is the repo's first
+  feature-module `AndroidManifest.xml`, carrying the provider, `CAMERA`, and
+  `<uses-feature required="false">` so Play does not hide the app from devices without a camera.
+  Declaring `CAMERA` is what makes the gate load-bearing at all.
+  · **`ActivityResultContracts.TakePicture` does not flag its intent** with
+  `FLAG_GRANT_WRITE_URI_PERMISSION`, and the symptom is a **zero-byte file rather than an error**.
+  A `CaptureToUri` subclass adds it.
+  · The Save button is **enabled on an invalid form** on purpose — `core.5`'s own reasoning is that
+  a disabled button cannot say *why*, so pressing it runs `Form.touchAll` and repeats
+  `Form.firstError` in a snackbar.
+  `AppAvatarPhoto` was added to `:core:ui`, a track this item does not own: a feature cannot write
+  a `.dp` literal, so only a component can decide how large a person is drawn. Registered in the
+  gallery in the same change.
 
 - [ ] **feat.4 Search — proves inline error per content id** · M · `stable`
   Why: 0.12 made inline retry work per content id and no screen has two content states.

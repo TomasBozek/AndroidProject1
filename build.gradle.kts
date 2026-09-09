@@ -39,8 +39,10 @@ dependencies {
     // Every module that compiles code contributes to the aggregate. Read off the project tree
     // rather than listed by hand, so a new module is covered the day it is created. `:core` and
     // `:feature` are grouping paths with no build file of their own, hence the filter.
+    // `:baselineprofile` is a `com.android.test` module: it runs on a device, has no unit tests
+    // and does not apply Kover, so aggregating it fails variant resolution for the whole report.
     subprojects
-        .filter { it.projectDir.resolve("build.gradle.kts").exists() }
+        .filter { it.projectDir.resolve("build.gradle.kts").exists() && it.path != ":baselineprofile" }
         .forEach { kover(project(it.path)) }
 }
 
