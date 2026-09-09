@@ -6,9 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,7 +60,8 @@ enum class ButtonSize(val height: Dp, internal val shape: Shape, val horizontalP
  * [ButtonKind.Ghost] for the secondary rung.
  *
  * The label never disappears while [loading] and the width does not change, so a button never
- * jumps under a finger already on its way down. [enabled] `false` flattens the body: losing the
+ * jumps under a finger already on its way down — the spinner is drawn over the label rather than
+ * beside it, which is what holds the width. [enabled] `false` flattens the body: losing the
  * elevation is what carries "this cannot be pressed", not the text colour alone.
  */
 @Composable
@@ -120,33 +120,40 @@ fun AppButton(
             .padding(horizontal = size.horizontalPadding),
         contentAlignment = Alignment.Center,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.inline.sm),
-        ) {
-            if (loading) {
+        // The spinner is drawn *over* the label, not beside it. Beside it the button grows by the
+        // spinner and the gap at the moment it starts working, which moves it out from under a
+        // finger already on its way down; here the label alone measures the button. It dims rather
+        // than going away, so what the button does is still readable while it does it.
+        CompositionLocalProvider(LocalContentColor provides labelColor) {
+            Text(
+                text = label,
+                style = when (size) {
+                    ButtonSize.Small -> AppTheme.typography.labelMd
+                    ButtonSize.Medium -> AppTheme.typography.bodyLg
+                    ButtonSize.Large -> AppTheme.typography.titleMd
+                },
+                color = labelColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.alpha(if (loading) LOADING_LABEL_ALPHA else 1f),
+            )
+        }
+        if (loading) {
+            // `matchParentSize` keeps the spinner out of the Box's own measurement, so a short
+            // label cannot be widened by it either.
+            Box(modifier = Modifier.matchParentSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
                     color = labelColor,
                     strokeWidth = 2.dp,
                 )
             }
-            CompositionLocalProvider(LocalContentColor provides labelColor) {
-                Text(
-                    text = label,
-                    style = when (size) {
-                        ButtonSize.Small -> AppTheme.typography.labelMd
-                        ButtonSize.Medium -> AppTheme.typography.bodyLg
-                        ButtonSize.Large -> AppTheme.typography.titleMd
-                    },
-                    color = labelColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
     }
 }
+
+/** Enough for the label to stay readable behind the spinner, little enough to read as busy. */
+private const val LOADING_LABEL_ALPHA = 0.35f
 
 @ComponentPreview
 @Composable

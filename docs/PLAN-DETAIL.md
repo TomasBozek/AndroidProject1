@@ -165,15 +165,6 @@ generated feature gets one — or a single copy in `:app`, which sees every modu
 `:core:di` but runs three times over the flavors. Then ~300 goldens to commit, and one
 `verifyRoborazziDebug` step in the CI build job.
 
-**ui.3 Component behaviour tests** · M · `stable`
-Why: `core/ui/component` is 1,709 lines at 22 %. Previews show; nothing asserts, and `ui.6` was
-the first time anyone noticed a component could not be tried.
-Done: the test dependencies are already in `convention.android.library.compose`. Tests for the
-interactive components — `AppButton` (loading keeps width, disabled emits nothing), `AppTextField`
-(an error always carries text), `AppCheckbox` (indeterminate), `AppSelect`, `AppTabs`,
-`AppStepper` (floor and ceiling), `AppSheet`, `AppDialog`, `AppSwitch`, `AppSegmented`.
-Verify: the package leaves 22 % in the Kover report; each test finds by `testTag`, never by text.
-
 **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
 Why: the source system runs on tablets, and the catalog is exactly a list–detail shape.
 Done: `adaptive-navigation3` 1.3.0 (stable; check its Navigation 3 range against 1.1.7); a
