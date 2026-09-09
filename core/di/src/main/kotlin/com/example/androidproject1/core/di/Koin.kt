@@ -6,8 +6,10 @@ import com.example.androidproject1.core.data.DataStoreProvider
 import com.example.androidproject1.core.data.EncryptedDataStoreProvider
 import com.example.androidproject1.core.data.TrackingLogger
 import com.example.androidproject1.core.data.crypto.KeystoreAead
+import com.example.androidproject1.core.domain.Analytics
 import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.Logger
+import com.example.androidproject1.core.domain.LoggingAnalytics
 import com.example.androidproject1.core.domain.LoggingErrorTracker
 import com.example.androidproject1.core.domain.coroutines.DefaultDispatcherProvider
 import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
@@ -42,6 +44,11 @@ fun coreModule(isDebug: Boolean): Module = module {
     // correct in debug and correct in a project that never adds a vendor. To swap in Crashlytics
     // or Sentry, override this one binding in :app — see CLAUDE.md. No vendor SDK is in the repo.
     single<ErrorTracker> { LoggingErrorTracker(AndroidLogger(minLevel = minLogLevel)) }
+
+    // Where product events are counted. Same shape and same reasoning as the tracker above: the
+    // default reports to the log and nowhere else, and no vendor SDK is in the repo. `AppScaffold`
+    // sends the screen view; wire it into composition with `ProvideAnalytics` at the nav host.
+    single<Analytics> { LoggingAnalytics(AndroidLogger(minLevel = minLogLevel)) }
 
     // Every Logger in the app is decorated, so anything logged with a Throwable is reported
     // without BaseViewModel or BaseRepository taking an extra constructor argument.

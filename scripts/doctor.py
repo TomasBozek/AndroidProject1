@@ -586,6 +586,9 @@ def check_modifier_parameter() -> list[str]:
                 if (
                     returns_value
                     or name.endswith(("Screen", "Preview", "Theme", "Provider"))
+                    # An effect emits nothing to position — `LaunchedEffect`'s own shape, and
+                    # `NavResultEffect`/`ScreenViewEffect` here.
+                    or name.endswith("Effect")
                     # Compose's own idiom for a CompositionLocal wrapper — `ProvideTextStyle`.
                     or name.startswith("Provide")
                 ):
@@ -1030,6 +1033,44 @@ def check_feature_resource_prefixes() -> list[str]:
                     continue
                 problems.append(problem(path, number, f"resource '{name}' is not prefixed {expected}"))
     return problems
+
+# --------------------------------------------------------------------------------------------
+# Analytics
+# --------------------------------------------------------------------------------------------
+
+APP_SCAFFOLD_CALL = re.compile(r"\bAppScaffold\s*\(")
+
+
+@check("every screen passes screenId to its scaffold")
+def check_screens_pass_screen_id() -> list[str]:
+    """
+    `AppScaffold` reports the screen view (core.6), and it reports nothing for a screen that did
+    not name itself — so a missing `screenId` is a screen that is invisible in the funnel, and
+    invisible in exactly the silent way that is noticed a quarter later.
+
+    The same argument the id already had for testing: it is the one identifier the screen reader,
+    the Maestro flow and now the analytics all read, so it is worth one argument per screen. A
+    file that composes no `AppScaffold` is skipped rather than failed — a screen inside a
+    `Scaffold` of its own is legitimate, and this check is about the scaffold that reports.
+    """
+    problems = []
+    for feature in feature_names():
+        sources = REPO_ROOT / "feature" / feature / "presentation/src/main/kotlin"
+        if not sources.is_dir():
+            continue
+
+        for path in sorted(sources.rglob("*Screen.kt")):
+            if "build" in path.parts or path.stem == "Screen":
+                continue
+            text = path.read_text()
+            if not APP_SCAFFOLD_CALL.search(text):
+                continue
+            if not SCREEN_ID_LITERAL.search(text):
+                problems.append(
+                    problem(path, None, "composes AppScaffold without a screenId")
+                )
+    return problems
+
 
 # --------------------------------------------------------------------------------------------
 

@@ -361,6 +361,7 @@ Plan 2's reference table, kept here because the plan holds only open work.
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
 | `Aead` / `AesGcmAead` / `KeystoreAead` | `service/core/domain/crypto/`, `service/core/data/crypto/` | `EncryptedDataStoreProvider` stores the session with it; the logic is in `AesGcmAead` and JVM-tested, the Keystore fetch is fifteen lines |
 | `ErrorTracker` / `TrackingLogger` | `service/core/domain/`, `service/core/data/` | See Crash reporting above |
+| `Analytics` / `LocalAnalytics` / `ScreenViewEffect` | `service/core/domain/`, `service/core/ui/analytics/` | `AppScaffold` sends the screen view; see Analytics below |
 | `HttpClientFactory` retry policy | `service/network/.../HttpClientFactory.kt` | Up to `NetworkConfig.retries` more tries on a 5xx or a transport failure, exponential backoff with jitter. **Idempotent methods only** — never a POST; do not add a retry loop in a data source |
 | `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
 | `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
@@ -413,6 +414,36 @@ place to put either. **Nothing calls it yet**: the sample `AuthService` exposes 
 there is no id to pass. Call it from wherever the session becomes known once the session carries
 one, and call it with `null` on sign-out so the next person's reports are not attributed to the
 last one.
+
+## Analytics
+
+`Analytics` in `:service:core:domain` is the seam — `screen(id)` and `event(name, params)` —
+and `LoggingAnalytics` is bound by default, reporting to the log and nowhere else. As with crash
+reporting, **the repo carries no vendor SDK and no vendor config file**.
+
+**The screen view is automatic.** `AppScaffold` calls `ScreenViewEffect(screenId)`, so a screen
+that passes `screenId` is measured and there is no per-screen call to forget; `doctor.py` fails on
+a screen that composes a scaffold without one. It is a `LaunchedEffect`, so a recomposition does
+not count a second view — read the note on `ScreenViewEffect` before changing that, because
+`ScreenViewTest` cannot observe the difference.
+
+Everything else is a deliberate call at the point it happens. Read it from composition with
+`LocalAnalytics.current`, which defaults to `Analytics.NoOp` so a preview or a Robolectric test
+needs no graph behind it. Keep `params` few and low-cardinality: a parameter that can take a user
+id or a free-text field turns one event into millions and is unusable in every vendor's console.
+
+To swap in a vendor, add the dependency to `:app` and override the one binding there, exactly as
+with `ErrorTracker`:
+
+```kotlin
+// in :app's own Koin module, which is loaded after coreModule and so wins
+single<Analytics> { FirebaseAnalyticsAdapter(androidContext()) }
+```
+
+**One wiring line is still open.** Nothing calls `ProvideAnalytics` yet, so the bound `Analytics`
+does not reach composition and `LocalAnalytics` stays `NoOp` at runtime. Wrap the `NavDisplay` in
+`AppNavHost` the way `ProvideNavResultStore` already is — `ProvideAnalytics(koinInject()) { … }` —
+and every screen starts reporting with no further change.
 
 ## Recipes
 

@@ -136,16 +136,6 @@ Only the ones that need it. The outcomes are on the board.
 Owns `service/`, `core/di`, `build-logic/`. Every item here is API the app track then uses;
 nothing here knows a feature.
 
-**core.6 Analytics seam** · M · `stable`
-Why: screen views are the one event every product wants, and the only place that knows every
-screen is `AppScaffold(screenId)`.
-Done: `Analytics` in `:service:core:domain` (`screen(id)`, `event(name, params)`), a logging
-default bound in `coreModule`, a `LocalAnalytics` in `:service:core:ui`; `AppScaffold` reports
-`screenId` once per entry (one call added in `core/ui`, ui track's directory); vendor recipe next
-to the crash-reporting one in `CLAUDE.md`.
-Verify: a Robolectric test that composing a scaffold twice reports one view; every sample screen
-passes `screenId` — `doctor.py` gains that check.
-
 
 ### Track ui · design system and adaptive
 

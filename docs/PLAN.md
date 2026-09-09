@@ -153,7 +153,7 @@ version of every open item is in the detail file under the same id.
 
 ### core · the reusable architecture
 
-- [ ] **core.6 Analytics seam** · M · `stable` — `Analytics` in `:service:core:domain`, a logging
+- [x] (2026-09-09) **core.6 Analytics seam** · M · `stable` — `Analytics` in `:service:core:domain`, a logging
   default, `AppScaffold` reports each screen once
 - [x] (2026-09-09) **core.7 Room migrations are tested** · M · `stable` — `room-testing` in the Room plugin, a
   migration test per database, a version bump ships its migration in the same commit

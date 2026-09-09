@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import com.example.androidproject1.core.ui.analytics.ScreenViewEffect
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -41,6 +42,7 @@ fun AppScaffold(
     contentPadding: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    ScreenViewEffect(screenId)
     Column(
         modifier = modifier
             .fillMaxSize()
