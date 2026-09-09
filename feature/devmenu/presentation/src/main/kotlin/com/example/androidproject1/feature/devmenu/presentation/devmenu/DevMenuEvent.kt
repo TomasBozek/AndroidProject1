@@ -10,6 +10,9 @@ sealed interface DevMenuEvent : UiEvent {
     /** Sends a handled exception to whatever `ErrorTracker` this build binds. */
     data object CrashClicked : DevMenuEvent
 
+    /** Posts a notification whose tap opens a product deep link — see `NotificationTester`. */
+    data object NotificationClicked : DevMenuEvent
+
     data object ComponentsClicked : DevMenuEvent
 
     data object NavigateUpClicked : DevMenuEvent

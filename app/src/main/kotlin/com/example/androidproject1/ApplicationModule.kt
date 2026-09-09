@@ -2,7 +2,9 @@ package com.example.androidproject1
 
 import com.example.androidproject1.core.network.NetworkConfig
 import com.example.androidproject1.debug.DebugMenu
+import com.example.androidproject1.debug.TestNotification
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
+import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
 import com.example.androidproject1.network.networkEngine
 import io.ktor.client.engine.HttpClientEngine
@@ -55,6 +57,7 @@ private fun Module.debugMenuBindings() {
         )
     }
     single<OfflineSwitch> { DebugMenu.offlineSwitch(androidContext()) }
+    single<NotificationTester> { TestNotification(androidContext()) }
 }
 
 /** `debugImplementation` only, so it is absent from a release build by construction. */

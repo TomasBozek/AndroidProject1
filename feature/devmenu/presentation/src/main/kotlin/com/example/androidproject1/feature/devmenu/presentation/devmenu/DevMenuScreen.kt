@@ -115,6 +115,14 @@ fun DevMenuScreen(
                     .testTag("devMenu_componentsButton"),
             )
             AppButton(
+                label = stringResource(R.string.dev_menu_notification),
+                onClick = { onEvent(DevMenuEvent.NotificationClicked) },
+                kind = ButtonKind.Outline,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("devMenu_notificationButton"),
+            )
+            AppButton(
                 label = stringResource(R.string.dev_menu_crash),
                 onClick = { onEvent(DevMenuEvent.CrashClicked) },
                 kind = ButtonKind.Outline,

@@ -172,11 +172,6 @@ Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the ap
 is one feature per item, each proving one capability the architecture has and no sample uses.
 Each feature is a worktree of its own — they meet only in the registration files.
 
-**shell.4 Notification tap-through** · S · `device` · needs shell.1, shell.2
-Why: the channel exists and nothing posts to it.
-Done: the debug menu posts a notification whose `PendingIntent` carries a product deep link.
-Verify: tapping it from a cold start lands on the product with Up working.
-
 
 
 **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8

@@ -45,6 +45,7 @@ class DevMenuScreenTest {
         compose.onNodeWithTag("devMenu_sessionValue").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("devMenu_offlineSwitch").performScrollTo().assertIsOff()
         compose.onNodeWithTag("devMenu_componentsButton").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("devMenu_notificationButton").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("devMenu_crashButton").performScrollTo().assertIsDisplayed()
     }
 
@@ -62,6 +63,15 @@ class DevMenuScreenTest {
         compose.onNodeWithTag("devMenu_offlineSwitch").performScrollTo().performClick()
 
         assertEquals(listOf(DevMenuEvent.OfflineToggled(true)), events)
+    }
+
+    @Test
+    fun `tapping the notification button reports it as an event`() {
+        render(DevMenuState.PREVIEW)
+
+        compose.onNodeWithTag("devMenu_notificationButton").performScrollTo().performClick()
+
+        assertEquals(listOf(DevMenuEvent.NotificationClicked), events)
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
+import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
 import com.example.androidproject1.feature.devmenu.presentation.R
 
@@ -19,6 +20,7 @@ class DevMenuViewModel(
     logger: Logger,
     buildInfo: BuildInfo,
     private val offlineSwitch: OfflineSwitch,
+    private val notificationTester: NotificationTester,
     private val authService: AuthService,
     private val errorTracker: ErrorTracker,
 ) : BaseViewModel<DevMenuState, DevMenuEvent, DevMenuNavigation>(
@@ -57,6 +59,19 @@ class DevMenuViewModel(
                     "Recorded from the debug menu",
                 )
                 showToast(R.string.dev_menu_crash_recorded.toUiText())
+            }
+
+            DevMenuEvent.NotificationClicked -> {
+                // A toast either way: a notification that was never posted and one that was
+                // posted and missed look identical from here, and only one is a bug.
+                val posted = notificationTester.post()
+                showToast(
+                    if (posted) {
+                        R.string.dev_menu_notification_posted.toUiText()
+                    } else {
+                        R.string.dev_menu_notification_blocked.toUiText()
+                    },
+                )
             }
 
             DevMenuEvent.ComponentsClicked -> navigate(DevMenuNavigation.Components)

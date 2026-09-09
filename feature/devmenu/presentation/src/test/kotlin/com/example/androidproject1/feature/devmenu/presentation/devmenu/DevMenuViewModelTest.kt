@@ -2,10 +2,13 @@ package com.example.androidproject1.feature.devmenu.presentation.devmenu
 
 import com.example.androidproject1.core.domain.ErrorTracker
 import com.example.androidproject1.core.domain.test.FakeLogger
+import com.example.androidproject1.core.ui.event.UiCommand
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
+import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,10 +36,16 @@ class DevMenuViewModelTest {
         override fun setUser(id: String?) = Unit
     }
 
-    private fun viewModel(switch: OfflineSwitch = offlineSwitch) = DevMenuViewModel(
+    private val notificationTester = RecordingNotificationTester()
+
+    private fun viewModel(
+        switch: OfflineSwitch = offlineSwitch,
+        tester: NotificationTester = notificationTester,
+    ) = DevMenuViewModel(
         logger = FakeLogger(),
         buildInfo = BuildInfo.PREVIEW,
         offlineSwitch = switch,
+        notificationTester = tester,
         authService = authService,
         errorTracker = errorTracker,
     )
@@ -81,11 +90,43 @@ class DevMenuViewModelTest {
     }
 
     @Test
+    fun `posting the test notification says it went out`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onUiEvent(DevMenuEvent.NotificationClicked)
+
+        assertEquals(1, notificationTester.postCount)
+        assertTrue(viewModel.command.first() is UiCommand.ShowToast)
+    }
+
+    @Test
+    fun `a refused notification is reported rather than swallowed`() = runTest {
+        // Posted-and-missed and never-posted look identical from the debug menu, and only one
+        // of them is a bug worth chasing.
+        val viewModel = viewModel(tester = NotificationTester.Unsupported)
+
+        viewModel.onUiEvent(DevMenuEvent.NotificationClicked)
+
+        assertTrue(viewModel.command.first() is UiCommand.ShowToast)
+    }
+
+    @Test
     fun `the crash button reports to the tracker rather than throwing`() = runTest {
         viewModel().onUiEvent(DevMenuEvent.CrashClicked)
 
         assertEquals(1, recorded.size)
         assertTrue(recorded.single() is DebugMenuTestReport)
+    }
+}
+
+private class RecordingNotificationTester : NotificationTester {
+
+    var postCount = 0
+        private set
+
+    override fun post(): Boolean {
+        postCount++
+        return true
     }
 }
 

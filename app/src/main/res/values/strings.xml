@@ -13,4 +13,7 @@
     <string name="tab_settings">Settings</string>
 
     <string name="notification_channel_general">General</string>
+
+    <string name="debug_notification_title">Deep link test</string>
+    <string name="debug_notification_text">Tap to open a product from a cold start.</string>
 </resources>

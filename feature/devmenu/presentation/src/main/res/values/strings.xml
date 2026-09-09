@@ -16,6 +16,9 @@
     <string name="dev_menu_offline_supporting">Every request fails with 503, so the cached screens can be seen by hand.</string>
     <string name="dev_menu_tools">Tools</string>
     <string name="dev_menu_components">Components</string>
+    <string name="dev_menu_notification">Post a test notification</string>
+    <string name="dev_menu_notification_posted">Posted — tap it to open a product</string>
+    <string name="dev_menu_notification_blocked">Notifications are off for this app</string>
     <string name="dev_menu_crash">Record a test report</string>
     <string name="dev_menu_crash_recorded">Sent to the error tracker</string>
 </resources>
