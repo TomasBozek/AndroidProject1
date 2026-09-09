@@ -13,11 +13,11 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 4 / 6 | `███████░░░` 67 % |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **7 / 32** | `██░░░░░░░░` 22 % |
+| **Total** | | **8 / 32** | `███░░░░░░░` 25 % |
 
 **Start now:** `ui.1`, `core.3` / `core.4` / `core.5`, `qa.7` / `qa.8`, and the `shell.*` items.
 `core.1` and `core.2` together unblock **`feat.5`**, which now has every dependency it needs.
@@ -242,13 +242,23 @@ nothing here knows a feature.
   against the last value *emitted* rather than the last the cache produced. `local` is `Flow<T?>`
   on purpose: `null` is a cache miss, while an empty list is a cached empty list.
 
-- [ ] **core.3 Lifecycle-aware `observe`** · S · `stable`
+- [x] **core.3 Lifecycle-aware `observe`** (2026-09-09) · S · `stable`
   Why: was C8. `observe {}` collects for the ViewModel's whole life, including backgrounded. Fine
   for DataStore, wrong for a socket or a location stream.
   Done: `observe(flow, whileSubscribed = true)` collects the source only while `state` has a
   subscriber, with a 5 s grace; the KDoc says which variant to reach for.
   Verify: `BaseViewModelTest` shows the source is cancelled when the last collector leaves and
   re-collected when one returns.
+  **Landed:** the subscriber count is `uiState.subscriptionCount`. `state` is
+  `uiState.asStateFlow()`, a view sharing the same accounting, so collecting the state a screen
+  renders is what keeps the source alive. A `stateIn` of the source — the obvious first attempt —
+  counts the collector `observe` itself creates, which lives as long as the ViewModel and so never
+  drops; it compiles, reads correctly and does nothing.
+  Two `distinctUntilChanged`s, not one. The second, *after* the grace delay, is what makes a
+  rotation free: a collector returning inside the window makes `transformLatest` cancel the pending
+  `false` and re-emit `true`, and `flatMapLatest` would take that repeated value as a reason to
+  restart the source — the exact teardown the grace period exists to prevent. Six tests, one of
+  which asserts the default `observe` still collects with no subscriber at all.
 
 - [x] **core.4 Navigation results** (2026-09-09) · M · `stable`
   Why: was 7.2. No pattern for "pick something on screen B, return it to A", so it gets reinvented

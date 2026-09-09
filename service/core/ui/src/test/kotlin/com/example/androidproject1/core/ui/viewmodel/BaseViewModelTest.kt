@@ -11,11 +11,16 @@ import com.example.androidproject1.core.ui.text.toUiText
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -62,6 +67,10 @@ class BaseViewModelTest {
 
         fun <T> stream(flow: () -> Flow<Outcome<T>>) =
             observe(flow = { flow() }, onData = {})
+
+        /** The lifecycle-aware variant: collects only while `state` has a subscriber. */
+        fun <T> subscribedStream(flow: () -> Flow<Outcome<T>>) =
+            observe(flow = { flow() }, whileSubscribed = true, loading = {}, onData = {})
 
         fun go(navigation: TestNavigation) = navigate(navigation)
 
@@ -318,5 +327,128 @@ class BaseViewModelTest {
         assertTrue(viewModel.handledSnackbarActions.isEmpty())
         assertNull(viewModel.state.value.alert)
         assertNull(viewModel.state.value.content)
+    }
+
+    // --- observe(whileSubscribed = true) ---
+
+    /**
+     * A source that reports whether anything is collecting it, so the test can assert the
+     * subscription rather than the emissions it produces.
+     */
+    private class CountingSource {
+
+        var starts = 0
+            private set
+
+        var active = 0
+            private set
+
+        val flow: Flow<Outcome<String>> = flow {
+            starts++
+            active++
+            try {
+                emit(Outcome.Success("tick"))
+                awaitCancellation()
+            } finally {
+                active--
+            }
+        }
+    }
+
+    @Test
+    fun `whileSubscribed does not collect until something reads the state`() = runTest {
+        val source = CountingSource()
+        val viewModel = TestViewModel(TestState("a"))
+
+        viewModel.subscribedStream { source.flow }
+        advanceTimeBy(1)
+        runCurrent()
+
+        assertEquals(0, source.starts)
+    }
+
+    @Test
+    fun `whileSubscribed collects while the state is being read`() = runTest {
+        val source = CountingSource()
+        val viewModel = TestViewModel(TestState("a"))
+        viewModel.subscribedStream { source.flow }
+
+        val collector = launch { viewModel.state.collect {} }
+        runCurrent()
+
+        assertEquals(1, source.starts)
+        assertEquals(1, source.active)
+        collector.cancel()
+    }
+
+    @Test
+    fun `the source is cancelled once the last collector has been gone for the grace period`() =
+        runTest {
+            val source = CountingSource()
+            val viewModel = TestViewModel(TestState("a"))
+            viewModel.subscribedStream { source.flow }
+            val collector = launch { viewModel.state.collect {} }
+            runCurrent()
+
+            collector.cancel()
+            runCurrent()
+            // Still alive: the grace period is what makes a rotation free.
+            assertEquals(1, source.active)
+
+            advanceTimeBy(BaseViewModel.SUBSCRIPTION_GRACE_MILLIS + 1)
+            runCurrent()
+
+            assertEquals(0, source.active)
+        }
+
+    @Test
+    fun `a collector returning inside the grace period never stops the source`() = runTest {
+        val source = CountingSource()
+        val viewModel = TestViewModel(TestState("a"))
+        viewModel.subscribedStream { source.flow }
+        val first = launch { viewModel.state.collect {} }
+        runCurrent()
+
+        first.cancel()
+        advanceTimeBy(BaseViewModel.SUBSCRIPTION_GRACE_MILLIS / 2)
+        val second = launch { viewModel.state.collect {} }
+        advanceTimeBy(BaseViewModel.SUBSCRIPTION_GRACE_MILLIS)
+        runCurrent()
+
+        // What a rotation looks like: one subscription throughout, not a stop and a restart.
+        assertEquals(1, source.starts)
+        assertEquals(1, source.active)
+        second.cancel()
+    }
+
+    @Test
+    fun `the source is collected again when a collector returns after the grace period`() = runTest {
+        val source = CountingSource()
+        val viewModel = TestViewModel(TestState("a"))
+        viewModel.subscribedStream { source.flow }
+        val first = launch { viewModel.state.collect {} }
+        runCurrent()
+        first.cancel()
+        advanceTimeBy(BaseViewModel.SUBSCRIPTION_GRACE_MILLIS + 1)
+        runCurrent()
+
+        val second = launch { viewModel.state.collect {} }
+        runCurrent()
+
+        assertEquals(2, source.starts)
+        assertEquals(1, source.active)
+        second.cancel()
+    }
+
+    @Test
+    fun `the default observe keeps collecting with no subscriber at all`() = runTest {
+        val source = CountingSource()
+        val viewModel = TestViewModel(TestState("a"))
+
+        viewModel.stream { source.flow }
+        runCurrent()
+
+        // Unchanged behaviour: right for DataStore, wrong for a socket — which is the choice.
+        assertEquals(1, source.active)
     }
 }

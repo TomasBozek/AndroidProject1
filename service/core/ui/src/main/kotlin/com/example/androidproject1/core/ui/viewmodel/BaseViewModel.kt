@@ -21,16 +21,23 @@ import com.example.androidproject1.core.ui.text.UiText
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.R
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
@@ -63,6 +70,14 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         const val ALERT_ID_ERROR = "error"
 
         const val SNACKBAR_ID_DEFAULT = "snackbar"
+
+        /**
+         * How long a source keeps running after the last collector leaves.
+         *
+         * Five seconds is the figure the Android guidance settled on: longer than any
+         * configuration change, shorter than a user reading something else.
+         */
+        const val SUBSCRIPTION_GRACE_MILLIS = 5_000L
     }
 
     protected val uiState = MutableStateFlow(
@@ -260,6 +275,7 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
      */
     protected fun <T> observe(
         flow: suspend () -> Flow<Outcome<T>>,
+        whileSubscribed: Boolean = false,
         loadingMessage: UiText? = null,
         loading: (Boolean) -> Unit = { setLoading(it, loadingMessage) },
         scope: CoroutineScope = viewModelScope,
@@ -275,7 +291,8 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
 
         try {
             loading(true)
-            flow()
+            val source = if (whileSubscribed) flow().whileStateIsCollected() else flow()
+            source
                 .onEach { outcome ->
                     when (outcome) {
                         is Outcome.Success -> runCatching { onData(outcome.data) }
@@ -291,6 +308,43 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         } finally {
             clearLoading()
         }
+    }
+
+    /**
+     * Collects the receiver only while [state] has a subscriber, with a grace period.
+     *
+     * `observe {}` otherwise collects for the ViewModel's whole life, backgrounded included. That
+     * is right for DataStore, which costs nothing when nothing changes, and wrong for a socket, a
+     * location stream or a polling flow — those keep working, and draining the battery, behind a
+     * screen nobody is looking at.
+     *
+     * The subscriber count is [uiState]'s own: `state` is `uiState.asStateFlow()`, a view that
+     * shares its accounting, so collecting the state the screen renders is what keeps the source
+     * alive. Gating on anything else — a `stateIn` of the source, say — counts the collector this
+     * function creates, which lives as long as the ViewModel and so never drops.
+     *
+     * The grace period is why this is not simply "stop when the count hits zero": a rotation
+     * destroys and recreates the collector within milliseconds, and tearing a subscription down
+     * and back up across it is both wasteful and visible.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun <T> Flow<T>.whileStateIsCollected(): Flow<T> {
+        val source = this
+        return uiState.subscriptionCount
+            .map { it > 0 }
+            .distinctUntilChanged()
+            .transformLatest { subscribed ->
+                // Only the drop waits: `transformLatest` cancels this block if a subscriber
+                // returns inside the grace period, so the source is never actually stopped.
+                if (!subscribed) delay(SUBSCRIPTION_GRACE_MILLIS)
+                emit(subscribed)
+            }
+            // Again, after the delay: a collector returning inside the grace period makes
+            // `transformLatest` cancel the pending `false` and re-emit `true`, and without this
+            // `flatMapLatest` would treat that as a new value and restart the source — which is
+            // the exact teardown the grace period exists to avoid.
+            .distinctUntilChanged()
+            .flatMapLatest { subscribed -> if (subscribed) source else emptyFlow() }
     }
 
     private suspend fun handleError(
