@@ -20,10 +20,10 @@ workers, and the brief for the agent that merges their pull requests, is
 | Track | Owns | Done | Progress |
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 5 | `░░░░░░░░░░` 0 % |
-| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 8 | `░░░░░░░░░░` 0 % |
+| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 8 | `█░░░░░░░░░` 13 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 0 / 9 | `░░░░░░░░░░` 0 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 0 / 8 | `░░░░░░░░░░` 0 % |
-| **Total** | | **0 / 30** | `░░░░░░░░░░` 0 % |
+| **Total** | | **1 / 30** | `░░░░░░░░░░` 3 % |
 
 **Where this plan comes from.** Plan 3 closed at 15 of 32 on 2026-09-09. The 17 it left open
 keep their ids. Thirteen are new: from the health brief of the same day (`core.7` `core.8`
@@ -31,8 +31,8 @@ keep their ids. Thirteen are new: from the health brief of the same day (`core.7
 (`ui.6`), from reading the KSD design documents against the code (`ui.7` `ui.8` `ui.9`
 `core.10` `qa.14`), and from the decision to give every screen a directory (`qa.13`, D34).
 
-**Start now.** Commit `ui.6`, then **`qa.13` before anything that touches a screen** — it moves
-every presentation package, so every screen item after it would otherwise rebase across a
+**Start now.** **`qa.13` before anything that touches a screen** — it moves every
+presentation package, so every screen item after it would otherwise rebase across a
 rename. While it is open the parallel work is in the other directories: `core.7`, `core.8`,
 `core.9`, `core.10`, `ui.3`, `ui.9`, `shell.6`, `qa.11`, `qa.12`, `qa.14`. Once it lands,
 highest value first: `ui.2` (one word per preview unblocks it), `feat.8` (seven screens without
@@ -143,7 +143,7 @@ flowchart LR
   feat8 --> feat9
 ```
 
-Independent: `core.6` `core.7` `core.8` `core.9` `core.10` `ui.3` `ui.6` `ui.9` `shell.6` `qa.4`
+Independent: `core.6` `core.7` `core.8` `core.9` `core.10` `ui.3` `ui.9` `shell.6` `qa.4`
 `qa.7` `qa.8` `qa.11` `qa.12` `qa.14`.
 
 ## Items
@@ -173,7 +173,7 @@ version of every open item is in the detail file under the same id.
 - [ ] **ui.4 Window size class drives density** · S · `stable` — a tablet gets regular density
   and typography
 - [ ] **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
-- [~] **ui.6 Gallery demos are interactive** · S · `stable` · working tree — every demo holds its
+- [x] (2026-09-09) **ui.6 Gallery demos are interactive** · S · `stable` — every demo holds its
   own state, so a checkbox in the gallery toggles; a screen test proves it
 - [ ] **ui.7 Components match the design's component document** · M · `stable` · needs qa.13 —
   each of the 42 audited against `03-Komponenty`; the gap table is written, the gaps are not closed

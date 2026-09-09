@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 import com.example.androidproject1.core.ui.component.AppScaffold
@@ -58,7 +59,11 @@ fun GalleryDetailScreen(
             entry?.variants?.forEach { variant ->
                 item(key = variant.label) {
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            // One tag for every variant: a test reaches the control inside with
+                            // `hasAnyAncestor`, the way CLAUDE.md describes for compound components.
+                            .testTag("galleryDetail_variantItem"),
                         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.sm),
                     ) {
                         AppText(text = variant.label, role = TextRole.LabelSmall)

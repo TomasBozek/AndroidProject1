@@ -8,6 +8,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
@@ -58,6 +62,7 @@ import com.example.androidproject1.core.ui.component.TagTone
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.component.ToastTone
 import com.example.androidproject1.core.ui.theme.AppTheme
+import kotlin.math.roundToInt
 
 /** One rendered state of a component, with the label that says which state it is. */
 @Immutable
@@ -140,15 +145,29 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "textfield", "AppTextField", "Form",
         "A sunken field. An error always carries text — colour alone is invisible to too many.",
         "Empty with placeholder" to {
-            AppTextField("", {}, label = "Search", placeholder = "Product name")
+            Demo("") { value, onChange ->
+                AppTextField(value, onChange, label = "Search", placeholder = "Product name")
+            }
         },
         "Filled with helper" to {
-            AppTextField("Pilsner", {}, label = "Item", helperText = "From the catalogue")
+            Demo("Pilsner") { value, onChange ->
+                AppTextField(value, onChange, label = "Item", helperText = "From the catalogue")
+            }
         },
-        "Numeric — tabular figures" to { AppTextField("12", {}, label = "Quantity", numeric = true) },
-        "Password" to { AppTextField("hunter2", {}, label = "PIN", password = true) },
+        "Numeric — tabular figures" to {
+            Demo("12") { value, onChange ->
+                AppTextField(value, onChange, label = "Quantity", numeric = true)
+            }
+        },
+        "Password" to {
+            Demo("hunter2") { value, onChange ->
+                AppTextField(value, onChange, label = "PIN", password = true)
+            }
+        },
         "Error" to {
-            AppTextField("abc", {}, label = "Code", errorText = "No product with this code")
+            Demo("abc") { value, onChange ->
+                AppTextField(value, onChange, label = "Code", errorText = "No product with this code")
+            }
         },
         "Disabled" to { AppTextField("Locked", {}, label = "Till", enabled = false) },
     ),
@@ -157,8 +176,12 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppSearchField",
         "Form",
         "Glass on the left, clearing on the right — the most common thing to undo.",
-        "Empty" to { AppSearchField("", {}, placeholder = "Search products") },
-        "With a query" to { AppSearchField("Pilsner", {}) },
+        "Empty" to {
+            Demo("") { value, onChange ->
+                AppSearchField(value, onChange, placeholder = "Search products")
+            }
+        },
+        "With a query" to { Demo("Pilsner") { value, onChange -> AppSearchField(value, onChange) } },
     ),
     entry(
         "select",
@@ -166,10 +189,14 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Form",
         "One choice from more than a handful. Below five, prefer radio or segmented.",
         "Selected" to {
-            AppSelect(listOf("Cash", "Card", "Voucher", "Invoice", "Split"), 1, {})
+            Demo(1) { selected, onSelect ->
+                AppSelect(listOf("Cash", "Card", "Voucher", "Invoice", "Split"), selected, onSelect)
+            }
         },
         "Nothing chosen" to {
-            AppSelect(listOf("A", "B"), -1, {}, placeholder = "Choose a price list")
+            Demo(-1) { selected, onSelect ->
+                AppSelect(listOf("A", "B"), selected, onSelect, placeholder = "Choose a price list")
+            }
         },
     ),
     entry(
@@ -177,9 +204,10 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppCheckbox",
         "Form",
         "The whole row is the target. Indeterminate belongs to a group toggle and nowhere else.",
-        "On" to { AppCheckbox(CheckState.On, {}, "Print receipt") },
-        "Off" to { AppCheckbox(CheckState.Off, {}, "Email receipt") },
-        "Indeterminate" to { AppCheckbox(CheckState.Indeterminate, {}, "All items") },
+        "On" to { CheckboxDemo(CheckState.On, "Print receipt") },
+        "Off" to { CheckboxDemo(CheckState.Off, "Email receipt") },
+        // Tapping resolves it: a group toggle that is partly on becomes fully on.
+        "Indeterminate" to { CheckboxDemo(CheckState.Indeterminate, "All items") },
         "Disabled" to { AppCheckbox(CheckState.Off, {}, "Unavailable", enabled = false) },
     ),
     entry(
@@ -188,10 +216,12 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Form",
         "Exactly one of a group. Above five options this is the wrong control.",
         "A group" to {
-            AppRadioGroup {
-                AppRadio(true, {}, "Cash")
-                AppRadio(false, {}, "Card")
-                AppRadio(false, {}, "Voucher", enabled = false)
+            Demo(0) { selected, onSelect ->
+                AppRadioGroup {
+                    AppRadio(selected == 0, { onSelect(0) }, "Cash")
+                    AppRadio(selected == 1, { onSelect(1) }, "Card")
+                    AppRadio(false, {}, "Voucher", enabled = false)
+                }
             }
         },
     ),
@@ -200,9 +230,13 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppSwitch",
         "Form",
         "An immediate change with no confirmation — so never for a destructive choice.",
-        "On" to { AppSwitch(true, {}, "Print receipt automatically") },
+        "On" to {
+            Demo(true) { checked, onChange -> AppSwitch(checked, onChange, "Print receipt automatically") }
+        },
         "With supporting text" to {
-            AppSwitch(false, {}, "Sounds", supporting = "Feedback on every key press")
+            Demo(false) { checked, onChange ->
+                AppSwitch(checked, onChange, "Sounds", supporting = "Feedback on every key press")
+            }
         },
         "Disabled" to { AppSwitch(false, {}, "Unavailable", enabled = false) },
     ),
@@ -211,24 +245,37 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppSegmented",
         "Form",
         "Two to four short options that switch immediately.",
-        "Three options" to { AppSegmented(listOf("Today", "Week", "Month"), 0, {}) },
-        "Two options" to { AppSegmented(listOf("Percent", "Amount"), 1, {}) },
+        "Three options" to {
+            Demo(0) { selected, onSelect -> AppSegmented(listOf("Today", "Week", "Month"), selected, onSelect) }
+        },
+        "Two options" to {
+            Demo(1) { selected, onSelect -> AppSegmented(listOf("Percent", "Amount"), selected, onSelect) }
+        },
     ),
     entry(
         "stepper",
         "AppStepper",
         "Form",
         "Quantity, one at a time. Fixed width, so the row does not shift from 9 to 10.",
-        "One" to { AppStepper(1, {}) },
-        "Twelve" to { AppStepper(12, {}) },
-        "At the floor" to { AppStepper(0, {}) },
+        "One" to { Demo(1) { value, onChange -> AppStepper(value, onChange) } },
+        "Twelve" to { Demo(12) { value, onChange -> AppStepper(value, onChange) } },
+        "At the floor" to { Demo(0) { value, onChange -> AppStepper(value, onChange) } },
     ),
     entry(
         "slider",
         "AppSlider",
         "Form",
         "Continuous values only. Never a price — nearly right is wrong.",
-        "With a value label" to { AppSlider(0.4f, {}, label = "Brightness", valueLabel = "40 %") },
+        "With a value label" to {
+            Demo(0.4f) { value, onChange ->
+                AppSlider(
+                    value,
+                    onChange,
+                    label = "Brightness",
+                    valueLabel = "${(value * 100).roundToInt()} %",
+                )
+            }
+        },
     ),
     entry(
         "formfield",
@@ -237,12 +284,14 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Label above, help or error below. A required field says the word.",
         "Required" to {
             AppFormField("Payment method", required = true) {
-                AppSegmented(listOf("Cash", "Card"), 0, {})
+                Demo(0) { selected, onSelect -> AppSegmented(listOf("Cash", "Card"), selected, onSelect) }
             }
         },
         "Error" to {
             AppFormField("Discount", errorText = "Above the limit for this role") {
-                AppSegmented(listOf("10 %", "20 %", "50 %"), 2, {})
+                Demo(2) { selected, onSelect ->
+                    AppSegmented(listOf("10 %", "20 %", "50 %"), selected, onSelect)
+                }
             }
         },
     ),
@@ -410,11 +459,19 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Content",
         "Collapsible content — for settings, never for an operational screen.",
         "Expanded" to {
-            AppAccordion("Advanced", expanded = true, onToggle = {}) {
-                AppText("Settings most people never open.", role = TextRole.Secondary)
+            Demo(true) { expanded, onChange ->
+                AppAccordion("Advanced", expanded = expanded, onToggle = { onChange(!expanded) }) {
+                    AppText("Settings most people never open.", role = TextRole.Secondary)
+                }
             }
         },
-        "Collapsed" to { AppAccordion("Diagnostics", expanded = false, onToggle = {}) {} },
+        "Collapsed" to {
+            Demo(false) { expanded, onChange ->
+                AppAccordion("Diagnostics", expanded = expanded, onToggle = { onChange(!expanded) }) {
+                    AppText("Logs, versions, the device id.", role = TextRole.Secondary)
+                }
+            }
+        },
     ),
     entry(
         "toast",
@@ -446,7 +503,9 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Navigation",
         "Switching content inside a screen. Takes a longer label and a count than segmented.",
         "With a badge" to {
-            AppTabs(listOf(TabItem("Open", badge = 4), TabItem("Paid"), TabItem("Void")), 0, {})
+            Demo(0) { selected, onSelect ->
+                AppTabs(listOf(TabItem("Open", badge = 4), TabItem("Paid"), TabItem("Void")), selected, onSelect)
+            }
         },
     ),
     entry(
@@ -455,15 +514,17 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Navigation",
         "At most four destinations. The selected one always shows its label.",
         "Three destinations" to {
-            AppBottomNav(
-                listOf(
-                    NavItem("Home", Icons.Filled.Home),
-                    NavItem("Orders", Icons.AutoMirrored.Filled.List, badge = 3),
-                    NavItem("Settings", Icons.Filled.Settings),
-                ),
-                0,
-                {},
-            )
+            Demo(0) { selected, onSelect ->
+                AppBottomNav(
+                    listOf(
+                        NavItem("Home", Icons.Filled.Home),
+                        NavItem("Orders", Icons.AutoMirrored.Filled.List, badge = 3),
+                        NavItem("Settings", Icons.Filled.Settings),
+                    ),
+                    selected,
+                    onSelect,
+                )
+            }
         },
     ),
     entry(
@@ -472,14 +533,16 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Navigation",
         "The same destinations, down the side, for the wider classes.",
         "Two destinations" to {
-            AppNavRail(
-                listOf(
-                    NavItem("Home", Icons.Filled.Home),
-                    NavItem("Orders", Icons.AutoMirrored.Filled.List, badge = 3),
-                ),
-                1,
-                {},
-            )
+            Demo(1) { selected, onSelect ->
+                AppNavRail(
+                    listOf(
+                        NavItem("Home", Icons.Filled.Home),
+                        NavItem("Orders", Icons.AutoMirrored.Filled.List, badge = 3),
+                    ),
+                    selected,
+                    onSelect,
+                )
+            }
         },
     ),
     entry(
@@ -504,6 +567,28 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Action only" to { AppBottomActionBar(actionLabel = "Continue", onAction = {}) },
     ),
 )
+
+/**
+ * The screen's half of a stateless component, for a demo.
+ *
+ * Every component here takes its value and hands changes back — a screen holds the state. A demo
+ * that passes a constant and an empty callback is therefore something to look at and not to try:
+ * tapping it changes nothing. This holds the value for it, so a checkbox in the gallery toggles the
+ * way it does on a real screen. Only the disabled variants stay constant, which is their point.
+ */
+@Composable
+private fun <T> Demo(
+    initial: T,
+    content: @Composable (value: T, onChange: (T) -> Unit) -> Unit,
+) {
+    var value by remember { mutableStateOf(initial) }
+    content(value) { value = it }
+}
+
+@Composable
+private fun CheckboxDemo(initial: CheckState, label: String) = Demo(initial) { checked, onChange ->
+    AppCheckbox(checked, { onChange(if (it) CheckState.On else CheckState.Off) }, label)
+}
 
 /** Everything the gallery list needs, without the composables. */
 fun galleryItems(): List<GalleryItem> = galleryCatalog.map {

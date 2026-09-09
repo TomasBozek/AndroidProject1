@@ -235,17 +235,6 @@ phones unchanged.
 Verify: the emulator's tablet profile shows both panes, the phone profile one; process death four
 screens deep restores on both.
 
-**ui.6 Gallery demos are interactive** · S · `stable` · started 2026-09-09, in the working tree
-Why: the gallery drew every variant with a constant and an empty callback, so tapping a checkbox
-there did nothing. A component that cannot be tried is half documented, and "the checkbox does
-not switch" was a fair reading of it.
-Done: a `Demo` holder in `GalleryCatalog.kt` keeps each interactive variant's state — text
-fields, search, select, checkbox, radio, switch, segmented, stepper, slider, the form field's
-control, accordion, tabs, bottom nav, rail; disabled variants stay constant, which is their
-point; every variant carries the `galleryDetail_variantItem` tag.
-Verify: `GalleryDetailScreenTest` taps the checkbox demo and it turns off, types into the text
-field demo and the text stays. Both found by tag through `hasAnyAncestor`.
-
 **ui.7 Components match the design's component document** · M · `stable` · needs qa.13
 Why: the components were ported from the KSD system's `03-Komponenty` by hand and nothing had
 compared them since. The document was read on 2026-09-09 through the Chrome route in the project
