@@ -13,4 +13,10 @@ dependencies {
     // Re-exported so a feature's `presentation` module needs only `api(projects.core.ui)` to get
     // both this app's theme and the reusable architecture in `:service:core:ui`.
     api(projects.service.core.ui)
+
+    // The adaptive scene strategies for Navigation 3. Here rather than in `:service:core:ui`
+    // beside the rest of Navigation 3, because a pane layout is a decision an app makes about its
+    // own screens: `service/` stays the architecture, and a project that reuses it adds this the
+    // day it wants two panes. Re-exported, so a destination can carry the metadata.
+    api(libs.androidx.adaptive.navigation3)
 }

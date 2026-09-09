@@ -9,6 +9,8 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -124,6 +126,7 @@ private fun AppNavContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun AppNavDisplay(
     backStack: NavBackStack<NavKey>,
@@ -157,10 +160,17 @@ private fun AppNavDisplay(
         mainEntries(backStack, catalogRepository, addToCart)
     }
 
+    // Two panes where there is width for them, one where there is not. The decision is the
+    // strategy's, from the window size — nothing here or in a screen asks how wide anything is,
+    // and no screen behaves differently: which entries can share a scene is metadata on the two
+    // catalog destinations, and every other entry falls through to the single-pane default.
+    val listDetail = rememberListDetailSceneStrategy<NavKey>()
+
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
         onBack = { backStack.removeLastOrNull() },
+        sceneStrategies = listOf(listDetail),
         // NavDisplay adds its own scene-setup decorator; these two are the ones a screen needs.
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),

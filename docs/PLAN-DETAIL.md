@@ -165,14 +165,6 @@ generated feature gets one — or a single copy in `:app`, which sees every modu
 `:core:di` but runs three times over the flavors. Then ~300 goldens to commit, and one
 `verifyRoborazziDebug` step in the CI build job.
 
-**ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
-Why: the source system runs on tablets, and the catalog is exactly a list–detail shape.
-Done: `adaptive-navigation3` 1.3.0 (stable; check its Navigation 3 range against 1.1.7); a
-`ListDetailSceneStrategy` on the `NavDisplay`; products and product detail carry the metadata;
-phones unchanged.
-Verify: the emulator's tablet profile shows both panes, the phone profile one; process death four
-screens deep restores on both.
-
 
 ### Track app · shell and sample features
 

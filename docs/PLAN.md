@@ -173,7 +173,9 @@ version of every open item is in the detail file under the same id.
   asserted by tag; the package leaves 22 %
 - [x] (2026-09-09) **ui.4 Window size class drives density** · S · `stable` — a tablet gets
   regular density and typography
-- [ ] **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
+- [x] (2026-09-09) **ui.5 List–detail for the catalog on wide screens** · M · `stable` — a
+  scene strategy and metadata on the two catalog keys; the two-pane render is unverified on a
+  device, the AVD stayed down
 - [x] (2026-09-09) **ui.6 Gallery demos are interactive** · S · `stable` — every demo holds its
   own state, so a checkbox in the gallery toggles; a screen test proves it
 - [x] (2026-09-09) **ui.7 Components match the design's component document** · M · `stable` —
