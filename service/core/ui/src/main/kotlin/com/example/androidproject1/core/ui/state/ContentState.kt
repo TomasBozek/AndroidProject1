@@ -1,5 +1,6 @@
 package com.example.androidproject1.core.ui.state
 
+import androidx.compose.runtime.Immutable
 import com.example.androidproject1.core.ui.text.UiText
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.R
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.update
  * @property id which content state this is, echoed back with the action so a screen showing more
  * than one can tell them apart.
  */
+@Immutable
 sealed interface ContentState {
 
     val id: String

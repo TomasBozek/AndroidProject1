@@ -375,12 +375,6 @@ Done: `convention.feature.presentation` derives `resourcePrefix` from the module
 sets `app_`; existing strings already comply.
 Verify: add an unprefixed string on purpose and lint fails.
 
-**qa.8 Compose compiler metrics** · S · `stable`
-Why: `@Immutable` is everywhere; whether anything is still unstable is a guess.
-Done: `composeCompiler { metricsDestination / reportsDestination }` behind `-PcomposeMetrics` in
-the compose convention plugin; the first report read and any unstable parameter fixed.
-Verify: the report lists every `XState` as stable.
-
 **qa.11 Maestro flows in CI** · M · `plugin` D30
 Why: five flows pass on a laptop and run nowhere else, and the log-out flow already caught a bug
 no unit test could — a dialog whose ids were invisible to anything driving the device.

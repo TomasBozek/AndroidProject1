@@ -209,7 +209,7 @@ version of every open item is in the detail file under the same id.
   predictive back, TalkBack
 - [ ] **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint
   enforces it
-- [ ] **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
+- [x] (2026-09-09) **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
 - [ ] **qa.11 Maestro flows in CI** · M · `plugin` D30 — an emulator job on the schedule and on
   demand
 - [ ] **qa.12 Version and release notes from the tag** · S · `stable` D31 — `versionName` and

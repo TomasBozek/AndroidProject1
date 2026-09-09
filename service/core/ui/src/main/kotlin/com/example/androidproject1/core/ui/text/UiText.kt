@@ -4,12 +4,19 @@ import android.content.Context
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.platform.LocalContext
 
 /**
  * Text a ViewModel can produce without holding a [Context]; resolution is deferred to the UI.
  * This is what lets state and alerts reference `R.string.*` from outside the composition.
+ *
+ * `@Immutable` because an interface is unstable to the Compose compiler by definition — anything
+ * could implement it — and this one is reached from every state in the app. The promise holds:
+ * each case is a data class of values, and [Resource.args] is a read-only list built with the
+ * text and never touched again.
  */
+@Immutable
 sealed interface UiText {
 
     fun resolve(context: Context): String

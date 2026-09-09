@@ -36,7 +36,11 @@ from _common import (  # noqa: E402
 # theme, the launcher label and the README title.
 PROJECT_NAME = "AndroidProject1"
 
-TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".toml", ".py", ".md", ".pro", ".yml", ".yaml", ".properties"}
+TEXT_SUFFIXES = {
+    ".kt", ".kts", ".xml", ".toml", ".py", ".md", ".pro", ".yml", ".yaml", ".properties",
+    # build-logic/compose-stability.conf names the domain packages it vouches for.
+    ".conf",
+}
 
 SKIP_DIRS = {".git", "build", ".gradle", ".idea", ".kotlin", "__pycache__", ".cxx", "venv", ".venv"}
 

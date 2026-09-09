@@ -1,5 +1,6 @@
 package com.example.androidproject1.core.ui.form
 
+import androidx.compose.runtime.Stable
 import com.example.androidproject1.core.ui.text.UiText
 import com.example.androidproject1.core.ui.text.toPluralUiText
 import com.example.androidproject1.core.ui.text.toUiText
@@ -11,7 +12,12 @@ import com.example.androidproject1.service.core.ui.R
  * Returns the message to show, or `null` when the value is fine — so a validator is a plain
  * function and a custom one needs no class. The message is a [UiText] because a ViewModel has no
  * Context, which is the same reason everything else reachable from one is.
+ *
+ * `@Stable` rather than `@Immutable`: a validator holds nothing, so there is no value to promise
+ * about — only that the same input keeps giving the same answer. Without it every `FieldState` is
+ * unstable, because it holds a list of these.
  */
+@Stable
 fun interface Validator {
 
     operator fun invoke(value: String): UiText?

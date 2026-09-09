@@ -1,5 +1,6 @@
 package com.example.androidproject1.core.ui.state
 
+import androidx.compose.runtime.Immutable
 import com.example.androidproject1.core.ui.text.UiText
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.R
@@ -15,7 +16,12 @@ import kotlinx.coroutines.flow.update
  * ```
  * private data class DeleteItem(val id: String) : AlertPayload
  * ```
+ *
+ * `@Immutable` because it is carried inside [AlertState], which every screen's `UiState` holds:
+ * an unannotated interface there makes the whole envelope unstable. A payload is context about
+ * what is being confirmed, so a data class of values is the only sensible implementation.
  */
+@Immutable
 interface AlertPayload
 
 /**

@@ -2,8 +2,10 @@ import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -142,4 +144,44 @@ internal fun Project.configureCompose(extension: CommonExtension) {
 
     // Compose's test rule reads real resources.
     extension.testOptions.unitTests.isIncludeAndroidResources = true
+
+    configureComposeCompiler()
+}
+
+/** The Gradle property that turns the compiler's stability reports on: `-PcomposeMetrics`. */
+private const val COMPOSE_METRICS_PROPERTY = "composeMetrics"
+
+/**
+ * What the Compose compiler is told, and what it is asked to report back.
+ *
+ * The stability configuration is always applied — it changes which composables can skip, so a
+ * build that read it and a build that did not would generate different code. The metrics are
+ * behind `-PcomposeMetrics`, because they add a compiler pass and a directory of CSV per module to
+ * every ordinary build:
+ *
+ * ```
+ * ./gradlew assembleDevDebug -PcomposeMetrics
+ * cat build/compose-reports/feature-home-presentation/presentation-classes.txt
+ * ```
+ *
+ * Reports land under the root build directory, one sub-directory per module: the compiler names
+ * its files after the module's own name, and eleven modules called `presentation` would otherwise
+ * overwrite each other's report and leave one.
+ */
+internal fun Project.configureComposeCompiler() {
+    val metrics = providers.gradleProperty(COMPOSE_METRICS_PROPERTY).isPresent
+    val slug = path.removePrefix(":").replace(':', '-')
+
+    extensions.configure<ComposeCompilerGradlePluginExtension> {
+        // What `@Immutable` cannot say, because the type is in a Kotlin/JVM module or in the
+        // standard library. See the file's own comments — each line there is a promise.
+        stabilityConfigurationFiles.add(
+            rootProject.layout.projectDirectory.file("build-logic/compose-stability.conf"),
+        )
+
+        if (metrics) {
+            metricsDestination.set(rootProject.layout.buildDirectory.dir("compose-metrics/$slug"))
+            reportsDestination.set(rootProject.layout.buildDirectory.dir("compose-reports/$slug"))
+        }
+    }
 }

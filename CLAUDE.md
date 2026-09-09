@@ -786,6 +786,23 @@ uploads it as an artifact. Previews and generated classes are filtered out; they
 where the tests are thin.
 
 ```bash
+./gradlew assembleDevDebug -PcomposeMetrics
+```
+
+The Compose compiler's stability reports, under `build/compose-reports/<module>/`. Off by default
+because they cost a compiler pass on every module; on when you want to know whether a state the
+code calls `@Immutable` is one the compiler agrees about. `<module>-classes.txt` is the file to
+read: every `XState` should say `stable class`, with no `runtime` or `unstable` member. The one
+exception is `UiState`, which is generic — its stability is its type argument's, which is what
+`Parameter(Data)` on its `<runtime stability>` line means.
+
+What the compiler cannot work out for itself is stated in `build-logic/compose-stability.conf`:
+read-only collections, and the domain models, whose modules are Kotlin/JVM and so never see the
+Compose compiler at all — it treats every class from one as unstable rather than unknown. A line
+there is a promise, so do not add one to quiet a report that is right. Compose plugin options are
+not task inputs, so a report needs `--rerun-tasks` (or a clean) to be regenerated.
+
+```bash
 ./gradlew ktlintCheck
 ```
 

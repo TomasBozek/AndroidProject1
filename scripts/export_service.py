@@ -45,7 +45,7 @@ BUILD_LOGIC_DIR = REPO_ROOT / "build-logic"
 # Directories that are build output or IDE state rather than source.
 SKIP_DIRS = {"build", ".gradle", ".kotlin", ".idea"}
 
-TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro", ".md"}
+TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro", ".md", ".conf"}
 
 # The order layers are listed in settings.gradle.kts.
 SERVICE_LAYER_ORDER = ["domain", "data", "ui", "presentation", "di"]

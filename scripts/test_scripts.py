@@ -583,7 +583,7 @@ class ScaffoldingTest(unittest.TestCase):
         # constants so it can rename a second project later.
         leftovers = []
         for path in sorted(self.repo.rglob("*")):
-            if not path.is_file() or path.suffix not in {".kt", ".kts", ".xml", ".toml", ".py", ".md"}:
+            if not path.is_file() or path.suffix not in {".kt", ".kts", ".xml", ".toml", ".py", ".md", ".conf"}:
                 continue
             relative = path.relative_to(self.repo)
             if {"build", ".gradle", ".git", "__pycache__"}.intersection(relative.parts):
