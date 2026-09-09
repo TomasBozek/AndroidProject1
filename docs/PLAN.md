@@ -19,11 +19,22 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
 | **Total** | | **8 / 32** | `███░░░░░░░` 25 % |
 
-**Start now:** `ui.1`, `core.3` / `core.4` / `core.5`, `qa.7` / `qa.8`, and the `shell.*` items.
-`core.1` and `core.2` together unblock **`feat.5`**, which now has every dependency it needs.
-**Waiting on you:** nothing. Every question is answered — D19–D29, taken 2026-09-09. `qa.1` and
-`qa.9` were dropped in the same pass; `qa.6` was parked in the backlog with its config intact and
-can be finished any time. The only thing between here and `core.1` is committing this file.
+**Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
+`feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
+only consumer of `core.4`), `ui.2` (screenshot goldens, now that `ui.1` bundled the face), then
+`feat.3` / `feat.4` / `shell.3` / `shell.5` for breadth, and the cheap ones — `feat.6`, `qa.7`,
+`qa.8`, `qa.10` — whenever a short slot appears.
+
+**Two need something a session cannot do alone:** `qa.2` wants the Maestro **CLI**
+(`brew install mobile-dev-inc/tap/maestro` — `brew install maestro` gives the Electron cask, which
+has no `maestro test`), and `qa.5` wants the physical device. `feat.1`'s device pass shows the
+`adb` + `uiautomator dump` fallback works well on the emulator: every `testTag` in this repo comes
+through as a `resource-id`, so `login_submitButton` and friends are directly addressable.
+
+**Picking this up in a fresh session:** this file is the whole handoff. Read it, pick an item,
+`git worktree add ../<repo>-<id> -b <id>-<slug>`, **copy `local.properties` in** (it is gitignored,
+and without it every Gradle task fails with "SDK location not found"), work, run the gate, commit
+as `<id> <title>`, fast-forward merge, remove the worktree. `main` is one commit per item.
 
 Legend · size `S` under an hour, `M` half a day, `L` a day or more · risk `stable` known-good
 libraries, `plugin` adds a Gradle plugin (check its AGP range before writing code), `alpha`
