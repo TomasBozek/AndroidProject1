@@ -13,15 +13,14 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 1 / 6 | `█░░░░░░░░░` 17 % |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 2 / 6 | `███░░░░░░░` 33 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **3 / 32** | `█░░░░░░░░░` 9 % |
+| **Total** | | **4 / 32** | `█░░░░░░░░░` 13 % |
 
-**Start now:** `ui.1`, and `core.2` / `core.4` / `core.5` are open in the core track. `qa.3`
-landed, so every generated screen ships a screen test; `feat.1` wired Room; `core.1` wired Ktor,
-so `feat.5` now waits only on `core.2`.
+**Start now:** `ui.1`, `core.3` / `core.4` / `core.5`, `qa.7` / `qa.8`, and the `shell.*` items.
+`core.1` and `core.2` together unblock **`feat.5`**, which now has every dependency it needs.
 **Waiting on you:** nothing. Every question is answered — D19–D29, taken 2026-09-09. `qa.1` and
 `qa.9` were dropped in the same pass; `qa.6` was parked in the backlog with its config intact and
 can be finished any time. The only thing between here and `core.1` is committing this file.
@@ -230,12 +229,18 @@ nothing here knows a feature.
   caller re-reads the store and takes what the winner saved, so a cancelled caller cannot cancel
   the refresh another one is waiting on. Six tests cover it, including five parallel callers.
 
-- [ ] **core.2 Offline-first combinator** · M · `stable`
+- [x] **core.2 Offline-first combinator** (2026-09-09) · M · `stable`
   Why: was 6.2's first half. Cache-then-network is the shape every remote-backed screen needs.
   Done: `BaseRepository.cached(local: Flow<T?>, remote: suspend () -> T, write: suspend (T) -> Unit)`
   emitting cache, then remote, then the refreshed cache; a remote failure over a stale cache emits
   the data plus a failure the screen can show inline. Pure JVM — `local` is any flow.
   Verify: `BaseRepositoryTest` cases for hit, miss, stale-on-failure, and remote-then-local order.
+  **Landed:** seven cases, not four — writing them found a real defect. The cache is read as a
+  snapshot (`local.first()`) and then collected live, and `distinctUntilChanged` on the live flow
+  cannot see the snapshot, so whenever the refresh wrote a value equal to what was already there
+  the same data was emitted twice and every screen redrew for nothing. The combinator now compares
+  against the last value *emitted* rather than the last the cache produced. `local` is `Flow<T?>`
+  on purpose: `null` is a cache miss, while an empty list is a cached empty list.
 
 - [ ] **core.3 Lifecycle-aware `observe`** · S · `stable`
   Why: was C8. `observe {}` collects for the ViewModel's whole life, including backgrounded. Fine
