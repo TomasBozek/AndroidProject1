@@ -15,16 +15,15 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 |---|---|---|---|
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 4 / 14 | `███░░░░░░░` 29 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 5 / 14 | `████░░░░░░` 36 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 3 / 7 | `████░░░░░░` 43 % |
-| **Total** | | **13 / 32** | `████░░░░░░` 41 % |
+| **Total** | | **14 / 32** | `████░░░░░░` 44 % |
 
-**Three branches carry unfinished work, none merged.** `main` is clean and green without them.
+**Two branches carry unfinished work, neither merged.** `main` is clean and green without them.
 
 | Branch | State |
 |---|---|
 | `ui.2-roborazzi` | Wiring done, blocker diagnosed and written into `ui.2` above. The useful one |
-| `feat.7-data-tests` | **Unverified WIP.** An agent was mid-item; committed only so a restart would not lose it. Has not been through the gate and may not compile |
 | `feat.3-profile` | **Unverified WIP.** Same — includes a new `:feature:profile` and an `AppAvatarPhoto` component |
 
 For the two WIP branches: read the diff and decide. Neither item is marked started, so discarding
@@ -577,11 +576,25 @@ uses. Each feature is a worktree of its own — they meet only in the registrati
   constructor has a defaulted id generator and reflection would try to resolve a `Function0` from
   the graph.
 
-- [ ] **feat.7 Tests for the data layers that exist** · M · `stable`
+- [x] **feat.7 Tests for the data layers that exist** (2026-09-09) · M · `stable`
   Why: `feature/*/data` is 84 lines at 0 %, the cheapest coverage in the repo.
   Done: `DefaultAuthRepository`, `DefaultLocalAuthDataSource` (in-memory DataStore + `AesGcmAead`,
   no Keystore), `DefaultCatalogRepository`, `DefaultLocalCatalogDataSource`.
   Verify: none of the four packages reads 0 % in the Kover report.
+  **Landed:** 32 tests, and they found a real defect in `feat.1` and `feat.2`'s own SQL.
+  `CartDao.observeItems` and `FavouritesDao.observeFavourites` ordered by a **millisecond**
+  timestamp alone. Two rows written in the same tick tie, and SQLite breaks a tie by rowid — which
+  `OnConflictStrategy.REPLACE` **reassigns on every upsert**. So topping up a quantity moved that
+  line to the bottom of the cart under the user's finger, which is the exact behaviour
+  `DefaultLocalCartDataSource.add` keeping the original `addedAt` was written to prevent. Both
+  queries now carry a second sort key. Confirmed by reverting the fix and watching the new case fail.
+  Two moves the work forced: `TestDispatchers` now lives in `testFixtures` of
+  `:service:core:domain` beside the `DispatcherProvider` it fakes, because three modules need it;
+  and Robolectric plus `androidx-test-core` moved from `convention.android.room` to
+  `convention.feature.data`, since testing a DataStore-backed source needs a `Context` exactly as a
+  DAO test does. Auth is tested against the real `EncryptedDataStoreProvider` and `AesGcmAead` on a
+  JVM key, including that the address is genuinely absent from the bytes on disk and that a file
+  written under another installation's key reads as signed out rather than throwing.
 
 - [ ] **feat.8 A screen test for every existing screen** · M · `stable` · needs qa.3
   Why: `LoginScreenTest` is the pattern and nine screens do not follow it.
