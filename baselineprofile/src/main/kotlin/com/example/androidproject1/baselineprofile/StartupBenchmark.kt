@@ -18,7 +18,7 @@ import org.junit.Test
  * and its numbers move with what else is running; the benchmark refuses to run on one unless
  * errors are suppressed, and that refusal is correct.
  *
- * `./gradlew :baselineprofile:connectedBenchmarkAndroidTest`
+ * `./gradlew :baselineprofile:connectedBenchmarkReleaseAndroidTest`
  */
 class StartupBenchmark {
 
@@ -37,18 +37,32 @@ class StartupBenchmark {
         compilationMode = compilationMode,
         startupMode = StartupMode.COLD,
         iterations = ITERATIONS,
-        setupBlock = { pressHome() },
+        // `StartupMode.COLD` force-stops the app but leaves its data, so which screen it opens on
+        // would depend on whatever the last run left behind — onboarding seen or not, signed in or
+        // not. Clearing it makes every iteration the same first launch, which is the start that
+        // the profile is worth the most on.
+        setupBlock = {
+            pressHome()
+            device.executeShellCommand("pm clear $PACKAGE")
+        },
     ) {
         startActivityAndWait()
         // The same wait the profile generator uses: measure to the first frame the user sees, not
         // to the splash screen.
-        device.wait(Until.hasObject(By.res(LOGIN_SCREEN)), TIMEOUT_MS)
+        device.wait(Until.hasObject(By.res(FIRST_SCREEN)), TIMEOUT_MS)
     }
 
     private companion object {
 
         const val PACKAGE = "com.example.androidproject1.dev"
-        const val LOGIN_SCREEN = "LoginScreen"
+
+        /**
+         * The first screen of a fresh install, which is the tour rather than the login form: the
+         * stored `seen` flag is unset, so `MainViewModel` routes to onboarding. Waiting on
+         * `LoginScreen` here is what this test used to do, and after the onboarding flow landed it
+         * meant every iteration waited out [TIMEOUT_MS] for a screen that never appeared.
+         */
+        const val FIRST_SCREEN = "OnboardingScreen"
         const val ITERATIONS = 10
         const val TIMEOUT_MS = 10_000L
     }
