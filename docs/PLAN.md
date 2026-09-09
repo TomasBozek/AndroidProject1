@@ -157,8 +157,8 @@ version of every open item is in the detail file under the same id.
   default, `AppScaffold` reports each screen once
 - [ ] **core.7 Room migrations are tested** · M · `stable` — `room-testing` in the Room plugin, a
   migration test per database, a version bump ships its migration in the same commit
-- [ ] **core.8 Retry with backoff on the client** · S · `stable` — Ktor's retry plugin for
-  idempotent requests only, tested on `MockEngine`
+- [x] (2026-09-09) **core.8 Retry with backoff on the client** · S · `stable` — Ktor's retry
+  plugin for idempotent requests only, tested on `MockEngine`
 - [ ] **core.9 Permission helpers tested** · S · `stable` — Robolectric tests for the four
   statuses and the gate
 - [x] (2026-09-09) **core.10 Format roles** · S · `stable` — money, weight, quantity, percent, time, date and

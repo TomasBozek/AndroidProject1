@@ -340,6 +340,7 @@ Plan 2's reference table, kept here because the plan holds only open work.
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |
 | `Aead` / `AesGcmAead` / `KeystoreAead` | `service/core/domain/crypto/`, `service/core/data/crypto/` | `EncryptedDataStoreProvider` stores the session with it; the logic is in `AesGcmAead` and JVM-tested, the Keystore fetch is fifteen lines |
 | `ErrorTracker` / `TrackingLogger` | `service/core/domain/`, `service/core/data/` | See Crash reporting above |
+| `HttpClientFactory` retry policy | `service/network/.../HttpClientFactory.kt` | Up to `NetworkConfig.retries` more tries on a 5xx or a transport failure, exponential backoff with jitter. **Idempotent methods only** — never a POST; do not add a retry loop in a data source |
 | `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
 | `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
 | `MainDispatcherRule`, `FakeLogger`, `TestDispatchers`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain` (both middle two), `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first three; the convention plugin adds it, and `convention.feature.data` takes `:service:core:domain`'s directly |

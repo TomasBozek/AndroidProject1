@@ -157,15 +157,6 @@ commit. Edits `build-logic/` and the two `data` modules' tests.
 Verify: on a scratch branch bump `CartDatabase` to 2 without a migration — the test fails; add
 the migration — it passes; the scratch bump is not committed.
 
-**core.8 Retry with backoff on the client** · S · `stable`
-Why: one transient failure is a failed screen. The client has no retry policy, so every data
-source would otherwise invent its own, and some would retry a POST.
-Done: `HttpClientFactory` installs Ktor's `HttpRequestRetry` — up to three tries with exponential
-backoff on 5xx and I/O errors, idempotent methods only; `NetworkConfig.retries` to change or
-disable it; the KDoc says a POST is never retried because a retried order is a double order.
-Verify: `MockEngine` tests — two 503s then a 200 yield one success in three requests; a POST 503
-yields exactly one request; the backoff delays are asserted against a test clock.
-
 **core.9 Permission helpers tested** · S · `stable`
 Why: `service/core/ui/permission` is 116 lines at 48 %, and the four statuses are exactly the
 state machine a regression hides in — once `canAskAgain` is false the system dialog never
