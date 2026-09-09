@@ -1,5 +1,10 @@
 # Plan 4 · the four-worker split
 
+**Round one ran on 2026-09-09 and is merged.** Twenty-six of the twenty-seven items it took
+landed on `main`; `ui.2` was parked with its blocker corrected, and `feat.9` and `qa.5` were
+never in it. What follows is the plan that produced that round, kept as the record of how the
+split was drawn — read the [board](PLAN.md) for what is open now.
+
 How the 30 open items on the [board](PLAN.md) divide between four agents working at once, each
 in its own worktree and ending in one pull request, and what the fifth agent that merges them
 has to know. The items themselves are not repeated here: every id points at its section in

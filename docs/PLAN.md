@@ -11,19 +11,19 @@ workers, and the brief for the agent that merges their pull requests, is
 
 ## Status
 
-**Updated:** 2026-09-09 · **Gate:** doctor 23/23 · test_scripts 45 · ktlint clean · build green
-**Coverage:** 55.6 % of lines, measured 2026-09-09 at `dff021c` — refresh with
+**Updated:** 2026-09-09 · **Gate:** doctor 28/28 · test_scripts 52 · ktlint clean · build green
+**Coverage:** 68.9 % of lines, measured 2026-09-09 at `72af25a` — refresh with
 `./gradlew koverXmlReport` and write the commit beside the number
-**Repo:** 34 modules + `build-logic` · 6 sample features + `template` · 13 screens ·
-42 components · 275 tests · 5 Maestro flows · 10 scripts
+**Repo:** 42 modules + `build-logic` · 9 sample features + `template` · 16 screens ·
+47 components · 482 tests · 5 Maestro flows · 10 scripts
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 0 / 5 | `░░░░░░░░░░` 0 % |
-| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 8 | `█░░░░░░░░░` 13 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 0 / 9 | `░░░░░░░░░░` 0 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 0 / 8 | `░░░░░░░░░░` 0 % |
-| **Total** | | **1 / 30** | `░░░░░░░░░░` 3 % |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 5 | `██████████` 100 % |
+| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 7 / 8 | `█████████░` 88 % |
+| **app** · shell and sample features | `app/`, `feature/*` | 8 / 9 | `█████████░` 89 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 7 / 8 | `█████████░` 88 % |
+| **Total** | | **27 / 30** | `█████████░` 90 % |
 
 **Where this plan comes from.** Plan 3 closed at 15 of 32 on 2026-09-09. The 17 it left open
 keep their ids. Thirteen are new: from the health brief of the same day (`core.7` `core.8`
@@ -31,20 +31,32 @@ keep their ids. Thirteen are new: from the health brief of the same day (`core.7
 (`ui.6`), from reading the KSD design documents against the code (`ui.7` `ui.8` `ui.9`
 `core.10` `qa.14`), and from the decision to give every screen a directory (`qa.13`, D34).
 
-**Start now.** **`qa.13` before anything that touches a screen** — it moves every
-presentation package, so every screen item after it would otherwise rebase across a
-rename. While it is open the parallel work is in the other directories: `core.7`, `core.8`,
-`core.9`, `core.10`, `ui.3`, `ui.9`, `shell.6`, `qa.11`, `qa.12`, `qa.14`. Once it lands,
-highest value first: `ui.2` (one word per preview unblocks it), `feat.8` (seven screens without
-a screen test), `shell.2` (the gallery leaves prod), `ui.7`, `ui.8`; for breadth `feat.4`,
-`shell.1`, `shell.3`, `shell.5`, `ui.4`; and `qa.7`, `qa.8` whenever a short slot appears.
+**Round one is merged.** Twenty-six items landed across four parallel worktrees on 2026-09-09
+and were rebase-merged in the order `w1-layout`, `w2-core`, `w3-ui`, `w4-app`, with the gate run
+after each; `PLAN-WORKERS.md` holds the split that produced them. Three items are left.
+
+**Start now.** Round two is the three that round one did not take, and they are independent of
+each other:
+
+- **`ui.2` Screenshot tests with Roborazzi** — the toolchain is proven and the stated blocker was
+  wrong: previews do **not** become `internal`, the chain was missing `.includePrivatePreviews()`.
+  What is left is one decision (a copy of the test per `presentation` module, cloned from
+  `feature/template`, or one copy in `:app` that runs three times over the flavors), ~300 goldens
+  to commit, and the `verifyRoborazziDebug` step in the CI build job. Start from
+  `ui.2-roborazzi`, not from scratch.
+- **`feat.9` Czech alongside English** — unblocked now that `feat.4` and `feat.8` have landed;
+  every `presentation` module has its strings and every screen has a test to catch a clipped one.
+- **`qa.5` Hardware pass** — needs the physical device and a person holding it (D21); `shell.1`
+  landed, so nothing else is in its way.
+
 Nothing scheduled waits on a decision.
 
 **Waiting on you.** Q8 blocks only three backlog items. The design documents can be read through
 Chrome without a login; `/design-login` from an interactive session is the tidier route.
 
-**One branch carries unfinished work.** `ui.2-roborazzi` holds the Roborazzi wiring with its
-blocker diagnosed — start there, not from scratch. `main` is clean and green without it.
+**One branch carries unfinished work.** `ui.2-roborazzi` holds the Roborazzi wiring, which still
+applies on the D34 layout. `main` is clean and green without it. The four round-one branches
+(`w1-layout`, `w2-core`, `w3-ui`, `w4-app`) are merged and kept, along with their `wip/` tags.
 
 Legend · size `S` under an hour, `M` half a day, `L` a day or more · risk `stable` known-good
 libraries, `plugin` adds a Gradle plugin or CI action (check its range before writing code),
@@ -94,57 +106,24 @@ D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is
 | D27 | Vendor policy | Google, JetBrains, androidx first; then large and widely used; anything else earns a line here |
 | D28 | D27 applied | Koin, Coil, Roborazzi and Maestro stay; mockk and `dependency-analysis` went |
 | D29 | Theme | The hand port stands; no token pipeline until drift actually hurts |
-| D30 | Maestro in CI | **Default: weekly schedule and on demand, not per pull request** |
-| D31 | Versioning | **Default: name from the `v*` tag, code from the commit count; local builds keep 1 / 1.0** |
-| D32 | Store upload | **Default: none.** A GitHub release carrying the APK is the release |
+| D30 | Maestro in CI | **Decided 2026-09-09 with `qa.11`: weekly schedule and `workflow_dispatch`, not per pull request** |
+| D31 | Versioning | **Decided 2026-09-09 with `qa.12`: name from the `v*` tag, code from the commit count; local builds keep 1 / 1.0** |
+| D32 | Store upload | **Decided 2026-09-09 with `qa.12`: none.** A GitHub release carrying the APK is the release |
 | D33 | Icon set | **Decided 2026-09-09: Material icons stay; the three sizes are `AppTheme.icons.sm/md/lg`.** The design names Lucide, which has no first-party Compose artifact |
 | D34 | Presentation layout | **Decided 2026-09-09: a directory per screen, even a lone one, and a file per component in the feature's `component/`** |
 
 ## Dependencies
 
-Arrows are "must land first". Everything not drawn is independent and can start today.
+Arrows are "must land first". Round one closed every arrow that was drawn here: each of the three
+items still open has had its blocker land, so all three can start today and none waits on another.
 
-```mermaid
-flowchart LR
-  classDef ui fill:#FFEDC2,stroke:#DE9209,color:#915B06
-  classDef app fill:#D0F4DF,stroke:#1FA463,color:#12693E
-  classDef qa fill:#EEEEEC,stroke:#75756F,color:#3C3C37
+| Open item | Waited on | State |
+|---|---|---|
+| `ui.2` Screenshot tests | `qa.13` | landed 2026-09-09 — the wiring on `ui.2-roborazzi` applies to the new layout unchanged |
+| `feat.9` Czech | `feat.4`, `feat.8` | both landed 2026-09-09 — every screen now has its strings and a test |
+| `qa.5` Hardware pass | `shell.1` | landed 2026-09-09 — needs the device and a person (D21) |
 
-  qa13[qa.13 directory per screen]:::qa
-  ui2[ui.2 screenshots]:::ui
-  ui4[ui.4 size class]:::ui
-  ui5[ui.5 list–detail]:::ui
-  ui7[ui.7 design audit]:::ui
-  ui8[ui.8 icon roles]:::ui
-  shell1[shell.1 deep links]:::app
-  shell2[shell.2 debug menu]:::app
-  shell3[shell.3 theme setting]:::app
-  shell4[shell.4 notification]:::app
-  shell5[shell.5 onboarding]:::app
-  feat4[feat.4 search]:::app
-  feat8[feat.8 screen tests]:::app
-  feat9[feat.9 Czech]:::app
-  qa5[qa.5 hardware pass]:::qa
-
-  qa13 --> ui2
-  qa13 --> ui7
-  qa13 --> ui8
-  qa13 --> feat4
-  qa13 --> feat8
-  qa13 --> shell1
-  qa13 --> shell2
-  qa13 --> shell3
-  qa13 --> shell5
-  ui4 --> ui5
-  shell1 --> shell4
-  shell2 --> shell4
-  shell1 --> qa5
-  feat4 --> feat9
-  feat8 --> feat9
-```
-
-Independent: `core.6` `core.7` `core.8` `core.9` `core.10` `ui.3` `ui.9` `shell.6` `qa.4`
-`qa.7` `qa.8` `qa.11` `qa.12` `qa.14`.
+The graph the four-worker round was planned against is `git show 4b9364f:docs/PLAN.md`.
 
 ## Items
 
@@ -212,8 +191,9 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint
   enforces it
 - [x] (2026-09-09) **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
-- [ ] **qa.11 Maestro flows in CI** · M · `plugin` D30 — an emulator job on the schedule and on
-  demand
+- [x] (2026-09-09) **qa.11 Maestro flows in CI** · M · `plugin` D30 — an emulator job on the
+  schedule and on demand; the flows have not yet run on a CI emulator, so the first scheduled run
+  is the one to read
 - [x] (2026-09-09) **qa.12 Version and release notes from the tag** · S · `stable` D31 — `versionName` and
   `versionCode` from the tag, a GitHub release with the APK and generated notes
 - [x] (2026-09-09) **qa.13 A directory per screen, a file per component** · L · `stable` D34 — every

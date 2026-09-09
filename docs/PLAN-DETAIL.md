@@ -134,16 +134,14 @@ Only the ones that need it. The outcomes are on the board.
 ### Track core · the reusable architecture
 
 Owns `service/`, `core/di`, `build-logic/`. Every item here is API the app track then uses;
-nothing here knows a feature.
-
+nothing here knows a feature. Nothing is open: the track closed in round one.
 
 ### Track ui · design system and adaptive
 
-Owns `core/ui` and `feature/gallery`. `ui.5` also edits `app/AppNavHost.kt` and the catalog
-destinations; no app-track item touches those while it is open.
+Owns `core/ui` and `feature/gallery`.
 
 **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 · started, parked on `ui.2-roborazzi`
-Why: 42 components × three variants and thirteen screens sit unasserted; a padding change is
+Why: 47 components × three variants and sixteen screens sit unasserted; a padding change is
 found by eye or not at all.
 Done: Roborazzi 1.74.0 and `ComposablePreviewScanner` 0.9.3 applied through
 `convention.android.library.compose`; the scanner records every `@ComponentPreview` and
@@ -154,12 +152,12 @@ Verify: break one padding value on purpose and the verify task fails on that ima
 dependencies resolve and the plugin applies on AGP 9.4 / Gradle 9.6 / JDK 25.
 **The `private` diagnosis was wrong.** `ComposablePreviewScanner` 0.9.3 already calls ClassGraph's
 `ignoreMethodVisibility()` and `setAccessible(true)`; what the chain was missing is one call.
-Adding `.includePrivatePreviews()` after `scanPackageTrees(...)` returns all 126 of `:core:ui`'s
-previews — 42 components × light, dark and 1.5× — and the parameterised runner then produces a
-test per golden. So **nothing becomes `internal`, and this item never touches `core/ui`'s
+Adding `.includePrivatePreviews()` after `scanPackageTrees(...)` returned all 126 of `:core:ui`'s
+previews when it was measured — 42 components × light, dark and 1.5×, before `ui.7` added five
+more — and the parameterised runner then produces a test per golden. So **nothing becomes `internal`, and this item never touches `core/ui`'s
 previews**; the wiring on `ui.2-roborazzi` applies unchanged on the new layout.
 What is left is a decision the Done line does not settle: **where the test lives.** A module's
-test only scans its own classpath, so `:core:ui`'s copy covers the 42 components and not one
+test only scans its own classpath, so `:core:ui`'s copy covers the components and not one
 screen. Either a copy per `presentation` module — cloned from `feature/template`, so every
 generated feature gets one — or a single copy in `:app`, which sees every module through
 `:core:di` but runs three times over the flavors. Then ~300 goldens to commit, and one
@@ -171,8 +169,6 @@ generated feature gets one — or a single copy in `:app`, which sees every modu
 Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the app shell; `feat.*`
 is one feature per item, each proving one capability the architecture has and no sample uses.
 Each feature is a worktree of its own — they meet only in the registration files.
-
-
 
 **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
 Why: Czech has four plural forms against English's two, so a second locale is what proves
@@ -195,18 +191,6 @@ Done: on a physical device — session round trip through the real Keystore; `St
 with and without the profile, numbers recorded here; predictive back on every screen; "Don't keep
 activities" four screens deep; a cold deep link; TalkBack through Login and Catalog.
 Verify: the numbers, and one line per check here.
-
-**qa.11 Maestro flows in CI** · M · `plugin` D30
-Why: five flows pass on a laptop and run nowhere else, and the log-out flow already caught a bug
-no unit test could — a dialog whose ids were invisible to anything driving the device.
-Done: a `maestro` job in `build.yml` on the weekly schedule and `workflow_dispatch`, on
-`reactivecircus/android-emulator-runner` with an API 35 image, installing `devDebug` and running
-`maestro test .maestro`; the Maestro CLI from the vendor's install script; recordings and logs
-uploaded on failure. The action is third-party and build-only; D27 applies and it earns its line
-on the board through D30.
-Verify: the job passes on the schedule; rename one tag on purpose and the dispatch run fails on
-that flow.
-
 
 ## Backlog
 
