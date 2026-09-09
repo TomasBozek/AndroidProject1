@@ -1,5 +1,6 @@
 package com.example.androidproject1.core.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,9 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
@@ -20,6 +23,11 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  *
  * Its height is the density's row height — 56 dp on touch — so a row is a comfortable target
  * without anything inside it having to grow. [trailing] is where a tag or a value goes.
+ *
+ * [selected] is for a row that is currently *shown elsewhere* — the chosen item of a list–detail
+ * pair on a wide screen. It is not the same as checked, which is [AppCheckbox]'s job and is state
+ * the user set; a selected row is where the app is, and it says so to a screen reader through
+ * `Role.Tab`'s selected state rather than by colour alone.
  */
 @Composable
 fun AppListItem(
@@ -27,18 +35,26 @@ fun AppListItem(
     modifier: Modifier = Modifier,
     supporting: String? = null,
     onClick: (() -> Unit)? = null,
+    selected: Boolean = false,
     trailing: @Composable (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .then(
-                if (onClick != null) {
-                    Modifier.clickable(role = Role.Button, onClick = onClick)
-                } else {
-                    Modifier
+                // A row that can be the shown one reports *which* it is, so a screen reader says
+                // "selected" rather than only "button"; a row that cannot is a plain button.
+                when {
+                    onClick == null -> Modifier
+                    selected -> Modifier.selectable(
+                        selected = true,
+                        role = Role.Tab,
+                        onClick = onClick,
+                    )
+                    else -> Modifier.clickable(role = Role.Button, onClick = onClick)
                 },
             )
+            .background(if (selected) AppTheme.colors.confirm.container else Color.Transparent)
             .defaultMinSize(minHeight = AppTheme.density.listRowHeight)
             .padding(
                 horizontal = AppTheme.spacing.inset.lg,
@@ -64,6 +80,12 @@ fun AppListItem(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppListItem(headline = "Pilsner Urquell", supporting = "0,5 l", onClick = {})
+    AppListItem(
+        headline = "Kofola",
+        supporting = "0,5 l — shown on the right",
+        onClick = {},
+        selected = true,
+    )
     AppListItem(
         headline = "Camera",
         supporting = "android.permission.CAMERA",

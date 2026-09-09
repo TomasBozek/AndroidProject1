@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
@@ -42,6 +44,13 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * Set [numeric] for money and quantities; it asks for the number keyboard and turns on tabular
  * figures, so digits stop shifting under the caret. [password] masks the value and asks for the
  * password keyboard; [keyboardType] overrides the choice when neither fits, as an email does.
+ *
+ * [suffix] is the unit a number is in — `kg`, `%`, `Kc`. It is drawn inside the field rather than
+ * after it, so the unit travels with the value and cannot be read as the label of the next field,
+ * and it is never part of [value]: what the caller gets back is the number alone.
+ *
+ * Set [frame] to `false` for a field inside an [AppFieldGroup], which draws the frame for the whole
+ * group. A framed field inside a framed group is a box in a box.
  */
 @Composable
 fun AppTextField(
@@ -56,6 +65,9 @@ fun AppTextField(
     numeric: Boolean = false,
     keyboardType: KeyboardType? = null,
     password: Boolean = false,
+    suffix: String? = null,
+    size: ControlSize = ControlSize.Medium,
+    frame: Boolean = true,
 ) {
     val colors = AppTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -108,21 +120,40 @@ fun AppTextField(
                 cursorBrush = SolidColor(colors.focusRing),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .defaultMinSize(minHeight = AppTheme.density.minTouchTarget)
-                    .clip(AppTheme.shapes.md)
-                    .background(if (enabled) colors.surfaceSunken else colors.surfaceBase)
-                    .border(ring, borderColor, AppTheme.shapes.md)
+                    .defaultMinSize(minHeight = size.height)
+                    .then(
+                        if (frame) {
+                            Modifier
+                                .clip(AppTheme.shapes.md)
+                                .background(
+                                    if (enabled) colors.surfaceSunken else colors.surfaceBase,
+                                )
+                                .border(ring, borderColor, AppTheme.shapes.md)
+                        } else {
+                            Modifier
+                        },
+                    )
                     .padding(horizontal = AppTheme.spacing.inset.md, vertical = 10.dp),
                 decorationBox = { inner ->
-                    Box {
-                        if (value.isEmpty() && placeholder != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (value.isEmpty() && placeholder != null) {
+                                Text(
+                                    text = placeholder,
+                                    style = AppTheme.typography.bodyMd,
+                                    color = colors.textSecondary,
+                                )
+                            }
+                            inner()
+                        }
+                        if (suffix != null) {
                             Text(
-                                text = placeholder,
-                                style = AppTheme.typography.bodyMd,
+                                text = suffix,
+                                style = AppTheme.typography.labelMd,
                                 color = colors.textSecondary,
+                                modifier = Modifier.padding(start = AppTheme.spacing.inline.sm),
                             )
                         }
-                        inner()
                     }
                 },
             )
@@ -153,4 +184,13 @@ private fun Preview() = ThemedComponentPreview {
     )
     AppTextField(value = "Locked", onValueChange = {}, label = "Till", enabled = false)
     AppTextField(value = "hunter2", onValueChange = {}, label = "Password", password = true)
+    AppTextField(
+        value = "0,420",
+        onValueChange = {},
+        label = "Weight",
+        numeric = true,
+        suffix = "kg",
+    )
+    AppTextField(value = "Small", onValueChange = {}, size = ControlSize.Small)
+    AppTextField(value = "Large", onValueChange = {}, size = ControlSize.Large)
 }

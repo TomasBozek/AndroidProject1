@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +30,9 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  *
  * That is also the rule for when *not* to use one: a switch never guards a destructive choice,
  * because there is nowhere to put the confirmation. Use [AppButton] with a confirm dialog instead.
+ *
+ * [size] moves the track, not the row: the whole row stays the target at every size, so a
+ * [ControlSize.Small] switch in a dense list is still a comfortable thing to hit.
  */
 @Composable
 fun AppSwitch(
@@ -40,13 +42,19 @@ fun AppSwitch(
     modifier: Modifier = Modifier,
     supporting: String? = null,
     enabled: Boolean = true,
+    size: ControlSize = ControlSize.Medium,
 ) {
     val colors = AppTheme.colors
+    val small = size == ControlSize.Small
+    val trackWidth = if (small) 36.dp else 44.dp
+    val trackHeight = if (small) 22.dp else 26.dp
+    val knob = if (small) 18.dp else 22.dp
+    val travel = trackWidth - knob - 2.dp
     val spec = tween<androidx.compose.ui.unit.Dp>(
         AppTheme.motion.toggleMillis,
         easing = AppTheme.motion.toggleEasing,
     )
-    val knobOffset by animateDpAsState(if (checked) 20.dp else 2.dp, spec, label = "switchKnob")
+    val knobOffset by animateDpAsState(if (checked) travel else 2.dp, spec, label = "switchKnob")
     val track by animateColorAsState(
         targetValue = if (checked) colors.confirm.bg else colors.borderStrong,
         animationSpec = tween(AppTheme.motion.toggleMillis, easing = AppTheme.motion.toggleEasing),
@@ -75,8 +83,7 @@ fun AppSwitch(
         }
         Box(
             modifier = Modifier
-                .width(44.dp)
-                .size(width = 44.dp, height = 26.dp)
+                .size(width = trackWidth, height = trackHeight)
                 .clip(AppTheme.shapes.pill)
                 .background(track)
                 .alpha(if (enabled) 1f else 0.5f),
@@ -85,7 +92,7 @@ fun AppSwitch(
             Box(
                 modifier = Modifier
                     .offset(x = knobOffset)
-                    .size(22.dp)
+                    .size(knob)
                     .clip(AppTheme.shapes.pill)
                     .background(colors.surfaceRaised),
             )
@@ -104,4 +111,10 @@ private fun Preview() = ThemedComponentPreview {
         supporting = "Feedback on every key press",
     )
     AppSwitch(checked = false, onCheckedChange = {}, label = "Unavailable", enabled = false)
+    AppSwitch(
+        checked = true,
+        onCheckedChange = {},
+        label = "Small, for a dense list",
+        size = ControlSize.Small,
+    )
 }

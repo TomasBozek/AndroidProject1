@@ -24,6 +24,9 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  *
  * Longer labels or a badge mean [AppTabs] instead; this control has no room to grow and a fifth
  * option makes every one of them unreadable.
+ *
+ * [size] is the height of the whole control; the options divide the width between them whatever it
+ * is, so a small segmented control is shorter rather than narrower.
  */
 @Composable
 fun AppSegmented(
@@ -31,6 +34,7 @@ fun AppSegmented(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    size: ControlSize = ControlSize.Medium,
 ) {
     val colors = AppTheme.colors
     Row(
@@ -46,7 +50,7 @@ fun AppSegmented(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .defaultMinSize(minHeight = AppTheme.density.minTouchTarget)
+                    .defaultMinSize(minHeight = size.height)
                     .background(if (selected) colors.confirm.bg else colors.surfaceSunken)
                     .selectable(
                         selected = selected,
@@ -73,4 +77,10 @@ fun AppSegmented(
 private fun Preview() = ThemedComponentPreview {
     AppSegmented(options = listOf("Today", "Week", "Month"), selectedIndex = 0, onSelect = {})
     AppSegmented(options = listOf("Percent", "Amount"), selectedIndex = 1, onSelect = {})
+    AppSegmented(
+        options = listOf("Today", "Week"),
+        selectedIndex = 0,
+        onSelect = {},
+        size = ControlSize.Small,
+    )
 }

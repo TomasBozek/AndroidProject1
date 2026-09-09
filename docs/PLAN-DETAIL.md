@@ -173,67 +173,6 @@ phones unchanged.
 Verify: the emulator's tablet profile shows both panes, the phone profile one; process death four
 screens deep restores on both.
 
-**ui.7 Components match the design's component document** · M · `stable` · needs qa.13
-Why: the components were ported from the KSD system's `03-Komponenty` by hand and nothing had
-compared them since. The document was read on 2026-09-09 through the Chrome route in the project
-memory; the first pass below is what it found. `DesignSync` after `/design-login` is the tidier
-route for the next read. Waits for `qa.13` because it edits `GalleryCatalog.kt`, which moves.
-Two things the design says in two ways, and the side the code took: its breakpoints are
-720 / 1280 dp in the *Prostor a velikosti* table and 600 / 1000 in *Hustota* — the code follows
-the first; its element ids are `orderDetail_payButton` in document 02 and
-`ksd.pos.payment.preview.btn.toTender` in document 05 — the code and every Maestro flow follow
-02. Both are worth a line in the design source, see *Notes for the design source* below.
-Done: every "gap" row below fixed or turned into an accepted difference with its reason written
-here; `GalleryCatalog` gains a variant for every state the document names, so the gallery becomes
-the running copy of the document; `AppDialog`, `AppSheet` and `AppMenu` join the gallery.
-Verify: no row below still says *gap*; every accepted difference has a reason; the gallery lists
-every component in `core/ui/component`.
-
-The document has two halves. Layer 3 **primitives** (A–G, 41 of them) are what the code ports.
-The **composites** (A–L, some sixty: keypads, order lines, payment, floor plan, stock, shift,
-reports, drawer, print) are the POS product's own and stay out of a template by D19 — a project
-built on this template adds the ones it needs with `create_component.py`.
-
-| Document | Code | State |
-|---|---|---|
-| Text, Money · NumericValue | `AppText` roles | matches |
-| Avatar sm / md / lg | `AppAvatar(size)` | matches; **gap:** the "with status" variant |
-| StatusDot, Tag, Badge | `AppStatusDot`, `AppTag`, `AppBadge` | matches |
-| Kbd | — | accepted difference: a keyboard hint is desktop-only |
-| TextField sm 40 / md 48 / lg 56 | `AppTextField`, one size | **gap:** sizes |
-| NumberField with a unit suffix | `AppTextField(numeric = true)` | **gap:** the suffix |
-| SearchField, Select | `AppSearchField`, `AppSelect` | matches |
-| DateField · TimeField | — | **gap:** a native picker behind the field tokens |
-| SignaturePad | — | product-specific |
-| Button, six kinds × three sizes, loading keeps width | `AppButton` | matches |
-| IconButton sm / md / lg, confirm / destructive, square | `AppIconButton`, one size, one kind | **gap:** sizes, kinds, the square shape |
-| KeyCap | `Modifier.keySurface` only | product-specific; the travel effect is already the modifier |
-| Switch sm / md | `AppSwitch`, one size | **gap:** the small size |
-| Checkbox sm / md, mixed, error, disabled | `AppCheckbox`, one size, no error | **gap:** the error state and the small size |
-| Radio, Segmented sm / md, Stepper | `AppRadio`, `AppSegmented` (one size), `AppStepper` | matches; **gap:** segmented sizes |
-| Slider · RangeSlider | `AppSlider` | **gap:** the range variant |
-| PinDots | — | product-specific |
-| Progress determinate / indeterminate / steps | `AppProgress(fraction)` | **gap:** indeterminate and stepped |
-| Spinner, Skeleton, Toast, Tooltip, EmptyState | the five `App*` | matches |
-| Surface at three levels | `AppCard`, one level | **gap:** sunken and raised-panel levels as one component |
-| Divider horizontal / strong / labelled / vertical | `AppDivider()` | **gap:** the other three |
-| ListRow plain / icon / selected / pressed | `AppListItem` | **gap:** a selected state |
-| Tabs, Accordion, Menu | `AppTabs`, `AppAccordion`, `AppMenu` | matches; Menu is not in the gallery |
-| Breadcrumb · Pagination | — | accepted difference: administration only, no pagination on a phone |
-| ScrollShadow | — | **gap:** the one cue that a list continues on touch |
-| QrCode | — | product-specific until a screen shows one |
-| FormField, DescriptionList, SectionHeader | the three `App*` | matches |
-| FieldGroup | — | **gap:** fields sharing one frame |
-| SwipeAction, LongPressHint | — | product-specific; revisit if a sample list needs a swipe |
-| NoDataCell | `DescriptionRow(value = null)` draws the dash | matches |
-| TopBar, NavRail · BottomNav, Toolbar, BottomActionBar | the four `App*` | matches |
-| Sheet with peek / half / full | `AppSheet` | matches the default; sizes are an accepted difference; not in the gallery |
-| Dialog, ConfirmDialog | `AppDialog`, `AppConfirmDialog` | matches; not in the gallery |
-| ScreenEmpty, ScreenError | `ContentState.Empty` / `.Error` in `:service:core:ui` | matches |
-| ThemeToggle, OnboardingStep | `shell.3`, `shell.5` | scheduled elsewhere |
-| SyncStatusBar · OfflineBanner | a snackbar in `feat.5` | **gap:** the document wants a bar that never covers content |
-| Popover, ActionSheet, FullScreenModal, FilterBar, SideDrawer, SettingsList, ProfileMenu, CommandPalette, ScreenOffline, UpdateBanner, DeviceStatusStrip, FirstRunChecklist and the B–H composites | — | product-specific; a project adds what it needs |
-
 
 ### Track app · shell and sample features
 

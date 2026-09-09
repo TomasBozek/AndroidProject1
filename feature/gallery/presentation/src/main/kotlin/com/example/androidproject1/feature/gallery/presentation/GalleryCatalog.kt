@@ -1,9 +1,18 @@
 package com.example.androidproject1.feature.gallery.presentation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
@@ -12,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
@@ -22,47 +32,68 @@ import com.example.androidproject1.core.ui.component.AppBottomNav
 import com.example.androidproject1.core.ui.component.AppButton
 import com.example.androidproject1.core.ui.component.AppCard
 import com.example.androidproject1.core.ui.component.AppCheckbox
+import com.example.androidproject1.core.ui.component.AppConfirmDialog
+import com.example.androidproject1.core.ui.component.AppDateField
 import com.example.androidproject1.core.ui.component.AppDescriptionList
+import com.example.androidproject1.core.ui.component.AppDialog
 import com.example.androidproject1.core.ui.component.AppDivider
 import com.example.androidproject1.core.ui.component.AppEmptyState
 import com.example.androidproject1.core.ui.component.AppFab
+import com.example.androidproject1.core.ui.component.AppFieldGroup
+import com.example.androidproject1.core.ui.component.AppFieldGroupRow
 import com.example.androidproject1.core.ui.component.AppFormField
 import com.example.androidproject1.core.ui.component.AppIconButton
 import com.example.androidproject1.core.ui.component.AppImage
+import com.example.androidproject1.core.ui.component.AppIndeterminateProgress
+import com.example.androidproject1.core.ui.component.AppLabelledDivider
 import com.example.androidproject1.core.ui.component.AppListItem
+import com.example.androidproject1.core.ui.component.AppMenu
 import com.example.androidproject1.core.ui.component.AppNavRail
 import com.example.androidproject1.core.ui.component.AppProgress
 import com.example.androidproject1.core.ui.component.AppRadio
 import com.example.androidproject1.core.ui.component.AppRadioGroup
+import com.example.androidproject1.core.ui.component.AppRangeSlider
+import com.example.androidproject1.core.ui.component.AppScrollShadow
 import com.example.androidproject1.core.ui.component.AppSearchField
 import com.example.androidproject1.core.ui.component.AppSectionHeader
 import com.example.androidproject1.core.ui.component.AppSegmented
 import com.example.androidproject1.core.ui.component.AppSelect
+import com.example.androidproject1.core.ui.component.AppSheet
 import com.example.androidproject1.core.ui.component.AppSkeleton
 import com.example.androidproject1.core.ui.component.AppSlider
 import com.example.androidproject1.core.ui.component.AppSpinner
 import com.example.androidproject1.core.ui.component.AppStatusDot
+import com.example.androidproject1.core.ui.component.AppStepProgress
 import com.example.androidproject1.core.ui.component.AppStepper
 import com.example.androidproject1.core.ui.component.AppSwitch
 import com.example.androidproject1.core.ui.component.AppTabs
 import com.example.androidproject1.core.ui.component.AppTag
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTextField
+import com.example.androidproject1.core.ui.component.AppTimeField
 import com.example.androidproject1.core.ui.component.AppToast
 import com.example.androidproject1.core.ui.component.AppToolbar
 import com.example.androidproject1.core.ui.component.AppTooltip
 import com.example.androidproject1.core.ui.component.AppTopBar
+import com.example.androidproject1.core.ui.component.AppVerticalDivider
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.ButtonSize
 import com.example.androidproject1.core.ui.component.CheckState
+import com.example.androidproject1.core.ui.component.ControlSize
 import com.example.androidproject1.core.ui.component.DescriptionRow
+import com.example.androidproject1.core.ui.component.IconButtonKind
+import com.example.androidproject1.core.ui.component.MenuItem
 import com.example.androidproject1.core.ui.component.NavItem
+import com.example.androidproject1.core.ui.component.ScrollEdge
+import com.example.androidproject1.core.ui.component.SurfaceLevel
 import com.example.androidproject1.core.ui.component.TabItem
 import com.example.androidproject1.core.ui.component.TagTone
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.component.ToastTone
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryItem
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlin.math.roundToInt
 
 /** One rendered state of a component, with the label that says which state it is. */
@@ -96,7 +127,14 @@ private fun entry(
  * Every component in `:core:ui`, with the states worth looking at.
  *
  * This is the running counterpart to the design system's component document: if something is not
- * here, a screen should not be inventing it.
+ * here, a screen should not be inventing it. A component added to `:core:ui` is added here in the
+ * same change, and a variant the document names is a variant listed here.
+ *
+ * Two files in `core/ui/component` are deliberately not entries. `AppScaffold` is the screen shell
+ * rather than something on a screen — every page of this gallery is already one, so a card
+ * containing a scaffold would demonstrate it worse than the gallery does by existing. `ControlSize`
+ * is the shared sm / md / lg scale and not a component at all; it shows up as the size variants of
+ * the controls that read it.
  */
 val galleryCatalog: List<GalleryEntry> = listOf(
     entry(
@@ -132,6 +170,15 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Action",
         "An icon that does something. The description is required, for the reader and the test.",
         "Default" to { AppIconButton(Icons.Filled.Add, "Add item", {}) },
+        "Confirm" to { AppIconButton(Icons.Filled.Done, "Confirm", {}, kind = IconButtonKind.Confirm) },
+        "Destructive" to {
+            AppIconButton(Icons.Filled.Delete, "Delete", {}, kind = IconButtonKind.Destructive)
+        },
+        "Square — for a row of them" to {
+            AppIconButton(Icons.Filled.Add, "Add item", {}, kind = IconButtonKind.Confirm, square = true)
+        },
+        "Small — pointer only" to { AppIconButton(Icons.Filled.Add, "Add item", {}, size = ControlSize.Small) },
+        "Large" to { AppIconButton(Icons.Filled.Add, "Add item", {}, size = ControlSize.Large) },
         "Disabled" to { AppIconButton(Icons.Filled.Add, "Add item", {}, enabled = false) },
     ),
     entry(
@@ -169,6 +216,17 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             Demo("abc") { value, onChange ->
                 AppTextField(value, onChange, label = "Code", errorText = "No product with this code")
             }
+        },
+        "Unit suffix — the unit is not the value" to {
+            Demo("0,420") { value, onChange ->
+                AppTextField(value, onChange, label = "Weight", numeric = true, suffix = "kg")
+            }
+        },
+        "Small — pointer only" to {
+            Demo("40") { value, onChange -> AppTextField(value, onChange, size = ControlSize.Small) }
+        },
+        "Large" to {
+            Demo("56") { value, onChange -> AppTextField(value, onChange, size = ControlSize.Large) }
         },
         "Disabled" to { AppTextField("Locked", {}, label = "Till", enabled = false) },
     ),
@@ -209,6 +267,24 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Off" to { CheckboxDemo(CheckState.Off, "Email receipt") },
         // Tapping resolves it: a group toggle that is partly on becomes fully on.
         "Indeterminate" to { CheckboxDemo(CheckState.Indeterminate, "All items") },
+        "Error — never colour alone" to {
+            AppCheckbox(
+                CheckState.Off,
+                {},
+                "Accept the terms",
+                errorText = "This has to be ticked before the order can be sent",
+            )
+        },
+        "Small — pointer only" to {
+            Demo(CheckState.On) { checked, onChange ->
+                AppCheckbox(
+                    checked,
+                    { onChange(if (it) CheckState.On else CheckState.Off) },
+                    "Dense list row",
+                    size = ControlSize.Small,
+                )
+            }
+        },
         "Disabled" to { AppCheckbox(CheckState.Off, {}, "Unavailable", enabled = false) },
     ),
     entry(
@@ -239,6 +315,11 @@ val galleryCatalog: List<GalleryEntry> = listOf(
                 AppSwitch(checked, onChange, "Sounds", supporting = "Feedback on every key press")
             }
         },
+        "Small — pointer only" to {
+            Demo(true) { checked, onChange ->
+                AppSwitch(checked, onChange, "Dense list row", size = ControlSize.Small)
+            }
+        },
         "Disabled" to { AppSwitch(false, {}, "Unavailable", enabled = false) },
     ),
     entry(
@@ -251,6 +332,11 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         },
         "Two options" to {
             Demo(1) { selected, onSelect -> AppSegmented(listOf("Percent", "Amount"), selected, onSelect) }
+        },
+        "Small — pointer only" to {
+            Demo(0) { selected, onSelect ->
+                AppSegmented(listOf("Today", "Week"), selected, onSelect, size = ControlSize.Small)
+            }
         },
     ),
     entry(
@@ -274,6 +360,16 @@ val galleryCatalog: List<GalleryEntry> = listOf(
                     onChange,
                     label = "Brightness",
                     valueLabel = "${(value * 100).roundToInt()} %",
+                )
+            }
+        },
+        "Range — a filter, not a total" to {
+            Demo(0.2f..0.7f) { range, onChange ->
+                AppRangeSlider(
+                    range,
+                    onChange,
+                    label = "Price",
+                    valueLabel = "${(range.start * 200).roundToInt()} — ${(range.endInclusive * 200).roundToInt()} Kc",
                 )
             }
         },
@@ -331,6 +427,17 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Two names" to { AppAvatar("Jana Nováková") },
         "Another person" to { AppAvatar("Petr Svoboda") },
         "One name" to { AppAvatar("Root") },
+        "With status — on shift" to {
+            AppAvatar("Jana Nováková", status = TagTone.Paid, statusDescription = "On shift")
+        },
+        "With status — off shift" to {
+            AppAvatar(
+                "Petr Svoboda",
+                size = AppTheme.density.listRowHeight,
+                status = TagTone.Void,
+                statusDescription = "Off shift",
+            )
+        },
     ),
     entry(
         "avatarPhoto",
@@ -356,6 +463,12 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Determinate progress. Past ten seconds the label stops being optional.",
         "Bare" to { AppProgress(0.35f) },
         "Labelled" to { AppProgress(0.8f, label = "Uploading receipts") },
+        "Indeterminate — no share to report" to {
+            AppIndeterminateProgress(label = "Talking to the till")
+        },
+        "Steps — a place in a process" to {
+            AppStepProgress(steps = 4, currentStep = 1, label = "Step 2 of 4")
+        },
     ),
     entry(
         "skeleton",
@@ -384,10 +497,21 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppCard",
         "Content",
         "A raised surface. Three levels exist and no more — the fourth is a dialog.",
-        "Default" to {
+        "Raised — the default" to {
             AppCard {
                 AppText("Notifications", role = TextRole.Title)
                 AppText("Turn these on to hear about orders.", role = TextRole.Secondary)
+            }
+        },
+        "Sunken — an inert panel" to {
+            AppCard(level = SurfaceLevel.Sunken) {
+                AppText("Closed till", role = TextRole.Title)
+                AppText("Read only until the shift is reopened.", role = TextRole.Secondary)
+            }
+        },
+        "Base — grouping only" to {
+            AppCard(level = SurfaceLevel.Base) {
+                AppText("On the ground it is already on", role = TextRole.Secondary)
             }
         },
     ),
@@ -401,6 +525,24 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             AppDivider()
             AppText("Below")
         },
+        "Strong — between two sections" to {
+            AppText("Section")
+            AppDivider(strong = true)
+            AppText("Next section")
+        },
+        "Labelled" to { AppLabelledDivider("EARLIER TODAY") },
+        "Vertical — needs a height" to {
+            Row(
+                modifier = Modifier.height(AppTheme.density.minTouchTarget),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AppText("Left")
+                AppVerticalDivider(
+                    modifier = Modifier.padding(horizontal = AppTheme.spacing.inline.md),
+                )
+                AppText("Right")
+            }
+        },
     ),
     entry(
         "listitem",
@@ -408,6 +550,9 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Content",
         "The base of every list. Its height is the density's row height.",
         "Clickable" to { AppListItem("Pilsner Urquell", supporting = "0,5 l", onClick = {}) },
+        "Selected — the one shown beside it" to {
+            AppListItem("Kofola", supporting = "0,5 l", onClick = {}, selected = true)
+        },
         "With a trailing tag" to {
             AppListItem(
                 "Camera",
@@ -566,6 +711,141 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             AppBottomActionBar(label = "TOTAL", value = "1 248,00", actionLabel = "Pay", onAction = {})
         },
         "Action only" to { AppBottomActionBar(actionLabel = "Continue", onAction = {}) },
+    ),
+    entry(
+        "datefield",
+        "AppDateField",
+        "Form",
+        "A date from the platform's picker. Never typed — 01/02 is January here and February there.",
+        "With a value" to {
+            Demo<LocalDate?>(LocalDate.of(2026, 9, 9)) { value, onChange ->
+                AppDateField(value, { onChange(it) }, label = "Delivery")
+            }
+        },
+        "Empty" to {
+            Demo<LocalDate?>(null) { value, onChange ->
+                AppDateField(value, { onChange(it) }, label = "Closed until")
+            }
+        },
+        "Time" to {
+            Demo<LocalTime?>(LocalTime.of(19, 24)) { value, onChange ->
+                AppTimeField(value, { onChange(it) }, label = "Opened")
+            }
+        },
+        "Disabled" to { AppTimeField(null, {}, label = "Last order", enabled = false) },
+    ),
+    entry(
+        "fieldgroup",
+        "AppFieldGroup",
+        "Form",
+        "Several fields that are one answer, in one frame — an address, a card.",
+        "An address" to {
+            AppFieldGroup(label = "Delivery address", helperText = "Where the order goes") {
+                AppFieldGroupRow {
+                    Demo("Nádražní 12") { v, on -> AppTextField(v, on, frame = false) }
+                }
+                AppFieldGroupRow {
+                    Demo("Praha 5") { v, on -> AppTextField(v, on, frame = false) }
+                }
+                AppFieldGroupRow(last = true) {
+                    Demo("150 00") { v, on -> AppTextField(v, on, frame = false, numeric = true) }
+                }
+            }
+        },
+        "In error — the group carries it, not each row" to {
+            AppFieldGroup(label = "Card", errorText = "This card has expired") {
+                AppFieldGroupRow { AppText("4242 4242 4242 4242", role = TextRole.Numeric) }
+                AppFieldGroupRow(last = true) { AppText("01 / 24", role = TextRole.Numeric) }
+            }
+        },
+    ),
+    entry(
+        "scrollshadow",
+        "AppScrollShadow",
+        "Content",
+        "The cue that a list carries on past the fold. Present only while there is more.",
+        "Both edges of a short list" to {
+            val scroll = rememberScrollState()
+            // Two rows tall, so there is always more of the list than there is room for it.
+            Box(modifier = Modifier.height(AppTheme.density.listRowHeight * 2)) {
+                Column(modifier = Modifier.verticalScroll(scroll)) {
+                    repeat(8) { AppListItem("Row ${it + 1}") }
+                }
+                AppScrollShadow(scroll, ScrollEdge.Top, Modifier.align(Alignment.TopCenter))
+                AppScrollShadow(scroll, ScrollEdge.Bottom, Modifier.align(Alignment.BottomCenter))
+            }
+        },
+    ),
+    entry(
+        "menu",
+        "AppMenu",
+        "Overlay",
+        "Actions on the thing you opened it from. Destructive items sort to the bottom.",
+        "Opens from its anchor" to {
+            var expanded by remember { mutableStateOf(false) }
+            AppMenu(
+                expanded = expanded,
+                onDismiss = { expanded = false },
+                items = listOf(
+                    MenuItem("Rename") { expanded = false },
+                    MenuItem("Duplicate") { expanded = false },
+                    MenuItem("Delete", destructive = true) { expanded = false },
+                ),
+                anchor = {
+                    AppButton("Actions", { expanded = true }, kind = ButtonKind.Outline)
+                },
+            )
+        },
+    ),
+    entry(
+        "sheet",
+        "AppSheet",
+        "Overlay",
+        "The default way to open a detail on a phone. The handle is always drawn.",
+        "Opens over the screen" to {
+            var open by remember { mutableStateOf(false) }
+            AppButton("Open the sheet", { open = true })
+            if (open) {
+                AppSheet(onDismiss = { open = false }, title = "Payment method") {
+                    AppText("Everything inside a sheet is in a window of its own.", role = TextRole.Secondary)
+                    AppButton("Close", { open = false }, kind = ButtonKind.Neutral)
+                }
+            }
+        },
+    ),
+    entry(
+        "dialog",
+        "AppDialog",
+        "Overlay",
+        "The top layer. The confirming button carries a verb — \"Void order\", never \"OK\".",
+        "Dialog with actions" to {
+            var open by remember { mutableStateOf(false) }
+            AppButton("Open the dialog", { open = true })
+            if (open) {
+                AppDialog(
+                    title = "Void this order?",
+                    message = "The items go back to stock.",
+                    onDismiss = { open = false },
+                    actions = {
+                        AppButton("Cancel", { open = false }, kind = ButtonKind.Ghost)
+                        AppButton("Void order", { open = false }, kind = ButtonKind.Destructive)
+                    },
+                )
+            }
+        },
+        "Confirm dialog — the gap is deliberate" to {
+            var open by remember { mutableStateOf(false) }
+            AppButton("Open the confirm dialog", { open = true }, kind = ButtonKind.Destructive)
+            if (open) {
+                AppConfirmDialog(
+                    title = "Void this order?",
+                    message = "The items go back to stock and the order is closed.",
+                    confirmLabel = "Void order",
+                    onConfirm = { open = false },
+                    onDismiss = { open = false },
+                )
+            }
+        },
     ),
 )
 

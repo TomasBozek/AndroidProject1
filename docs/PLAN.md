@@ -176,9 +176,9 @@ version of every open item is in the detail file under the same id.
 - [ ] **ui.5 List–detail for the catalog on wide screens** · M · `stable` · needs ui.4
 - [x] (2026-09-09) **ui.6 Gallery demos are interactive** · S · `stable` — every demo holds its
   own state, so a checkbox in the gallery toggles; a screen test proves it
-- [ ] **ui.7 Components match the design's component document** · M · `stable` · needs qa.13 —
-  each of the 42 audited against `03-Komponenty`; the gap table is written, the gaps are not closed
-- [x] (2026-09-09) **ui.8 Icon roles** · S · `stable` D33 · needs qa.13 — `AppTheme.icons` with the three
+- [x] (2026-09-09) **ui.7 Components match the design's component document** · M · `stable` —
+  every gap row closed or accepted with its reason in the KDoc; the gallery is the running copy
+- [x] (2026-09-09) **ui.8 Icon roles** · S · `stable` D33 — `AppTheme.icons` with the three
   sizes; no icon size literal outside the theme
 - [x] (2026-09-09) **ui.9 Contrast is asserted** · S · `stable` — a JVM test over every
   text-on-surface and border-on-surface pair in both palettes, the design's check five
