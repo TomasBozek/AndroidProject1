@@ -222,3 +222,86 @@ top of *Start now* as the next round. One commit, `Plan: round one merged`.
 
 If a worker's PR body reports an item not finished, leave its board line `[ ]` and its detail
 section in place, and say so in the plan commit — do not try to finish it during the merge.
+
+---
+
+# Round two · the two-worker split
+
+Round one left three items. `qa.5` is **not in this round** — it is the hardware pass and needs a
+person holding the device (D21), so it keeps its `[ ]` line and waits. The other two are
+independent of each other and run in parallel, one worktree each, one PR each.
+
+| Worker | Branch · worktree | Item | Owns |
+|---|---|---|---|
+| **A · screenshots** | `r2-ui2` · `../AndroidProject1-ui2` | ui.2 | `build-logic/`, `feature/template`'s test, each module's screenshot test + goldens, the CI build job |
+| **B · Czech** | `r2-feat9` · `../AndroidProject1-feat9` | feat.9 | every `res/values-cs/` |
+
+Both worktrees are cut from `d7c0ce9` with `local.properties` already copied in.
+
+**They meet in exactly two places,** and both are additive: `feature/template` (worker A adds a
+test file, worker B adds a `values-cs/strings.xml`) and `scripts/test_scripts.py`, if either
+one's addition changes what the generators are expected to emit. Keep both sides on a conflict.
+Neither touches the other's file types — A writes Kotlin, goldens and build logic; B writes XML.
+
+## Gate policy — build rarely, check cheaply
+
+Per item: `python3 scripts/doctor.py` plus the affected module's own task. Run the full gate —
+`doctor.py && test_scripts.py && ./gradlew ktlintCheck && ./gradlew build` — after a batch of
+work and always as the last thing before opening the PR. Never open a PR without a final full
+gate that passes; report its result in the body. Two agents share a 10-core machine, so the full
+build is the expensive step.
+
+## Worker A · ui.2 Screenshot tests with Roborazzi
+
+**D35 is decided: one test per `presentation` module, cloned from `feature/template`.** So a
+feature the generator creates tomorrow gets its screenshot test the same way it already gets its
+screen test, and nothing runs three times over the flavors.
+
+The toolchain half is proven and the old blocker was a misdiagnosis: **previews stay `private`**
+and this item never edits them. Start from the parked branch `ui.2-roborazzi` — take its wiring
+with `git diff main...ui.2-roborazzi` and re-apply it, do not merge or cherry-pick the branch. It
+holds Roborazzi + `ComposablePreviewScanner` in `libs.versions.toml`, the plugin in
+`build.gradle.kts`, the two `build-logic` files, and a `PreviewScreenshotTest` written for
+`:core:ui`.
+
+The one call the scanner chain was missing is `.includePrivatePreviews()` after
+`scanPackageTrees(...)`. With it, `:core:ui` scanned all of its previews and the parameterised
+runner produced a test per golden.
+
+Done: the wiring applied through `convention.android.library.compose`; a screenshot test in
+`feature/template` so `create_feature.py` clones it, and one in each of the ten `presentation`
+modules and `:core:ui`; goldens recorded and committed; `verifyRoborazziDebug` in the CI **build**
+job. Verify: break one padding value on purpose, the verify task fails on that image only,
+restore it.
+
+Watch for: the goldens are the bulk of the diff — check none is blank or clipped before
+committing, because a wrong golden is a test that passes forever. `scripts/test_scripts.py` may
+need its expected-generated-files list updated once the template gains a file.
+
+## Worker B · feat.9 Czech alongside English
+
+Done: `values-cs/strings.xml` in every `presentation` module, in `:core:ui`, and in
+`:service:core:ui` — whose `core_*` strings ship to consumers, so they are part of the contract.
+Hand-written, no pipeline; `%d` and `%s` positions preserved. Verify: every `<string>` and
+`<plurals>` name in `values/` has a `values-cs/` counterpart; the cart's "N items" reads
+correctly at 1, 2 and 5 under `cs`; no screen clips at Czech's longer words.
+
+Czech has four plural forms against English's two, which is the point of the item — it is what
+proves `toPluralUiText` rather than decorating it. Add `feature/template`'s `values-cs` too, so a
+generated feature starts bilingual.
+
+Watch for: a missing `values-cs` counterpart is the failure this item exists to prevent, so
+consider whether it is worth a `doctor.py` check appended at the end of the file — that is the
+kind of change the scope rules allow when an item forces it.
+
+## Both
+
+One commit per item titled `<id> <title>` as the board spells it, ending with the
+`Co-Authored-By` trailer; push after the commit; flip only your own board line to `[x] (date)`
+and delete only your own detail section; leave the dashboard, track rows, total and *Start now*
+alone. Open the PR with `gh pr create` against `main`, titled `<id> <title>`, its body listing
+the gate result and any file outside your own area. Do not start an emulator.
+
+When both PRs are open, one merge pass: rebase-merge A then B, gate after each, then recompute
+the dashboard, refresh coverage with `./gradlew koverXmlReport`, and leave `qa.5` as the only
+open item.

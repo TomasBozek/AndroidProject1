@@ -111,6 +111,7 @@ D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is
 | D32 | Store upload | **Decided 2026-09-09 with `qa.12`: none.** A GitHub release carrying the APK is the release |
 | D33 | Icon set | **Decided 2026-09-09: Material icons stay; the three sizes are `AppTheme.icons.sm/md/lg`.** The design names Lucide, which has no first-party Compose artifact |
 | D34 | Presentation layout | **Decided 2026-09-09: a directory per screen, even a lone one, and a file per component in the feature's `component/`** |
+| D35 | `ui.2` test home | **Decided 2026-09-09: one screenshot test per `presentation` module, cloned from `feature/template`** — a generated feature gets one for free, and nothing runs three times over the flavors |
 
 ## Dependencies
 
