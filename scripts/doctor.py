@@ -38,8 +38,10 @@ from _common import (  # noqa: E402
 
 SCREEN_FILE_SUFFIXES = ["Destination", "Screen", "State", "Event", "Navigation", "ViewModel"]
 
-# The seventh file lives in the test source set rather than beside the other six.
-SCREEN_TEST_SUFFIX = "ViewModelTest"
+# The seventh and eighth files live in the test source set rather than beside the other six, and
+# they answer different questions: a ViewModel test says what the state becomes, a screen test says
+# what is on screen and what a tap does. Neither substitutes for the other, so both are required.
+SCREEN_TEST_SUFFIXES = ["ViewModelTest", "ScreenTest"]
 
 # Files in a presentation module that end in `Destination` or `NavGraph` but are not screens.
 NOT_A_SCREEN = re.compile(r"(NavGraph)\.kt$")
@@ -157,7 +159,7 @@ def check_resource_prefix() -> list[str]:
 # --------------------------------------------------------------------------------------------
 
 
-@check("every screen is a complete seven-file unit")
+@check("every screen is a complete eight-file unit")
 def check_screen_units() -> list[str]:
     problems = []
     for feature in feature_names():
@@ -170,11 +172,12 @@ def check_screen_units() -> list[str]:
                 if not sibling.is_file():
                     problems.append(problem(destination, None, f"screen '{screen}' is missing {sibling.name}"))
 
-            test_file = test_dir_for(destination, feature) / f"{screen}{SCREEN_TEST_SUFFIX}.kt"
-            if not test_file.is_file():
-                problems.append(
-                    problem(destination, None, f"screen '{screen}' is missing {test_file.name} — generate it, don't skip it")
-                )
+            for suffix in SCREEN_TEST_SUFFIXES:
+                test_file = test_dir_for(destination, feature) / f"{screen}{suffix}.kt"
+                if not test_file.is_file():
+                    problems.append(
+                        problem(destination, None, f"screen '{screen}' is missing {test_file.name} — generate it, don't skip it")
+                    )
     return problems
 
 

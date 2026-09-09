@@ -197,7 +197,7 @@ version of every open item is in the detail file under the same id.
 - [ ] **shell.6 Tests for the app shell** · S · `stable` — tab segments and the session switch;
   the package leaves 12 %
 - [ ] **feat.4 Search — proves inline error per content id** · M · `stable` · needs qa.13
-- [ ] **feat.8 A screen test for every screen** · M · `stable` · needs qa.13 — the seven screens
+- [x] (2026-09-09) **feat.8 A screen test for every screen** · M · `stable` · needs qa.13 — the seven screens
   without one, then `doctor.py` requires it
 - [ ] **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
 

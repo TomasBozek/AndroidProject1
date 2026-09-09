@@ -380,16 +380,6 @@ and empty state; recents in DataStore.
 Verify: a ViewModel test with `advanceTimeBy` for the debounce and one for a failure on one id
 leaving the other; a screen test.
 
-**feat.8 A screen test for every screen** · M · `stable`
-Why: six screens have one and seven do not — SignUp, Categories, Products, Home, Settings,
-Permissions and Gallery. The template ships the pattern; the older screens predate it.
-Done: the seven, each in the shape the template generates — renders the fixed state, finds by
-tag, asserts the event a tap emits. Then `doctor.py`'s `SCREEN_TEST_SUFFIXES` gains `ScreenTest`
-and the screen unit becomes eight files; that is this item's own verification and its last
-commit, because until the seven exist the check would redden every worktree's gate.
-Verify: `./gradlew test`; `doctor.py` green only once all seven are written; each test fails when
-its screen's tag is renamed on purpose.
-
 **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
 Why: Czech has four plural forms against English's two, so a second locale is what proves
 `toPluralUiText` rather than decorating it. Last in the track on purpose: translating strings for

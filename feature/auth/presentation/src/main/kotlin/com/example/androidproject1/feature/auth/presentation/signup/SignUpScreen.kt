@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.androidproject1.core.ui.common.ScreenPreview
@@ -42,7 +43,9 @@ fun SignUpScreen(
                 onValueChange = { onEvent(SignUpEvent.EmailChanged(it)) },
                 label = stringResource(R.string.sign_up_email),
                 keyboardType = KeyboardType.Email,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("signUp_emailField"),
             )
             AppTextField(
                 value = state.password.value,
@@ -50,7 +53,9 @@ fun SignUpScreen(
                 onValueChange = { onEvent(SignUpEvent.PasswordChanged(it)) },
                 label = stringResource(R.string.sign_up_password),
                 password = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("signUp_passwordField"),
             )
             AppTextField(
                 value = state.confirmPassword.value,
@@ -58,18 +63,23 @@ fun SignUpScreen(
                 onValueChange = { onEvent(SignUpEvent.ConfirmPasswordChanged(it)) },
                 label = stringResource(R.string.sign_up_confirm_password),
                 password = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("signUp_confirmPasswordField"),
             )
             AppButton(
                 label = stringResource(R.string.sign_up_submit),
                 onClick = { onEvent(SignUpEvent.SignUpClicked) },
                 enabled = state.canSubmit,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("signUp_submitButton"),
             )
             AppButton(
                 label = stringResource(R.string.sign_up_login),
                 onClick = { onEvent(SignUpEvent.LoginClicked) },
                 kind = ButtonKind.Ghost,
+                modifier = Modifier.testTag("signUp_loginButton"),
             )
         }
     }

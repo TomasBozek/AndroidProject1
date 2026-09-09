@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
@@ -25,11 +26,16 @@ fun CategoriesScreen(
         topBar = { AppTopBar(title = stringResource(R.string.categories_title)) },
         contentPadding = false,
     ) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("categories_list"),
+        ) {
             items(state.categories, key = { it.id }) { category ->
                 AppListItem(
                     headline = category.name,
                     onClick = { onEvent(CategoriesEvent.CategoryClicked(category)) },
+                    modifier = Modifier.testTag("categories_item"),
                 )
                 AppDivider()
             }
