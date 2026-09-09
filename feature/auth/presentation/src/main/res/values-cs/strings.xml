@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Přihlášení</string>
+    <string name="login_email">E-mail</string>
+    <string name="login_password">Heslo</string>
+    <string name="login_submit">Přihlásit se</string>
+    <string name="login_skip">Přeskočit přihlášení</string>
+    <string name="login_sign_up">Nemáte účet? Zaregistrujte se</string>
+    <string name="sign_up_title">Registrace</string>
+    <string name="sign_up_email">E-mail</string>
+    <string name="sign_up_password">Heslo</string>
+    <string name="sign_up_confirm_password">Potvrzení hesla</string>
+    <string name="sign_up_submit">Zaregistrovat se</string>
+    <string name="sign_up_login">Už máte účet? Přihlaste se</string>
+</resources>

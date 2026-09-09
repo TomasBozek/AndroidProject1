@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidProject1</string>
+
+    <string name="tab_home">Domů</string>
+    <string name="tab_catalog">Katalog</string>
+    <string name="tab_cart">Košík</string>
+    <string name="tab_settings">Nastavení</string>
+
+    <string name="notification_channel_general">Obecné</string>
+
+    <string name="debug_notification_title">Test přímého odkazu</string>
+    <string name="debug_notification_text">Klepnutím otevřete produkt po studeném startu.</string>
+</resources>

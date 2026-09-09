@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Czech. These ship to every app built on this template, so they stay generic — no shop
+    vocabulary. core_field_min_length carries all four Czech plural forms; `many` is the
+    decimal one („1,5 znaku“) and the one a hand-written translation forgets.
+-->
+<resources>
+    <string name="core_loading">Načítání…</string>
+    <string name="core_action_ok">OK</string>
+    <string name="core_action_retry">Zkusit znovu</string>
+    <string name="core_alert_error_title">Něco se pokazilo</string>
+    <string name="core_error_unexpected">Něco se pokazilo. Zkuste to prosím znovu.</string>
+    <string name="core_error_no_connection">Bez připojení k internetu. Zkontrolujte síť a zkuste to znovu.</string>
+    <string name="core_error_server_unavailable">Server je momentálně nedostupný.</string>
+    <string name="core_empty_message">Zatím tu nic není.</string>
+    <string name="core_permission_allow">Povolit</string>
+    <string name="core_permission_open_settings">Otevřít nastavení</string>
+
+    <string name="core_field_required">Toto pole je povinné.</string>
+    <string name="core_field_email">Zadejte platnou e-mailovou adresu.</string>
+    <string name="core_field_mismatch">Neshodují se.</string>
+    <plurals name="core_field_min_length">
+        <item quantity="one">Musí mít alespoň %d znak.</item>
+        <item quantity="few">Musí mít alespoň %d znaky.</item>
+        <item quantity="many">Musí mít alespoň %d znaku.</item>
+        <item quantity="other">Musí mít alespoň %d znaků.</item>
+    </plurals>
+</resources>

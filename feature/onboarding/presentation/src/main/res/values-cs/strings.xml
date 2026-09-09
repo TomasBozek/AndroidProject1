@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_page_browse_title">Vše, co obchod nabízí</string>
+    <string name="onboarding_page_browse_body">Procházejte kategorie nebo hledejte, když už víte, co sháníte.</string>
+    <string name="onboarding_page_cart_title">Košík, který počká</string>
+    <string name="onboarding_page_cart_body">Přidávejte si, co se vám líbí. Až se vrátíte, zůstane všechno v košíku.</string>
+    <string name="onboarding_page_account_title">Váš účet</string>
+    <string name="onboarding_page_account_body">Přihlaste se, aby vám zůstal profil. Vzhled aplikace změníte v Nastavení.</string>
+    <string name="onboarding_next">Další</string>
+    <string name="onboarding_start">Začít</string>
+    <string name="onboarding_skip">Přeskočit</string>
+</resources>

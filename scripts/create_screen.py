@@ -36,6 +36,7 @@ from _common import (  # noqa: E402
     TEMPLATE_CLASS,
     TEMPLATE_FEATURE,
     TEMPLATE_RESOURCE_PREFIX,
+    TRANSLATED_LOCALES,
     edit_file,
     feature_koin_module_file,
     insert_after_last,
@@ -96,7 +97,13 @@ TEMPLATE_TEST_DIR = (
     / BASE_PATH / "feature" / TEMPLATE_FEATURE / "presentation"
 )
 
-TEMPLATE_STRINGS = TEMPLATE_PRESENTATION_DIR / "src/main/res/values/strings.xml"
+# The template's strings, one file per locale. `create_screen.py` merges the new screen's names
+# into every one of them, because doctor.py's translation check reads them all — a screen whose
+# Czech was skipped fails the gate at the commit that generated it, not a release later.
+TEMPLATE_STRINGS = {
+    locale: TEMPLATE_PRESENTATION_DIR / f"src/main/res/{directory}/strings.xml"
+    for locale, directory in (("default", "values"), *((code, f"values-{code}") for code in TRANSLATED_LOCALES))
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -188,15 +195,24 @@ def rewrite_arguments(text: str, arguments: list[tuple[str, str]]) -> str:
     return text
 
 
-def template_string_entries(screen_pascal: str, screen_snake: str, resource_prefix: str, class_name: str) -> dict[str, str]:
+def template_string_entries(
+    source: Path,
+    screen_pascal: str,
+    screen_snake: str,
+    resource_prefix: str,
+    class_name: str,
+) -> dict[str, str]:
     """
     Maps the template's `template_*` strings onto the new screen's `<snake>_*` names.
 
     Without this a generated screen references `R.string.template_title`, which only exists in the
     template feature — and two screens in one feature would fight over the same name.
+
+    `source` is one locale's file. The rename is by resource name, which every locale shares, so
+    the same mapping runs over `values/` and `values-cs/` alike.
     """
     entries = {}
-    for name, value in read_string_resources(TEMPLATE_STRINGS).items():
+    for name, value in read_string_resources(source).items():
         if not name.startswith(f"{resource_prefix}_"):
             continue
         # `template_args_title` must not match the plain `template_` prefix as well.
@@ -402,16 +418,19 @@ def main() -> None:
     if not wrote_any:
         sys.exit("Nothing was generated.")
 
-    merge_strings_xml(
-        feature_presentation / "src/main/res/values/strings.xml",
-        template_string_entries(
-            screen_pascal,
-            screen_snake,
-            TEMPLATE_ARGS_RESOURCE_PREFIX if arguments else TEMPLATE_RESOURCE_PREFIX,
-            TEMPLATE_ARGS_CLASS if arguments else TEMPLATE_CLASS,
-        ),
-        args.dry_run,
-    )
+    for locale, template_strings in TEMPLATE_STRINGS.items():
+        directory = "values" if locale == "default" else f"values-{locale}"
+        merge_strings_xml(
+            feature_presentation / f"src/main/res/{directory}/strings.xml",
+            template_string_entries(
+                template_strings,
+                screen_pascal,
+                screen_snake,
+                TEMPLATE_ARGS_RESOURCE_PREFIX if arguments else TEMPLATE_RESOURCE_PREFIX,
+                TEMPLATE_ARGS_CLASS if arguments else TEMPLATE_CLASS,
+            ),
+            args.dry_run,
+        )
 
     register_in_koin(feature, screen_pascal, sub_package, args.dry_run)
 

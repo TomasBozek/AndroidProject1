@@ -183,16 +183,6 @@ Owns `app/` and `feature/*` except `gallery` and `template`. `shell.*` is the ap
 is one feature per item, each proving one capability the architecture has and no sample uses.
 Each feature is a worktree of its own — they meet only in the registration files.
 
-**feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
-Why: Czech has four plural forms against English's two, so a second locale is what proves
-`toPluralUiText` rather than decorating it. Last in the track on purpose: translating strings for
-screens not yet written is waste.
-Done: `values-cs/strings.xml` in every `presentation` module, `:core:ui` and `:service:core:ui`
-(whose `core_*` strings ship to consumers); hand-written, no pipeline; `%d` and `%s` positions
-preserved.
-Verify: every `<string>` and `<plurals>` name in `values/` has a `values-cs/` counterpart; the
-cart's "N items" reads correctly at 1, 2 and 5 under `cs`; no screen clips at Czech's longer words.
-
 **shell.7 A deep link to an uncached product opens on "no longer available"** · M · `stable`
 Why: `DefaultCatalogRepository.getProduct` reads the local table only — "detail is always reached
 from a list, so the product is already in the table", which `shell.1` stopped being true. `qa.5`

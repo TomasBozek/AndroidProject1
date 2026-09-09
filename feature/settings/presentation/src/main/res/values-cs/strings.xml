@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Nastavení</string>
+    <string name="settings_signed_in_as">Přihlášeno jako</string>
+    <string name="settings_no_email">—</string>
+    <string name="settings_logout">Odhlásit se</string>
+    <string name="settings_logout_title">Odhlášení</string>
+    <string name="settings_logout_confirmation">Opravdu se chcete odhlásit?</string>
+    <string name="settings_logout_confirm">Odhlásit se</string>
+    <string name="settings_logout_cancel">Zrušit</string>
+    <string name="settings_profile">Profil</string>
+    <string name="settings_permissions">Oprávnění</string>
+    <string name="settings_debug_menu">Nabídka ladění</string>
+    <string name="settings_theme">Motiv</string>
+    <string name="settings_theme_system">Systémový</string>
+    <string name="settings_theme_light">Světlý</string>
+    <string name="settings_theme_dark">Tmavý</string>
+
+    <string name="settings_permissions_title">Oprávnění</string>
+    <string name="settings_permissions_back">Zpět</string>
+    <string name="settings_permissions_granted">Povoleno</string>
+    <string name="settings_permissions_denied">Nepovoleno</string>
+    <string name="settings_permissions_notifications_title">Oznámení</string>
+    <string name="settings_permissions_notifications_message">Povolte oznámení, aby vás aplikace mohla upozornit, když se něco stane.</string>
+    <string name="settings_permissions_allow">Povolit</string>
+    <string name="settings_permissions_open_settings">Otevřít nastavení systému</string>
+</resources>

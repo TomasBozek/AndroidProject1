@@ -184,7 +184,9 @@ version of every open item is in the detail file under the same id.
 - [x] (2026-09-09) **feat.4 Search — proves inline error per content id** · M · `stable`
 - [x] (2026-09-09) **feat.8 A screen test for every screen** · M · `stable` — the seven screens
   without one, then `doctor.py` requires it
-- [ ] **feat.9 Czech alongside English** · M · `stable` D24 · needs feat.4, feat.8
+- [x] (2026-09-10) **feat.9 Czech alongside English** · M · `stable` D24 — `values-cs` in all
+  thirteen string modules, the four Czech plural forms, and `doctor.py` fails on a module that
+  ships one locale and not the other
 - [ ] **shell.7 A deep link to an uncached product opens on "no longer available"** · M · `stable`
   — found by `qa.5`
 - [ ] **shell.8 Every screen that is not a root carries an Up control** · S · `stable` — found by

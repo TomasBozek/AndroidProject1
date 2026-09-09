@@ -345,6 +345,18 @@ move. A component a *second feature* wants goes to `:core:ui`, also through
   prefix per module: `:feature:auth:presentation` legitimately ships both `login_` and `sign_up_`,
   and a path-derived prefix could never match `user_profile_title` in a directory called
   `userprofile`.
+- **Every string ships in every locale.** A `res/values/strings.xml` has a `res/values-cs/strings.xml`
+  beside it declaring the same names, and `doctor.py` fails on a module that is missing one — which
+  is precisely the case lint's `MissingTranslation` cannot see, because a module with no `values-cs`
+  at all looks to lint like a module that ships one language. `create_feature.py` clones both from
+  `feature/template` and `create_screen.py` merges a new screen's strings into both, so a generated
+  feature starts bilingual. Czech has four CLDR plural forms against English's two — `one` / `few` /
+  `many` / `other` — and `doctor.py` requires all four; `many` is the decimal form („1,5 znaku“) and
+  the one a hand-written translation forgets. A `%s` is filled at runtime with a phrase in a fixed
+  form, so a translated sentence must not put it where the language needs a different case: see
+  `cart_checkout_message`, worded around a count phrase that is always nominative. The locale list is
+  `TRANSLATED_LOCALES` in `scripts/_common.py` — a second language is one entry there and a
+  directory per module.
 - **A screen without a `Scaffold` pads itself with `.safeDrawingPadding()`.** The activity is edge to
   edge and `Screen()` applies no insets, so `Scaffold`-based screens are not padded twice.
 
@@ -753,9 +765,10 @@ it lives in, a screen file holding nothing but the screen, `XState.PREVIEW`, an
 `init` block that clears `loading`, cross-feature `presentation` dependencies, a repository importing a
 data source implementation, module registration in `settings.gradle.kts`, ViewModel/Koin/AppNavHost
 registration, the module tree above matching the `feature/` directories on disk, a module build file
-repeating the shared Android configuration, hardcoded dependency coordinates, and every `id:` a
+repeating the shared Android configuration, hardcoded dependency coordinates, every `id:` a
 Maestro flow drives existing in the code as a `testTag` or a `screenId` — the reverse, a tag no flow
-uses, is printed as a note rather than failed.
+uses, is printed as a note rather than failed — and every string having a counterpart, with the
+locale's full set of plural forms, in every `values-<locale>` the project ships.
 Exits non-zero, so it can gate CI; `--list` prints the checks. Since there is no detekt/ktlint here,
 this is the only automated defence these rules have.
 

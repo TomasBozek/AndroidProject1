@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dev_menu_title">Nabídka ladění</string>
+    <string name="dev_menu_build">Sestavení</string>
+    <string name="dev_menu_flavor">Varianta</string>
+    <string name="dev_menu_application_id">Application id</string>
+    <string name="dev_menu_version">Verze</string>
+    <string name="dev_menu_base_url">Base URL</string>
+    <string name="dev_menu_leaks">Detekce úniků paměti</string>
+    <string name="dev_menu_leaks_on">LeakCanary hlídá</string>
+    <string name="dev_menu_leaks_off">V tomto sestavení vypnuto</string>
+    <string name="dev_menu_session">Relace</string>
+    <string name="dev_menu_session_none">Odhlášeno</string>
+    <string name="dev_menu_network">Síť</string>
+    <string name="dev_menu_offline">Simulovat výpadek serveru</string>
+    <string name="dev_menu_offline_supporting">Každý požadavek selže s 503, takže si lze projít uložené obrazovky ručně.</string>
+    <string name="dev_menu_tools">Nástroje</string>
+    <string name="dev_menu_components">Komponenty</string>
+    <string name="dev_menu_notification">Odeslat testovací oznámení</string>
+    <string name="dev_menu_notification_posted">Odesláno – klepnutím otevřete produkt</string>
+    <string name="dev_menu_notification_blocked">Oznámení jsou pro tuto aplikaci vypnutá</string>
+    <string name="dev_menu_crash">Zaznamenat testovací hlášení</string>
+    <string name="dev_menu_crash_recorded">Odesláno do hlášení chyb</string>
+</resources>

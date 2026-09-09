@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting">Ahoj, Androide!</string>
+    <string name="home_favourites_title">Oblíbené</string>
+    <string name="home_favourites_empty_title">Žádné oblíbené</string>
+    <string name="home_favourites_empty">Zatím nic uloženého. Klepnutím na srdíčko u produktu ho přidáte do oblíbených.</string>
+    <string name="home_favourite_remove">Odebrat z oblíbených: %1$s</string>
+    <string name="home_favourite_removed">Odebráno z oblíbených</string>
+    <string name="home_favourite_undo">Zpět</string>
+</resources>

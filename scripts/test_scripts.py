@@ -19,6 +19,7 @@ Plain `unittest`, so there is no dependency to install.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -96,6 +97,9 @@ class ScaffoldingTest(unittest.TestCase):
     def assert_doctor_passes(self) -> None:
         result = self.run_script("doctor.py", expect_success=False)
         self.assertEqual(0, result.returncode, f"doctor.py reported problems:\n{result.stdout}")
+
+    def resource_names(self, strings_xml: str) -> set[str]:
+        return set(re.findall(r'<(?:string|plurals) name="([^"]+)"', strings_xml))
 
     def tree_snapshot(self) -> set[tuple[str, int]]:
         return {
@@ -242,6 +246,44 @@ class ScaffoldingTest(unittest.TestCase):
             "import com.example.androidproject1.feature.userprofile.presentation.detail.UserProfileDetailViewModel",
             module,
         )
+        self.assert_doctor_passes()
+
+    def test_create_feature_translates_the_strings_it_renames(self) -> None:
+        """feat.9: a generated feature starts bilingual, or doctor.py fails on the next commit."""
+        self.run_script("create_feature.py", "userProfile")
+
+        czech = self.read("feature/userprofile/presentation/src/main/res/values-cs/strings.xml")
+        self.assertIn('name="user_profile_title"', czech)
+        self.assertNotIn("template_", czech)
+
+        default = self.read("feature/userprofile/presentation/src/main/res/values/strings.xml")
+        self.assertEqual(
+            self.resource_names(default),
+            self.resource_names(czech),
+            "values/ and values-cs/ must declare the same names",
+        )
+
+    def test_create_screen_adds_its_strings_to_every_locale(self) -> None:
+        """The bug this exists for: the new screen's Czech was merged into `values/` only."""
+        self.run_script("create_feature.py", "userProfile")
+        self.run_script("create_screen.py", "userprofile", "UserProfileList")
+
+        for directory in ("values", "values-cs"):
+            strings = self.read(f"feature/userprofile/presentation/src/main/res/{directory}/strings.xml")
+            self.assertIn('name="user_profile_list_title"', strings, directory)
+            self.assertNotIn("template_", strings, directory)
+
+        self.assert_doctor_passes()
+
+    def test_create_screen_with_args_adds_its_strings_to_every_locale(self) -> None:
+        """The args screen has its own `template_args_*` set, which is renamed separately."""
+        self.run_script("create_feature.py", "userProfile")
+        self.run_script("create_screen.py", "userprofile", "UserProfileDetail", "--with-args", "userId:String")
+
+        for directory in ("values", "values-cs"):
+            strings = self.read(f"feature/userprofile/presentation/src/main/res/{directory}/strings.xml")
+            self.assertIn('name="user_profile_detail_title"', strings, directory)
+
         self.assert_doctor_passes()
 
     def test_create_screen_twice_does_not_collide_on_strings(self) -> None:

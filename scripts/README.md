@@ -33,11 +33,11 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 | Script | What it does | Registers |
 |---|---|---|
 | `create_feature.py` | Clones `feature/template` into a new feature | `settings.gradle.kts`, `core/di/build.gradle.kts`, `Koin.kt`, `AppNavHost.kt` |
-| `create_screen.py` | The eight-file screen unit, in a directory of its own, in an existing feature | the ViewModel in the feature's Koin module, the destination in `AppNavHost.kt` |
+| `create_screen.py` | The eight-file screen unit, in a directory of its own, in an existing feature | the ViewModel in the feature's Koin module, the destination in `AppNavHost.kt`, its strings in every locale |
 | `create_component.py` | A Compose component and its preview, in `:core:ui` or a feature's `component/` | nothing — a component needs none |
 | `create_datasource.py` | Data source across `data`, optionally its repository in `domain` | the Koin bindings |
 | `delete_feature.py` | The inverse of `create_feature.py` | undoes all five |
-| `doctor.py` | 28 checks a compiler cannot make | — |
+| `doctor.py` | 30 checks a compiler cannot make | — |
 | `test_scripts.py` | Tests for everything above; `--with-gradle` also compiles a generated feature | — |
 | `export_service.py` | Copies `service/` and `build-logic/` into a *different* project | prints the `settings.gradle.kts` block |
 
@@ -89,6 +89,9 @@ not the scripts. It holds two screens and one component:
 - `component/TemplateHeadline.kt` — the one feature-local composable both screens compose, cloned
   alongside whichever screen is generated. It is what makes the `component/` package exist in
   every generated feature rather than being remembered.
+- `res/values/strings.xml` and `res/values-cs/strings.xml` — the same names in both, because
+  `doctor.py` fails on a module that ships one and not the other. Adding a locale means adding its
+  file here and its code to `TRANSLATED_LOCALES` in `_common.py`; both generators then write it.
 
 Both are compiled by `./gradlew build` and checked by `doctor.py`, so a broken template fails before
 it can generate anything broken.

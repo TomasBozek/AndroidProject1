@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_title">Profil</string>
+    <string name="profile_name">Jméno</string>
+    <string name="profile_email">E-mail</string>
+    <string name="profile_save">Uložit</string>
+    <string name="profile_saved">Profil uložen</string>
+    <string name="profile_avatar">Profilová fotka</string>
+    <string name="profile_avatar_unnamed">?</string>
+    <string name="profile_choose_photo">Vybrat fotku</string>
+    <string name="profile_take_photo">Vyfotit</string>
+    <string name="profile_capture">Otevřít fotoaparát</string>
+    <string name="profile_saving_photo">Ukládání fotky…</string>
+    <string name="profile_camera_rationale_title">Přístup k fotoaparátu</string>
+    <string name="profile_camera_rationale_message">Povolte přístup k fotoaparátu a pořiďte novou profilovou fotku. Výběr z vašich fotek žádné oprávnění nevyžaduje.</string>
+</resources>
