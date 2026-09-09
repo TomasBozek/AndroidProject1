@@ -1,45 +1,55 @@
 package com.example.androidproject1.core.ui.text
 
 import android.content.Context
-import android.content.res.Resources
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import androidx.test.core.app.ApplicationProvider
+import com.example.androidproject1.service.core.ui.R
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+private const val ROBOLECTRIC_SDK = 35
+
+/**
+ * Resolved against a real resource table rather than a mocked `Resources`.
+ *
+ * A mock could only assert that `getQuantityString` was called with the arguments this test passed
+ * it — which is a test of the test. Robolectric costs a second and asserts the thing that actually
+ * goes wrong: that the quantity picks the form and the argument fills the placeholder, and that
+ * they are not the same number by accident.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [ROBOLECTRIC_SDK])
 class UiTextTest {
 
-    private val resources = mockk<Resources>()
-    private val context = mockk<Context> { every { resources } returns this@UiTextTest.resources }
+    private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun `a plural resolves through getQuantityString`() {
-        every { resources.getQuantityString(ITEMS, 2, *anyVararg()) } returns "2 items"
+    fun `a plural picks its form from the quantity`() {
+        val one = R.plurals.core_field_min_length.toPluralUiText(quantity = 1, 1)
+        val many = R.plurals.core_field_min_length.toPluralUiText(quantity = 2, 2)
 
-        val text = ITEMS.toPluralUiText(quantity = 2, 2)
-
-        assertEquals("2 items", text.resolve(context))
-        // The quantity picks the form; showing it is what the argument is for.
-        verify { resources.getQuantityString(ITEMS, 2, 2) }
+        assertEquals("Must be at least 1 character.", one.resolve(context))
+        assertEquals("Must be at least 2 characters.", many.resolve(context))
     }
 
     @Test
-    fun `a plural with no arguments still passes its quantity`() {
-        // Always the vararg overload, with an empty array — the two-argument one is never called.
-        every { resources.getQuantityString(ITEMS, 1, *anyVararg()) } returns "one item"
+    fun `the quantity and the argument are separate`() {
+        // The first number chooses the form, the second fills the %d. Passing one number for both
+        // is the mistake toPluralUiText is named differently to prevent.
+        val text = R.plurals.core_field_min_length.toPluralUiText(quantity = 2, 8)
 
-        assertEquals("one item", ITEMS.toPluralUiText(quantity = 1).resolve(context))
+        assertEquals("Must be at least 8 characters.", text.resolve(context))
     }
 
     @Test
-    fun `a literal ignores the context entirely`() {
-        assertEquals("hello", "hello".toUiText().resolve(mockk()))
+    fun `a string resource resolves without a quantity`() {
+        assertEquals("Loading…", R.string.core_loading.toUiText().resolve(context))
     }
 
-    private companion object {
-
-        /** Any id will do: nothing here reads a real resource table. */
-        const val ITEMS = 42
+    @Test
+    fun `a literal ignores the resource table entirely`() {
+        assertEquals("hello", "hello".toUiText().resolve(context))
     }
 }

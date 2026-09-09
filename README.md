@@ -39,7 +39,6 @@ python3 scripts/doctor.py && python3 scripts/test_scripts.py && ./gradlew ktlint
 
 `python3 scripts/install_hooks.py` installs the first of those as a pre-commit hook, once per clone.
 
-`./gradlew buildHealth` reports unused and misdeclared dependencies. It is advisory and never a
 gate; [CLAUDE.md](CLAUDE.md) lists the two categories of its output that are deliberate here.
 
 ## Make it your project

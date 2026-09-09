@@ -16,8 +16,8 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 2 / 14 | `█░░░░░░░░░` 14 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **9 / 32** | `███░░░░░░░` 28 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 2 / 7 | `███░░░░░░░` 29 % |
+| **Total** | | **10 / 32** | `███░░░░░░░` 31 % |
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -631,7 +631,7 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
 - [-] **qa.9 Required checks on `main`** — dropped, D25. Private repo on the free plan, so branch
   protection is unavailable. D17's one-PR-per-item still holds by convention, unenforced.
 
-- [ ] **qa.10 Retire mockk and `dependency-analysis`** · S · `stable` D28
+- [x] **qa.10 Retire mockk and `dependency-analysis`** (2026-09-09) · S · `stable` D28
   Why: mockk is in the `testing` bundle every module gets, for one usage in `UiTextTest.kt`;
   `dependency-analysis` is advisory, one-maintainer, pinned behind this AGP, and `CLAUDE.md`
   already documents which of its output to ignore.
@@ -639,6 +639,12 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
   both entries gone from `libs.versions.toml`, the `testing` bundle and the root `build.gradle.kts`;
   the `buildHealth` section removed from `CLAUDE.md` and `README.md`.
   Verify: `./gradlew test` green; `doctor.py`'s hardcoded-coordinate check still passes.
+  **Landed:** `UiTextTest` was not rewritten with a hand-written fake — `Context` and `Resources`
+  are framework classes and faking them by hand is worse than mocking them. It runs under
+  Robolectric against the **real** resource table instead, which is a better test than the one it
+  replaces: the mock could only assert that `getQuantityString` was called with the arguments the
+  test had just passed it, while the real table catches the mistake that matters — quantity and
+  argument being confused for one another. Four cases now, up from three.
 
 ## Backlog
 

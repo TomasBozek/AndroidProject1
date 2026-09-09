@@ -733,23 +733,6 @@ python3 scripts/doctor.py && python3 scripts/test_scripts.py
 ```
 
 ```bash
-./gradlew buildHealth
-```
-
-Advisory, never a gate. The Dependency Analysis plugin reports dependencies declared but unused,
-used but undeclared, and `api` where `implementation` would do. Two whole categories of its output
-are expected here and must not be "fixed":
-
-- **Bundle and BOM members it calls unused.** `libs.bundles.compose.core` deliberately ships one
-  Compose set to every UI module; splitting it per module is how a catalog becomes unmaintainable.
-- **`api(projects.feature.x.di)` in `:core:di`, and `api(projects.core.ui)` in `:core:ui`.** Both are
-  deliberate re-exports — the aggregation point and the theme-plus-architecture facade. Nothing in
-  their signatures mentions what they pass through, which is exactly what the plugin measures.
-
-Read the rest. It is also pinned to a plugin version that predates this AGP, and says so on every
-run.
-
-```bash
 ./gradlew koverHtmlReport
 ```
 

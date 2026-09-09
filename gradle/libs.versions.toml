@@ -19,7 +19,6 @@ serializationJson = "1.11.0"
 datastore = "1.2.1"
 
 turbine = "1.2.1"
-mockk = "1.14.11"
 robolectric = "4.16"
 
 # KSP decoupled from the Kotlin version at 2.3.0 — the last coupled release was 2.2.21-2.0.5 —
@@ -30,7 +29,6 @@ ktor = "3.5.2"
 
 junit = "4.13.2"
 
-dependencyAnalysis = "3.19.1"
 ktlintGradle = "14.2.0"
 
 [libraries]
@@ -99,7 +97,6 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 koin-test = { group = "io.insert-koin", name = "koin-test" }
 koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4" }
@@ -132,7 +129,6 @@ testing = [
     "junit",
     "kotlinx-coroutines-test",
     "turbine",
-    "mockk",
 ]
 
 [plugins]
@@ -143,7 +139,6 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

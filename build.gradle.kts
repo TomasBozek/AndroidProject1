@@ -11,10 +11,6 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room) apply false
 
-    // Advisory, not a gate: `./gradlew buildHealth` reports dependencies declared but unused, used
-    // but undeclared, and `api` where `implementation` would do. Failing the build on it would
-    // make every dependency edit a negotiation with a heuristic.
-    alias(libs.plugins.dependency.analysis)
     alias(libs.plugins.ktlint)
 }
 
@@ -22,7 +18,6 @@ plugins {
 // applying a plugin to one makes Gradle materialise a build directory for it.
 subprojects {
     if (!buildFile.isFile) return@subprojects
-    apply(plugin = "com.autonomousapps.dependency-analysis")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 }
 
