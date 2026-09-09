@@ -514,6 +514,20 @@ Writes the interface and its `Default…` implementation into `data.source`, the
    `retries` when the collector outlives a failure, as `DefaultAuthRepository.observeSession()` does.
 4. Call it from a ViewModel with `execute {}`, never try/catch.
 
+### Changing a Room schema
+
+A module with a database applies `convention.android.room` beside `convention.feature.data`, which
+commits the exported schemas under the module's `schemas/` and puts them on the unit test's assets.
+
+**A `version` bump ships its migration and its test in the same commit.** Bump `@Database`'s
+`version`, add the `Migration` to the database's own `MIGRATIONS` array — the builder in the
+feature's Koin module and `XDatabaseMigrationTest` both read that one list — and commit the schema
+JSON Room exports on the next compile. Nothing else to write: the test walks every committed
+version up to the compiled one, so it fails on the bump alone and passes once the migration exists.
+
+Never reach for `fallbackToDestructiveMigration`. It compiles, the tests go quiet, and what it
+means is that the next update empties the user's cart.
+
 ### Navigating to another feature
 
 Not scripted, and deliberately: a `presentation` module must never depend on another feature's

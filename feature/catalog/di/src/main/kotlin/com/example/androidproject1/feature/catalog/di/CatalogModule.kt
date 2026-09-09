@@ -36,7 +36,8 @@ object CatalogModule {
                 androidContext(),
                 CatalogDatabase::class.java,
                 CatalogDatabase.NAME,
-            ).build()
+            ).addMigrations(*CatalogDatabase.MIGRATIONS)
+                .build()
         }
         single { get<CatalogDatabase>().catalogDao() }
         single { get<CatalogDatabase>().favouritesDao() }

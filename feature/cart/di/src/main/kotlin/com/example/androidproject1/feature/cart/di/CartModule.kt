@@ -23,6 +23,7 @@ object CartModule {
         // refresh, and the cart must survive the shop reorganising itself.
         single {
             Room.databaseBuilder(androidContext(), CartDatabase::class.java, CartDatabase.NAME)
+                .addMigrations(*CartDatabase.MIGRATIONS)
                 .build()
         }
         single { get<CartDatabase>().cartDao() }

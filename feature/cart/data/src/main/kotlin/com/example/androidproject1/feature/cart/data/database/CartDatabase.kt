@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -64,5 +65,12 @@ abstract class CartDatabase : RoomDatabase() {
     companion object {
 
         const val NAME = "cart.db"
+
+        /**
+         * Every migration this database has, in one place because two things read it: the builder
+         * in `CartModule` and `CartDatabaseMigrationTest`. A `version` bump ships its migration
+         * and its entry here in the same commit — the test fails otherwise, which is the point.
+         */
+        val MIGRATIONS: Array<Migration> = emptyArray()
     }
 }

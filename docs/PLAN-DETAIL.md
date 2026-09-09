@@ -146,17 +146,6 @@ to the crash-reporting one in `CLAUDE.md`.
 Verify: a Robolectric test that composing a scaffold twice reports one view; every sample screen
 passes `screenId` — `doctor.py` gains that check.
 
-**core.7 Room migrations are tested** · M · `stable`
-Why: both databases are at version 1 and no migration has ever run. The first schema change is
-where a user's favourites or cart are lost, and nothing here would notice before a release.
-Done: `convention.android.room` adds `room-testing` to the test classpath and the exported
-schemas under `schemas/` are committed; a `MigrationTest` per database that opens every committed
-schema version with `MigrationTestHelper` and validates the current one; the data recipe in
-`CLAUDE.md` gains the rule that a version bump ships its migration and its test in the same
-commit. Edits `build-logic/` and the two `data` modules' tests.
-Verify: on a scratch branch bump `CartDatabase` to 2 without a migration — the test fails; add
-the migration — it passes; the scratch bump is not committed.
-
 
 ### Track ui · design system and adaptive
 
