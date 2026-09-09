@@ -20,6 +20,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.example.androidproject1.core.ui.navigation.ProvideNavResultStore
 import com.example.androidproject1.feature.auth.presentation.loginDestination
 import com.example.androidproject1.feature.auth.presentation.signUpDestination
 import com.example.androidproject1.feature.catalog.presentation.categoriesDestination
@@ -49,6 +50,19 @@ fun AppNavHost(
 ) {
     val currentTab = backStack.currentTab
 
+    // Around the display, not inside an entry: a nav result has to outlive the screen that
+    // produced it being popped. See core.ui.navigation.NavResultStore.
+    ProvideNavResultStore {
+        AppNavContent(backStack = backStack, currentTab = currentTab, modifier = modifier)
+    }
+}
+
+@Composable
+private fun AppNavContent(
+    backStack: NavBackStack<NavKey>,
+    currentTab: TopLevelDestination?,
+    modifier: Modifier = Modifier,
+) {
     // The auth flow has no tabs, so it is not wrapped: an empty navigation suite would still
     // reserve the bar's height.
     if (currentTab == null) {

@@ -130,5 +130,16 @@ internal fun Project.configureCompose(extension: CommonExtension) {
         // doctor.py fails on a `coil3` import anywhere under feature/.
         add("implementation", libs.findLibrary("coil-compose").get())
         add("implementation", libs.findLibrary("coil-network").get())
+
+        // Compose's test rule plus Robolectric, so anything composable in this module can be
+        // asserted by `./gradlew test` with no emulator. `convention.feature.presentation` adds
+        // the same for a feature's screens; this covers :core:ui and :service:core:ui, which
+        // apply the compose library plugin directly.
+        add("testImplementation", libs.findLibrary("androidx-compose-ui-test-junit4").get())
+        add("testImplementation", libs.findLibrary("robolectric").get())
+        add("debugImplementation", libs.findLibrary("androidx-compose-ui-test-manifest").get())
     }
+
+    // Compose's test rule reads real resources.
+    extension.testOptions.unitTests.isIncludeAndroidResources = true
 }

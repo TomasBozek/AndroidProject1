@@ -579,7 +579,12 @@ def check_modifier_parameter() -> list[str]:
                 # Exempt what has nothing to position: a value-returning helper, a theme or
                 # CompositionLocal wrapper, a preview, and a screen-level composable that fills
                 # the window it is given.
-                if returns_value or name.endswith(("Screen", "Preview", "Theme", "Provider")):
+                if (
+                    returns_value
+                    or name.endswith(("Screen", "Preview", "Theme", "Provider"))
+                    # Compose's own idiom for a CompositionLocal wrapper — `ProvideTextStyle`.
+                    or name.startswith("Provide")
+                ):
                     continue
                 if "modifier: Modifier" not in signature:
                     problems.append(

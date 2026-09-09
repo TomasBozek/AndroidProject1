@@ -13,11 +13,11 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 
 | Track | Owns | Done | Progress |
 |---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 2 / 6 | `███░░░░░░░` 33 % |
+| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 3 / 6 | `█████░░░░░` 50 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 0 / 5 | `░░░░░░░░░░` 0 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 1 / 14 | `░░░░░░░░░░` 7 % |
 | **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 1 / 7 | `█░░░░░░░░░` 14 % |
-| **Total** | | **4 / 32** | `█░░░░░░░░░` 13 % |
+| **Total** | | **5 / 32** | `██░░░░░░░░` 16 % |
 
 **Start now:** `ui.1`, `core.3` / `core.4` / `core.5`, `qa.7` / `qa.8`, and the `shell.*` items.
 `core.1` and `core.2` together unblock **`feat.5`**, which now has every dependency it needs.
@@ -250,7 +250,7 @@ nothing here knows a feature.
   Verify: `BaseViewModelTest` shows the source is cancelled when the last collector leaves and
   re-collected when one returns.
 
-- [ ] **core.4 Navigation results** · M · `stable`
+- [x] **core.4 Navigation results** (2026-09-09) · M · `stable`
   Why: was 7.2. No pattern for "pick something on screen B, return it to A", so it gets reinvented
   per feature. Navigation 3 has no `previousBackStackEntry` to lean on.
   Done: `service/core/ui/navigation/` — a result store keyed by the requesting entry, a
@@ -259,6 +259,20 @@ nothing here knows a feature.
   The worked example is `feat.2`'s product picker.
   Verify: a Robolectric test round-trips a value across a push and pop; the pattern needs no
   `SavedStateHandle` in any ViewModel.
+  **Landed:** the requester's half is **`NavResultEffect(key) { }`**, not `rememberNavResult()`.
+  It returns Unit, and a Unit-returning composable is PascalCase — lint's `ComposableNaming`
+  fails the build on the other spelling, and `LaunchedEffect` is named the way it is for the same
+  reason. The responder's half is `rememberNavResultSender(key)`, which does return a value.
+  The store is a `rememberSaveable` **above** the entries in `AppNavHost` rather than the
+  saved-state decorator the Done line named: a decorator is per entry, and the entry that has to
+  survive is precisely the one being popped. It edits `app/AppNavHost.kt`, which this track does
+  not own — nothing else had an open item on that file.
+  Two fixes it forced: `consume` was being called *during composition*, so a discarded composition
+  would have swallowed the user's selection — it now peeks in composition and consumes in the
+  effect. And `doctor.py`'s modifier check exempted `*Provider` but not Compose's own `ProvideX`
+  idiom. `convention.android.library.compose` also gains the Compose test rule and Robolectric, so
+  `:core:ui` and `:service:core:ui` can assert what they draw — **`ui.3` no longer has to add
+  them**.
 
 - [ ] **core.5 Form validation** · S · `stable`
   Why: was C10. `LoginState.canSubmit` and `SignUpState.canSubmit` are hand-rolled booleans that
@@ -304,8 +318,8 @@ destinations; no app-track item touches those while it is open.
 
 - [ ] **ui.3 Component behaviour tests** · M · `stable`
   Why: `core/ui/component` is 1,689 lines at 10 % coverage. Previews show; nothing asserts.
-  Done: `ui-test-junit4` + Robolectric added to `convention.android.library.compose` for
-  `src/test`; tests for the interactive components — `AppButton` (loading keeps width, disabled
+  Done: the dependencies are already there — `core.4` added them to
+  `convention.android.library.compose`. Tests for the interactive components — `AppButton` (loading keeps width, disabled
   emits nothing), `AppTextField` (error always carries text), `AppCheckbox` (indeterminate),
   `AppSelect`, `AppTabs`, `AppStepper`, `AppSheet`, `AppDialog`.
   Verify: the package leaves 10 % in the Kover report; each test finds by `testTag`, never by text.

@@ -474,6 +474,24 @@ userProfileDestination(
 Switching between the auth and main flows is different again: change the session and let
 `MainViewModel` react. Do not replace the back stack from a screen.
 
+### Getting a value back from another screen
+
+"Pick something on screen B, hand it back to screen A." Navigation 3 has no `previousBackStackEntry`
+and a back stack of plain keys has nowhere to hang a value, so this is
+`service/core/ui/.../navigation/NavResultStore.kt` and never a `SavedStateHandle`.
+
+- The requester registers a callback: `NavResultEffect<String>(KEY) { id -> onEvent(...) }`.
+  It fires **once** per result — the value is consumed, so coming back later does not replay a
+  selection the user already made.
+- The responder gets a setter: `val setNavResult = rememberNavResultSender(key)`, calls
+  `setNavResult(value)` and then pops. The key arrives as a route argument, so one picker can
+  serve several callers and knows nothing about any of them.
+- `ProvideNavResultStore` wraps the `NavDisplay` in `AppNavHost` — above the entries, because the
+  result has to outlive the responder being popped. It is a `rememberSaveable`, so it survives
+  process death with the back stack.
+- A value must be something a `Bundle` can hold: a primitive, `String`, `Parcelable` or
+  `Serializable`, the same constraint a route argument has.
+
 ### Permissions
 
 `service/core/ui/.../permission/` owns the whole story; no feature writes permission code of its own.
