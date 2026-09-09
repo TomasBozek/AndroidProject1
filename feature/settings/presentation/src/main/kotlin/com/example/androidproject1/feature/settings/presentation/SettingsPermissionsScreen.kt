@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
@@ -68,7 +69,8 @@ fun SettingsPermissionsScreen(
                     kind = ButtonKind.Outline,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(AppTheme.spacing.inset.lg),
+                        .padding(AppTheme.spacing.inset.lg)
+                        .testTag("settingsPermissions_openSettingsButton"),
                 )
             }
         }
@@ -100,6 +102,7 @@ private fun NotificationsPrompt(modifier: Modifier = Modifier) {
                 label = stringResource(R.string.settings_permissions_allow),
                 onClick = request::request,
                 kind = ButtonKind.Ghost,
+                modifier = Modifier.testTag("settingsPermissions_allowButton"),
             )
         }
     }
@@ -108,7 +111,7 @@ private fun NotificationsPrompt(modifier: Modifier = Modifier) {
 @Composable
 private fun PermissionListItem(row: PermissionRow, modifier: Modifier = Modifier) {
     AppListItem(
-        modifier = modifier,
+        modifier = modifier.testTag("settingsPermissions_permissionItem"),
         headline = row.label,
         supporting = row.name,
         trailing = {

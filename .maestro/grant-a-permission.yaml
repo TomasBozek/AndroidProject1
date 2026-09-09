@@ -1,0 +1,26 @@
+# The permission screen and the system dialog it raises — the one flow that leaves the app's own UI.
+appId: com.example.androidproject1.dev
+name: Grant a permission
+---
+- runFlow: sign-in.yaml
+
+- tapOn: "Settings"
+- tapOn:
+    id: "settings_permissionsButton"
+- assertVisible:
+    id: "SettingsPermissionsScreen"
+- assertVisible:
+    id: "settingsPermissions_permissionItem"
+
+# Optional: once notifications have been granted the prompt is gone, so a second run of this flow
+# must not fail on its absence.
+- tapOn:
+    id: "settingsPermissions_allowButton"
+    optional: true
+# Android's dialog, not this app's, so it is matched by what the system calls the button.
+- tapOn:
+    text: "Allow"
+    optional: true
+
+- assertVisible:
+    id: "SettingsPermissionsScreen"

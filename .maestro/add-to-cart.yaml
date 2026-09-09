@@ -1,0 +1,25 @@
+# The cart round trip: add from a product, see the badge, check out behind a confirmation.
+appId: com.example.androidproject1.dev
+name: Add a product to the cart and check out
+---
+- runFlow: sign-in.yaml
+
+- tapOn: "Catalog"
+- tapOn: "Beverages"
+- tapOn: "Coffee"
+- tapOn:
+    id: "productDetail_addToCartButton"
+
+- tapOn: "Cart"
+- assertVisible:
+    id: "cart_itemList"
+# The count is a plural, so this is also the assertion that the right form was picked.
+- assertVisible: "1 item"
+
+- tapOn:
+    id: "cart_checkoutButton"
+# An order is not something to do on one tap.
+- assertVisible: "Place this order?"
+- tapOn: "Order"
+- assertVisible:
+    id: "cart_emptyState"

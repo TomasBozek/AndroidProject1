@@ -1,0 +1,23 @@
+# Signing in and landing on Home. The one flow every other flow depends on.
+appId: com.example.androidproject1.dev
+name: Sign in reaches Home
+---
+- clearState
+- launchApp
+- assertVisible:
+    id: "LoginScreen"
+
+# Found by id, never by text: copy gets reworded and translated, and a flow that breaks on a
+# wording fix is a flow people learn to ignore.
+- tapOn:
+    id: "login_emailField"
+- inputText: "ada@example.com"
+- tapOn:
+    id: "login_passwordField"
+- inputText: "hunter2!!"
+- hideKeyboard
+- tapOn:
+    id: "login_submitButton"
+
+- assertVisible:
+    id: "HomeScreen"

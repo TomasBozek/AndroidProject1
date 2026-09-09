@@ -16,8 +16,8 @@ and what needs a decision. `CLAUDE.md` is the rulebook, `README.md` the orientat
 | **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 6 | `████████░░` 83 % |
 | **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 1 / 5 | `██░░░░░░░░` 20 % |
 | **app** · shell and sample features | `app/`, `feature/*` | 4 / 14 | `███░░░░░░░` 29 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 2 / 7 | `███░░░░░░░` 29 % |
-| **Total** | | **12 / 32** | `████░░░░░░` 38 % |
+| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 3 / 7 | `████░░░░░░` 43 % |
+| **Total** | | **13 / 32** | `████░░░░░░` 41 % |
 
 **Start now — nothing is blocked and nothing waits on a decision.** Highest value first:
 `feat.5` (the catalog goes remote — `core.1` + `core.2` + `feat.1` are all in), `feat.2` (cart, the
@@ -591,7 +591,7 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
 
 - [-] **qa.1 LICENSE** — dropped, D22. No licence wanted; the repo stays all rights reserved.
 
-- [ ] **qa.2 Maestro golden-path flows** · M · `device` D15
+- [x] **qa.2 Maestro golden-path flows** (2026-09-09) · M · `device` D15
   Why: every device check so far went through `adb` by hand.
   Done: `.maestro/` flows for sign in → Home, browse to a product, log out, grant a permission,
   all by `id:` and never by text; how to run them in `README.md`; CI left for later.
@@ -602,6 +602,20 @@ Owns `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/`, `LICENSE`
   puts on every screen come through as `resource-id`, so `LoginScreen`, `login_submitButton` and
   `home_favouriteRemoveButton` are all directly addressable.
   Verify: `maestro test .maestro` passes on the emulator; a flow fails when its tag is renamed.
+  **Landed:** five flows, 5/5 passing in 2m38s — sign in, browse to a product and favourite it,
+  add to cart and check out, log out, grant a permission. The CLI is
+  `brew install mobile-dev-inc/tap/maestro` (2.10.0); `brew install maestro` gives a desktop app
+  with no `maestro test`, and Homebrew does not link the formula's binary, so it lives at
+  `$(brew --prefix maestro)/bin/maestro`.
+  Two gaps the flows found, both fixed here:
+  · **Settings and the permissions screen carried no `testTag`s at all**, so nothing on them could
+  be addressed by id. They do now.
+  · **The shared alert dialog published no ids.** A dialog is its own window, so it does not
+  inherit `AppScaffold`'s `testTagsAsResourceId` — the tags existed in Compose's tree and were
+  invisible to anything driving the device. `StateAlertDialog` now sets it and exposes
+  `alert_dialog` / `alert_confirmButton` / `alert_declineButton`. This is the failure the item was
+  worth having: the log-out flow matched "Log out" by text and tapped the settings button *behind*
+  the dialog, which is precisely why CLAUDE.md says find by id and never by text.
 
 - [x] **qa.3 The template ships a screen test** (2026-09-09) · S · `stable`
   Why: the seven-file unit has a ViewModel test and no screen test, so every generated screen

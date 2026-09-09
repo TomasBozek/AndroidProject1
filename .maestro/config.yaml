@@ -1,0 +1,3 @@
+# Every flow in this directory runs against the dev build, which serves the catalog from JSON
+# fixtures (D20) — so a flow asserts the app, never the weather at a server.
+appId: com.example.androidproject1.dev
