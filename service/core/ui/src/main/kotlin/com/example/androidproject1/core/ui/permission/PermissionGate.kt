@@ -12,6 +12,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.text.UiText
@@ -99,13 +100,21 @@ fun PermissionRationaleContent(
 
         Button(
             onClick = { if (canAskAgain) request.request() else context.openAppSettings() },
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .testTag(PERMISSION_ACTION_TAG),
         ) {
             val label = if (canAskAgain) rationale.actionLabel else rationale.settingsLabel
             Text(text = label.resolve())
         }
     }
 }
+
+/**
+ * The one button the rationale has, so a test or a flow can tap it without naming its copy — which
+ * changes with `canAskAgain` and with the language.
+ */
+const val PERMISSION_ACTION_TAG = "permission_actionButton"
 
 /** The wording every permission needs, so only the specific part is written per call site. */
 fun permissionRationale(title: UiText, message: UiText): PermissionRationale = PermissionRationale(

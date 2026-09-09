@@ -139,7 +139,10 @@ write a second copy of a fake — move the first.
 
 The service modules have JVM unit tests (`src/test/kotlin`) covering `Outcome`, `BaseRepository` and
 `BaseViewModel`. They need no Robolectric — `R.string.x` is only an `Int` and `UiText` defers
-resolution — so keep it that way and don't pull the framework in.
+resolution — so keep it that way and don't reach for the framework to test logic. The exception is
+`:service:core:ui`'s `permission/` package, which is a wrapper over `PackageManager` and the
+activity-result contract: there is no logic there to test without a shadowed framework, and
+`convention.android.library.compose` already puts Robolectric on that module's test classpath.
 
 Layer dependency directions:
 

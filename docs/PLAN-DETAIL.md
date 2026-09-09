@@ -157,15 +157,6 @@ commit. Edits `build-logic/` and the two `data` modules' tests.
 Verify: on a scratch branch bump `CartDatabase` to 2 without a migration — the test fails; add
 the migration — it passes; the scratch bump is not committed.
 
-**core.9 Permission helpers tested** · S · `stable`
-Why: `service/core/ui/permission` is 116 lines at 48 %, and the four statuses are exactly the
-state machine a regression hides in — once `canAskAgain` is false the system dialog never
-appears again, and a wrong branch there strands the user.
-Done: Robolectric tests with a shadow `PackageManager` for `Granted`, `PartiallyGranted`,
-`Denied(canAskAgain = true)` and `Denied(canAskAgain = false)`; `PermissionGate` composes its
-content only while the permission is held; `rememberDeclaredPermissions` lists what the manifest
-asks for.
-Verify: the package leaves 48 % in the report; each test fails when its branch is removed.
 
 ### Track ui · design system and adaptive
 
