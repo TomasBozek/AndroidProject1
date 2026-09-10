@@ -11,8 +11,8 @@ import com.example.androidproject1.core.ui.component.AppDivider
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.format.LocalFormats
 import com.example.androidproject1.feature.catalog.domain.Product
+import com.example.androidproject1.service.core.ui.format.LocalFormats
 
 /** What a search matched: the product and what it costs. */
 @Composable

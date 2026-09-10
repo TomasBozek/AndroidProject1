@@ -4,9 +4,6 @@ import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import com.example.androidproject1.core.domain.Analytics
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.cart.domain.CartRepository
 import com.example.androidproject1.feature.cart.domain.test.FakeCartRepository
@@ -16,6 +13,9 @@ import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogReposi
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import com.example.androidproject1.feature.home.presentation.home.HomeDestination
 import com.example.androidproject1.feature.home.presentation.home.HomeViewModel
+import com.example.androidproject1.service.core.domain.Analytics
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.test.FakeLogger
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Rule

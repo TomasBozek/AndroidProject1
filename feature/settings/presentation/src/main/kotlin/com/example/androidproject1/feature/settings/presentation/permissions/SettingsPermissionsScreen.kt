@@ -17,11 +17,11 @@ import com.example.androidproject1.core.ui.component.AppDivider
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.ButtonKind
-import com.example.androidproject1.core.ui.permission.rememberDeclaredPermissions
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.settings.presentation.R
 import com.example.androidproject1.feature.settings.presentation.component.NotificationsPrompt
 import com.example.androidproject1.feature.settings.presentation.component.PermissionListItem
+import com.example.androidproject1.service.core.ui.permission.rememberDeclaredPermissions
 
 @Composable
 fun SettingsPermissionsScreen(

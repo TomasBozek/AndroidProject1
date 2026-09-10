@@ -14,7 +14,7 @@ import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.format.LocalFormats
+import com.example.androidproject1.service.core.ui.format.LocalFormats
 
 @Composable
 fun ProductsScreen(

@@ -1,11 +1,11 @@
 package com.example.androidproject1.feature.profile.presentation.profile
 
 import androidx.test.core.app.ApplicationProvider
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
-import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.feature.profile.domain.Profile
 import com.example.androidproject1.feature.profile.presentation.FakeProfileRepository
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.service.core.ui.text.resolve
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

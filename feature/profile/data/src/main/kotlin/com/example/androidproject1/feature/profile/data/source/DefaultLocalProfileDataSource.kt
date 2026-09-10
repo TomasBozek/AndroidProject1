@@ -2,9 +2,9 @@ package com.example.androidproject1.feature.profile.data.source
 
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.example.androidproject1.core.data.DataStoreProvider
-import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.feature.profile.domain.Profile
+import com.example.androidproject1.service.core.data.DataStoreProvider
+import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 

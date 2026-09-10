@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.home.presentation.home
 
 import androidx.compose.runtime.Immutable
-import com.example.androidproject1.core.ui.text.UiText
-import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.home.presentation.R
+import com.example.androidproject1.service.core.ui.text.UiText
+import com.example.androidproject1.service.core.ui.text.toUiText
 
 @Immutable
 data class HomeState(

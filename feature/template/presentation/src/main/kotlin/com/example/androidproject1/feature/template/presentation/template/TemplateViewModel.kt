@@ -1,8 +1,8 @@
 package com.example.androidproject1.feature.template.presentation.template
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.state.updateData
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.state.updateData
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class TemplateViewModel(
     logger: Logger,

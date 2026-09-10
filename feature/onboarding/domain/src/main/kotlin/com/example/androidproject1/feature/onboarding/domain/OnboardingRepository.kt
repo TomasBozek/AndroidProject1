@@ -1,6 +1,6 @@
 package com.example.androidproject1.feature.onboarding.domain
 
-import com.example.androidproject1.core.domain.result.Outcome
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 
 /**

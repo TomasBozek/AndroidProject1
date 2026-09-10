@@ -1,14 +1,14 @@
 package com.example.androidproject1.feature.settings.presentation.settings
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.event.SystemEvent
-import com.example.androidproject1.core.ui.state.setAlert
-import com.example.androidproject1.core.ui.state.updateData
-import com.example.androidproject1.core.ui.text.toUiText
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.settings.domain.ThemeRepository
 import com.example.androidproject1.feature.settings.presentation.R
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.event.SystemEvent
+import com.example.androidproject1.service.core.ui.state.setAlert
+import com.example.androidproject1.service.core.ui.state.updateData
+import com.example.androidproject1.service.core.ui.text.toUiText
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class SettingsViewModel(
     logger: Logger,

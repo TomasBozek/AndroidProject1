@@ -3,9 +3,6 @@ package com.example.androidproject1
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
-import com.example.androidproject1.core.domain.ErrorTracker
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.presentation.categories.CategoriesDestination
@@ -15,6 +12,9 @@ import com.example.androidproject1.feature.home.presentation.home.HomeDestinatio
 import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.ThemeRepository
+import com.example.androidproject1.service.core.domain.ErrorTracker
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.auth.presentation.login
 
 import androidx.compose.runtime.Immutable
-import com.example.androidproject1.core.ui.form.FieldState
-import com.example.androidproject1.core.ui.form.Form
-import com.example.androidproject1.core.ui.form.email
-import com.example.androidproject1.core.ui.form.required
+import com.example.androidproject1.service.core.ui.form.FieldState
+import com.example.androidproject1.service.core.ui.form.Form
+import com.example.androidproject1.service.core.ui.form.email
+import com.example.androidproject1.service.core.ui.form.required
 
 @Immutable
 data class LoginState(

@@ -1,6 +1,6 @@
 package com.example.androidproject1.feature.auth.presentation.login
 
-import com.example.androidproject1.core.ui.event.UiEvent
+import com.example.androidproject1.service.core.ui.event.UiEvent
 
 sealed interface LoginEvent : UiEvent {
 

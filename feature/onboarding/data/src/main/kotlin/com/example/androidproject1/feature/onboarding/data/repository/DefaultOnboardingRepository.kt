@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.onboarding.data.repository
 
-import com.example.androidproject1.core.data.BaseRepository
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.onboarding.data.source.LocalOnboardingDataSource
 import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
+import com.example.androidproject1.service.core.data.BaseRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 
 class DefaultOnboardingRepository(

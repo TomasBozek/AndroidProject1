@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.catalog.presentation.categories
 
 import app.cash.turbine.test
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.state.ContentState
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.state.ContentState
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -50,7 +50,7 @@ class CategoriesViewModelTest {
 
         repository.failWith = null
         viewModel.onSystemEvent(
-            com.example.androidproject1.core.ui.event.SystemEvent.ContentAction(contentId),
+            com.example.androidproject1.service.core.ui.event.SystemEvent.ContentAction(contentId),
         )
 
         assertNull(viewModel.state.value.content)
@@ -74,7 +74,7 @@ class CategoriesViewModelTest {
     @Test
     fun `a refresh failure over a stale cache keeps the list on screen`() = runTest {
         val repository = FakeCatalogRepository(
-            failWith = com.example.androidproject1.core.domain.error.NetworkError(),
+            failWith = com.example.androidproject1.service.core.domain.error.NetworkError(),
             staleThenFail = true,
         )
 
@@ -89,14 +89,14 @@ class CategoriesViewModelTest {
     @Test
     fun `a stale list says so rather than failing silently`() = runTest {
         val repository = FakeCatalogRepository(
-            failWith = com.example.androidproject1.core.domain.error.NetworkError(),
+            failWith = com.example.androidproject1.service.core.domain.error.NetworkError(),
             staleThenFail = true,
         )
         val viewModel = viewModel(repository)
 
         val command = viewModel.command.first()
 
-        assertTrue(command is com.example.androidproject1.core.ui.event.UiCommand.ShowSnackbar)
+        assertTrue(command is com.example.androidproject1.service.core.ui.event.UiCommand.ShowSnackbar)
     }
 
     @Test

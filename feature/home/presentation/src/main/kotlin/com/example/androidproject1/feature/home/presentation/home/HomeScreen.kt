@@ -20,9 +20,9 @@ import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppSectionHeader
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.home.presentation.R
+import com.example.androidproject1.service.core.ui.text.resolve
 
 @Composable
 fun HomeScreen(

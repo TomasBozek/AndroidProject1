@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.catalog.data.source
 
-import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
-import com.example.androidproject1.core.network.HttpErrorMapper
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
+import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
+import com.example.androidproject1.service.network.HttpErrorMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

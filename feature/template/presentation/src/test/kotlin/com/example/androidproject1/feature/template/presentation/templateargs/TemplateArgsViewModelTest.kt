@@ -1,7 +1,7 @@
 package com.example.androidproject1.feature.template.presentation.templateargs
 
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule

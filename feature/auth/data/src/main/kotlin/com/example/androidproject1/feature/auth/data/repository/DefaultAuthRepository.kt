@@ -1,12 +1,12 @@
 package com.example.androidproject1.feature.auth.data.repository
 
-import com.example.androidproject1.core.data.BaseRepository
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.auth.data.source.LocalAuthDataSource
 import com.example.androidproject1.feature.auth.data.source.StoredSession
 import com.example.androidproject1.feature.auth.domain.AuthRepository
 import com.example.androidproject1.feature.auth.domain.Session
+import com.example.androidproject1.service.core.data.BaseRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID

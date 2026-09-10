@@ -2,17 +2,17 @@ package com.example.androidproject1.feature.catalog.data.repository
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.example.androidproject1.core.domain.error.ServerError
-import com.example.androidproject1.core.domain.result.Outcome
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.domain.test.TestDispatchers
-import com.example.androidproject1.core.network.HttpClientFactory
-import com.example.androidproject1.core.network.NetworkConfig
 import com.example.androidproject1.feature.catalog.data.database.CatalogDatabase
 import com.example.androidproject1.feature.catalog.data.source.DefaultLocalCatalogDataSource
 import com.example.androidproject1.feature.catalog.data.source.DefaultRemoteCatalogDataSource
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
+import com.example.androidproject1.service.core.domain.error.ServerError
+import com.example.androidproject1.service.core.domain.result.Outcome
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.domain.test.TestDispatchers
+import com.example.androidproject1.service.network.HttpClientFactory
+import com.example.androidproject1.service.network.NetworkConfig
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError

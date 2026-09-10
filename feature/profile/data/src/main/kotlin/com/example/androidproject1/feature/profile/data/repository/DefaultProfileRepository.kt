@@ -1,12 +1,12 @@
 package com.example.androidproject1.feature.profile.data.repository
 
-import com.example.androidproject1.core.data.BaseRepository
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.profile.data.source.AvatarDataSource
 import com.example.androidproject1.feature.profile.data.source.LocalProfileDataSource
 import com.example.androidproject1.feature.profile.domain.Profile
 import com.example.androidproject1.feature.profile.domain.ProfileRepository
+import com.example.androidproject1.service.core.data.BaseRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
 
 class DefaultProfileRepository(
     logger: Logger,

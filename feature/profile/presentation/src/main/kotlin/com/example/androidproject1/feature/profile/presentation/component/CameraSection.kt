@@ -5,11 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
-import com.example.androidproject1.core.ui.permission.PermissionGate
-import com.example.androidproject1.core.ui.permission.permissionRationale
-import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.feature.profile.presentation.R
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileEvent
+import com.example.androidproject1.service.core.ui.permission.PermissionGate
+import com.example.androidproject1.service.core.ui.permission.permissionRationale
+import com.example.androidproject1.service.core.ui.text.toUiText
 
 /**
  * Everything that needs the camera, and nothing that does not.

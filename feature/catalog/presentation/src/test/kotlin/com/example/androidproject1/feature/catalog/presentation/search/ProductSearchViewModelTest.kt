@@ -1,12 +1,12 @@
 package com.example.androidproject1.feature.catalog.presentation.search
 
-import com.example.androidproject1.core.domain.error.NetworkError
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.state.ContentState
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeRecentSearchesRepository
+import com.example.androidproject1.service.core.domain.error.NetworkError
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.state.ContentState
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher

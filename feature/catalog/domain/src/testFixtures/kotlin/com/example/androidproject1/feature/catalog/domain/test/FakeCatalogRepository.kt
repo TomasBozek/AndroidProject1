@@ -1,11 +1,11 @@
 package com.example.androidproject1.feature.catalog.domain.test
 
-import com.example.androidproject1.core.domain.error.DomainError
-import com.example.androidproject1.core.domain.error.NetworkError
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
+import com.example.androidproject1.service.core.domain.error.DomainError
+import com.example.androidproject1.service.core.domain.error.NetworkError
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

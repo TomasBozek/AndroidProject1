@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.profile.presentation
 
-import com.example.androidproject1.core.domain.error.DomainError
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.profile.domain.Profile
 import com.example.androidproject1.feature.profile.domain.ProfileRepository
+import com.example.androidproject1.service.core.domain.error.DomainError
+import com.example.androidproject1.service.core.domain.result.Outcome
 
 /**
  * In-memory [ProfileRepository].

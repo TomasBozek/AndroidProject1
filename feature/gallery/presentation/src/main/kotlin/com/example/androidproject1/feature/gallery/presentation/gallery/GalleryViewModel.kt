@@ -1,8 +1,8 @@
 package com.example.androidproject1.feature.gallery.presentation.gallery
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.gallery.presentation.galleryItems
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class GalleryViewModel(
     logger: Logger,

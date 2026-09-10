@@ -1,9 +1,5 @@
 package com.example.androidproject1
 
-import com.example.androidproject1.core.domain.error.UnexpectedError
-import com.example.androidproject1.core.domain.test.FakeErrorTracker
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.Session
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
@@ -14,6 +10,10 @@ import com.example.androidproject1.feature.home.presentation.home.HomeDestinatio
 import com.example.androidproject1.feature.onboarding.domain.test.FakeOnboardingRepository
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import com.example.androidproject1.feature.settings.domain.test.FakeThemeRepository
+import com.example.androidproject1.service.core.domain.error.UnexpectedError
+import com.example.androidproject1.service.core.domain.test.FakeErrorTracker
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle

@@ -1,12 +1,12 @@
 package com.example.androidproject1
 
-import com.example.androidproject1.core.network.NetworkConfig
 import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.debug.TestNotification
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
 import com.example.androidproject1.network.networkEngine
+import com.example.androidproject1.service.network.NetworkConfig
 import io.ktor.client.engine.HttpClientEngine
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module

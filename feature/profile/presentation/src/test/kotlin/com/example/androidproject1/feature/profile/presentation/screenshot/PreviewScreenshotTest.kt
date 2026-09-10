@@ -1,7 +1,7 @@
 package com.example.androidproject1.feature.profile.presentation.screenshot
 
-import com.example.androidproject1.core.ui.screenshot.PreviewScreenshotSpec
-import com.example.androidproject1.core.ui.screenshot.previewsIn
+import com.example.androidproject1.service.core.ui.screenshot.PreviewScreenshotSpec
+import com.example.androidproject1.service.core.ui.screenshot.previewsIn
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import sergio.sastre.composable.preview.scanner.android.AndroidPreviewInfo

@@ -20,11 +20,11 @@ import com.example.androidproject1.core.ui.component.AppButton
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppTextField
 import com.example.androidproject1.core.ui.component.AppTopBar
-import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.profile.presentation.R
 import com.example.androidproject1.feature.profile.presentation.component.CameraSection
 import com.example.androidproject1.feature.profile.presentation.component.PictureButtons
+import com.example.androidproject1.service.core.ui.text.resolve
 
 @Composable
 fun ProfileScreen(

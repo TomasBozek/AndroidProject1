@@ -1,14 +1,14 @@
 package com.example.androidproject1.feature.profile.presentation.profile
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.event.UiCommand
-import com.example.androidproject1.core.ui.form.Form
-import com.example.androidproject1.core.ui.state.updateData
-import com.example.androidproject1.core.ui.text.toUiText
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.profile.domain.Profile
 import com.example.androidproject1.feature.profile.domain.ProfileRepository
 import com.example.androidproject1.feature.profile.presentation.R
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.event.UiCommand
+import com.example.androidproject1.service.core.ui.form.Form
+import com.example.androidproject1.service.core.ui.state.updateData
+import com.example.androidproject1.service.core.ui.text.toUiText
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class ProfileViewModel(
     logger: Logger,

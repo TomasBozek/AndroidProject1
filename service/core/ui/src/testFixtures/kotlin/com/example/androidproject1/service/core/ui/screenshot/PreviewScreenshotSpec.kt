@@ -1,0 +1,114 @@
+package com.example.androidproject1.service.core.ui.screenshot
+
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.github.takahirom.roborazzi.RoborazziOptions
+import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.inspectionMode
+import com.github.takahirom.roborazzi.manualAdvance
+import com.github.takahirom.roborazzi.toRoborazziComposeOptions
+import org.junit.Rule
+import org.junit.Test
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+import sergio.sastre.composable.preview.scanner.android.AndroidComposablePreviewScanner
+import sergio.sastre.composable.preview.scanner.android.AndroidPreviewInfo
+import sergio.sastre.composable.preview.scanner.android.screenshotid.AndroidPreviewScreenshotIdBuilder
+import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
+
+// One frame at 60 Hz. The clock is advanced by hand rather than left to run to idle, because a
+// screen holding a CircularProgressIndicator never reaches idle — the capture would wait forever.
+// One frame is enough for the first composition and layout, and it is the same frame every time,
+// which is what a golden needs.
+private const val ONE_FRAME_MILLIS = 16L
+
+// Fraction of pixels that may differ before a golden is called changed. A hair of tolerance, so a
+// Robolectric or Compose bump that shifts antialiasing by a pixel does not re-record every golden
+// in the repo and bury a real change in the diff — and small enough that anything structural still
+// fails: shifting every component by one dp fails this.
+private const val CHANGE_THRESHOLD = 0.001f
+
+/**
+ * Every preview in [packageTree], the parameters a [PreviewScreenshotSpec] is run once per.
+ *
+ * The previews are `private`, as a preview should be — nothing calls one. The scanner reads them
+ * anyway once asked, which is what [AndroidComposablePreviewScanner.includePrivatePreviews] is for.
+ */
+fun previewsIn(packageTree: String): List<ComposablePreview<AndroidPreviewInfo>> =
+    AndroidComposablePreviewScanner()
+        .scanPackageTrees(packageTree)
+        .includePrivatePreviews()
+        .getPreviews()
+
+/**
+ * A golden image per `@ScreenPreview` and `@ComponentPreview`, for whichever module subclasses this.
+ *
+ * **Scanned, not listed.** The previews already exist and already name the cases worth looking at,
+ * so a second list of them would be two descriptions of the same thing kept in step by hand. Add a
+ * preview and its goldens appear; delete one and its goldens are left for `git status` to point at.
+ *
+ * A module's test sees only its own classpath, so there is one subclass per `presentation` module
+ * and one in `:core:ui` (D35) — but they differ by a single package string, so everything except
+ * that string lives here:
+ *
+ * ```kotlin
+ * @RunWith(ParameterizedRobolectricTestRunner::class)
+ * class PreviewScreenshotTest(preview: ComposablePreview<AndroidPreviewInfo>) :
+ *     PreviewScreenshotSpec(preview) {
+ *
+ *     companion object {
+ *         @JvmStatic
+ *         @ParameterizedRobolectricTestRunner.Parameters
+ *         fun previews() = previewsIn("com.example.androidproject1.feature.home")
+ *     }
+ * }
+ * ```
+ *
+ * ```
+ * ./gradlew recordRoborazziDebug   # write the goldens
+ * ./gradlew verifyRoborazziDebug   # check them — this is what CI runs
+ * ```
+ *
+ * **Look at what you record.** A golden nobody opened is a test that passes forever; a blank or
+ * clipped image asserts the blankness just as firmly as a correct one asserts the layout.
+ *
+ * An overlay — a dialog, sheet, menu or picker — draws in a window of its own and is invisible
+ * here, however many goldens there are. Those get `OverlayScreenshotTest` in `:core:ui` instead.
+ */
+// The qualifier is the device a preview gets when it names none — `@ComponentPreview` never does.
+// Robolectric's own default is 320x470dp, which is shorter than a phone and clips a component
+// preview that stacks its variants; this is an ordinary phone instead. Robolectric reads @Config
+// up the class hierarchy, so a subclass inherits it.
+@Config(qualifiers = "w400dp-h900dp-xhdpi")
+// Robolectric's legacy renderer draws nothing but a stub; NATIVE is what makes the pixels real.
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+abstract class PreviewScreenshotSpec(
+    private val preview: ComposablePreview<AndroidPreviewInfo>,
+) {
+
+    @get:Rule
+    val compose = createComposeRule()
+
+    @Test
+    fun preview() {
+        // `preview.captureRoboImage`, not the plain one: this overload reads the @Preview's own
+        // device, uiMode and fontScale, which is what makes "Dark" dark rather than a second copy
+        // of the light image. Those options are what `manualAdvance` is added *to* — a fresh
+        // `RoborazziComposeOptions { }` would replace them, and a screen's three variants would
+        // come out as three identical files.
+        preview.captureRoboImage(
+            filePath = "src/test/screenshots/${AndroidPreviewScreenshotIdBuilder(preview).build()}.png",
+            roborazziOptions = RoborazziOptions(
+                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = CHANGE_THRESHOLD),
+            ),
+            roborazziComposeOptions = preview.toRoborazziComposeOptions()
+                .builder()
+                .manualAdvance(compose, ONE_FRAME_MILLIS)
+                // The same mode Android Studio renders a preview in, and the reason `AppImage` is
+                // a golden at all: outside it, Coil starts a real request that has neither finished
+                // nor failed by the time the frame is taken, so the image is a skeleton on one run
+                // and an error icon on the next. In inspection mode nothing is fetched.
+                .inspectionMode(true)
+                .build(),
+        )
+    }
+}

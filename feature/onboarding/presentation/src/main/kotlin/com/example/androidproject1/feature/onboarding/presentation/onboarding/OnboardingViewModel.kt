@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.onboarding.presentation.onboarding
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.state.updateData
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.state.updateData
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 /**
  * The tour, and the one write that ends it.

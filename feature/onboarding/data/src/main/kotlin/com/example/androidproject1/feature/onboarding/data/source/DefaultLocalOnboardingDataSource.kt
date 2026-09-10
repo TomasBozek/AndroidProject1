@@ -2,8 +2,8 @@ package com.example.androidproject1.feature.onboarding.data.source
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import com.example.androidproject1.core.data.DataStoreProvider
-import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
+import com.example.androidproject1.service.core.data.DataStoreProvider
+import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
