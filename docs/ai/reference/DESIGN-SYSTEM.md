@@ -59,6 +59,12 @@ because the caller's `modifier` goes to the bar, and the label beside it is tran
 the input's own semantics node and clears the visible label's, so a screen reader announces the name
 once and a test finds it with `hasText` on the node that `hasSetTextAction`.
 
+**The gallery lists every component, and something checks it.** `GalleryCatalog.kt` is written by
+hand because an entry carries variants and live demos that a `@ComponentPreview` does not — but
+`create_component.py` writes the starter entry and `doctor.py` fails on a component with none
+(D52). Two files are deliberately not entries: `AppScaffold`, which every gallery page already is,
+and `ControlSize`, which is a scale rather than a component.
+
 **A field in a form says what comes next, and what it holds.** `AppTextField` takes `imeAction`
 (`Next` on every field but the last, `Done` on the last), `onImeAction` for what `Done` runs, and
 `contentType` — the one line that lets a password manager fill it. A form whose fields leave all

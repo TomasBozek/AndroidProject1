@@ -84,8 +84,8 @@ does not call `safeDrawingPadding()` itself — that is what got screens padded 
 with no scaffold at all does, because the activity is edge to edge and `Screen()` applies no insets.
 
 If a screen needs something the set does not have, **add it to `:core:ui` with
-`create_component.py`**, give it a `@ComponentPreview`, and add it to `GalleryCatalog.kt` in the
-same change. Elevation is not `Modifier.shadow`: a pressable surface uses `Modifier.keySurface(…)`,
+`create_component.py`** and give it a `@ComponentPreview`. The generator writes its gallery entry
+and `doctor.py` fails on a component with none (D52), so the gallery cannot fall behind the set. Elevation is not `Modifier.shadow`: a pressable surface uses `Modifier.keySurface(…)`,
 a hard bottom edge that shortens on press.
 
 ### Testing a screen
