@@ -36,7 +36,7 @@ fun AppSectionHeader(
                 label = actionLabel,
                 onClick = onAction,
                 kind = ButtonKind.Ghost,
-                size = ButtonSize.Small,
+                size = ControlSize.Small,
             )
         }
     }

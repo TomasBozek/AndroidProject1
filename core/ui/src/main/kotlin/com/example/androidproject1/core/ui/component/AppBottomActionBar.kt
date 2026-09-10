@@ -45,7 +45,7 @@ fun AppBottomActionBar(
         AppButton(
             label = actionLabel,
             onClick = onAction,
-            size = ButtonSize.Large,
+            size = ControlSize.Large,
             enabled = enabled,
             modifier = Modifier.weight(if (value != null) 1.4f else 1f),
         )
