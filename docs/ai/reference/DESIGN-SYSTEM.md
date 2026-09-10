@@ -59,6 +59,17 @@ because the caller's `modifier` goes to the bar, and the label beside it is tran
 the input's own semantics node and clears the visible label's, so a screen reader announces the name
 once and a test finds it with `hasText` on the node that `hasSetTextAction`.
 
+**A field in a form says what comes next, and what it holds.** `AppTextField` takes `imeAction`
+(`Next` on every field but the last, `Done` on the last), `onImeAction` for what `Done` runs, and
+`contentType` — the one line that lets a password manager fill it. A form whose fields leave all
+three at their defaults gives every field the same keyboard key and is never offered a saved
+sign-in, which is the most common thing an Android form gets wrong (D51).
+
+**One size scale, not one per component.** `ControlSize` is `Small` / `Medium` / `Large` and every
+control that comes in sizes reads it, so `Small` means the same thing everywhere. A button's
+metrics are taller than a field's; that is a lookup inside `AppButton`, not a second enum (D51).
+`SizeClass` in `theme/` is a different idea — the width class of the window.
+
 **A label a component supplies itself is a resource, never a literal.** The picker's Cancel and
 Choose and the confirm dialog's default Cancel live in `:core:ui`'s `strings.xml` under `app_`,
 in both locales, beside the back arrow and the stepper's keys — a component's own control carries

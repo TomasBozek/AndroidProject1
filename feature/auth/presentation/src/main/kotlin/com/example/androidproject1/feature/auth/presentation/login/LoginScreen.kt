@@ -9,8 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
@@ -50,6 +52,8 @@ fun LoginScreen(
                 onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
                 label = stringResource(R.string.login_email),
                 keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next,
+                contentType = ContentType.Username + ContentType.EmailAddress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("login_emailField"),
@@ -60,6 +64,9 @@ fun LoginScreen(
                 onValueChange = { onEvent(LoginEvent.PasswordChanged(it)) },
                 label = stringResource(R.string.login_password),
                 password = true,
+                imeAction = ImeAction.Done,
+                onImeAction = { onEvent(LoginEvent.LoginClicked) },
+                contentType = ContentType.Password,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("login_passwordField"),

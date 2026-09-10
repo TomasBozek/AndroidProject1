@@ -41,16 +41,34 @@ import com.example.androidproject1.core.ui.theme.keySurface
 enum class ButtonKind { Confirm, Destructive, Info, Neutral, Outline, Ghost }
 
 /**
- * How large, which also decides the radius: the shape scale distinguishes a key from a surface.
+ * A button's own metrics for a [ControlSize] — taller than the shared scale, because a key is
+ * pressed with a thumb and a field is typed into.
  *
- * [Small] is 40 dp and exists only where there is a mouse — on a touch screen the range starts at
- * [Medium], so the 48 dp minimum target holds.
+ * These were a second enum, `ButtonSize`, with the same three names and a different set of numbers
+ * (D51). One scale and a lookup says the same thing without letting a screen ask for `Small` in
+ * one place and mean something else in another. The radius travels with the height on purpose:
+ * the shape scale is what distinguishes a key from a surface.
  */
-enum class ButtonSize(val height: Dp, internal val shape: Shape, val horizontalPadding: Dp) {
-    Small(40.dp, RoundedCornerShape(8.dp), 12.dp),
-    Medium(52.dp, RoundedCornerShape(10.dp), 16.dp),
-    Large(64.dp, RoundedCornerShape(12.dp), 20.dp),
-}
+private val ControlSize.buttonHeight: Dp
+    get() = when (this) {
+        ControlSize.Small -> 40.dp
+        ControlSize.Medium -> 52.dp
+        ControlSize.Large -> 64.dp
+    }
+
+private val ControlSize.buttonShape: Shape
+    get() = when (this) {
+        ControlSize.Small -> RoundedCornerShape(8.dp)
+        ControlSize.Medium -> RoundedCornerShape(10.dp)
+        ControlSize.Large -> RoundedCornerShape(12.dp)
+    }
+
+private val ControlSize.buttonPadding: Dp
+    get() = when (this) {
+        ControlSize.Small -> 12.dp
+        ControlSize.Medium -> 16.dp
+        ControlSize.Large -> 20.dp
+    }
 
 /**
  * The system's button: a pressed key rather than a floating card.
@@ -70,7 +88,7 @@ fun AppButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     kind: ButtonKind = ButtonKind.Confirm,
-    size: ButtonSize = ButtonSize.Medium,
+    size: ControlSize = ControlSize.Medium,
     enabled: Boolean = true,
     loading: Boolean = false,
 ) {
@@ -96,19 +114,19 @@ fun AppButton(
         kind == ButtonKind.Ghost -> Modifier
         flat -> Modifier.border(
             BorderStroke(1.dp, if (enabled) colors.borderStrong else colors.border),
-            size.shape,
+            size.buttonShape,
         )
         else -> Modifier.keySurface(
             color = family.bg,
             edge = family.edge,
-            shape = size.shape,
+            shape = size.buttonShape,
             pressed = pressed,
         )
     }
 
     Box(
         modifier = modifier
-            .defaultMinSize(minHeight = size.height)
+            .defaultMinSize(minHeight = size.buttonHeight)
             .then(surface)
             .clickable(
                 enabled = enabled && !loading,
@@ -117,7 +135,7 @@ fun AppButton(
                 indication = LocalIndication.current,
                 onClick = onClick,
             )
-            .padding(horizontal = size.horizontalPadding),
+            .padding(horizontal = size.buttonPadding),
         contentAlignment = Alignment.Center,
     ) {
         // The spinner is drawn *over* the label, not beside it. Beside it the button grows by the
@@ -128,9 +146,9 @@ fun AppButton(
             Text(
                 text = label,
                 style = when (size) {
-                    ButtonSize.Small -> AppTheme.typography.labelMd
-                    ButtonSize.Medium -> AppTheme.typography.bodyLg
-                    ButtonSize.Large -> AppTheme.typography.titleMd
+                    ControlSize.Small -> AppTheme.typography.labelMd
+                    ControlSize.Medium -> AppTheme.typography.bodyLg
+                    ControlSize.Large -> AppTheme.typography.titleMd
                 },
                 color = labelColor,
                 maxLines = 1,
@@ -165,5 +183,5 @@ private fun Preview() = ThemedComponentPreview {
     AppButton(label = "More options", onClick = {}, kind = ButtonKind.Ghost)
     AppButton(label = "Unavailable", onClick = {}, enabled = false)
     AppButton(label = "Processing", onClick = {}, loading = true)
-    AppButton(label = "Large", onClick = {}, size = ButtonSize.Large)
+    AppButton(label = "Large", onClick = {}, size = ControlSize.Large)
 }

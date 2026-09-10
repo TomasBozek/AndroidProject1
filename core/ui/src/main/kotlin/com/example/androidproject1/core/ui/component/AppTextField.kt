@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -22,12 +23,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -55,6 +59,17 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  *
  * Set [frame] to `false` for a field inside an [AppFieldGroup], which draws the frame for the whole
  * group. A framed field inside a framed group is a box in a box.
+ *
+ * **A field in a form says what comes next.** [imeAction] is what the keyboard's action key does —
+ * `ImeAction.Next` on every field but the last, `ImeAction.Done` on the last — and [onImeAction] is
+ * what pressing it runs when it is `Done` or `Send`; `Next` moves the focus on its own. Leaving
+ * both at their defaults gives every field of a three-field form the same key, which is what a form
+ * that cannot be filled in from the keyboard looks like.
+ *
+ * **[contentType] is what lets a password manager fill it.** Without it the platform has no idea
+ * what a field holds, so a saved sign-in is never offered — the single most common thing an
+ * Android form gets wrong, and one line to fix. `ContentType.Username`, `ContentType.Password`,
+ * `ContentType.NewPassword`, `ContentType.EmailAddress` and friends.
  */
 @Composable
 fun AppTextField(
@@ -72,6 +87,9 @@ fun AppTextField(
     suffix: String? = null,
     size: ControlSize = ControlSize.Medium,
     frame: Boolean = true,
+    imeAction: ImeAction = ImeAction.Default,
+    onImeAction: (() -> Unit)? = null,
+    contentType: ContentType? = null,
 ) {
     val colors = AppTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -125,6 +143,14 @@ fun AppTextField(
                         numeric -> KeyboardType.Number
                         else -> KeyboardType.Text
                     },
+                    imeAction = imeAction,
+                ),
+                // One handler on all three: which key the keyboard shows is `imeAction`'s business,
+                // and a caller that set `Send` should not have to know which callback it lands in.
+                keyboardActions = KeyboardActions(
+                    onDone = onImeAction?.let { { it() } },
+                    onGo = onImeAction?.let { { it() } },
+                    onSend = onImeAction?.let { { it() } },
                 ),
                 textStyle = (if (numeric) AppTheme.typography.numericMd else AppTheme.typography.bodyMd)
                     .copy(color = textColor),
@@ -132,6 +158,15 @@ fun AppTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = size.height)
+                    .then(
+                        // Declared on the node, so the platform's autofill service knows what this
+                        // field holds and a saved sign-in is offered.
+                        if (contentType != null) {
+                            Modifier.semantics { this.contentType = contentType }
+                        } else {
+                            Modifier
+                        },
+                    )
                     .then(
                         if (frame) {
                             Modifier

@@ -17,8 +17,9 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * button, the switch, the checkbox and the segmented control the same sm / md / lg vocabulary, and
  * a screen that has chosen `Small` for one of them means the same thing by it everywhere.
  *
- * [Small] sits below the 48 dp touch minimum and exists only where there is a mouse — the same
- * rule [ButtonSize.Small] carries, and for the same reason. On glass the range starts at [Medium].
+ * [Small] sits below the 48 dp touch minimum and exists only where there is a mouse. On glass the
+ * range starts at [Medium]. A button reads the same three names through its own metrics, which are
+ * taller — see `AppButton` (D51).
  */
 enum class ControlSize { Small, Medium, Large }
 

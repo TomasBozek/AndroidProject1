@@ -23,6 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
 import com.example.androidproject1.core.ui.component.AppAvatarPhoto
@@ -79,7 +82,6 @@ import com.example.androidproject1.core.ui.component.AppTooltip
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.AppVerticalDivider
 import com.example.androidproject1.core.ui.component.ButtonKind
-import com.example.androidproject1.core.ui.component.ButtonSize
 import com.example.androidproject1.core.ui.component.CheckState
 import com.example.androidproject1.core.ui.component.ControlSize
 import com.example.androidproject1.core.ui.component.DescriptionRow
@@ -170,8 +172,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Ghost" to { AppButton("More options", {}, kind = ButtonKind.Ghost) },
         "Disabled — loses the body" to { AppButton("Unavailable", {}, enabled = false) },
         "Loading — label and width hold" to { AppButton("Processing", {}, loading = true) },
-        "Small 40 (mouse only)" to { AppButton("Small", {}, size = ButtonSize.Small) },
-        "Large 64" to { AppButton("Large", {}, size = ButtonSize.Large) },
+        "Small 40 (mouse only)" to { AppButton("Small", {}, size = ControlSize.Small) },
+        "Large 64" to { AppButton("Large", {}, size = ControlSize.Large) },
     ),
     entry(
         "iconbutton",
@@ -238,6 +240,31 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             Demo("56") { value, onChange -> AppTextField(value, onChange, size = ControlSize.Large) }
         },
         "Disabled" to { AppTextField("Locked", {}, label = "Till", enabled = false) },
+        "In a form — Next, and offered to a password manager" to {
+            Demo("ada@example.com") { value, onChange ->
+                AppTextField(
+                    value,
+                    onChange,
+                    label = "Address",
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                    contentType = ContentType.Username + ContentType.EmailAddress,
+                )
+            }
+        },
+        "The last field — Done submits" to {
+            Demo("hunter2") { value, onChange ->
+                AppTextField(
+                    value,
+                    onChange,
+                    label = "Password",
+                    password = true,
+                    imeAction = ImeAction.Done,
+                    onImeAction = {},
+                    contentType = ContentType.Password,
+                )
+            }
+        },
     ),
     entry(
         "searchfield",

@@ -9,8 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.androidproject1.core.ui.common.ScreenPreview
@@ -69,6 +71,8 @@ fun ProfileScreen(
                 errorText = state.name.error?.resolve(),
                 onValueChange = { onEvent(ProfileEvent.NameChanged(it)) },
                 label = stringResource(R.string.profile_name),
+                imeAction = ImeAction.Next,
+                contentType = ContentType.PersonFullName,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("profile_nameField"),
@@ -80,6 +84,9 @@ fun ProfileScreen(
                 onValueChange = { onEvent(ProfileEvent.EmailChanged(it)) },
                 label = stringResource(R.string.profile_email),
                 keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Done,
+                onImeAction = { onEvent(ProfileEvent.SaveClicked) },
+                contentType = ContentType.EmailAddress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("profile_emailField"),

@@ -9,8 +9,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
@@ -50,6 +52,8 @@ fun SignUpScreen(
                 onValueChange = { onEvent(SignUpEvent.EmailChanged(it)) },
                 label = stringResource(R.string.sign_up_email),
                 keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next,
+                contentType = ContentType.Username + ContentType.EmailAddress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("signUp_emailField"),
@@ -60,6 +64,10 @@ fun SignUpScreen(
                 onValueChange = { onEvent(SignUpEvent.PasswordChanged(it)) },
                 label = stringResource(R.string.sign_up_password),
                 password = true,
+                imeAction = ImeAction.Next,
+                // NewPassword, not Password: this is the field a manager should offer to *generate*
+                // into, and the one below is what it repeats.
+                contentType = ContentType.NewPassword,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("signUp_passwordField"),
@@ -70,6 +78,9 @@ fun SignUpScreen(
                 onValueChange = { onEvent(SignUpEvent.ConfirmPasswordChanged(it)) },
                 label = stringResource(R.string.sign_up_confirm_password),
                 password = true,
+                imeAction = ImeAction.Done,
+                onImeAction = { onEvent(SignUpEvent.SignUpClicked) },
+                contentType = ContentType.NewPassword,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("signUp_confirmPasswordField"),
