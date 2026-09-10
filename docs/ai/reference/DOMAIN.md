@@ -86,7 +86,7 @@ store below swappable.
 |---|---|
 | `LocalAuthDataSource` | DataStore, encrypted — the session is the one thing that is |
 | `LocalCartDataSource` | Room · `CartDatabase` · `cart_items` |
-| `LocalCatalogDataSource` | Room · `CatalogDatabase` · `categories`, `products` |
+| `LocalCatalogDataSource` | Room · `CatalogDatabase` · `categories`, `products`, `catalog_fetches` |
 | `LocalFavouritesDataSource` | Room · `CatalogDatabase` · `favourites` |
 | `RemoteCatalogDataSource` | Ktor, against `BuildConfig.BASE_URL`; `MockEngine` fixtures on `dev` |
 | `LocalRecentSearchesDataSource` | DataStore |
@@ -98,6 +98,11 @@ store below swappable.
 Both databases export their schema under the module's `schemas/`, and a `version` bump ships its
 migration and its migration test in the same commit. `fallbackToDestructiveMigration` is never used:
 what it means is that the next update empties the cart.
+
+`catalog_fetches` holds one row per cached list — `categories`, `products:<categoryId>` — written in
+the same transaction as the rows. It is what makes a cached list `null` until it has been fetched and
+a list, empty or not, afterwards, which is the distinction `BaseRepository.cached` rests on: an empty
+table alone cannot say whether the category is empty or was never loaded.
 
 ## Session state
 

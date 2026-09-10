@@ -36,11 +36,18 @@ interface CatalogDao {
     @Query("SELECT COUNT(*) FROM products")
     suspend fun productCount(): Int
 
+    /** `null` until the list this key names has been written at least once. */
+    @Query("SELECT * FROM catalog_fetches WHERE `key` = :key")
+    fun observeFetch(key: String): Flow<CatalogFetchEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategories(categories: List<CategoryEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProducts(products: List<ProductEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFetch(fetch: CatalogFetchEntity)
 
     @Query("DELETE FROM categories")
     suspend fun deleteCategories()
@@ -49,21 +56,26 @@ interface CatalogDao {
     suspend fun deleteProductsIn(categoryId: String)
 
     /**
-     * Replace, in one transaction.
+     * Replace, in one transaction, and stamp the fetch marker with it.
      *
      * Delete-then-insert rather than upsert, because a product the server has dropped has to
      * disappear — an upsert would leave it in the table for ever. The transaction is what stops a
-     * collector seeing the empty moment in between.
+     * collector seeing the empty moment in between, and what makes the marker's presence mean the
+     * rows beside it are the ones that were written.
      */
     @Transaction
-    suspend fun replaceCategories(categories: List<CategoryEntity>) {
+    suspend fun replaceCategories(categories: List<CategoryEntity>, fetchedAt: Long) {
         deleteCategories()
         insertCategories(categories)
+        insertFetch(CatalogFetchEntity(key = CatalogFetchKeys.CATEGORIES, fetchedAt = fetchedAt))
     }
 
     @Transaction
-    suspend fun replaceProductsIn(categoryId: String, products: List<ProductEntity>) {
+    suspend fun replaceProductsIn(categoryId: String, products: List<ProductEntity>, fetchedAt: Long) {
         deleteProductsIn(categoryId)
         insertProducts(products)
+        insertFetch(
+            CatalogFetchEntity(key = CatalogFetchKeys.products(categoryId), fetchedAt = fetchedAt),
+        )
     }
 }

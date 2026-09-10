@@ -62,14 +62,17 @@ class CatalogDatabaseTest {
         catalog.replaceProducts("beverages", products.toList())
 
     @Test
-    fun `an empty table reads as null, not as an empty list`() = runTest {
+    fun `an unfetched category reads as null and an empty one as an empty list`() = runTest {
         // The distinction cache-then-network rests on: null is "never fetched", an empty list is
-        // "fetched, and the category really is empty".
+        // "fetched, and the category really is empty". Both are an empty table, so what separates
+        // them is the fetch marker the write leaves behind. This test used to assert null on both
+        // sides of the write, which is the bug: `cached` then had nothing to emit, and the
+        // category's screen loaded for ever.
         assertNull(catalog.observeProducts("beverages").first())
 
         catalog.replaceProducts("beverages", emptyList())
 
-        assertNull(catalog.observeProducts("beverages").first())
+        assertEquals(emptyList<Product>(), catalog.observeProducts("beverages").first())
     }
 
     @Test

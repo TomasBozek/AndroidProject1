@@ -12,6 +12,7 @@ import com.example.androidproject1.feature.catalog.data.database.CatalogDatabase
 import com.example.androidproject1.feature.catalog.data.source.DefaultLocalCatalogDataSource
 import com.example.androidproject1.feature.catalog.data.source.DefaultRemoteCatalogDataSource
 import com.example.androidproject1.feature.catalog.domain.Category
+import com.example.androidproject1.feature.catalog.domain.Product
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
@@ -157,8 +158,8 @@ class DefaultCatalogRepositoryTest {
     fun `a refresh removes a product the server no longer has`() = runTest {
         repository(serving(PRODUCTS_JSON)).observeProducts("beverages").first()
 
-        // Collected in the background rather than with toList(): once the refresh empties the
-        // table the cache maps to null and emits nothing more, so the flow stays live and silent.
+        // Collected in the background rather than with toList(): the flow stays live after the
+        // refresh, waiting on a cache that nothing else is going to change.
         backgroundScope.launch { repository(serving("[]")).observeProducts("beverages").collect {} }
 
         // Waiting on the table, not on the scheduler: the HTTP call finishes on a dispatcher
@@ -168,5 +169,26 @@ class DefaultCatalogRepositoryTest {
             emptyList<String>(),
             database.catalogDao().observeProductsIn("beverages").first { it.isEmpty() }.map { it.id },
         )
+    }
+
+    @Test
+    fun `an empty category emits its empty list rather than nothing at all`() = runTest {
+        // The one this test exists for. An empty table used to read as a cache miss, so `cached`
+        // had nothing to emit and the screen's loading overlay never came down — `products_empty`
+        // was unreachable. Without the fetch marker this call never returns.
+        val outcome = repository(serving("[]")).observeProducts("beverages").first()
+
+        assertEquals(emptyList<Product>(), (outcome as Outcome.Success).data)
+    }
+
+    @Test
+    fun `an empty category is cached, and comes back before the network like any other`() = runTest {
+        repository(serving("[]")).observeProducts("beverages").first()
+
+        // failing(), so whatever arrives first can only have come from the cache.
+        val emissions = repository(failing()).observeProducts("beverages").take(2).toList()
+
+        assertEquals(emptyList<Product>(), (emissions.first() as Outcome.Success).data)
+        assertTrue(emissions.last() is Outcome.Failure)
     }
 }
