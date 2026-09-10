@@ -67,7 +67,9 @@ Two details the test file explains and that a new one must keep:
 **An overlay needs a golden of its own**, and that is the one thing the previews are not the list
 for. A dialog, a sheet, a menu and a picker each draw in a window of their own, and a capture of a
 preview captures the composable — so all 349 goldens were green while the date picker was clipped
-on a 360 dp phone. `OverlayScreenshotTest` in `:core:ui` is the answer: it opens the overlay and
+on a 360 dp phone. `OverlayScreenshotTest` in `:core:ui` is the answer: it pins the clock and the time zone first —
+the date picker rings *today*, so without that these goldens fail once a day for a reason that
+has nothing to do with the code — then opens the overlay and
 uses `captureScreenRoboImage`, which captures the screen and so takes the window with it. Add an
 overlay component and add a case there, recorded at the shapes an overlay actually breaks on —
 the narrowest phone and a phone in landscape, not the comfortable 400×900 the previews use.

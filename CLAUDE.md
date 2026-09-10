@@ -151,7 +151,9 @@ wants goes to `:core:ui`, the same way — never copied.
   still `null` instead of dropping the update in silence, which is how a value that arrives before
   the first load goes missing with nothing to find.
 - `UiState(data, loading, alert)` is an envelope. **Loading overlays and alert dialogs are rendered
-  centrally by `Screen()`** — never reimplement them in a feature screen.
+  centrally by `Screen()`** — never reimplement them in a feature screen. What they look like is
+  `AppScreenChrome`, installed by `AppTheme` (D50), so they are design-system components like
+  everything else.
 - `Screen()` is the only place that calls `collectAsStateWithLifecycle` and the only interpreter of
   `UiCommand`. A feature screen only ever receives a non-null state. Every command is plain data: a
   snackbar's action comes back as `SystemEvent.SnackbarAction(id)`, handled in `onSystemEvent`.

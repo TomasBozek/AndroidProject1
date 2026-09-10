@@ -19,7 +19,7 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 
 ### Lane 1 · the design system · 87
 
-- [ ] B1U1 The screen shell joins the design system (was F13) · 25 · decides D50
+- [x] B1U1 The screen shell joins the design system (was F13) · 25 → 25 · decides D50
 - [ ] B1U2 AppTextField rebuilt, the size enums folded (was F23 + M1) · 25 · decides D51
 - [ ] B1U3 The gallery is generated from the previews (was F7) · 25 · decides D52
 - [ ] B1U4 Predictive back on dirty forms, auto-sizing numerics (was M3 + M4) · 12

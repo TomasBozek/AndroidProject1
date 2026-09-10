@@ -3,15 +3,11 @@ package com.example.androidproject1.service.core.ui.component
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,22 +45,26 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
+    // What draws the surface, the overlay, the alert and the empty/error content. `AppTheme`
+    // installs this app's; on its own the module falls back to Material (D50).
+    val chrome = LocalScreenChrome.current
 
-    ScreenSurface(modifier = Modifier.fillMaxSize()) {
+    chrome.Surface(modifier = Modifier.fillMaxSize()) {
         // A failure or empty state stands in for the content rather than covering it: there is
         // nothing behind it worth showing.
         val contentState = uiState.content
         if (contentState != null) {
-            ContentMessage(
+            chrome.ContentMessage(
                 state = contentState,
                 onAction = { viewModel.onSystemEvent(SystemEvent.ContentAction(contentState.id)) },
+                modifier = Modifier,
             )
         } else {
             uiState.data?.let { content(it, viewModel::onUiEvent) }
         }
 
         uiState.alert?.let { alert ->
-            StateAlertDialog(
+            chrome.AlertDialog(
                 state = alert,
                 onConfirm = {
                     viewModel.onSystemEvent(SystemEvent.AlertResult.Confirmed(alert.id, alert.payload))
@@ -75,14 +75,15 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
                 onDismiss = {
                     viewModel.onSystemEvent(SystemEvent.AlertResult.Dismissed(alert.id, alert.payload))
                 },
+                modifier = Modifier,
             )
         }
 
-        uiState.loading?.let { LoadingOverlay(state = it) }
+        uiState.loading?.let { chrome.LoadingOverlay(state = it, modifier = Modifier) }
 
         // The activity is edge to edge and `Screen()` applies no insets to its content, so the
         // host pads itself — without this the snackbar sits under the gesture-navigation bar.
-        SnackbarHost(
+        chrome.SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -126,16 +127,5 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
 
             is UiCommand.OpenAppSettings -> context.openAppSettings()
         }
-    }
-}
-
-// Always a Box inside, so the snackbar host has a BoxScope to align itself in.
-@Composable
-private fun ScreenSurface(
-    modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit,
-) {
-    Surface(modifier = modifier) {
-        Box(modifier = Modifier.fillMaxSize(), content = content)
     }
 }
