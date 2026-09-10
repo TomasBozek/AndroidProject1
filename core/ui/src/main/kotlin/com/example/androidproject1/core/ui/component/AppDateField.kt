@@ -10,13 +10,18 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -82,12 +87,22 @@ fun AppDateField(
                 ?.toInstant()
                 ?.toEpochMilli(),
         )
-        AppDialog(
-            title = label ?: placeholder,
-            onDismiss = { open = false },
-            content = { DatePicker(state = state) },
-            actions = {
+        // Material's own dialog rather than [AppDialog], and this is the one component that gets
+        // that exemption. `DatePicker` demands a width of 360 dp, which is the whole width of a
+        // small phone, so the host has to be a window sized to the picker with no inset either
+        // side of it — which is exactly what `DatePickerDialog` is and what it does. Wearing
+        // AppTheme's shape and surface, so it is the same dialog to look at.
+        //
+        // No title: the picker draws its own headline, and a second one above it was a title
+        // competing with a date for the same three lines.
+        DatePickerDialog(
+            onDismissRequest = { open = false },
+            shape = AppTheme.shapes.xl,
+            colors = DatePickerDefaults.colors(containerColor = AppTheme.colors.surfaceRaised),
+            dismissButton = {
                 AppButton(label = "Cancel", onClick = { open = false }, kind = ButtonKind.Ghost)
+            },
+            confirmButton = {
                 AppButton(
                     label = "Choose",
                     onClick = {
@@ -102,7 +117,11 @@ fun AppDateField(
                     },
                 )
             },
-        )
+        ) {
+            // The grid is taller than a landscape phone even inside the dialog's 568 dp cap, so it
+            // scrolls rather than pushing the buttons off the bottom.
+            DatePicker(state = state, modifier = Modifier.verticalScroll(rememberScrollState()))
+        }
     }
 }
 
@@ -143,10 +162,18 @@ fun AppTimeField(
             initialHour = value?.hour ?: 0,
             initialMinute = value?.minute ?: 0,
         )
+        // [AppDialog] is enough here, where it was not for the date: the dial is 256 dp wide
+        // against the date grid's 360 dp, so it fits inside the card's inset with room to spare —
+        // but only in the vertical layout, which is why that is asked for rather than left to
+        // `TimePickerDefaults.layoutType()`. Left to itself the picker turns horizontal the moment
+        // the screen is short, putting the selectors beside a dial that then needs some 560 dp,
+        // and `overlay_timePicker_landscape` caught it doing exactly that: the right-hand half of
+        // the clock face and the whole AM/PM toggle were outside the card. Vertical is taller than
+        // a landscape phone instead, and taller is what the dialog's scroll is for.
         AppDialog(
             title = label ?: placeholder,
             onDismiss = { open = false },
-            content = { TimePicker(state = state) },
+            content = { TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical) },
             actions = {
                 AppButton(label = "Cancel", onClick = { open = false }, kind = ButtonKind.Ghost)
                 AppButton(

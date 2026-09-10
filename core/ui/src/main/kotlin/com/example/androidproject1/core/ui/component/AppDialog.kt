@@ -6,17 +6,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
+
+/** Material's own cap, and the reason for it: a phone in landscape is about 360 dp tall. */
+private val MAX_DIALOG_HEIGHT = 568.dp
 
 /**
  * A dialog: the top layer, and the only one allowed over a sheet.
@@ -24,6 +31,20 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * [title] is a sentence about what is going to happen, never a single noun, and the confirming
  * button carries a verb — "Void order", not "OK". That is the difference between a dialog someone
  * reads and one they dismiss.
+ *
+ * Three things here are about the window rather than the content, and each one was a way for a
+ * dialog to be unusable:
+ *
+ * - **The window sizes itself.** `usePlatformDefaultWidth` is off, because the platform default is
+ *   a fraction of the screen and cannot hold content with a minimum width of its own. That is what
+ *   clipped the date picker: Material's `DatePicker` asks for 360 dp, and on a 360 dp phone the
+ *   inset either side of it had nowhere to come from.
+ * - **The inset moved outside.** The card keeps its `inset.xl` padding, and the gap between the
+ *   card and the edge of the screen is now a margin on the outside of it, so the padding is no
+ *   longer competing with the content for width.
+ * - **The content scrolls inside a height cap.** [actions] are outside that scroll, so the
+ *   confirming button is on screen whatever the content does — in landscape, at a large font, or
+ *   with a title that wraps to three lines.
  */
 @Composable
 fun AppDialog(
@@ -34,10 +55,15 @@ fun AppDialog(
     content: @Composable ColumnScope.() -> Unit = {},
     actions: @Composable () -> Unit,
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
         Column(
             modifier = modifier
+                .padding(AppTheme.spacing.inset.md)
                 .widthIn(max = 440.dp)
+                .heightIn(max = MAX_DIALOG_HEIGHT)
                 .clip(AppTheme.shapes.xl)
                 .background(AppTheme.colors.surfaceRaised)
                 .padding(AppTheme.spacing.inset.xl),
@@ -45,7 +71,15 @@ fun AppDialog(
         ) {
             AppText(text = title, role = TextRole.TitleLarge)
             if (message != null) AppText(text = message, role = TextRole.Body)
-            content()
+            // `fill = false` so a short dialog stays short: the weight caps the content at what is
+            // left over, it does not stretch it to fill.
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.md),
+                content = content,
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(
