@@ -14,7 +14,7 @@ A multi-module Android template: Kotlin, Jetpack Compose, Koin, single activity,
 | | Version | Note |
 |---|---|---|
 | JDK | 25 | pinned in `gradle/gradle-daemon-jvm.properties`; Gradle provisions it via foojay on first run, so it needs network once |
-| Android SDK | API 37 | `compileSdk` and `targetSdk`; `minSdk` is 29 |
+| Android SDK | API 37 | `compileSdk` and `targetSdk`; `minSdk` is 29. Gradle finds it through `ANDROID_HOME` or a `sdk.dir` line in `local.properties`, which is untracked — Android Studio writes it on first open |
 | Python | 3.10+ | the scripts in `scripts/`; standard library only, nothing to install |
 
 Gradle 9.6 comes from the wrapper. Android Studio is optional — everything below runs from the
@@ -22,18 +22,24 @@ command line.
 
 ## Build and run
 
+Three flavors on one dimension — `dev`, `staging`, `prod` — so a variant is `devDebug` or
+`prodRelease` and `assembleDebug` alone names three of them. `dev` is the one to work in.
+
 ```bash
-./gradlew build                # every variant: slow, and not what the gate runs
-./gradlew :app:installDebug    # install the debug build on a connected device
-./gradlew test
+./gradlew :app:assembleDevDebug   # one variant
+./gradlew installDevDebug         # onto a connected device
+./gradlew test                    # every module's unit tests, one variant each
 ./gradlew lint
-./gradlew ktlintCheck          # ktlintFormat fixes what it can
-./gradlew verifyRoborazziDebug  # the screenshot goldens; recordRoborazziDebug rewrites them
+./gradlew ktlintCheck             # ktlintFormat fixes what it can
+./gradlew verifyRoborazziDebug    # the screenshot goldens; recordRoborazziDebug rewrites them
+./gradlew koverHtmlReport         # coverage: a signal, never a gate
 ```
 
 One module at a time: `./gradlew :feature:auth:presentation:assembleDebug`.
 
-Before you call a change done, in the order CI runs it:
+**Never `./gradlew build`** — it assembles every variant and runs R8 three times.
+
+Before you call a change done, the whole gate with nothing skipped:
 
 ```bash
 python3 scripts/doctor.py && python3 scripts/test_scripts.py &&
@@ -41,9 +47,8 @@ python3 scripts/doctor.py && python3 scripts/test_scripts.py &&
   ./gradlew verifyRoborazziDebug
 ```
 
-`python3 scripts/install_hooks.py` installs the first of those as a pre-commit hook, once per clone.
-
-gate; [CLAUDE.md](CLAUDE.md) lists the two categories of its output that are deliberate here.
+Most changes need less than that; which parts, and when, is [CLAUDE.md](CLAUDE.md) § Checks.
+`python3 scripts/install_hooks.py` installs `doctor.py` as a pre-commit hook, once per clone.
 
 ## Make it your project
 
@@ -107,7 +112,7 @@ Layer direction, enforced by `doctor.py`:
 |---|---|
 | `domain` | `service:core:domain` only — a plain Kotlin/JVM module, so `android.*` will not compile |
 | `data` | `service:core:data` + own `domain` |
-| `presentation` | `core:ui` + own `domain` |
+| `presentation` | `core:ui` + own `domain`, and another feature's `domain` |
 | `di` | all of the above |
 
 A feature's `presentation` must never depend on another feature's `presentation`.
