@@ -144,18 +144,20 @@ wants goes to `:core:ui`, the same way — never copied.
 ## MVI conventions
 
 - ViewModels expose `state: StateFlow<UiState<State?>>`; the UI sends events via `onUiEvent(event)`.
-- **`BaseViewModel` takes `initialState` first.** Pass the state the screen renders straight away
-  and it starts with no overlay; pass `null` only when the screen cannot render until something
-  loads. Never write `init { uiState.update { ... loading = null } }` — one forgotten line there
-  strands a screen behind a permanent spinner.
+- **`BaseViewModel` takes `initialState` first.** Pass the state the screen renders straight away;
+  pass `null` only when it genuinely cannot draw until something loads. `null` raises no overlay of
+  its own (D44) — the call that is waiting asks for one.
+- **Write state with `updateData { copy(...) }`**, the protected member. It logs when `data` is
+  still `null` instead of dropping the update in silence, which is how a value that arrives before
+  the first load goes missing with nothing to find.
 - `UiState(data, loading, alert)` is an envelope. **Loading overlays and alert dialogs are rendered
   centrally by `Screen()`** — never reimplement them in a feature screen.
 - `Screen()` is the only place that calls `collectAsStateWithLifecycle` and the only interpreter of
   `UiCommand`. A feature screen only ever receives a non-null state. Every command is plain data: a
   snackbar's action comes back as `SystemEvent.SnackbarAction(id)`, handled in `onSystemEvent`.
 - **Use `execute {}` (one-shot) and `observe(flow = …) {}` (flows) rather than try/catch.** They
-  drive the loading state, turn `Outcome.Failure` into an alert and rethrow cancellation; pass
-  `loading = {}` for a screen with its own inline loading. Overlapping calls are reference-counted.
+  turn `Outcome.Failure` into an alert and rethrow cancellation. **The overlay is opt-in**: pass
+  `loading = overlay()`, or `overlay(message)` to word it. Overlapping calls are reference-counted.
 - `navigation` and `command` are buffered channels, not shared flows, so a one-shot emitted while
   nothing collects arrives on resume rather than being dropped. Single-consumer by design.
 - `AlertState.title` has no default, so an ordinary confirmation is not labelled "something went

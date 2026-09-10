@@ -7,7 +7,6 @@ import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
 import com.example.androidproject1.feature.devmenu.presentation.R
 import com.example.androidproject1.service.core.domain.ErrorTracker
 import com.example.androidproject1.service.core.domain.Logger
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
@@ -36,9 +35,8 @@ class DevMenuViewModel(
     init {
         observe(
             flow = { authService.observeSession() },
-            loading = {},
         ) { session ->
-            uiState.updateData { copy(session = session?.email) }
+            updateData { copy(session = session?.email) }
         }
     }
 
@@ -48,7 +46,7 @@ class DevMenuViewModel(
                 offlineSwitch.setOffline(event.offline)
                 // Read back rather than assumed: the flag lives outside this process, so a write
                 // that did not take should not leave the screen claiming it did.
-                uiState.updateData { copy(offline = offlineSwitch.isOffline()) }
+                updateData { copy(offline = offlineSwitch.isOffline()) }
             }
 
             DevMenuEvent.CrashClicked -> {

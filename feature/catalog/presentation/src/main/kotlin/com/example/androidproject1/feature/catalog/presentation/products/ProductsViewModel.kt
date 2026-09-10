@@ -38,6 +38,7 @@ class ProductsViewModel(
     // lands beside a usable screen instead of replacing it.
     private fun load() = observe(
         flow = { catalogRepository.observeProducts(args.categoryId) },
+        loading = overlay(),
         errorDisplay = ErrorDisplay.Inline,
         onError = ::keepStaleContent,
         onData = { products ->

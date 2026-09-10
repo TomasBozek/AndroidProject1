@@ -6,7 +6,6 @@ import com.example.androidproject1.feature.settings.presentation.R
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.state.setAlert
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
@@ -22,20 +21,18 @@ class SettingsViewModel(
     init {
         observe(
             flow = { authService.observeSession() },
-            loading = {},
         ) { session ->
             // updateData, not a fresh SettingsState: `debugMenuEnabled` is reported once by
             // the destination and a rebuilt state would drop it on the next session emission.
-            uiState.updateData { copy(email = session?.email) }
+            updateData { copy(email = session?.email) }
         }
 
         // Observed rather than read once: the root applies the same flow, so a choice made
         // here has to come back through the store rather than be held in this state alone.
         observe(
             flow = { themeRepository.observeTheme() },
-            loading = {},
         ) { theme ->
-            uiState.updateData { copy(theme = theme) }
+            updateData { copy(theme = theme) }
         }
     }
 
@@ -46,14 +43,13 @@ class SettingsViewModel(
             SettingsEvent.DebugMenuClicked -> navigate(SettingsNavigation.DebugMenu)
 
             is SettingsEvent.DebugMenuAvailable ->
-                uiState.updateData { copy(debugMenuEnabled = event.available) }
+                updateData { copy(debugMenuEnabled = event.available) }
 
             // No optimistic update: the flow above re-emits, so writing the state here as
             // well would show a choice the store may have refused.
             is SettingsEvent.ThemeSelected -> execute(
                 // No overlay: the whole app repaints as soon as the store emits, and a spinner
                 // over a repaint the user is already watching says nothing.
-                loading = {},
                 action = { themeRepository.setTheme(event.theme) },
                 onData = {},
             )
@@ -83,6 +79,7 @@ class SettingsViewModel(
     }
 
     private fun logout() = execute(
+        loading = overlay(),
         action = { authService.logout() },
         onData = { logger.d { "Signed out" } },
     )

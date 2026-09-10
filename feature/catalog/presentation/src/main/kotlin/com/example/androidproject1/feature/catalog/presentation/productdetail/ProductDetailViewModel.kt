@@ -76,11 +76,10 @@ class ProductDetailViewModel(
      *
      * Writing the state optimistically and letting the flow confirm it would mean two sources of
      * truth for one boolean; observing means a favourite removed from Home is already un-hearted
-     * when the user navigates back here. `loading = {}` because a heart is not worth an overlay.
+     * when the user navigates back here. No overlay, because a heart is not worth one.
      */
     private fun observeFavourite() = observe(
         flow = { favouritesRepository.observeIsFavourite(args.productId) },
-        loading = {},
         errorDisplay = ErrorDisplay.Silent,
         onData = { favourite ->
             isFavourite = favourite
@@ -99,7 +98,6 @@ class ProductDetailViewModel(
     private fun addToCart() {
         val product = product ?: return
         execute(
-            loading = {},
             action = { addProductToCart(productId = product.id, name = product.name, price = product.price) },
             onData = { showSnackbar(R.string.product_detail_added_to_cart.toUiText()) },
         )
@@ -108,7 +106,6 @@ class ProductDetailViewModel(
     // Alert on failure: the user asked for this, so silence would look like the tap did nothing.
     private fun toggleFavourite() {
         execute(
-            loading = {},
             action = { favouritesRepository.setFavourite(args.productId, !isFavourite) },
             onData = { },
         )
@@ -117,6 +114,7 @@ class ProductDetailViewModel(
     // Inline rather than Alert: this is the call that loads the screen, so a dialog would leave
     // nothing behind it. BaseViewModel remembers the call and the retry button re-runs it.
     private fun load() = execute(
+        loading = overlay(),
         errorDisplay = ErrorDisplay.Inline,
         action = { catalogRepository.getProduct(args.productId) },
         onData = { product ->

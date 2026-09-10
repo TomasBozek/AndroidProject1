@@ -1,5 +1,6 @@
 package com.example.androidproject1.service.core.ui.viewmodel
 
+import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.domain.error.NotFoundError
 import com.example.androidproject1.service.core.domain.result.Outcome
 import com.example.androidproject1.service.core.domain.test.FakeLogger
@@ -47,15 +48,18 @@ class BaseViewModelTest {
     /** Exposes the protected members so the base class can be driven from a test. */
     private class TestViewModel(
         initialState: TestState?,
+        logger: Logger = FakeLogger(),
     ) : BaseViewModel<TestState, TestEvent, TestNavigation>(
         initialState = initialState,
-        logger = FakeLogger(),
+        logger = logger,
     ) {
+
+        fun rename(name: String) = updateData { copy(value = name) }
 
         fun <T> oneShot(
             loadingMessage: UiText? = null,
             action: suspend () -> Outcome<T>,
-        ) = execute(loadingMessage = loadingMessage, action = action, onData = {})
+        ) = execute(loading = overlay(loadingMessage), action = action, onData = {})
 
         /** An [ErrorDisplay.Inline] call, which is the only kind that registers a retry. */
         fun <T> inlineLoad(contentId: String, action: suspend () -> Outcome<T>) = execute(
@@ -66,11 +70,11 @@ class BaseViewModelTest {
         )
 
         fun <T> stream(flow: () -> Flow<Outcome<T>>) =
-            observe(flow = { flow() }, onData = {})
+            observe(flow = { flow() }, loading = overlay(), onData = {})
 
         /** The lifecycle-aware variant: collects only while `state` has a subscriber. */
         fun <T> subscribedStream(flow: () -> Flow<Outcome<T>>) =
-            observe(flow = { flow() }, whileSubscribed = true, loading = {}, onData = {})
+            observe(flow = { flow() }, whileSubscribed = true, loading = overlay(), onData = {})
 
         fun go(navigation: TestNavigation) = navigate(navigation)
 
@@ -110,12 +114,33 @@ class BaseViewModelTest {
         assertNull(viewModel.state.value.loading)
     }
 
+    /**
+     * D44: a null initial state used to raise the overlay by itself, so the two ways a screen could
+     * be waiting — no state yet, and a call in flight — were the same flag set from two places. The
+     * overlay is now asked for, once, by the call that is waiting.
+     */
     @Test
-    fun `a null initial state starts behind the loading overlay`() {
+    fun `a null initial state draws nothing, and raises no overlay of its own`() {
         val viewModel = TestViewModel(null)
 
         assertNull(viewModel.state.value.data)
-        assertNotNull(viewModel.state.value.loading)
+        assertNull(viewModel.state.value.loading)
+    }
+
+    /**
+     * D44: the update is dropped either way — `data` is null and there is nothing to copy — but it
+     * is now logged, which is what makes the next occurrence findable. This is the shape of the
+     * bug A1X4 fixed by hand on the product-detail heart.
+     */
+    @Test
+    fun `an update before the first state is logged rather than dropped in silence`() {
+        val logger = FakeLogger()
+        val viewModel = TestViewModel(initialState = null, logger = logger)
+
+        viewModel.rename("Ada")
+
+        assertNull(viewModel.state.value.data)
+        assertTrue(logger.warnings.any { "updateData" in it.message })
     }
 
     // --- loading ---

@@ -14,7 +14,7 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 
 - [x] B0P1 The module topology, decided once (was F5 + F11) · 50 → 25 · decides D49
 - [x] B0P2 The module tree moves, CLAUDE.md goes on a diet · 25 → 12 · after B0P1
-- [ ] B0X1 BaseViewModel's defaults, and its nullable state · 25 · decides D44
+- [x] B0X1 BaseViewModel's defaults, and its nullable state · 25 → 25 · decides D44
 - [ ] B0U1 The tabs have test ids (was qa.16) · 6
 
 ### Lane 1 · the design system · 87

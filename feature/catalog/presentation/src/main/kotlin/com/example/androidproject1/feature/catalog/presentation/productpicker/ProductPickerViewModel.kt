@@ -31,7 +31,6 @@ class ProductPickerViewModel(
 
     private fun observeProducts() = observe(
         flow = { catalogRepository.observeAllProducts() },
-        loading = {},
         errorDisplay = ErrorDisplay.Inline,
         onData = { products -> uiState.update { it.copy(data = ProductPickerState(products)) } },
     )

@@ -49,11 +49,10 @@ class HomeViewModel(
         super.onSystemEvent(event)
     }
 
-    // loading = {}: the list is the screen's content, and an overlay over an empty Home on first
+    // No overlay: the list is the screen's content, and an overlay over an empty Home on first
     // frame is worse than the empty section it replaces.
     private fun observeFavourites() = observe(
         flow = { favouritesRepository.observeFavourites() },
-        loading = {},
         errorDisplay = ErrorDisplay.Silent,
         onData = { favourites ->
             uiState.update { state ->
@@ -75,7 +74,6 @@ class HomeViewModel(
     // No onData work: the observed flow is what updates the list, so writing it here too would be
     // a second source of truth for the same row.
     private fun setFavourite(productId: String, favourite: Boolean) = execute(
-        loading = {},
         action = { favouritesRepository.setFavourite(productId, favourite) },
         onData = { },
     )

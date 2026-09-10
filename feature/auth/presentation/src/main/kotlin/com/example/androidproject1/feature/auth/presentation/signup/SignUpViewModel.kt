@@ -2,7 +2,6 @@ package com.example.androidproject1.feature.auth.presentation.signup
 
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.service.core.domain.Logger
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class SignUpViewModel(
@@ -15,13 +14,13 @@ class SignUpViewModel(
 
     override fun onUiEvent(event: SignUpEvent) {
         when (event) {
-            is SignUpEvent.EmailChanged -> uiState.updateData { copy(email = email.changed(event.email)) }
+            is SignUpEvent.EmailChanged -> updateData { copy(email = email.changed(event.email)) }
 
             is SignUpEvent.PasswordChanged ->
-                uiState.updateData { copy(password = password.changed(event.password)) }
+                updateData { copy(password = password.changed(event.password)) }
 
             is SignUpEvent.ConfirmPasswordChanged ->
-                uiState.updateData {
+                updateData {
                     copy(confirmPassword = confirmPassword.changed(event.confirmPassword))
                 }
 
@@ -34,6 +33,7 @@ class SignUpViewModel(
     // Mock sign-up: authService.login() already "records the session locally, verifying nothing",
     // so creating an account and signing in are the same call for now.
     private fun signUp() = execute(
+        loading = overlay(),
         action = { authService.login(uiState.value.data?.email?.value.orEmpty()) },
         onData = { logger.d { "Signed up" } },
     )

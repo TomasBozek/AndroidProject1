@@ -71,7 +71,6 @@ class CartViewModel(
      * the screen that started it.
      */
     fun onProductPicked(productId: String, lookup: suspend (String) -> CartItem?) = execute(
-        loading = {},
         action = {
             val item = lookup(productId)
             if (item != null) cartRepository.add(item) else Outcome.Success(Unit)
@@ -79,11 +78,10 @@ class CartViewModel(
         onData = {},
     )
 
-    // loading = {}: the list is the screen, and an overlay over it on every quantity tap would
-    // flash on each press of the stepper.
+    // No overlay: the list is the screen, and one over it on every quantity tap would flash on
+    // each press of the stepper.
     private fun observeItems() = observe(
         flow = { cartRepository.observeItems() },
-        loading = {},
         errorDisplay = ErrorDisplay.Inline,
         onData = { items -> uiState.update { it.copy(data = CartState(items = items)) } },
     )
@@ -113,7 +111,6 @@ class CartViewModel(
     }
 
     private fun checkout() = execute(
-        loading = {},
         action = { cartRepository.clear() },
         onData = { showToast(R.string.cart_checkout_done.toUiText()) },
     )
@@ -126,5 +123,5 @@ class CartViewModel(
      * itself.
      */
     private fun write(action: suspend () -> Outcome<Unit>) =
-        execute(loading = {}, action = action, onData = {})
+        execute(action = action, onData = {})
 }
