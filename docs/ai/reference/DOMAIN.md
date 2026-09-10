@@ -77,6 +77,17 @@ Every method returns `Outcome`, and every observation is a `Flow<Outcome<T>>`.
 | `ProfileRepository` | `feature/profile/domain` | `get`, `save`, `setAvatar` |
 | `ThemeRepository` | `feature/settings/domain` | `observeTheme`, `setTheme` |
 
+## Use cases
+
+A `domain` class, not a repository method, for the one case a repository cannot serve: an operation
+another feature performs. A feature's `presentation` may depend on another feature's `domain` and
+never on its `presentation`, so the use case is the seam — it holds the rule its own feature owns
+and runs in the caller's scope.
+
+| Use case | Module | What it does |
+|---|---|---|
+| `AddProductToCart` | `feature/cart/domain` | Product detail adds one of a product; the quantity of one is the cart's rule |
+
 ## What holds the data
 
 A repository names a data-source interface and never its implementation, which is what makes the

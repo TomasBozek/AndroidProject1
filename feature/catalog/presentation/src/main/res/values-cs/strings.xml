@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="categories_title">Kategorie</string>
+    <string name="product_detail_added_to_cart">Přidáno do košíku</string>
     <string name="product_detail_not_found">Tento produkt už není dostupný.</string>
     <string name="product_detail_go_back">Zpět</string>
     <string name="catalog_stale">Zobrazuje se uložený obsah – server je nedostupný.</string>

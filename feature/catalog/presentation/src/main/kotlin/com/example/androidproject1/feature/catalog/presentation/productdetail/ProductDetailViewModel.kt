@@ -7,6 +7,7 @@ import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
+import com.example.androidproject1.feature.cart.domain.AddProductToCart
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
 import com.example.androidproject1.feature.catalog.presentation.R
@@ -19,6 +20,7 @@ class ProductDetailViewModel(
     private val args: ProductDetailDestination,
     private val catalogRepository: CatalogRepository,
     private val favouritesRepository: FavouritesRepository,
+    private val addProductToCart: AddProductToCart,
 ) : BaseViewModel<ProductDetailState, ProductDetailEvent, ProductDetailNavigation>(
     // Nothing to show until the product named by the route has loaded.
     initialState = null,
@@ -39,8 +41,7 @@ class ProductDetailViewModel(
     override fun onUiEvent(event: ProductDetailEvent) = when (event) {
         ProductDetailEvent.FavouriteToggled -> toggleFavourite()
 
-        ProductDetailEvent.AddToCartClicked ->
-            navigate(ProductDetailNavigation.AddToCart(args.productId))
+        ProductDetailEvent.AddToCartClicked -> addToCart()
     }
 
     override fun onSystemEvent(event: SystemEvent) {
@@ -69,6 +70,23 @@ class ProductDetailViewModel(
             }
         },
     )
+
+    /**
+     * The write runs here, in the ViewModel's own scope.
+     *
+     * It used to be launched from `AppNavHost`'s `rememberCoroutineScope`, which a rotation just
+     * after the tap cancels — the item never reached the cart and nothing said so. A ViewModel
+     * survives a configuration change, so this one does not. The product is already loaded, so
+     * there is no second read of it either.
+     */
+    private fun addToCart() {
+        val product = uiState.value.data?.product ?: return
+        execute(
+            loading = {},
+            action = { addProductToCart(productId = product.id, name = product.name, price = product.price) },
+            onData = { showSnackbar(R.string.product_detail_added_to_cart.toUiText()) },
+        )
+    }
 
     // Alert on failure: the user asked for this, so silence would look like the tap did nothing.
     private fun toggleFavourite() {

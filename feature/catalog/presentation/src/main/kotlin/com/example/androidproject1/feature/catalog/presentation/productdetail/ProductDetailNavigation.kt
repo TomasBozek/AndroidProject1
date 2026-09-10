@@ -1,13 +1,11 @@
 package com.example.androidproject1.feature.catalog.presentation.productdetail
 
-sealed interface ProductDetailNavigation {
-
-    /**
-     * The user asked for [productId] to go in the cart.
-     *
-     * A navigation intent rather than a repository call: the catalog does not depend on the cart,
-     * so it says what happened and `AppNavHost` decides what that means. The same reason the cart
-     * does not know how to open the catalog.
-     */
-    data class AddToCart(val productId: String) : ProductDetailNavigation
-}
+/**
+ * One-off navigation intents, turned into back-stack calls in `ProductDetailDestination`.
+ *
+ * Empty: this screen navigates nowhere. Adding to the cart used to be an intent here, because the
+ * catalog does not depend on the cart's presentation — but it does not have to: the cart's
+ * `AddProductToCart` is a domain type, which any feature may use, and the write belongs in the
+ * ViewModel's own scope rather than the nav host's composition.
+ */
+sealed interface ProductDetailNavigation
