@@ -26,4 +26,4 @@ Run it with `--dry-run` first if the arguments look ambiguous. Then, in order:
 4. Fill in `XViewModelTest` — it is generated, so it exists whether or not you use it.
 
 Use `--layers presentation,di` when the feature has no data of its own. Finish with
-`python3 scripts/doctor.py && ./gradlew build`.
+`/check` — see `CLAUDE.md` § Checks.

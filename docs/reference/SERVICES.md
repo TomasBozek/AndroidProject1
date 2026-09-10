@@ -1,0 +1,73 @@
+# service/ — the reusable half
+
+Four modules that know nothing about this app. Reuse is by directory copy, so they never reference
+`:core:*`, `:feature:*` or `:app`, and never read `R` from elsewhere. Packages under `service/` stay
+`…core.*` while the Android namespaces are `…service.core.*`, because two modules cannot share one
+namespace.
+
+## `:service:core:domain`
+
+A **Kotlin/JVM** module, so `android.*` is not on its classpath and the compiler is what enforces
+the boundary. Do not make it an Android library to reach a framework class — move the class instead.
+
+| Holds | What it is |
+|---|---|
+| `result/Outcome` | success or failure with a `DomainError`; the return type of every repository call |
+| `error/DomainError` | `Network`, `Server`, `Unauthorized`, `BadRequest`, `NotFound`, `Credentials`, `Unexpected` |
+| `Logger` | the interface only; the Android implementation lives one module up |
+| `ErrorTracker` | the crash seam. `LoggingErrorTracker` is bound by default; the repo carries no vendor SDK |
+| `Analytics` | `screen(id)` and `event(name, params)`. `LoggingAnalytics` is bound by default |
+| `coroutines/DispatcherProvider` | switch at the data source, never at the repository |
+| `crypto/Aead` and `AesGcmAead` | the encryption logic, JVM-tested |
+
+`testFixtures` here carry `FakeLogger` and `TestDispatchers`.
+
+## `:service:core:data`
+
+| Holds | What it is |
+|---|---|
+| `BaseRepository` | `execute`, `observe` and `cached()`; turns a throw into an `Outcome` and takes a retry count for a flow whose collector outlives a failure |
+| `DataStoreProvider` | one provider per module, so two modules never open the same file |
+| `EncryptedDataStoreProvider` | the same, through `Aead`; the session uses it |
+| `crypto/KeystoreAead` | fifteen lines fetching the key. Robolectric ships no `AndroidKeyStore`, which is why the logic is in `AesGcmAead` and only the fetch is here |
+| `AndroidLogger` | the `Logger` implementation |
+| `TrackingLogger` | decorates whichever logger is bound and forwards anything logged with a `Throwable` to the `ErrorTracker`, so no call site changes |
+
+## `:service:core:ui`
+
+`resourcePrefix = "core_"`, so it cannot collide with a consuming app's resources; lint's
+`ResourceName` is an error.
+
+| Holds | What it is |
+|---|---|
+| `viewmodel/BaseViewModel` | `execute {}` and `observe(flow = …) {}`; drives loading, turns a failure into an alert or an inline retry, rethrows cancellation. Never `try`/`catch` in a view model |
+| `state/UiState` | the `(data, loading, alert)` envelope |
+| `state/ContentState` | the error and empty states, rendered instead of content |
+| `component/Screen()` | the only collector in the app and the only interpreter of `UiCommand` |
+| `event/UiEvent`, `UiCommand`, `SystemEvent` | what the user did, what the shell should do, what came back |
+| `navigation/NavResultStore` | a value handed from one screen back to another, consumed once |
+| `permission/` | `rememberPermissionRequest`, `PermissionStatus`, `PermissionGate`, `rememberDeclaredPermissions`. The one package here whose tests need Robolectric |
+| `text/UiText` | a string a view model can hold without a context |
+| `format/Formats` and `LocalFormats` | money, weight, quantity, percent, time, date, duration, all from one locale. A screen never formats a number itself |
+| `analytics/ScreenViewEffect` | the screen view `AppScaffold` sends automatically |
+
+`testFixtures` carry `MainDispatcherRule` and re-export `:service:core:domain`'s, so one
+`testFixtures(projects.service.core.ui)` line brings all three.
+
+## `:service:network`
+
+Flat rather than layered: it is one port to the outside world, so there is no domain/data split to
+make.
+
+`HttpClientFactory` takes its engine as a parameter, so the `dev` flavor can hand it `MockEngine`
+and `:app` the OkHttp one without this module knowing either. Its retry policy makes up to
+`NetworkConfig.retries` further attempts on a 5xx or a transport failure, with exponential backoff
+and jitter, **on idempotent methods only** — never a POST. Do not add a retry loop in a data source.
+`HttpErrorMapper` turns a status into a `DomainError`.
+
+## Taking it to another project
+
+`python3 scripts/export_service.py --to <dir> --package <pkg>` copies these four modules and
+`build-logic/`, rewrites the base package and prints the `settings.gradle.kts` block to paste. The
+two rules above — no reference upward, and the resource prefix — are what make that work; both are
+checked by `doctor.py`.

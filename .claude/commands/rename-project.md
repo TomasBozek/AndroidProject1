@@ -15,5 +15,5 @@ python3 scripts/init_project.py $ARGUMENTS --dry-run
 Show the user what it would change, and only then run it for real. It refuses to run on a dirty
 working tree, which is deliberate: `git checkout .` has to stay a usable escape hatch.
 
-Afterwards: `python3 scripts/doctor.py && ./gradlew build`, then replace the sample features
-(`delete_feature.py catalog`, and so on). Keep `feature/template` — it is what the generators clone.
+Afterwards: `python3 scripts/doctor.py && ./gradlew :app:assembleDevDebug`, then replace the
+sample features (`delete_feature.py catalog`, and so on). Keep `feature/template` — it is what the generators clone.

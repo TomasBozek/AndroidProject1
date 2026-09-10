@@ -1,10 +1,15 @@
+# T2 (pull request), T3 (push to main) and T4 (tags, schedule, dispatch) of CLAUDE.md's Checks
+# section. T0 and T1 are the developer's and are not run here; nothing in this file is run by hand.
 name: Build
 
 on:
   push:
     branches: [main]
     tags: ['v*']
+  # `ready_for_review` matters: a draft pull request skips the build job, so flipping it to ready
+  # has to be what starts one. Without the type list that event does not trigger a run at all.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   schedule:
     # Weekly, so a release-only regression is found by the schedule rather than by a release.
     - cron: '0 6 * * 1'
@@ -13,9 +18,46 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Only a pull request cancels its own older run. A push to main or a tag never does: those are
+  # the runs whose result is the record, and a cancelled one leaves no record at all.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  changes:
+    # What the diff touches, so a pull request pays only for the checks it can actually fail.
+    # Plain git rather than a filter action: it is ten lines, and a third-party action here would
+    # need a line in docs/spec/DECISIONS.md that this does not earn.
+    #
+    # Every output is true for anything that is not a pull request, so main, tags and the weekly
+    # run stay heavy. `code` is false only for a diff that is entirely documentation, and
+    # .github/workflows/ is deliberately not in that list -- a change to this file is code.
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.classify.outputs.code }}
+      generators: ${{ steps.classify.outputs.generators }}
+      ui: ${{ steps.classify.outputs.ui }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: classify
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            printf 'code=true\ngenerators=true\nui=true\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files="$(git diff --name-only "$BASE" "${{ github.sha }}")"
+          echo "$files"
+          code=false; generators=false; ui=false
+          if grep -qvE '^(docs/|README\.md$|CLAUDE\.md$|\.claude/|scripts/README\.md$|\.github/pull_request_template\.md$)' <<<"$files"; then code=true; fi
+          if grep -qE '^(scripts/|feature/template/|\.claude/commands/|docs/spec/CODEBASE\.md$)' <<<"$files"; then generators=true; fi
+          if grep -qE '(^|/)presentation/|^core/ui/|^service/core/ui/|/test/screenshots/|^build-logic/|^gradle/' <<<"$files"; then ui=true; fi
+          printf 'code=%s\ngenerators=%s\nui=%s\n' "$code" "$generators" "$ui" >> "$GITHUB_OUTPUT"
+
   secrets:
     # Runs alongside the conventions job and is just as fast. A committed key is the one mistake
     # that a later commit cannot undo — it has to be caught on the pull request that adds it.
@@ -39,6 +81,8 @@ jobs:
   conventions:
     # Runs first and is fast: doctor.py checks the rules no compiler enforces, and exits non-zero
     # specifically so it can gate here. A convention violation fails before the slow build starts.
+    # Never skipped -- doctor.py checks the docs too, so a documentation-only change still gates.
+    needs: changes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,10 +94,20 @@ jobs:
       - name: Check architectural conventions
         run: python3 scripts/doctor.py
 
+      # ~105 s, and it can only fail on a change to the generators, the template they clone, the
+      # slash commands or the module tree they edit. Unconditional on main and on the schedule.
       - name: Test the scaffolding scripts
+        if: needs.changes.outputs.generators == 'true'
         run: python3 scripts/test_scripts.py
 
   build:
+    # Skipped for a documentation-only pull request (~1 minute instead of 25-30) and for a draft:
+    # a draft is a claim that the work is unfinished, not a request for a 25-minute build. Flipping
+    # it to ready fires `ready_for_review` and starts one.
+    needs: changes
+    if: >-
+      needs.changes.outputs.code == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -90,12 +144,13 @@ jobs:
       # otherwise pass here and be found by eye. A failure writes the actual image and the
       # diff under build/outputs/roborazzi, which the upload step below collects.
       - name: Verify the screenshots
+        if: needs.changes.outputs.ui == 'true'
         run: ./gradlew verifyRoborazziDebug
 
-      # A signal, not a gate: no threshold, and it never fails the job. The tests have already
-      # run above, so this only assembles the report.
+      # A signal, not a gate, and a signal nobody reads on a pull request. The tests have already
+      # run above, so this only assembles the report -- on main, where the trend lives.
       - name: Coverage report
-        if: always()
+        if: always() && github.event_name == 'push'
         run: ./gradlew koverHtmlReport koverXmlReport
 
       - name: Upload reports
@@ -131,6 +186,15 @@ jobs:
           # The whole history and its tags: `versionCode` is `git rev-list --count HEAD`, which on
           # the default shallow clone is 1 — the very number this stopped being. See ProjectConfig.
           fetch-depth: 0
+
+      # Seconds, and before R8: release notes are written by the ship task, and a tag that arrives
+      # without its block means the plan was never closed. Failing here is cheaper than publishing
+      # a release nobody can read.
+      - name: The changelog has a block for this tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          grep -qF "· $GITHUB_REF_NAME ·" docs/spec/CHANGELOG.md \
+            || { echo "docs/spec/CHANGELOG.md has no block for $GITHUB_REF_NAME"; exit 1; }
 
       - uses: actions/setup-java@v4
         with:
