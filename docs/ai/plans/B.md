@@ -1,6 +1,6 @@
 # Release B · the refactors v1.0 skipped, and the two features that use them
 
-Status: draft
+Status: open · 2026-09-10
 Agents: 4 · lane 0 106 (~8.5 h, runs first and alone) · lane 1 87 (~7 h) · lane 2 90 (~7.2 h) · lane 3 100 (~8 h)
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D43–D45, D49–D53
 
@@ -35,35 +35,8 @@ and takes the next task — `../PROCESS.md` § Task loop 7.
 
 ## Board
 
-### Lane 0 · repo-wide, before the lanes start
-
-- [ ] B0P1 The module topology, decided once (was F5 + F11) · 50 · decides D49
-- [ ] B0P2 The module tree moves, CLAUDE.md goes on a diet · 25 · after B0P1
-- [ ] B0X1 BaseViewModel's defaults, and its nullable state · 25 · decides D44
-- [ ] B0U1 The tabs have test ids (was qa.16) · 6
-
-### Lane 1 · the design system
-
-- [ ] B1U1 The screen shell joins the design system (was F13) · 25 · decides D50
-- [ ] B1U2 AppTextField rebuilt, the size enums folded (was F23 + M1) · 25 · decides D51
-- [ ] B1U3 The gallery is generated from the previews (was F7) · 25 · decides D52
-- [ ] B1U4 Predictive back on dirty forms, auto-sizing numerics (was M3 + M4) · 12
-
-### Lane 2 · build, release and the data layer
-
-- [ ] B2P1 Two flavors (was F18) · 12 · decides D43
-- [ ] B2H1 The release ships an AAB with a tag-derived versionCode (was rest of F17c) · 12
-- [ ] B2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45
-- [ ] B2T1 Coil moves to the module that imports it (was half of F24) · 6
-- [ ] B2P2 Where the data-source interface lives (was F15) · 12 · decides D53
-- [ ] B2X1 A deep link to an uncached product opens it (was shell.7) · 12
-- [ ] B2H3 The HTTP cache, and state that survives process death (was half of F16) · 12
-- [ ] B2P3 Hooks become a committed .githooks (was F10) · 12
-
-### Lane 3 · the showcase
-
-- [ ] B3S1 Trips, a showcase feature (was S1) · 50
-- [ ] B3S2 Field report, a showcase feature (was S2) · 50
+The board is [../../STATUS.md](../../STATUS.md) — one place to look, and no second copy to drift.
+What is left here is why each task is there and what finishes it.
 
 ## Tasks
 
