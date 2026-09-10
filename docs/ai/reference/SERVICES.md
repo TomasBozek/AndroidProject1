@@ -40,7 +40,7 @@ the boundary. Do not make it an Android library to reach a framework class — m
 
 | Holds | What it is |
 |---|---|
-| `viewmodel/BaseViewModel` | `execute {}` and `observe(flow = …) {}`; drives loading, turns a failure into an alert or an inline retry, rethrows cancellation. Never `try`/`catch` in a view model |
+| `viewmodel/BaseViewModel` | `execute {}` and `observe(flow = …) {}`; turns a failure into an alert or an inline retry, rethrows cancellation. The overlay is opt-in — `loading = overlay()` (D44). Never `try`/`catch` in a view model |
 | `state/UiState` | the `(data, loading, alert)` envelope |
 | `state/ContentState` | the error and empty states, rendered instead of content |
 | `component/Screen()` | the only collector in the app and the only interpreter of `UiCommand` |

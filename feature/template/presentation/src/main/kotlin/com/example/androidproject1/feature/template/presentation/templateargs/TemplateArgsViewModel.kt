@@ -2,7 +2,6 @@ package com.example.androidproject1.feature.template.presentation.templateargs
 
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
-import kotlinx.coroutines.flow.update
 
 class TemplateArgsViewModel(
     logger: Logger,
@@ -10,14 +9,16 @@ class TemplateArgsViewModel(
     // the back stack entry after process death.
     private val args: TemplateArgsDestination,
 ) : BaseViewModel<TemplateArgsState, TemplateArgsEvent, TemplateArgsNavigation>(
-    // Null while the argument is being turned into something renderable. Pass a real state
-    // instead when the screen can draw before that work finishes.
-    initialState = null,
+    // The route key is already enough to draw with, so the screen starts from a real state. Pass
+    // `null` only when it genuinely cannot render until something loads — and then ask for the wait
+    // on the call that is waiting, with `loading = overlay()` (D44).
+    initialState = TemplateArgsState(templateId = args.templateId),
     logger = logger.withTag("TemplateArgsViewModel"),
 ) {
 
     init {
-        // TODO: replace with the real load — usually execute(errorDisplay = Inline) { … }.
-        uiState.update { it.copy(data = TemplateArgsState(templateId = args.templateId)) }
+        // TODO: load whatever the argument stands for — usually
+        //  execute(loading = overlay(), errorDisplay = Inline, action = { … }, onData = { … }).
+        logger.d { "Opened ${args.templateId}" }
     }
 }

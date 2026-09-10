@@ -98,7 +98,8 @@ Read this before writing something that exists. A plan holds only open work, so 
 
 | Thing | Where | Note |
 |---|---|---|
-| `execute {}` / `observe(flow = …) {}` | `service/core/ui/.../BaseViewModel.kt` | Never try/catch in a ViewModel. `loadingMessage` words the overlay and survives overlapping calls |
+| `execute {}` / `observe(flow = …) {}` | `service/core/ui/.../BaseViewModel.kt` | Never try/catch in a ViewModel. The overlay is opt-in: `loading = overlay()`, or `overlay(message)` to word it, and the wording survives overlapping calls |
+| `updateData { copy(…) }` | same | The protected member, not the state extension: it logs an update that lands before the first state rather than dropping it |
 | `ErrorDisplay.{Alert,Inline,Silent}` | same | `Inline` remembers the failed call per content id; the retry re-runs that one and forgets it on success |
 | `ContentState.{Error,Empty}` | `service/core/ui/.../state/ContentState.kt` | Rendered by `Screen()` instead of content; a screen with two of them gives each its own `id` |
 | `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act. `SettingsViewModel` shows the confirm-then-act pattern but carries no payload; nothing does yet |

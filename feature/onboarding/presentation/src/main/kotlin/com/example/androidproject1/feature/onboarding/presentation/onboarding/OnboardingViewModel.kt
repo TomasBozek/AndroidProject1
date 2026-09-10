@@ -2,7 +2,6 @@ package com.example.androidproject1.feature.onboarding.presentation.onboarding
 
 import com.example.androidproject1.feature.onboarding.domain.OnboardingRepository
 import com.example.androidproject1.service.core.domain.Logger
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 /**
@@ -22,11 +21,11 @@ class OnboardingViewModel(
 
     override fun onUiEvent(event: OnboardingEvent) {
         when (event) {
-            is OnboardingEvent.PageChanged -> uiState.updateData { copy(page = event.page) }
+            is OnboardingEvent.PageChanged -> updateData { copy(page = event.page) }
 
             OnboardingEvent.NextClicked -> {
                 val state = state.value.data ?: return
-                if (state.isLastPage) finish() else uiState.updateData { copy(page = page + 1) }
+                if (state.isLastPage) finish() else updateData { copy(page = page + 1) }
             }
 
             OnboardingEvent.SkipClicked -> finish()
@@ -36,7 +35,6 @@ class OnboardingViewModel(
     private fun finish() = execute(
         // The screen is about to be replaced by whatever the session says comes next, so an
         // overlay would appear and be torn down in the same breath.
-        loading = {},
         action = { onboardingRepository.markSeen() },
         onData = { logger.d { "Onboarding finished" } },
     )

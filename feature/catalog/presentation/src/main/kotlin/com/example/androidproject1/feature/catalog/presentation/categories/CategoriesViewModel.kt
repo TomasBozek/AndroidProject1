@@ -42,6 +42,7 @@ class CategoriesViewModel(
      */
     private fun loadCategories() = observe(
         flow = { catalogRepository.observeCategories() },
+        loading = overlay(),
         errorDisplay = ErrorDisplay.Inline,
         onError = ::keepStaleContent,
         onData = { categories -> uiState.update { it.copy(data = CategoriesState(categories = categories)) } },

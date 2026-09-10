@@ -2,7 +2,6 @@ package com.example.androidproject1.feature.auth.presentation.login
 
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.service.core.domain.Logger
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class LoginViewModel(
@@ -15,10 +14,10 @@ class LoginViewModel(
 
     override fun onUiEvent(event: LoginEvent) {
         when (event) {
-            is LoginEvent.EmailChanged -> uiState.updateData { copy(email = email.changed(event.email)) }
+            is LoginEvent.EmailChanged -> updateData { copy(email = email.changed(event.email)) }
 
             is LoginEvent.PasswordChanged ->
-                uiState.updateData { copy(password = password.changed(event.password)) }
+                updateData { copy(password = password.changed(event.password)) }
 
             LoginEvent.LoginClicked -> login(email = uiState.value.data?.email?.value.orEmpty())
 
@@ -29,6 +28,7 @@ class LoginViewModel(
     }
 
     private fun login(email: String) = execute(
+        loading = overlay(),
         action = { authService.login(email) },
         onData = { logger.d { "Signed in" } },
     )

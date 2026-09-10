@@ -6,7 +6,6 @@ import com.example.androidproject1.feature.profile.presentation.R
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.ui.event.UiCommand
 import com.example.androidproject1.service.core.ui.form.Form
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
@@ -24,10 +23,9 @@ class ProfileViewModel(
     init {
         execute(
             // No overlay for the same reason: it would only flash.
-            loading = {},
             action = { profileRepository.get() },
             onData = { profile ->
-                uiState.updateData {
+                updateData {
                     // Whoever is typing wins. The stored profile is where the form starts, not an
                     // update to apply over someone's hands.
                     if (name.touched || email.touched) {
@@ -42,15 +40,15 @@ class ProfileViewModel(
 
     override fun onUiEvent(event: ProfileEvent) {
         when (event) {
-            is ProfileEvent.NameChanged -> uiState.updateData { copy(name = name.changed(event.name)) }
+            is ProfileEvent.NameChanged -> updateData { copy(name = name.changed(event.name)) }
 
             // Trimmed as it is typed, not at save. An address never has whitespace around it,
             // pasting one usually brings some, and trimming only at save would validate and store
             // something other than what the field shows.
             is ProfileEvent.EmailChanged ->
-                uiState.updateData { copy(email = email.changed(event.email.trim())) }
+                updateData { copy(email = email.changed(event.email.trim())) }
 
-            ProfileEvent.TakePhotoClicked -> uiState.updateData { copy(cameraOpen = true) }
+            ProfileEvent.TakePhotoClicked -> updateData { copy(cameraOpen = true) }
 
             is ProfileEvent.AvatarPicked -> setAvatar(event.uri)
 
@@ -78,12 +76,13 @@ class ProfileViewModel(
         if (!state.canSubmit) {
             val (name, email) = Form.touchAll(state.name, state.email)
             val revealed = state.copy(name = name, email = email)
-            uiState.updateData { revealed }
+            updateData { revealed }
             revealed.firstError?.let { showSnackbar(it) }
             return
         }
 
         execute(
+            loading = overlay(),
             action = {
                 profileRepository.save(
                     Profile(
@@ -105,8 +104,8 @@ class ProfileViewModel(
      * nothing.
      */
     private fun setAvatar(sourceUri: String) = execute(
-        loadingMessage = R.string.profile_saving_photo.toUiText(),
+        loading = overlay(R.string.profile_saving_photo.toUiText()),
         action = { profileRepository.setAvatar(sourceUri) },
-        onData = { stored -> uiState.updateData { copy(avatarUri = stored, cameraOpen = false) } },
+        onData = { stored -> updateData { copy(avatarUri = stored, cameraOpen = false) } },
     )
 }

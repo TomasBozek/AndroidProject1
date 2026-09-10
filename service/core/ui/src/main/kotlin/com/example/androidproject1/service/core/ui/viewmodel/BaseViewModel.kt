@@ -53,8 +53,9 @@ import kotlin.coroutines.cancellation.CancellationException
  * loading, error dialogs and cancellation.
  *
  * @param initialState the state the screen renders immediately. Pass `null` only for a screen that
- * cannot render until something is loaded; nothing is drawn while `data` is `null`, so `null` also
- * starts the loading overlay.
+ * genuinely cannot render until something is loaded — nothing is drawn while `data` is `null`, and
+ * [updateData] logs rather than silently dropping an update that arrives first (D44). Ask for the
+ * overlay with `loading = overlay()`; `null` no longer starts one on its own.
  *
  * A screen that takes navigation arguments declares its route key as a constructor parameter and
  * Koin passes it in — see `TemplateArgsViewModel`. There is no `SavedStateHandle` detour on
@@ -80,12 +81,7 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         const val SUBSCRIPTION_GRACE_MILLIS = 5_000L
     }
 
-    protected val uiState = MutableStateFlow(
-        UiState<State?>(
-            data = initialState,
-            loading = if (initialState == null) LoadingState() else null,
-        ),
-    )
+    protected val uiState = MutableStateFlow(UiState<State?>(data = initialState))
     val state: StateFlow<UiState<State?>> = uiState.asStateFlow()
 
     // Buffered channels, not a MutableSharedFlow: a shared flow with no replay silently drops what
@@ -133,6 +129,21 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
             // means. Overriding without delegating to super is what silently swallows the others.
             is SystemEvent.SnackbarAction -> Unit
         }
+    }
+
+    /**
+     * Updates the screen's state in place: `updateData { copy(email = email) }`.
+     *
+     * A `null` `data` is not a state this can update, and it used to make the call a no-op with no
+     * trace — which is how a favourite flag arriving before its product was lost without anything
+     * to find. It is a programming error, not a state, so it is logged (D44).
+     */
+    protected fun updateData(action: State.() -> State) {
+        if (uiState.value.data == null) {
+            logger.w { "updateData ran before the first state — the update was dropped" }
+            return
+        }
+        uiState.update { state -> state.copy(data = state.data?.action()) }
     }
 
     protected fun showContent(state: ContentState) = uiState.setContent(state)
@@ -194,20 +205,27 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     }
 
     /**
-     * Runs a one-shot domain [action], showing the loading overlay while it runs and turning an
-     * [Outcome.Failure] into an alert.
+     * Turns the shared loading overlay on for one [execute] or [observe] call: `loading = overlay()`.
      *
-     * @param loadingMessage wording for the loading overlay while this call runs.
-     * @param loading how to reflect the in-flight state. Pass `{}` when the screen renders its own
-     * inline loading.
+     * The overlay is opt-in (D44) — two call sites in three do not want one, and a screen that
+     * renders its own inline wait used to have to say `loading = {}` to switch this off. Passing
+     * the wording here rather than as a parameter of its own is what stops a message being set on a
+     * call that shows no overlay to put it on.
+     */
+    protected fun overlay(message: UiText? = null): (Boolean) -> Unit = { setLoading(it, message) }
+
+    /**
+     * Runs a one-shot domain [action], turning an [Outcome.Failure] into an alert.
+     *
+     * @param loading how to reflect the in-flight state. Nothing, by default: pass
+     * `loading = overlay()` for the shared overlay, or the screen's own flag for an inline wait.
      * @param onError return `true` to claim an error and suppress the default presentation.
      * @param errorDisplay where a failure goes: a dialog over the screen, a retryable message in
      * place of it, or nowhere. [ErrorDisplay.Inline] is usually right for the call that loads a
      * screen, and [ErrorDisplay.Alert] for one the user triggered.
      */
     protected fun <T> execute(
-        loadingMessage: UiText? = null,
-        loading: (Boolean) -> Unit = { setLoading(it, loadingMessage) },
+        loading: (Boolean) -> Unit = {},
         scope: CoroutineScope = viewModelScope,
         onError: suspend (DomainError) -> Boolean = { false },
         alertId: String = ALERT_ID_ERROR,
@@ -221,7 +239,6 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         if (errorDisplay == ErrorDisplay.Inline) {
             retry = {
                 execute(
-                    loadingMessage = loadingMessage,
                     loading = loading,
                     scope = scope,
                     onError = onError,
@@ -276,8 +293,7 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     protected fun <T> observe(
         flow: suspend () -> Flow<Outcome<T>>,
         whileSubscribed: Boolean = false,
-        loadingMessage: UiText? = null,
-        loading: (Boolean) -> Unit = { setLoading(it, loadingMessage) },
+        loading: (Boolean) -> Unit = {},
         scope: CoroutineScope = viewModelScope,
         onError: suspend (DomainError) -> Boolean = { false },
         alertId: String = ALERT_ID_ERROR,
@@ -293,7 +309,6 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
                 observe(
                     flow = flow,
                     whileSubscribed = whileSubscribed,
-                    loadingMessage = loadingMessage,
                     loading = loading,
                     scope = scope,
                     onError = onError,

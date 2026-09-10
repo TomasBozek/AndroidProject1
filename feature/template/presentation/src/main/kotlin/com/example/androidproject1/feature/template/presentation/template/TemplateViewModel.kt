@@ -1,7 +1,6 @@
 package com.example.androidproject1.feature.template.presentation.template
 
 import com.example.androidproject1.service.core.domain.Logger
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 class TemplateViewModel(
@@ -16,6 +15,6 @@ class TemplateViewModel(
     // What the user did arrives here; emit a TemplateNavigation to move on. Anything that can
     // fail goes through execute {} or observe(flow = …) {} — never try/catch.
     override fun onUiEvent(event: TemplateEvent) = when (event) {
-        TemplateEvent.IncrementClicked -> uiState.updateData { copy(counter = counter + 1) }
+        TemplateEvent.IncrementClicked -> updateData { copy(counter = counter + 1) }
     }
 }

@@ -5,7 +5,6 @@ import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.RecentSearchesRepository
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.domain.result.Outcome
-import com.example.androidproject1.service.core.ui.state.updateData
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,11 +42,10 @@ class ProductSearchViewModel(
 
         observe(
             flow = { recentSearchesRepository.observeRecents() },
-            loading = {},
             errorDisplay = ErrorDisplay.Inline,
             alertId = CONTENT_ID_RECENTS,
         ) { recents ->
-            uiState.updateData { copy(recents = recents) }
+            updateData { copy(recents = recents) }
         }
     }
 
@@ -70,11 +68,10 @@ class ProductSearchViewModel(
                     }
                 }
         },
-        loading = {},
         errorDisplay = ErrorDisplay.Inline,
         alertId = CONTENT_ID_RESULTS,
     ) { results ->
-        uiState.updateData {
+        updateData {
             copy(results = results.products, searched = results.query.isNotBlank())
         }
         // Recorded on the result rather than on the keystroke: what reaches the list is what the
@@ -87,17 +84,16 @@ class ProductSearchViewModel(
             // The field is echoed immediately and the search follows 300 ms later: a field that
             // waited for the debounce would drop characters under a fast typist.
             is ProductSearchEvent.QueryChanged -> {
-                uiState.updateData { copy(query = event.query) }
+                updateData { copy(query = event.query) }
                 query.value = event.query
             }
 
             is ProductSearchEvent.RecentClicked -> {
-                uiState.updateData { copy(query = event.query) }
+                updateData { copy(query = event.query) }
                 query.value = event.query
             }
 
             ProductSearchEvent.ClearRecentsClicked -> execute(
-                loading = {},
                 action = { recentSearchesRepository.clear() },
                 onData = {},
             )
