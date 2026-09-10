@@ -26,6 +26,15 @@ data class ProfileState(
     /** Derived, so "is submit allowed" and "why is it not" cannot disagree. */
     val canSubmit: Boolean get() = Form.canSubmit(name, email)
 
+    /**
+     * Whether leaving would lose something.
+     *
+     * `touched` rather than a comparison against the stored profile: the stored one is not kept
+     * after the load, and the flag is already what decides that a load in flight must not overwrite
+     * someone's hands. Typing and then typing it back counts as dirty, which errs the safe way.
+     */
+    val isDirty: Boolean get() = name.touched || email.touched
+
     /** The first rule broken, for the one line that says what to fix. */
     val firstError: UiText? get() = Form.firstError(name, email)
 

@@ -25,4 +25,10 @@
         <item quantity="many">Musí mít alespoň %d znaku.</item>
         <item quantity="other">Musí mít alespoň %d znaků.</item>
     </plurals>
+    <!-- The guard on a form with unsaved input. -->
+    <string name="core_discard_title">Zahodit změny?</string>
+    <string name="core_discard_message">Co jste napsali, se neuloží.</string>
+    <string name="core_action_discard">Zahodit</string>
+    <string name="core_action_keep_editing">Pokračovat v úpravách</string>
+
 </resources>

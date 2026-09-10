@@ -638,6 +638,9 @@ def check_modifier_parameter() -> list[str]:
                     # An effect emits nothing to position — `LaunchedEffect`'s own shape, and
                     # `NavResultEffect`/`ScreenViewEffect` here.
                     or name.endswith("Effect")
+                    # Nor does a handler: Compose's own `BackHandler` and `PredictiveBackHandler`
+                    # take no modifier, because there is nothing on screen to place.
+                    or name.endswith("Handler")
                     # Compose's own idiom for a CompositionLocal wrapper — `ProvideTextStyle`.
                     or name.startswith("Provide")
                 ):

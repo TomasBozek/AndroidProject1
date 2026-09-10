@@ -4,6 +4,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.example.androidproject1.feature.profile.domain.Profile
 import com.example.androidproject1.feature.profile.presentation.FakeProfileRepository
 import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.event.SystemEvent
+import com.example.androidproject1.service.core.ui.form.ALERT_ID_DISCARD
 import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.service.core.ui.text.resolve
 import kotlinx.coroutines.flow.first
@@ -222,6 +224,24 @@ class ProfileViewModelTest {
 
         viewModel.onUiEvent(ProfileEvent.NavigateUpClicked)
 
+        assertEquals(ProfileNavigation.NavigateUp, viewModel.navigation.first())
+    }
+
+    /** B1U4: an edited profile asks before the back gesture throws the edit away. */
+    @Test
+    fun `back on an edited profile asks, and discarding navigates up`() = runTest {
+        val viewModel = viewModel()
+
+        assertFalse(viewModel.state.value.data!!.isDirty)
+
+        viewModel.onUiEvent(ProfileEvent.NameChanged("Jana"))
+        assertTrue(viewModel.state.value.data!!.isDirty)
+
+        viewModel.onUiEvent(ProfileEvent.BackRequested)
+        assertEquals(ALERT_ID_DISCARD, viewModel.state.value.alert?.id)
+
+        viewModel.onSystemEvent(SystemEvent.AlertResult.Confirmed(ALERT_ID_DISCARD, payload = null))
+        assertNull(viewModel.state.value.alert)
         assertEquals(ProfileNavigation.NavigateUp, viewModel.navigation.first())
     }
 }

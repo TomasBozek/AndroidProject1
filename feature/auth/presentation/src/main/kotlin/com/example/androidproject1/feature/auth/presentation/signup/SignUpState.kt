@@ -21,6 +21,12 @@ data class SignUpState(
     val canSubmit: Boolean get() =
         Form.canSubmit(email, password, confirmPassword) && passwordsMatch
 
+    /** Anything typed. Back from here goes to Login and loses all three fields. */
+    val isDirty: Boolean
+        get() = email.value.isNotEmpty() ||
+            password.value.isNotEmpty() ||
+            confirmPassword.value.isNotEmpty()
+
     companion object {
 
         const val MIN_PASSWORD_LENGTH = 8

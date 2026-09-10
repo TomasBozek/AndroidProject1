@@ -4,8 +4,13 @@ import com.example.androidproject1.feature.profile.domain.Profile
 import com.example.androidproject1.feature.profile.domain.ProfileRepository
 import com.example.androidproject1.feature.profile.presentation.R
 import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.event.UiCommand
+import com.example.androidproject1.service.core.ui.form.ALERT_ID_DISCARD
 import com.example.androidproject1.service.core.ui.form.Form
+import com.example.androidproject1.service.core.ui.form.discardAlert
+import com.example.androidproject1.service.core.ui.state.clearAlert
+import com.example.androidproject1.service.core.ui.state.setAlert
 import com.example.androidproject1.service.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
@@ -38,6 +43,15 @@ class ProfileViewModel(
         )
     }
 
+    override fun onSystemEvent(event: SystemEvent) {
+        if (event is SystemEvent.AlertResult.Confirmed && event.id == ALERT_ID_DISCARD) {
+            uiState.clearAlert()
+            navigate(ProfileNavigation.NavigateUp)
+            return
+        }
+        super.onSystemEvent(event)
+    }
+
     override fun onUiEvent(event: ProfileEvent) {
         when (event) {
             is ProfileEvent.NameChanged -> updateData { copy(name = name.changed(event.name)) }
@@ -59,6 +73,8 @@ class ProfileViewModel(
             ProfileEvent.SaveClicked -> save()
 
             ProfileEvent.NavigateUpClicked -> navigate(ProfileNavigation.NavigateUp)
+
+            ProfileEvent.BackRequested -> uiState.setAlert(discardAlert())
         }
     }
 

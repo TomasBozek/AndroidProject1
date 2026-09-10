@@ -24,6 +24,7 @@ import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.R
+import com.example.androidproject1.service.core.ui.form.DiscardBackHandler
 import com.example.androidproject1.service.core.ui.text.resolve
 
 @Composable
@@ -46,6 +47,8 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AppText(text = stringResource(R.string.sign_up_title), role = TextRole.Display)
+            DiscardBackHandler(dirty = state.isDirty) { onEvent(SignUpEvent.BackRequested) }
+
             AppTextField(
                 value = state.email.value,
                 errorText = state.email.error?.resolve(),

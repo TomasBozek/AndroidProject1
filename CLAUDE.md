@@ -84,9 +84,9 @@ does not call `safeDrawingPadding()` itself — that is what got screens padded 
 with no scaffold at all does, because the activity is edge to edge and `Screen()` applies no insets.
 
 If a screen needs something the set does not have, **add it to `:core:ui` with
-`create_component.py`** and give it a `@ComponentPreview`. The generator writes its gallery entry
-and `doctor.py` fails on a component with none (D52), so the gallery cannot fall behind the set. Elevation is not `Modifier.shadow`: a pressable surface uses `Modifier.keySurface(…)`,
-a hard bottom edge that shortens on press.
+`create_component.py`** and give it a `@ComponentPreview`; the generator writes its gallery entry
+and `doctor.py` fails without one (D52). Elevation is not `Modifier.shadow`: a pressable surface
+uses `Modifier.keySurface(…)`, a hard bottom edge that shortens on press.
 
 ### Testing a screen
 
@@ -147,13 +147,11 @@ wants goes to `:core:ui`, the same way — never copied.
 - **`BaseViewModel` takes `initialState` first.** Pass the state the screen renders straight away;
   pass `null` only when it genuinely cannot draw until something loads. `null` raises no overlay of
   its own (D44) — the call that is waiting asks for one.
-- **Write state with `updateData { copy(...) }`**, the protected member. It logs when `data` is
-  still `null` instead of dropping the update in silence, which is how a value that arrives before
-  the first load goes missing with nothing to find.
+- **Write state with `updateData { copy(...) }`**, the protected member: it logs an update that
+  lands while `data` is still `null` rather than dropping it in silence.
 - `UiState(data, loading, alert)` is an envelope. **Loading overlays and alert dialogs are rendered
   centrally by `Screen()`** — never reimplement them in a feature screen. What they look like is
-  `AppScreenChrome`, installed by `AppTheme` (D50), so they are design-system components like
-  everything else.
+  `AppScreenChrome`, installed by `AppTheme` (D50).
 - `Screen()` is the only place that calls `collectAsStateWithLifecycle` and the only interpreter of
   `UiCommand`. A feature screen only ever receives a non-null state. Every command is plain data: a
   snackbar's action comes back as `SystemEvent.SnackbarAction(id)`, handled in `onSystemEvent`.
@@ -162,6 +160,8 @@ wants goes to `:core:ui`, the same way — never copied.
   `loading = overlay()`, or `overlay(message)` to word it. Overlapping calls are reference-counted.
 - `navigation` and `command` are buffered channels, not shared flows, so a one-shot emitted while
   nothing collects arrives on resume rather than being dropped. Single-consumer by design.
+- **A form with unsaved input guards back**: `DiscardBackHandler(dirty) { … }` in the screen,
+  `setAlert(discardAlert())` in the view model, `ALERT_ID_DISCARD` in `onSystemEvent`.
 - `AlertState.title` has no default, so an ordinary confirmation is not labelled "something went
   wrong". Alert results arrive at `onSystemEvent` as `SystemEvent.AlertResult.*` tagged with the
   alert's `id`; delegate what you don't handle to `super`. See `SettingsViewModel`.

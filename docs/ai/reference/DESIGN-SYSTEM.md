@@ -71,6 +71,10 @@ and `ControlSize`, which is a scale rather than a component.
 three at their defaults gives every field the same keyboard key and is never offered a saved
 sign-in, which is the most common thing an Android form gets wrong (D51).
 
+**A figure shrinks rather than wraps.** `TextRole.Numeric` auto-sizes down to 12 sp on one line:
+"1 234,00 Kč" is four characters longer than "1,234.00", so the row that fits in English wrapped in
+Czech, and a wrapped figure in a column of figures is worse than a slightly smaller one.
+
 **One size scale, not one per component.** `ControlSize` is `Small` / `Medium` / `Large` and every
 control that comes in sizes reads it, so `Small` means the same thing everywhere. A button's
 metrics are taller than a field's; that is a lookup inside `AppButton`, not a second enum (D51).

@@ -43,6 +43,11 @@ fun <Data> MutableStateFlow<UiState<Data>>.clearAlert() {
     update { it.copy(alert = null) }
 }
 
+/** Raises an alert already built — the shared ones, such as `discardAlert()`. */
+fun <Data> MutableStateFlow<UiState<Data>>.setAlert(alert: AlertState) {
+    update { it.copy(alert = alert) }
+}
+
 fun <Data> MutableStateFlow<UiState<Data>>.setAlert(
     id: String,
     message: UiText,

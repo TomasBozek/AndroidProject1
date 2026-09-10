@@ -48,6 +48,7 @@ the boundary. Do not make it an Android library to reach a framework class — m
 | `event/UiEvent`, `UiCommand`, `SystemEvent` | what the user did, what the shell should do, what came back |
 | `navigation/NavResultStore` | a value handed from one screen back to another, consumed once |
 | `permission/` | `rememberPermissionRequest`, `PermissionStatus`, `PermissionGate`, `rememberDeclaredPermissions`. The one package here whose tests need Robolectric |
+| `form/DiscardBackHandler` | the back gesture on a form with unsaved input: `PredictiveBackHandler`, so a cancelled swipe asks nothing, and `discardAlert()` for the one wording every form uses |
 | `text/UiText` | a string a view model can hold without a context |
 | `format/Formats` and `LocalFormats` | money, weight, quantity, percent, time, date, duration, all from one locale. A screen never formats a number itself |
 | `analytics/ScreenViewEffect` | the screen view `AppScaffold` sends automatically |
