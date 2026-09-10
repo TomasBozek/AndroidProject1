@@ -16,8 +16,9 @@ Estimate <n> · Actual <n> · Ratio <n>
 ```
 
 The version is written out, never a placeholder: the release job greps this file for
-`· <tag> ·` and refuses a tag with no block, so a worked example carrying a real version number
-would satisfy the guard for a release nobody had written notes for.
+`## <tag> ·`, refuses a tag with no such heading, and publishes what follows it as the release
+notes — so a worked example carrying a real version number would both satisfy the guard and become
+the release page for a release nobody had written notes for.
 
 The `Tasks:` line is what ties the block to the plan that produced it; that plan stays where it is,
 with its board cut out and its briefs intact. The ratio sets the next release's lane budget.

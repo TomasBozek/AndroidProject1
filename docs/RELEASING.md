@@ -2,8 +2,6 @@
 
 How a release is cut: the tag, the four secrets, the hotfix rule.
 
-## Releasing
-
 A release is a tag. Nothing in the repository records a version: `versionName` is the tag without
 its `v`, `versionCode` is the commit count, and any build not on a `v*` tag is 1 / `"1.0"`.
 
@@ -14,13 +12,14 @@ its `v`, `versionCode` is the commit count, and any build not on a `v*` tag is 1
 3. Tag and push:
 
    ```bash
-   git tag v0.1.0 && git push origin v0.1.0
+   git tag v1.0.0 && git push origin v1.0.0
    ```
 
-4. CI takes over: the release job refuses the tag if the changelog has no block for it, then builds
-   the signed release artifact and publishes a GitHub release whose notes are generated from the
-   commits since the previous tag. That is why a commit is titled `<id> <title>` — the release page
-   is the commit log, read by someone who was not here for it.
+4. CI takes over: the release job refuses the tag unless [CHANGELOG.md](CHANGELOG.md) holds a
+   `## <tag> ·` heading, then builds the signed release artifact and publishes a GitHub release
+   whose notes are that block, byte for byte. Notes are never generated from the commit log — the
+   first tag of a repository has no previous tag to diff against, and the block is already written
+   in the words someone using the app would recognise.
 
 Without the signing secrets the build falls back to the debug key. The four secrets are
 `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.

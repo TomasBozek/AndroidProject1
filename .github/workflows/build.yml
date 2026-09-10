@@ -192,12 +192,21 @@ jobs:
 
       # Seconds, and before R8: release notes are written by the ship task, and a tag that arrives
       # without its block means the plan was never closed. Failing here is cheaper than publishing
-      # a release nobody can read.
-      - name: The changelog has a block for this tag
+      # a release nobody can read. The block heading is `## v1.2.0 · release A · 2026-09-10`, so
+      # the version is preceded by `## ` and never by a middot — matching on one was a guard that
+      # could not pass.
+      - name: Take the release notes from the changelog
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          grep -qF "· $GITHUB_REF_NAME ·" docs/CHANGELOG.md \
+          grep -qF "## $GITHUB_REF_NAME ·" docs/CHANGELOG.md \
             || { echo "docs/CHANGELOG.md has no block for $GITHUB_REF_NAME"; exit 1; }
+          awk -v heading="## $GITHUB_REF_NAME ·" '
+            index($0, heading) == 1 { inside = 1; next }
+            inside && /^## / { exit }
+            inside { print }
+          ' docs/CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          test -s "$RUNNER_TEMP/release-notes.md" \
+            || { echo "the block for $GITHUB_REF_NAME is empty"; exit 1; }
 
       - uses: actions/setup-java@v4
         with:
@@ -230,10 +239,10 @@ jobs:
           if-no-files-found: error
 
       # Only on a tag: the weekly run of this job exists to keep R8 honest, not to publish. The
-      # notes are generated from the commits since the previous tag, which is why a commit is
-      # named `<id> <title>` — the release page is the commit log, read by someone who was not
-      # here for it. Re-running the job replaces the APK rather than failing on the release that
-      # the first run already created.
+      # notes are the changelog block, not `--generate-notes` — the first tag of a repository has
+      # no previous tag to diff against, so generated notes would be the entire commit history,
+      # and the block is already written in user words. Re-running the job replaces the APK rather
+      # than failing on the release that the first run already created.
       - name: Publish the GitHub release
         if: startsWith(github.ref, 'refs/tags/')
         env:
@@ -243,7 +252,7 @@ jobs:
             gh release upload "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk --clobber
           else
             gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk \
-              --title "$GITHUB_REF_NAME" --generate-notes
+              --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md"
           fi
 
   generators:
