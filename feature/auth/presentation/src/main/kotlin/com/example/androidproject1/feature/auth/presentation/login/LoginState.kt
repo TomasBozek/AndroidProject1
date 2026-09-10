@@ -16,6 +16,9 @@ data class LoginState(
     // disabled" cannot disagree — and the reason is already on the field, ready to show.
     val canSubmit: Boolean get() = Form.canSubmit(email, password)
 
+    /** Anything typed. Back from here leaves the app, so it is worth one question first. */
+    val isDirty: Boolean get() = email.value.isNotEmpty() || password.value.isNotEmpty()
+
     companion object {
 
         val PREVIEW = LoginState(

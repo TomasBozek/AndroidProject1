@@ -26,4 +26,7 @@ sealed interface ProfileEvent : UiEvent {
     data object OpenAppSettingsClicked : ProfileEvent
 
     data object NavigateUpClicked : ProfileEvent
+
+    /** The back gesture, on a form with unsaved edits. */
+    data object BackRequested : ProfileEvent
 }

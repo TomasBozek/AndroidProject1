@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -158,6 +159,11 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Label" to { AppText("Payment method", role = TextRole.Label) },
         "Label small" to { AppText("OPEN ORDERS", role = TextRole.LabelSmall) },
         "Numeric (tabular)" to { AppText("118,00", role = TextRole.Numeric) },
+        "Numeric — shrinks rather than wraps" to {
+            Box(modifier = Modifier.width(AppTheme.density.listRowHeight * 2)) {
+                AppText("1 234 567,00 Kč", role = TextRole.Numeric)
+            }
+        },
         "Secondary" to { AppText("Opened 19:24 · Jana N.", role = TextRole.Secondary) },
         "Tertiary — missing value" to { AppText("—", role = TextRole.Tertiary) },
     ),

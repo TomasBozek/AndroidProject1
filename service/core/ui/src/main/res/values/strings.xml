@@ -12,6 +12,12 @@
     <string name="core_permission_allow">Allow</string>
     <string name="core_permission_open_settings">Open settings</string>
 
+    <!-- The guard on a form with unsaved input. One wording, so three screens cannot disagree. -->
+    <string name="core_discard_title">Discard your changes?</string>
+    <string name="core_discard_message">What you have typed will not be saved.</string>
+    <string name="core_action_discard">Discard</string>
+    <string name="core_action_keep_editing">Keep editing</string>
+
     <!-- Form validation. Shipped here so a feature's form needs no copy of its own. -->
     <string name="core_field_required">This field is required.</string>
     <string name="core_field_email">Enter a valid email address.</string>

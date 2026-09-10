@@ -26,6 +26,7 @@ import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.profile.presentation.R
 import com.example.androidproject1.feature.profile.presentation.component.CameraSection
 import com.example.androidproject1.feature.profile.presentation.component.PictureButtons
+import com.example.androidproject1.service.core.ui.form.DiscardBackHandler
 import com.example.androidproject1.service.core.ui.text.resolve
 
 @Composable
@@ -65,6 +66,8 @@ fun ProfileScreen(
             if (state.cameraOpen) {
                 CameraSection(onEvent = onEvent, modifier = Modifier.fillMaxWidth())
             }
+
+            DiscardBackHandler(dirty = state.isDirty) { onEvent(ProfileEvent.BackRequested) }
 
             AppTextField(
                 value = state.name.value,

@@ -13,4 +13,7 @@ sealed interface SignUpEvent : UiEvent {
     data object SignUpClicked : SignUpEvent
 
     data object LoginClicked : SignUpEvent
+
+    /** The back gesture, on a form with something typed into it. */
+    data object BackRequested : SignUpEvent
 }
