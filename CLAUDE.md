@@ -309,7 +309,10 @@ every variant and runs R8 three times.
 
 T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
 
-- a path under `*/presentation/src/main`, `core/ui` or `service/core/ui` → `verifyRoborazziDebug`
+- a path under `*/presentation/src/main`, `core/ui` or `service/core/ui` → add
+  `verifyRoborazziDebug` **to the same `./gradlew` invocation as `test`**, never a second one:
+  a task runs at most once per invocation, so one pass captures and compares, and two passes
+  run every Robolectric test twice
 - a path under `scripts/`, `feature/template/` or `.claude/commands/` → `python3 scripts/test_scripts.py`
 - a path under `build-logic/`, `gradle/`, `service/` or `core/` → the whole `./gradlew test`
 
