@@ -1,22 +1,38 @@
 ---
-description: Run the full gate — conventions, generator tests, then the build
-allowed-tools: Bash(python3 scripts/*), Bash(./gradlew *), Read, Glob, Grep
+description: Run the checks for where you are — T0 while working, T1 before the pull request
+argument-hint: [pr]
+allowed-tools: Bash(python3 scripts/doctor.py), Bash(python3 scripts/test_scripts.py), Bash(./gradlew *), Bash(git diff *), Read, Glob, Grep
 ---
 
-Run the same gate CI runs, in the same order — conventions first, because they fail in seconds
-where the build takes minutes:
+The tiers are defined in `CLAUDE.md` § Checks. This command runs one of them; it does not define
+them, and it never runs `./gradlew build`.
+
+**No argument — T0, the loop.** Once or twice while working, not after every edit:
 
 ```bash
-python3 scripts/doctor.py && python3 scripts/test_scripts.py &&
-  ./gradlew ktlintCheck && ./gradlew test :app:lintDevDebug :app:assembleDevDebug &&
-  ./gradlew verifyRoborazziDebug
+python3 scripts/doctor.py && ./gradlew ktlintCheck
 ```
 
-Named tasks rather than `./gradlew build`: that assembles all six app variants and runs every test
-once per variant. This is the list CI runs.
+Then the touched module's own tests, e.g. `./gradlew :feature:cart:presentation:test`.
 
-If `doctor.py` fails, fix the convention rather than the check — each one exists because a compiler
-cannot catch it. If a check itself looks wrong, say so rather than weakening it silently.
+**`pr` — T1, once, after rebasing on `origin/main`.** Derive what to run from the diff:
 
-Report what passed and what failed, with the actual output. Do not describe the build as passing
+```bash
+git diff --name-only origin/main...HEAD
+```
+
+- Always: `python3 scripts/doctor.py`, `./gradlew ktlintCheck :app:assembleDevDebug`, and `test` for
+  every module whose `src/main` changed.
+- A path under `*/presentation/src/main`, `core/ui` or `service/core/ui` also means
+  `./gradlew verifyRoborazziDebug`. If a preview changed on purpose, `recordRoborazziDebug` first
+  and **open the images it wrote** — a golden nobody looked at is a test that passes forever.
+- A path under `scripts/`, `feature/template/`, `.claude/commands/` or `docs/spec/CODEBASE.md` also
+  means `python3 scripts/test_scripts.py`.
+- A path under `build-logic/`, `gradle/`, `service/` or `core/` also means the whole `./gradlew test`.
+
+Report what passed and what failed, with the actual output, and say which conditional steps you
+skipped and why — that is what goes in the pull request body. Do not describe a run as passing
 unless it did.
+
+If `doctor.py` fails, fix the convention rather than the check: each one exists because a compiler
+cannot catch it. If a check itself looks wrong, say so rather than weakening it silently.

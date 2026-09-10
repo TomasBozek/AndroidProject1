@@ -33,4 +33,4 @@ Then:
   `component/` with `create_component.py --feature <name>`; `doctor.py` fails on a composable left
   behind, and on any file in the screen's directory that is not part of its unit.
 
-Finish with `python3 scripts/doctor.py && ./gradlew build`.
+Finish with `/check` — see `CLAUDE.md` § Checks.

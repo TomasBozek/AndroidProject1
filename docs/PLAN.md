@@ -1,5 +1,10 @@
 # Plan 5 · after the retrospective
 
+> **Frozen 2026-09-10.** The open items live in [work/plans/A.md](work/plans/A.md) under new ids,
+> each marked `(was F12)`; new decisions go to [spec/DECISIONS.md](spec/DECISIONS.md) and new ideas
+> to [work/BACKLOG.md](work/BACKLOG.md). Mid-item? Finish it and tick it here as before — task A0P2
+> mirrors it across and deletes this file.
+
 The board, and the only plan file. What is open, why it is worth doing, and what finishes it. The
 evidence behind every `F`/`H`/`M`/`S` id is [REVIEW.md](REVIEW.md) and [review/](review/), which
 this file does not repeat. `ui.10`, `shell.7`, `shell.8` and `qa.16` carry over from Plan 4.

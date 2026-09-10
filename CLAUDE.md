@@ -2,15 +2,14 @@
 
 Guidance for Claude Code (claude.ai/code) in this repository.
 
-**Work in progress:** [docs/PLAN.md](docs/PLAN.md) is the board — every open item with its Why /
-Done, the decisions and the backlog; the evidence behind the `F`/`H`/`M`/`S` ids is
-[docs/REVIEW.md](docs/REVIEW.md). Read the board before picking up work, and tick items off as they
-land.
+**This file is the rules.** Everything else is one link away from [docs/README.md](docs/README.md),
+read when a task names it. A fact lives in exactly one file — write it twice and one copy is already
+wrong.
 
-**This file is the rules; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the reasoning** and every
-recipe longer than a table. The generators document themselves in
-[scripts/README.md](scripts/README.md) and in each `--help`. A fact lives in exactly one of the
-three — write it twice and one copy is already wrong.
+**Work** is [docs/work/PROCESS.md](docs/work/PROCESS.md) — ids, points, lanes, the task loop — and
+the plan under `docs/work/plans/` whose header says `Status: open`. Take a task with `/task <id>`,
+never by picking something that looks useful. Work you find on the way is one line in
+[docs/work/BACKLOG.md](docs/work/BACKLOG.md).
 
 ## Project
 
@@ -22,11 +21,12 @@ Clean/MVI — single activity, type-safe Compose navigation, Koin DI.
 - AGP `9.4.0`, Kotlin `2.4.20`, Gradle `9.6`, Compose BOM `2026.08.00`; Renovate keeps them current.
 - Dependencies come from `gradle/libs.versions.toml` — never a version in a module build file.
 - **A new dependency has to earn its place.** Google, JetBrains and androidx first; then a library
-  with a large company behind it and broad adoption. Anything else needs a line in the Decisions
-  table of [docs/PLAN.md](docs/PLAN.md), and if it ships in the release APK, a first-party
-  alternative that was tried and found wanting. Build- and test-only tools are judged more leniently
-  but still get the line; the standing exceptions are **Koin** and **Coil**. This applies to what is
-  here as much as to what is added: an unused dependency is removed, not kept for symmetry.
+  with a large company behind it and broad adoption. Anything else needs a row in
+  [docs/spec/DECISIONS.md](docs/spec/DECISIONS.md), and if it ships in the release build, a
+  first-party alternative that was tried and found wanting. Build- and test-only tools are judged
+  more leniently but still get the row; the standing exceptions are **Koin** and **Coil**. This
+  applies to what is here as much as to what is added: an unused dependency is removed, not kept for
+  symmetry.
 - AGP 9 applies Kotlin itself; a new plugin is declared in the root `build.gradle.kts` with
   `apply false` before a module can `alias(...)` it.
 - **A module build file is a `plugins` block and its project dependencies. Nothing else.**
@@ -291,21 +291,40 @@ slash commands in `.claude/commands/`.
 
 **Do not add a script.** The Kotlin is the work; the ten are the set. Change one when something else
 forces you to and treat that as part of the change that caused it; anything that would be a new tool
-goes to the backlog in [docs/PLAN.md](docs/PLAN.md).
+goes to [docs/work/BACKLOG.md](docs/work/BACKLOG.md).
 
-### Before you call the work done
+## Checks
 
-```bash
-python3 scripts/doctor.py && ./gradlew ktlintCheck &&
-  ./gradlew test :app:lintDevDebug :app:assembleDevDebug &&
-  ./gradlew verifyRoborazziDebug
-```
+Five tiers. **You run T0 and T1; CI runs T2, T3 and T4.** Never `./gradlew build` — it assembles
+every variant and runs R8 three times.
 
-Named tasks rather than `./gradlew build`, which assembles all six app variants and runs R8 three
-times. `test` is one unit-test task per module — the convention plugins enable one variant's tests —
-and `:app:lintDevDebug` covers every module because `lint.checkDependencies` is on. The goldens are
-the slow step, so run them once at the end. CI runs the same list plus the `prod` and `staging`
-source sets. Add `python3 scripts/test_scripts.py` (~105s) if you touched anything under `scripts/`.
+| | When | Run |
+|---|---|---|
+| **T0** | once or twice while working — `/check` | `python3 scripts/doctor.py && ./gradlew ktlintCheck`, then the touched module's own `test` (~45 s) |
+| **T1** | once, after `git rebase origin/main`, before the pull request — `/check pr` | doctor · `ktlintCheck` · `:app:assembleDevDebug` · `test` for every module whose `src/main` changed · plus the three conditionals below (2–6 min) |
+| **T2** | every non-draft pull request | conventions always; the build only when the diff is not documentation-only; goldens only when a UI path moved |
+| **T3** | every push to `main` | T2 with nothing skipped, plus coverage |
+| **T4** | a `v*` tag, and weekly | the release build, the generator compile, the end-to-end flows |
+
+T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
+
+- a path under `*/presentation/src/main`, `core/ui` or `service/core/ui` → `verifyRoborazziDebug`
+- a path under `scripts/`, `feature/template/` or `.claude/commands/` → `python3 scripts/test_scripts.py`
+- a path under `build-logic/`, `gradle/`, `service/` or `core/` → the whole `./gradlew test`
+
+Do not wait for CI. Open the pull request, start the next task, and check `gh pr checks` between
+tasks.
+
+## Working a task
+
+- `/task <id>` takes the first `[ ]` line in your lane; the branch is `<id>-<slug>`.
+- A `Decide first` line is settled before the code, as a row in `docs/spec/DECISIONS.md`.
+- Touch only the shared files your lane owns. Otherwise stop and take the next task.
+- A fact you changed moves to its one doc in the same commit — `docs/work/PROCESS.md` § Which doc
+  changes when.
+- **One commit** per task, titled `<id> <title>`, carrying the code, the docs and the board line
+  flipped to `[x]` with `· est → act`.
+- Open the pull request with the template; `gh pr merge --rebase --delete-branch` once it is green.
 
 ## Commands
 

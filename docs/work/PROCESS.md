@@ -1,0 +1,120 @@
+# Process
+
+How work is planned, sized, done and shipped. The rules for writing code are
+[../../CLAUDE.md](../../CLAUDE.md); the open plan is the file under [plans/](plans/) whose header
+says `Status: open`.
+
+## Ids
+
+`<Release letter><Lane digit><Kind letter><Seq digit>` — `A1U1`, `A0X1`, `B2H3`. Pattern
+`^[A-Z][0-9][UXTHPS][1-9]$`, checked by `doctor.py`.
+
+| Part | Means |
+|---|---|
+| Release letter | the plan file `plans/<letter>.md`; the tag is chosen at ship and bound in `../spec/CHANGELOG.md` |
+| Lane digit | `0` = the priority lane: one agent, jumps the queue, may ship as a patch tag. `1`–`9` = planned lanes, one agent each |
+| Kind letter | `U` UI and design system · `X` fix · `T` trim · `H` harden · `P` platform (build, CI, scripts, docs, process) · `S` showcase |
+| Seq digit | `1`–`9` within one (release, lane, kind). A tenth means the lane is too big |
+
+An id appears in the board line, the `### <id> <title>` section, the branch, the commit and
+pull-request title, the changelog's `Tasks:` line, and any decision that cites it. **Never in
+source.** A carried-over item keeps its old id once, as `(was F19)`. Find one: `grep -rn '\bA1U1\b' docs .github` · `git log --oneline --grep='^A1U1 '` ·
+`gh pr list --state all --search 'A1U1 in:title'`.
+
+## Points and lanes
+
+**100 points = one agent-day = 8 hours of one agent**, from `/task` to the pull request being open.
+It includes the agent's own T0 and T1 runs and one round of CI fixes; it excludes waiting for CI.
+One point is about five minutes, so 25 is two hours.
+
+| Band | Means |
+|---|---|
+| 3 | one file, a flag, a documentation row |
+| 6 | one module, one check, one screen tweak |
+| 12 | two to four modules, or a screen with both its tests |
+| 25 | a flow of screens, a cross-cutting refactor, a CI job |
+| 50 | a feature slice. The ceiling — anything larger is split before it gets an id |
+
+**A lane holds 90–100 points**, so one agent finishes in roughly 7.5–8 hours. Agents =
+`ceil(total ÷ budget)`, lowered until the lanes touch disjoint paths and none is under 85. Never pad
+a lane; move the work to [BACKLOG.md](BACKLOG.md). Inside a lane: shared-file tasks first, then
+dependencies, then the largest. The recommendation is one header line, written only after every
+task section exists — `Agents: 2 · lane 1 91 (~7.3 h) · lane 2 97 (~7.8 h) · lane 0 open`.
+
+**Lane 0** needs no plan: one agent, the release's own chores, and anything that must jump the
+queue. After a release ships a hotfix keeps that release's letter — `A0X1` — ships as a patch tag
+and gets a patch block in the changelog.
+
+**Calibration.** The agent appends `· est → act` when it flips its board line. The ship task writes
+`Estimate · Actual · Ratio` into the changelog block, and the next budget is
+`min(100, round(100 ÷ ratio))`. A band off by more than 30 % on three or more tasks gets its
+description above rewritten; the numbers 3/6/12/25/50 never change.
+
+## Task loop
+
+1. Read `CLAUDE.md` (already loaded), this file once per session, then your lane and your task
+   section — not the other lanes.
+2. `/task <id>` takes the first `[ ]` in your lane; branch `<id>-<slug>` from a fresh `origin/main`.
+   If its `Depends` is still `[ ]`, take the next.
+3. A `Decide first` line is settled before the code, as a row in
+   [../spec/DECISIONS.md](../spec/DECISIONS.md) under the pre-assigned number, in this pull request.
+4. Use the generators for any new module, screen, component or data source.
+5. T0 once or twice while working. Never the whole gate in the loop, never `./gradlew build`.
+6. A fact you changed moves to its one file in the same commit (§ Which doc changes when).
+7. Touch only the shared files your lane owns. Otherwise stop, comment `needs <file>` on the pull
+   request, take the next task. Lane 0 may touch anything; other lanes rebase after it merges.
+8. `/check pr` once, after `git rebase origin/main`; paste its tail into the pull-request body.
+9. Flip your board line to `[x]` with `est → act` in the same single commit as the code, titled
+   `<id> <title>`. Open the pull request with the template. Do not wait for CI.
+10. Between tasks, `gh pr checks`. Green: `gh pr merge --rebase --delete-branch`. Red: fix, amend,
+    force-push; never weaken a check. Work you find on the way is one line in
+    [BACKLOG.md](BACKLOG.md), never an edit to the plan.
+
+## States
+
+| Board line | Means | Written by |
+|---|---|---|
+| `- [ ] A1U1 … · 12` | open | the planner |
+| `- [ ] A1U1 … · 12 · blocked: <≤5 words>` | cannot start; the agent took the next task | the agent |
+| `- [x] A1U1 … · 12 → 15` | merged, with the actual | the agent, in the task's own commit |
+| `- [-] A1U1 … · 12 · dropped: <why>` | dropped | the owner or the ship task |
+
+There is no "doing" state: a lane is worked top to bottom by one agent, so the first `[ ]` is the one
+in hand. A release is `Status: draft` → `Status: open` (the owner says the word) → archived by the
+ship task. At most one plan is open and one draft; `doctor.py` fails otherwise.
+
+## Shared files
+
+`settings.gradle.kts` · `core/di/**` · `app/**/AppNavHost.kt` · `app/**/KoinGraphTest.kt` ·
+`gradle/libs.versions.toml` · `CLAUDE.md` · `docs/spec/CODEBASE.md` · `docs/README.md` ·
+`.github/workflows/build.yml`. Each belongs to one lane per release, named in the plan's Shared files
+table. A generator edit counts: `create_feature.py` writes four of them.
+
+## Which doc changes when
+
+| You changed | Update, in the same commit |
+|---|---|
+| a module | `../spec/CODEBASE.md` (the generators do it) |
+| a screen, a route, a feature's shape | `../reference/FEATURES.md` |
+| an entity, a repository, a store | `../reference/DOMAIN.md` |
+| a component or a theme role | `../reference/DESIGN-SYSTEM.md` |
+| anything under `service/` | `../reference/SERVICES.md` |
+| `core/ui`, `core/di`, `app` | `../reference/CORE.md` |
+| a dependency | `../spec/DEPENDENCIES.md` |
+| a rule | `../../CLAUDE.md` |
+| a recipe's steps | `../guides/RECIPES.md` |
+| a decision | `../spec/DECISIONS.md` |
+| nothing above | nothing. Do not touch a doc to prove you were here |
+
+`CLAUDE.md` ≤ 300 lines and this file ≤ 120, failed by `doctor.py` from task A0P2 — which is what
+brings `CLAUDE.md` under it. The rest are targets in [../README.md](../README.md).
+
+## Ship, and draft the next plan
+
+`/release close`: every line `[x]` or `[-]` → the changelog block with the ratio → the doc sweep
+above → the current-plan line in [../README.md](../README.md) → `git mv` the plan into
+`../archive/plans/` → the owner pushes the tag.
+
+`/release draft <letter>`: read [BACKLOG.md](BACKLOG.md) § Next and the merged pull requests'
+`est → act`, write one task section per item, estimate with the calibrated bands, cut disjoint lanes,
+write the shared-file table and the agents line, assign ids last, leave it a draft. About 25 points.
