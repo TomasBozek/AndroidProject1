@@ -85,4 +85,13 @@ class GalleryScreenTest {
 
         assertEquals(listOf(GalleryEvent.ComponentClicked("button")), events)
     }
+
+    @Test
+    fun `the up arrow emits its navigation event`() {
+        render(GalleryState.PREVIEW)
+
+        compose.onNodeWithTag("gallery_upButton").performClick()
+
+        assertEquals(listOf(GalleryEvent.NavigateUpClicked), events)
+    }
 }

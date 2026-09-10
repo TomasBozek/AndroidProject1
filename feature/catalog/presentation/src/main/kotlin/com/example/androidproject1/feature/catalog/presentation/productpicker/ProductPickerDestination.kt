@@ -31,6 +31,9 @@ fun EntryProviderScope<NavKey>.productPickerDestination(backStack: NavBackStack<
                         setNavResult(navigation.productId)
                         backStack.removeLastOrNull()
                     }
+
+                    // No result set, so the requester sees nothing arrive.
+                    ProductPickerNavigation.NavigateUp -> backStack.removeLastOrNull()
                 }
             },
         ) { state, onEvent ->

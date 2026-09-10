@@ -24,6 +24,8 @@ fun EntryProviderScope<NavKey>.galleryDestination(backStack: NavBackStack<NavKey
                 when (navigation) {
                     is GalleryNavigation.ToComponent ->
                         backStack.add(GalleryDetailDestination(navigation.id))
+
+                    GalleryNavigation.NavigateUp -> backStack.removeLastOrNull()
                 }
             },
         ) { state, onEvent ->

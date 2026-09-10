@@ -23,7 +23,13 @@ fun ProductsScreen(
 ) {
     AppScaffold(
         screenId = "ProductsScreen",
-        topBar = { AppTopBar(title = state.categoryName) },
+        topBar = {
+            AppTopBar(
+                title = state.categoryName,
+                onNavigateUp = { onEvent(ProductsEvent.NavigateUpClicked) },
+                navigateUpTestTag = "products_upButton",
+            )
+        },
         contentPadding = false,
     ) {
         val formats = LocalFormats.current

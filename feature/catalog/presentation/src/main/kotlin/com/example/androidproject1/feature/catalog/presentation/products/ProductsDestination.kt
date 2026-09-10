@@ -37,6 +37,8 @@ fun EntryProviderScope<NavKey>.productsDestination(backStack: NavBackStack<NavKe
                     is ProductsNavigation.ProductDetail -> backStack.add(
                         ProductDetailDestination(productId = navigation.productId),
                     )
+
+                    ProductsNavigation.NavigateUp -> backStack.removeLastOrNull()
                 }
             },
         ) { state, onEvent ->

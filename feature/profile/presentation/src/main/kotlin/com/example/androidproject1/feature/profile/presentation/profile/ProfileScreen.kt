@@ -37,6 +37,7 @@ fun ProfileScreen(
             AppTopBar(
                 title = stringResource(R.string.profile_title),
                 onNavigateUp = { onEvent(ProfileEvent.NavigateUpClicked) },
+                navigateUpTestTag = "profile_upButton",
             )
         },
     ) {

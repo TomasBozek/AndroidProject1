@@ -40,6 +40,7 @@ fun SettingsPermissionsScreen(
             AppTopBar(
                 title = stringResource(R.string.settings_permissions_title),
                 onNavigateUp = { onEvent(SettingsPermissionsEvent.NavigateUpClicked) },
+                navigateUpTestTag = "settingsPermissions_upButton",
             )
         },
         contentPadding = false,

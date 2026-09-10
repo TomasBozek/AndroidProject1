@@ -38,6 +38,7 @@ fun GalleryDetailScreen(
             AppTopBar(
                 title = state.name,
                 onNavigateUp = { onEvent(GalleryDetailEvent.NavigateUpClicked) },
+                navigateUpTestTag = "galleryDetail_upButton",
             )
         },
         contentPadding = false,

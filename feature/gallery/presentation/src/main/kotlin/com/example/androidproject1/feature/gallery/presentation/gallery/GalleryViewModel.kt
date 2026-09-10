@@ -15,6 +15,7 @@ class GalleryViewModel(
     override fun onUiEvent(event: GalleryEvent) {
         when (event) {
             is GalleryEvent.ComponentClicked -> navigate(GalleryNavigation.ToComponent(event.id))
+            GalleryEvent.NavigateUpClicked -> navigate(GalleryNavigation.NavigateUp)
         }
     }
 }

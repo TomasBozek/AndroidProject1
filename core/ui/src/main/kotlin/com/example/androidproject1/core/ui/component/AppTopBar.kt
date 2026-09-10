@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,12 +26,17 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * Flat and unshaded — `elevation.0` — so the bar belongs to the screen rather than floating over
  * it. Back is always on the left; a tab root passes no [onNavigateUp] at all, because the bottom
  * bar is what leaves it.
+ *
+ * @param navigateUpTestTag the arrow's id, `<screenStem>_upButton`. The caller's [modifier] goes
+ * to the bar, so the arrow needs one of its own for a test to find it — and it is found by id
+ * rather than by its label, which is translated.
  */
 @Composable
 fun AppTopBar(
     title: String,
     modifier: Modifier = Modifier,
     onNavigateUp: (() -> Unit)? = null,
+    navigateUpTestTag: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
@@ -46,6 +52,7 @@ fun AppTopBar(
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.app_navigate_up),
                 onClick = onNavigateUp,
+                modifier = navigateUpTestTag?.let { Modifier.testTag(it) } ?: Modifier,
             )
         }
         AppText(

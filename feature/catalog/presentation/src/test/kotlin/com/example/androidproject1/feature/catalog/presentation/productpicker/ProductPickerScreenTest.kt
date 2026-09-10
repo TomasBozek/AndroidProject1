@@ -54,4 +54,13 @@ class ProductPickerScreenTest {
 
         compose.onNodeWithTag("productPicker_list").assertIsDisplayed()
     }
+
+    @Test
+    fun `the up arrow emits its navigation event`() {
+        render(ProductPickerState.PREVIEW)
+
+        compose.onNodeWithTag("productPicker_upButton").performClick()
+
+        assertEquals(listOf(ProductPickerEvent.NavigateUpClicked), events)
+    }
 }
