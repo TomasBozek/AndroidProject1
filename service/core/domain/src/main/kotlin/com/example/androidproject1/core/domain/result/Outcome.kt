@@ -35,19 +35,3 @@ inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> =
             is Outcome.Success<T> -> Outcome.Success(transform(data))
         }
     }.getOrElse { it.toFailure() }
-
-inline fun <T, R> Outcome<T>.flatMap(transform: (T) -> Outcome<R>): Outcome<R> =
-    runCatching {
-        when (this) {
-            is Outcome.Failure -> this
-            is Outcome.Success<T> -> transform(data)
-        }
-    }.getOrElse { it.toFailure() }
-
-inline fun <T> Outcome<T>.recover(action: (DomainError) -> Outcome<T>): Outcome<T> =
-    runCatching {
-        when (this) {
-            is Outcome.Failure -> action(error)
-            else -> this
-        }
-    }.getOrElse { it.toFailure() }

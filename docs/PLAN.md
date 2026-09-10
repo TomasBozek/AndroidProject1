@@ -64,6 +64,7 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
 | D37 | Plan format | **Decided 2026-09-10 with `F9`: one `PLAN.md` under 150 lines.** `PLAN-DETAIL.md` and `PLAN-WORKERS.md` are deleted; a worker split is a PR description |
 | D38 | Deleting components | **Decided 2026-09-10: nothing in `:core:ui` is deleted in Plan 5.** The showcase features give the unused ones a home first; what is still unused after them is a decision then, with the counts in front of us |
 | D39 | The retrospective's questions | **Decided 2026-09-10: answered at the item, not up front.** Each is marked `?` below with both readings; the recommended one is first |
+| D41 | The token-refresh scaffold | **Open, with `F14`.** 92 lines and its tests, supplied by nobody because there is no API yet (Q8). Two of the review's three reasons to delete it do not hold: it *is* built on Ktor's `bearer` provider in `HttpClientFactory`, and its stale-token comparison reads correctly. What is left is whether Ktor's own `AuthTokenHolder` already single-flights refreshes, making the mutex redundant — worth checking before deleting working concurrency code |
 | D40 | `doctor.py`'s weaker checks | **Decided 2026-09-10 with `F3`: all 30 stay.** The review proposed dropping the CLAUDE.md-tree, foreign-identifier and four style checks, mostly because they were slow; the pruned walk took the whole suite to 0.24 s, so the cost argument is gone and only taste is left. Reopen on taste, not on time |
 
 ## Items
@@ -87,8 +88,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
   split and give `service/` its own package names — not both.
 - [ ] **F10 `export_service.py` and `install_hooks.py` shrink** · S · trim — Why 170 lines of TOML
   resolver for a script with no consumer; hooks are `core.hooksPath`. Done `.githooks/` committed.
-- [ ] **F14 The ~450 dead lines** · S · trim — Why `combineOutcomes`, `executeAsFlow`, `AlertPayload`,
-  `displayMessage` and 222 lines of token refresh have no callers. Done `?` deleted, or rebuilt on Ktor.
+- [~] **F14 The dead API** · S · trim — Why nothing calls them. Done `OutcomeFlows`, `flatMap`,
+  `recover`, `executeAsFlow`, `CredentialsError`, `displayMessage` deleted. `?` the token scaffold (D41).
 - [ ] **F15 Where the data-source interface lives** · M · trim — Why ten interfaces, one implementation
   each, no fake anywhere. Done `?` interface at the repository with a fake, or the per-source rule stands.
 - [ ] **F18 Flavors** · S · trim — Why `staging` is `prod` plus one line and an unreachable host, and

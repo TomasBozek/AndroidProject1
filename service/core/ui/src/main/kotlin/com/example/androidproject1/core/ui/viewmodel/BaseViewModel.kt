@@ -394,9 +394,7 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
                 showToast(R.string.core_error_server_unavailable.toUiText())
                 return
             }
-            commonErrorMessage(throwable)
-                ?: throwable.displayMessage?.toUiText()
-                ?: R.string.core_error_unexpected.toUiText()
+            commonErrorMessage(throwable) ?: R.string.core_error_unexpected.toUiText()
         } else {
             logger.w(throwable = throwable) { "Unhandled exception" }
             R.string.core_error_unexpected.toUiText()

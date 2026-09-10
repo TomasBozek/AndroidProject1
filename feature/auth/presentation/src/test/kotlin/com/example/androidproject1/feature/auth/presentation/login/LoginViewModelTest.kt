@@ -1,6 +1,6 @@
 package com.example.androidproject1.feature.auth.presentation.login
 
-import com.example.androidproject1.core.domain.error.CredentialsError
+import com.example.androidproject1.core.domain.error.UnauthorizedError
 import com.example.androidproject1.core.domain.test.FakeLogger
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
@@ -56,7 +56,7 @@ class LoginViewModelTest {
 
     @Test
     fun `a failed sign-in raises an alert, not an inline error`() = runTest {
-        authService.failWith = CredentialsError(displayMessage = "Wrong password")
+        authService.failWith = UnauthorizedError(message = "Wrong password")
         val viewModel = viewModel()
         viewModel.onUiEvent(LoginEvent.EmailChanged("ada@example.com"))
         viewModel.onUiEvent(LoginEvent.PasswordChanged("wrong"))
