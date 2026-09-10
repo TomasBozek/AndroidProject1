@@ -20,7 +20,6 @@ class UnauthorizedError(
 /** The request was rejected as malformed. */
 class BadRequestError(
     override val message: String? = null,
-    override val displayMessage: String? = null,
     override val cause: Throwable? = null,
 ) : DomainError()
 
@@ -30,15 +29,8 @@ class NotFoundError(
     override val cause: Throwable? = null,
 ) : DomainError()
 
-/** Sign-in failed for a reason the user can act on. */
-class CredentialsError(
-    override val displayMessage: String? = null,
-    override val cause: Throwable? = null,
-) : DomainError()
-
 /** Anything unforeseen — a bug rather than a condition worth modelling. */
 class UnexpectedError(
     override val message: String? = null,
-    override val displayMessage: String? = null,
     override val cause: Throwable? = null,
 ) : DomainError()

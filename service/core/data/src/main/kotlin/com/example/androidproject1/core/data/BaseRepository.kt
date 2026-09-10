@@ -28,10 +28,6 @@ abstract class BaseRepository(protected val logger: Logger) {
             .onFailureUnlessCancelled { logger.w(throwable = it) { "Repository call failed" } }
             .getOrElse { Outcome.Failure(it.asDomainError()) }
 
-    /** Wraps a one-shot [call] as a single-emission [Flow]. */
-    protected fun <T> executeAsFlow(call: suspend () -> T): Flow<Outcome<T>> =
-        flow { emit(execute(call)) }
-
     /**
      * Wraps an existing [Flow] so its emissions become [Outcome.Success] and a thrown exception an
      * [Outcome.Failure].
