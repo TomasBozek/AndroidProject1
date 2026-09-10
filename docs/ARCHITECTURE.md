@@ -226,7 +226,7 @@ is generated.
 ```
 
 **The previews are the list.** Nothing is registered anywhere: adding a component with a
-`@ComponentPreview` adds three goldens, adding a screen adds five, and deleting either leaves its
+`@ComponentPreview` adds two goldens, adding a screen adds three, and deleting either leaves its
 images for `git status` to point at. The images live in each module's `src/test/screenshots/` and
 are committed — which is the one thing to be careful about, because **a golden nobody looked at is
 a test that passes forever**. Open what `record` wrote before committing it; a blank or clipped
@@ -247,6 +247,20 @@ on a 360 dp phone. `OverlayScreenshotTest` in `:core:ui` is the answer: it opens
 uses `captureScreenRoboImage`, which captures the screen and so takes the window with it. Add an
 overlay component and add a case there, recorded at the shapes an overlay actually breaks on —
 the narrowest phone and a phone in landscape, not the comfortable 400×900 the previews use.
+
+**The matrix is three per screen and two per component**, and both numbers were argued down from
+five and three. A narrow phone and an 800 dp tablet were previewed on every screen and their images
+were the phone's again, because no screen here has an adaptive layout — 140 images asserting a third
+and fourth time what the phone already said. A screen that does respond to width carries its own
+extra `@Preview` naming that width. Components lost their large-font variant because the gallery is
+a screen, so its `@ScreenPreview` renders all of them at 1.5× already.
+
+**Goldens are recorded at half size** (`roborazzi.record.resizeScale` in `gradle.properties`): a
+screen preview is a 400x900 dp frame at xhdpi, so full size is 800x1800 px of mostly flat colour.
+Half still shows a moved element, a clipped row or a wrong colour, and is a quarter of the bytes in
+git. **And there is a comparison threshold**, `CHANGE_THRESHOLD`, so a Robolectric or Compose bump
+that shifts antialiasing by a pixel does not re-record every golden and bury a real change in the
+diff. It is 0.1 % of pixels, which is not blind: shifting every component by one dp fails it.
 
 An ordinary `./gradlew test` leaves Roborazzi switched off, so the class costs the build nothing —
 which is also why CI needs the separate `verifyRoborazziDebug` step.

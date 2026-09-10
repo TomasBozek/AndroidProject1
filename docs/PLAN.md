@@ -73,8 +73,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
   platform-width, uncapped and unscrolled. Done `DatePickerDialog` themed; four overlay goldens.
 - [x] (2026-09-10) **F8 `CLAUDE.md` on a diet** · M · first — Why 983 lines in every session, the
   gate in it six times. Done 363 lines plus `docs/ARCHITECTURE.md`; one gate, no contradictions.
-- [ ] **F4 The golden matrix** · M · first — Why 349 full-frame goldens, 11 MB, five per screen, no
-  threshold. Done `?` Phone/Dark/LargeFont + components Light/Dark at half resolution, or a smaller cut.
+- [x] (2026-09-10) **F4 The golden matrix** · M · first — Why 353 full-frame goldens, 11.9 MB, five
+  per screen, no threshold. Done 3 per screen / 2 per component, half size, a threshold: 225, 3.9 MB.
 - [ ] **F5 The ten `di` modules** · M · trim — Why 13–59 lines each, and each pays an AAR and a 20 s
   Robolectric warm-up. Done `?` bindings beside the classes (56 → 46), or `data`+`presentation` merged.
 - [ ] **F11 The `service/` split, decided once** · L · trim — Why split packages, the namespace gotcha

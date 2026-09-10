@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.profile.presentation.screenshot
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.inspectionMode
 import com.github.takahirom.roborazzi.manualAdvance
@@ -23,6 +24,9 @@ private const val ROBOLECTRIC_SDK = 35
 // One frame is enough for the first composition and layout, and it is the same frame every time,
 // which is what a golden needs.
 private const val ONE_FRAME_MILLIS = 16L
+
+// Fraction of pixels that may differ before a golden is called changed.
+private const val CHANGE_THRESHOLD = 0.001f
 
 /**
  * A golden image per `@ScreenPreview` and `@ComponentPreview` in this module.
@@ -64,10 +68,16 @@ class PreviewScreenshotTest(
         // `preview.captureRoboImage`, not the plain one: this overload reads the @Preview's own
         // device, uiMode and fontScale, which is what makes "Dark" dark rather than a second copy
         // of the light image. Those options are what `manualAdvance` is added *to* — a fresh
-        // `RoborazziComposeOptions { }` would replace them, and the five variants of a screen
-        // would come out as five identical files.
+        // `RoborazziComposeOptions { }` would replace them, and a screen's three variants would
+        // come out as three identical files.
         preview.captureRoboImage(
             filePath = "src/test/screenshots/${AndroidPreviewScreenshotIdBuilder(preview).build()}.png",
+            // A hair of tolerance, so a Robolectric or Compose bump that shifts antialiasing by a
+            // pixel does not re-record every golden in the repo and bury a real change in the diff.
+            // Small enough that anything structural still fails: at this size 0.1 % is a 20x20 block.
+            roborazziOptions = RoborazziOptions(
+                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = CHANGE_THRESHOLD),
+            ),
             roborazziComposeOptions = preview.toRoborazziComposeOptions()
                 .builder()
                 .manualAdvance(compose, ONE_FRAME_MILLIS)
