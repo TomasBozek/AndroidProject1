@@ -4,7 +4,9 @@ name: Grant a permission
 ---
 - runFlow: sign-in.yaml
 
-- tapOn: "Settings"
+- tapOn:
+
+    id: "tabs_settingsTab"
 - tapOn:
     id: "settings_permissionsButton"
 - assertVisible:

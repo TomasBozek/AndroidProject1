@@ -16,7 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -109,12 +112,15 @@ private fun AppNavContent(
     }.collectAsStateWithLifecycle(initialValue = 0)
 
     NavigationSuiteScaffold(
-        modifier = modifier,
+        // The bar sits above every screen's own AppScaffold, which is where this is switched on for
+        // the content — without it here a flow cannot find a tab by id at all.
+        modifier = modifier.semantics { testTagsAsResourceId = true },
         navigationSuiteItems = {
             TopLevelDestination.entries.forEach { tab ->
                 item(
                     selected = tab == currentTab,
                     onClick = { backStack.selectTab(tab) },
+                    modifier = Modifier.testTag(tab.testTag),
                     icon = {
                         if (tab.hasBadge && cartCount > 0) {
                             BadgedBox(badge = { Badge { Text(text = cartCount.toString()) } }) {

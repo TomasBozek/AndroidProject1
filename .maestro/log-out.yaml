@@ -4,7 +4,9 @@ name: Log out returns to Login
 ---
 - runFlow: sign-in.yaml
 
-- tapOn: "Settings"
+- tapOn:
+
+    id: "tabs_settingsTab"
 - assertVisible:
     id: "SettingsScreen"
 - tapOn:

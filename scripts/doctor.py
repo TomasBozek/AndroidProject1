@@ -950,7 +950,7 @@ MAESTRO_ID = re.compile(r'^\s*-?\s*id:\s*"?([^"\n]+?)"?\s*$')
 
 # The three ways an id reaches the device: a literal tag, the screen's own name, and the tag
 # constants the shared components expose (`ALERT_DIALOG_TAG` and friends).
-TEST_TAG_LITERAL = re.compile(r'testTag\(\s*"([^"]+)"')
+TEST_TAG_LITERAL = re.compile(r'testTag\s*[(=]\s*"([^"]+)"')
 SCREEN_ID_LITERAL = re.compile(r'screenId\s*=\s*"([^"]+)"')
 TAG_CONSTANT = re.compile(r'const\s+val\s+[A-Z0-9_]*_TAG\s*(?::\s*String\s*)?=\s*"([^"]+)"')
 
@@ -1333,6 +1333,43 @@ def check_docs_index() -> list[str]:
         for name in sorted(directories - {AI_DIRECTORY}):
             problems.append(problem(DOCS_DIR / name, None, "is a zone nobody chose; docs/ holds six files and ai/"))
 
+    return problems
+
+
+# A `TopLevelDestination` entry: `Home(HomeDestination, R.string.tab_home, …)`.
+TAB_ENTRY = re.compile(r"^    ([A-Z]\w*)\(", re.MULTILINE)
+
+TAB_TEST_TAG = re.compile(r'testTag\s*=\s*"([^"]+)"')
+
+TOP_LEVEL_DESTINATION_FILE = REPO_ROOT / "app/src/main/kotlin" / BASE_PACKAGE.replace(".", "/") / "TopLevelDestination.kt"
+
+
+@check("every tab carries its own test id")
+def check_tab_test_ids() -> list[str]:
+    """`CLAUDE.md` § Test identifiers: find by id, never by text.
+
+    The tabs were the one place that broke it — four Maestro flows tapped the English labels, so a
+    wording fix or the Czech locale turned them red for a reason that had nothing to do with the
+    app. The tag lives on the enum entry rather than at the call site, which is what makes a fifth
+    tab impossible to add without one.
+    """
+    if not TOP_LEVEL_DESTINATION_FILE.is_file():
+        return [problem(TOP_LEVEL_DESTINATION_FILE, None, "not found")]
+
+    problems = []
+    for line_number, line in enumerate(TOP_LEVEL_DESTINATION_FILE.read_text().split("\n"), start=1):
+        entry = TAB_ENTRY.match(line)
+        if not entry:
+            continue
+        name = entry.group(1)
+        expected = f"tabs_{name[0].lower()}{name[1:]}Tab"
+        tag = TAB_TEST_TAG.search(line)
+        if tag is None:
+            problems.append(problem(TOP_LEVEL_DESTINATION_FILE, line_number, f"tab {name} has no testTag; expected {expected}"))
+        elif tag.group(1) != expected:
+            problems.append(
+                problem(TOP_LEVEL_DESTINATION_FILE, line_number, f"tab {name} is tagged '{tag.group(1)}'; expected '{expected}'")
+            )
     return problems
 
 

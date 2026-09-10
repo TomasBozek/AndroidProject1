@@ -34,7 +34,7 @@ Logging is WARN and above in a release build.
 | `AppNavHost` | every destination, in three groups: onboarding, auth and main. The only place a cross-feature navigation lambda is wired, and the place `ProvideNavResultStore` and `ProvideAnalytics` wrap everything below |
 | `MainViewModel` | a plain `ViewModel`, the owner of `SessionState` and the only thing that switches flows |
 | `SessionState` | `Unknown`, `Onboarding`, `SignedIn`, `SignedOut` |
-| `TopLevelDestination` | the four tabs: route key, label and icon each |
+| `TopLevelDestination` | the four tabs: route key, label, icon and test id each — the id is `tabs_<name>Tab`, carried on the entry so a fifth tab cannot be added without one |
 | `App` | the `Application`: `initKoin`, the notification channel |
 | `DebugMenu` | the flag that decides whether the debug entries are registered at all |
 
