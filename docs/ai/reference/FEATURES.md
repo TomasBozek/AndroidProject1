@@ -1,7 +1,7 @@
 # Features and screens
 
-What the sample app contains. The layer rules are [../../../CLAUDE.md](../../../CLAUDE.md) and the
-module list is [../CODEBASE.md](../CODEBASE.md).
+What the sample app contains. The layer rules and the module list are
+[../CODEBASE.md](../CODEBASE.md).
 
 ## Features
 

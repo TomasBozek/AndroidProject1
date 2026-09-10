@@ -21,7 +21,7 @@ person has no reason to open it — not because it says anything different (D48)
 |---|---|
 | [ai/PROCESS.md](ai/PROCESS.md) | ids, points, lanes, the task loop, states, what to ship |
 | [ai/ARCHITECTURE.md](ai/ARCHITECTURE.md) | layers, how a value moves through a screen, navigation, session, environments |
-| [ai/CODEBASE.md](ai/CODEBASE.md) | the module tree and the convention plugins |
+| [ai/CODEBASE.md](ai/CODEBASE.md) | the module tree, the convention plugins, the API already built, and what the build refuses |
 | [ai/RECIPES.md](ai/RECIPES.md) | how to do a thing here for the first time |
 | [ai/TESTING.md](ai/TESTING.md) | the tests per screen, the goldens, what the build reports |
 | [ai/DEPENDENCIES.md](ai/DEPENDENCIES.md) | which library does which job, and how a version bump happens |

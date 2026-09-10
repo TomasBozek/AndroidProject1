@@ -55,5 +55,5 @@ other. A bump that fails is not pinned back silently: it gets a line in
 
 Two version facts are load-bearing and live outside the catalog: the Gradle daemon's JDK, pinned in
 `gradle/gradle-daemon-jvm.properties` and provisioned through foojay, and the SDK levels in
-`build-logic`'s `ProjectConfig`. Both are named in `CLAUDE.md` § Known constraints, because both
+`build-logic`'s `ProjectConfig`. Both are named in `ai/CODEBASE.md` § Known constraints, because both
 have broken a tool before.

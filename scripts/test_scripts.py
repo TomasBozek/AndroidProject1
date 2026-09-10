@@ -182,10 +182,10 @@ class ScaffoldingTest(unittest.TestCase):
         destination = (self.screen("userprofile", "UserProfile") / "UserProfileDestination.kt").read_text()
         self.assertIn("fun EntryProviderScope<NavKey>.userProfileDestination(", destination)
 
-        # The fifth registration: CLAUDE.md's module tree, which doctor.py checks.
+        # The fifth registration: the module tree in docs/ai/CODEBASE.md, which doctor.py checks.
         self.assertIn(
             ":feature:userprofile:{domain,data,presentation,di}",
-            self.read("CLAUDE.md"),
+            self.read("docs/ai/CODEBASE.md"),
         )
 
         self.assert_doctor_passes()
@@ -249,10 +249,10 @@ class ScaffoldingTest(unittest.TestCase):
     def test_create_feature_lists_partial_layers_in_the_module_tree(self) -> None:
         """The tree documents what is on disk; a screen-only feature must not claim five layers."""
         self.run_script("create_feature.py", "userProfile", "--layers", "presentation,di")
-        self.assertIn(":feature:userprofile:{presentation,di}", self.read("CLAUDE.md"))
+        self.assertIn(":feature:userprofile:{presentation,di}", self.read("docs/ai/CODEBASE.md"))
 
         self.run_script("create_feature.py", "userProfile", "--layers", "domain", "--force")
-        self.assertIn(":feature:userprofile:{domain,presentation,di}", self.read("CLAUDE.md"))
+        self.assertIn(":feature:userprofile:{domain,presentation,di}", self.read("docs/ai/CODEBASE.md"))
         self.assert_doctor_passes()
 
     def test_create_feature_with_partial_layers(self) -> None:
@@ -413,7 +413,7 @@ class ScaffoldingTest(unittest.TestCase):
             "core/di/build.gradle.kts",
             f"core/di/src/main/kotlin/{BASE_PATH}/core/di/Koin.kt",
             f"app/src/main/kotlin/{BASE_PATH}/AppNavHost.kt",
-            "CLAUDE.md",
+            "docs/ai/CODEBASE.md",
         ]
         before = {path: self.read(path) for path in watched}
 

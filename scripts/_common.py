@@ -22,7 +22,7 @@ TEMPLATE_RESOURCE_PREFIX = "template"
 TEMPLATE_ANCHOR = f'includeFeatureModule(\n    "{TEMPLATE_FEATURE}",'
 
 SETTINGS_FILE = REPO_ROOT / "settings.gradle.kts"
-CLAUDE_MD_FILE = REPO_ROOT / "CLAUDE.md"
+MODULE_TREE_FILE = REPO_ROOT / "docs/ai/CODEBASE.md"
 KOIN_FILE = REPO_ROOT / "core/di/src/main/kotlin" / BASE_PATH / "core/di/Koin.kt"
 KOIN_GRAPH_TEST_FILE = REPO_ROOT / "app/src/test/kotlin" / BASE_PATH / "KoinGraphTest.kt"
 CORE_DI_BUILD_FILE = REPO_ROOT / "core/di/build.gradle.kts"
@@ -62,7 +62,7 @@ STRINGS_XML_TEMPLATE = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</r
 # generators looking for the places `values/` was spelled out.
 TRANSLATED_LOCALES = ["cs"]
 
-# A line of the module tree in CLAUDE.md, e.g.
+# A line of the module tree in docs/ai/CODEBASE.md, e.g.
 # `:feature:auth:{domain,data,presentation,di}       full stack; owns the session`.
 # doctor.py fails when the tree and the directories on disk disagree, so the generators keep it
 # in step — it is the fifth registration, and the only one a compiler could never catch.
@@ -423,7 +423,7 @@ def register_route_key_injection(feature: str, pascal: str, sub_package: str, dr
 
 
 # --------------------------------------------------------------------------------------------
-# CLAUDE.md module tree
+# docs/ai/CODEBASE.md module tree
 # --------------------------------------------------------------------------------------------
 
 
@@ -440,14 +440,14 @@ def _tree_entries(lines: list[str]) -> list[tuple[int, str]]:
 
 
 def register_in_feature_tree(flat: str, layers: list[str], description: str, dry_run: bool) -> None:
-    """Lists the feature in CLAUDE.md's module tree, alphabetically, with the template last."""
+    """Lists the feature in docs/ai/CODEBASE.md's module tree, alphabetically, with the template last."""
     line = feature_tree_line(flat, layers, description)
 
     def transform(text: str) -> str:
         lines = text.split("\n")
         entries = _tree_entries(lines)
         if not entries:
-            print("  CLAUDE.md: no module tree found — list the feature by hand")
+            print("  docs/ai/CODEBASE.md: no module tree found — list the feature by hand")
             return text
 
         existing = next((i for i, name in entries if name == flat), None)
@@ -463,7 +463,7 @@ def register_in_feature_tree(flat: str, layers: list[str], description: str, dry
         lines.insert(after, line)
         return "\n".join(lines)
 
-    edit_file(CLAUDE_MD_FILE, transform, dry_run, "list the module in CLAUDE.md")
+    edit_file(MODULE_TREE_FILE, transform, dry_run, "list the module in docs/ai/CODEBASE.md")
 
 
 def unregister_from_feature_tree(flat: str, dry_run: bool) -> None:
@@ -472,4 +472,4 @@ def unregister_from_feature_tree(flat: str, dry_run: bool) -> None:
         drop = {i for i, name in _tree_entries(lines) if name == flat}
         return "\n".join(line for i, line in enumerate(lines) if i not in drop)
 
-    edit_file(CLAUDE_MD_FILE, transform, dry_run, "remove the module from CLAUDE.md")
+    edit_file(MODULE_TREE_FILE, transform, dry_run, "remove the module from docs/ai/CODEBASE.md")
