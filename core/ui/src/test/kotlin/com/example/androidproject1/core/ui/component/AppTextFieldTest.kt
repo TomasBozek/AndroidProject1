@@ -80,4 +80,22 @@ class AppTextFieldTest : ComponentTest() {
         // rather than something that refuses what is typed.
         compose.onAllNodes(hasSetTextAction() and hasAnyAncestor(hasTestTag(TAG))).assertCountEquals(0)
     }
+
+    @Test
+    fun `the label is on the input, not only beside it`() {
+        themed {
+            AppTextField(
+                value = "",
+                onValueChange = {},
+                label = "Email",
+                modifier = Modifier.testTag(TAG),
+            )
+        }
+
+        // The node that takes text is the one a screen reader lands on, so the name has to be
+        // there — a sibling Text above it is a different node and announces nothing.
+        compose.onNode(
+            hasSetTextAction() and hasAnyAncestor(hasTestTag(TAG)) and hasText("Email"),
+        ).assertIsDisplayed()
+    }
 }
