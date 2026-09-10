@@ -7,8 +7,8 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import org.koin.core.context.stopKoin
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
