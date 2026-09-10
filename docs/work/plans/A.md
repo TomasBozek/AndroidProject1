@@ -1,256 +1,285 @@
-# Release A · the retrospective's corrections, and a docs system that survives them
+# Release A · what a v1.0 tag must not carry
 
-Status: draft
-Agents: 2 · lane 1 91 (~7.3 h) · lane 2 97 (~7.8 h) · lane 0 open
-Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D43–D46
+Status: open
+Agents: 1 · 19 tasks · 123 on the board, 111 of work (~9.3 h) · one branch, one pull request
+Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D46, D47
 
-Every task carries an id of its own; the retrospective id it came from is on the line as `(was F12)`
-and nowhere else. The evidence behind those ids is `docs/archive/2026-09-review/`, deleted when this
-release ships.
+This release ships as **one pull request**, not one per task — D47, taken in A0P6. That is the only
+rule this plan bends, and it bends it once: D17 stands for every release after this one.
+
+One agent, so there is no lane split and no shared-file table to arbitrate. Tasks carry the ids
+they already had where the work survived from the draft; the retrospective id is on the line as
+`(was F12)` and nowhere else.
+
+Everything this plan drops is dropped for one reason: **it is not broken**. Refactors, subtractions
+and new behaviour are release B — [B.md](B.md) holds them with their points intact.
 
 Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act`, or
 `· blocked: <≤5 words>`), a `[-]` by the owner, a lane-0 task appended by the owner. Nothing else.
 
-## Shared files
-
-| File group | Owner lane | Tasks |
-|---|---|---|
-| `settings.gradle.kts`, `core/di/**`, `app/**/AppNavHost.kt`, `app/**/KoinGraphTest.kt` | 1 | A1X2 |
-| `gradle/libs.versions.toml` | 2 | A2T2 |
-| `CLAUDE.md`, `docs/spec/CODEBASE.md`, `docs/README.md` | 0 | A0P1, A0P2, A0P3 |
-| `.github/workflows/build.yml` | 2 | A2P1, A2H1, A2H3 |
-| `scripts/**` | 2 | A2P2 — except `doctor.py`, appended by A1U3 and A0P2 |
-
-Lane 1 owns `core/ui`, `feature/*/presentation`, `service/core/ui`, `app/src/main/kotlin`, every
-`strings.xml` and every golden. Lane 2 owns `build-logic`, `gradle`, `scripts`, `.github`,
-`baselineprofile`, `app`'s build file and manifest, `service/core/{domain,data}`, `service/network`
-and every `feature/*/{domain,data,di}`. Lane 0 owns the docs.
-
 ## Board
 
-### Lane 0 · priority
+### A · the tag cannot be pushed until these land · 9
 
-- [x] A0P1 The docs system · 50 → 50
-- [ ] A0P2 Retire PLAN.md, move the module tree, slim CLAUDE.md · 25
-- [ ] A0P3 Ship A, draft B · 12
+- [ ] A0X1 The release job's changelog guard can never match · 6
+- [ ] A0P6 One pull request per release · 3 · decides D47
 
-### Lane 1 · screens, design system, view models
+### B · defects · 57
 
-- [ ] A1T1 Test plumbing stops being copied (was F19) · 12
-- [ ] A1U1 Every non-root screen carries an Up control (was shell.8) · 6
-- [ ] A1U2 A text field says its own name (was ui.10) · 6
-- [ ] A1U3 The tabs have test ids (was qa.16) · 6
 - [ ] A1X1 An empty category stops spinning (was F17a) · 12
 - [ ] A1X2 Add-to-cart leaves the nav host (was F17b) · 12
-- [ ] A1X3 BaseViewModel's defaults, and its dead lines (was F12 + half of F14) · 25 · decides D44
-- [ ] A1U4 Forms scroll under the keyboard (was H3) · 6
-- [ ] A1U5 Predictive back on dirty forms, auto-sizing numerics (was M3+M4) · 6
+- [ ] A1U1 Every non-root screen carries an Up control (was shell.8) · 12
+- [ ] A0X3 The date picker and the dialog speak the device's language · 6
+- [ ] A1U2 A text field says its own name (was ui.10) · 6
+- [ ] A1U4 Login and Sign-up scroll under the keyboard (was H3) · 3
+- [ ] A1X4 The product-detail heart keeps its first value · 3
+- [ ] A1X5 A cold-start deep link is applied once · 3
 
-### Lane 2 · build, release, data, network
+### C · a repository that is finished · 51 on the board, 39 of work
 
-- [ ] A2P1 Two flavors (was F18) · 12 · decides D43
-- [ ] A2H1 The release job ships a signed AAB or fails (was F17c) · 25 · after A2P1
-- [ ] A2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45 · after A2P1
-- [ ] A2H3 The R8 mapping ships with the release (was H1) · 6 · after A2H1
-- [ ] A2P2 Hooks become a committed .githooks (was F10) · 12
-- [ ] A2T1 The dead lines in domain and network (was half of F14) · 12 · decides D46
-- [ ] A2T2 Coil and the two single-consumer plugins (was F24) · 6
-- [ ] A2H4 network_security_config and StrictMode (was H7+H8) · 12
+- [ ] A0P2 One ARCHITECTURE.md, no frozen plan, no forward references · 12
+- [ ] A2H3 The R8 mapping ships with the release (was H1) · 6
+- [ ] A2H1 The release job refuses to publish a debug-signed build (was F17c) · 6
+- [ ] A0P4 README is the front door again · 6
+- [ ] A0P5 .gitignore, .gitkeep and a LICENSE · 3
+- [ ] A0X2 The Maestro flows start where the app starts · 3
+- [ ] A2T1 The dead lines in domain and network (was half of F14) · 3 · decides D46
+- [ ] A1T1 Test plumbing stops being copied (was F19) · 12 · landed as commit `fe6e3bf`
+
+### D · ship · 6
+
+- [ ] A0P3 Ship A · 6 · after every other task
 
 ## Tasks
 
-### A0P1 The docs system · 50
+### A0X1 The release job's changelog guard can never match · 6
 
-**Why** spec and work are mixed, there is no release unit, and every doc tells you to run the whole
-gate.
-**Done when** `docs/README.md` links every doc; `docs/{spec,reference,guides,work}` exist;
-`build.yml` has a `changes` job; `CLAUDE.md` § Checks defines T0 and T1; `docs/PLAN.md` carries the
-frozen banner and no item line has moved.
-**Touches** `docs/**` (new only), `.github/**`, `.claude/commands/**`, `CLAUDE.md` head and § Checks.
+**Why** `.github/workflows/build.yml:199` greps `"· $GITHUB_REF_NAME ·"`, and the block heading
+`docs/spec/CHANGELOG.md:10` documents is `## v<x.y.z> · release <letter> · <date>` — the version is
+preceded by `## `, never by a middot. Verified: `grep -qF "· v1.0.0 ·"` against that heading exits
+non-zero. Every tag fails at the first step of the release job, before anything is built. Two more
+holes ride along: `docs/guides/OPERATIONS.md:18` still worked-examples `v0.1.0`, and
+`--generate-notes` on the first tag of a repository has no previous tag to diff against, so the
+v1.0.0 release page would be the entire commit history.
+**Done when** the guard greps `"## $GITHUB_REF_NAME ·"`; a throwaway heading proves both the match
+and the refusal (`grep -qF '## v1.0.0 ·'` passes, `grep -qF '## v9.9.9 ·'` fails);
+`OPERATIONS.md` says `v1.0.0`; the release step passes `--notes-file` or a written note rather than
+`--generate-notes` for a first tag.
+**Touches** `.github/workflows/build.yml`, `docs/guides/OPERATIONS.md`.
+**Read** `.github/workflows/build.yml:193-205,238-247` · `docs/spec/CHANGELOG.md:1-25`.
 **Checks** T1. **Depends** —
 
-### A0P2 Retire PLAN.md, move the module tree, slim CLAUDE.md · 25
+### A0P6 One pull request per release · 3 · decides D47
 
-**Why** the tree lives in the file every session loads, `docs/ARCHITECTURE.md` mixes spec with
-recipes, and `PLAN.md` is superseded.
-**Done when** `docs/spec/CODEBASE.md` holds the fenced tree and `python3 scripts/doctor.py` is
-33/33; `python3 scripts/test_scripts.py` is green; `wc -l CLAUDE.md` ≤ 300;
-`grep -rn 'docs/ARCHITECTURE.md\|docs/PLAN.md' --include='*.md' --include='*.py' .` finds only the
-stub; `docs/archive/2026-09-review/` holds the review.
-**Touches** `CLAUDE.md`, `README.md`, `docs/**`, `scripts/_common.py`, `scripts/doctor.py`,
-`scripts/test_scripts.py`.
-**Read** `scripts/_common.py:25,65,426-475` · `scripts/doctor.py:392-427` ·
-`scripts/test_scripts.py:185,249,413`.
-**Steps** 1. Rename `docs/ARCHITECTURE.md` to `docs/guides/RECIPES.md`, then split its testing and
-operations sections out. 2. Move `CLAUDE.md`'s fenced tree and convention-plugin table into
-`docs/spec/CODEBASE.md`, byte for byte. 3. Repoint `CLAUDE_MD_FILE` to `MODULE_TREE_FILE`. 4. Add
-`check_docs_index`, `check_task_ids`, `check_doc_budgets`. 5. Archive the review. 6. Stub `PLAN.md`.
-**Checks** T1 + `test_scripts.py`. **Depends** A0P1
-
-### A0P3 Ship A, draft B · 12
-
-**Why** a release is a tag plus a changelog block, and the next plan should cost one command.
-**Done when** every line above is `[x]` or `[-]`; `docs/spec/CHANGELOG.md` has the `v0.1.0` block
-with `Estimate · Actual · Ratio`; the archive and the `PLAN.md` stub are deleted; this file is under
-`docs/archive/plans/`; `docs/work/plans/B.md` exists as a draft.
-**Touches** `docs/**`. **Checks** T1. **Depends** every other task
-
-### A1T1 Test plumbing stops being copied (was F19) · 12
-
-**Why** the Robolectric SDK pin is repeated in about 50 test files and eleven `PreviewScreenshotTest`
-copies differ only by a package string.
-**Done when** `grep -rn '@Config(sdk' --include='*.kt' feature core service app` returns nothing
-outside the base class; a `robolectric.properties` carries the pin; one base class carries the
-screenshot test and each module's copy is its subclass; `./gradlew test verifyRoborazziDebug` green.
-**Touches** every `*/src/test`, `feature/template/presentation/src/test`.
-**Read** `feature/template/presentation/src/test/kotlin/**/screenshot/PreviewScreenshotTest.kt`.
-**Checks** T1 + goldens + `test_scripts.py` (the template changes). **Depends** —
-
-### A1U1 Every non-root screen carries an Up control (was shell.8) · 6
-
-**Why** three screens have a top bar with no arrow and `ProductDetailScreen` has no bar at all, so
-there is no way back but the system gesture.
-**Done when** all four match the other five; each has a `<stem>_upButton` test id; their screen
-tests assert the navigation event.
-**Touches** `feature/catalog/presentation`, `feature/settings/presentation`, goldens.
-**Checks** T1 + goldens. **Depends** —
-
-### A1U2 A text field says its own name (was ui.10) · 6
-
-**Why** a field's label does not reach its semantics node, so a screen reader announces an unnamed
-field.
-**Done when** `AppTextField`'s label is on the input's semantics; a test in `:core:ui` asserts it by
-`hasText` on the node with `hasSetTextAction`.
-**Touches** `core/ui/component/AppTextField.kt` and its test. **Checks** T1 + goldens. **Depends** —
-
-### A1U3 The tabs have test ids (was qa.16) · 6
-
-**Why** the four tabs carry no `testTag`, so five Maestro flows tap English labels and break the
-moment a device runs in Czech.
-**Done when** each tab carries `tabs_<name>Tab`; the five flows use the ids; a `doctor.py` check
-fails a tab without one.
-**Touches** `app/src/main/kotlin/**/TopLevelDestination.kt`, `app/**/AppNavHost.kt`, `.maestro/**`,
-`scripts/doctor.py` (appended at the end — lane 2 owns the rest of the file).
-**Checks** T1 + `test_scripts.py`. **Depends** —
+**Why** `../PROCESS.md` § Task loop step 9 and D17 both say one pull request per task, and
+`/task` refuses a plan that is not `Status: open`. Shipping this release as one pull request is
+otherwise a violation of the repository's own rules, recorded nowhere.
+**Decide first** one pull request for this release only with D17 standing afterwards, or one pull
+request per release from now on → D47. The first is recommended: the per-task rule earned itself on
+Plans 1–4 and only fails here because the release is a cleanup, not a body of work.
+**Done when** D47 is a row in `../spec/DECISIONS.md`; `../PROCESS.md` names the exception in the
+five sentences that assert the per-task rule (§ Ids, § Task loop 9 and 10, § States, § Ship);
+`CLAUDE.md` § Working a task says the same; no other sentence in either file contradicts it.
+**Touches** `../spec/DECISIONS.md`, `../PROCESS.md`, `CLAUDE.md`.
+**Read** `../PROCESS.md:20,66-72,84-92` · `CLAUDE.md` § Working a task.
+**Checks** T1. **Depends** —
 
 ### A1X1 An empty category stops spinning (was F17a) · 12
 
-**Why** an empty table maps to `null`, so `cached()` never emits and `products_empty` is
-unreachable — the screen spins forever.
+**Why** `DefaultLocalCatalogDataSource.observeProducts` maps an empty table to `null` with
+`rows.takeIf { it.isNotEmpty() }`, so `cached()` reads "never fetched" and never emits — the screen
+spins for ever and `products_empty` is unreachable. The class KDoc claims the opposite of what the
+code does: "Once the remote has written, even an empty write is a list" is false, because the
+`takeIf` is on the read, not the write.
 **Done when** a fetched-at marker distinguishes "not loaded" from "loaded and empty"; a test opens
-an empty category and asserts the empty state.
+an empty category and asserts `ContentState.Empty`; the KDoc describes the code.
 **Touches** `feature/catalog/data`, `feature/catalog/presentation/products`.
-**Read** `feature/catalog/data/**/source/DefaultLocalCatalogDataSource.kt:15-35`.
+**Read** `feature/catalog/data/**/source/DefaultLocalCatalogDataSource.kt:11-30` ·
+`service/core/data/**/BaseRepository.kt`.
 **Checks** T1. **Depends** —
 
 ### A1X2 Add-to-cart leaves the nav host (was F17b) · 12
 
-**Why** the insert runs on `rememberCoroutineScope` inside `AppNavHost`, so a rotation just after
-the tap cancels it and the item never reaches the cart.
-**Done when** an `AddProductToCart` use case is called through `execute {}` from the product
-detail view model; `AppNavHost` holds no coroutine scope; a view-model test covers it.
+**Why** `AppNavHost.kt:149` takes a `rememberCoroutineScope()` and `:154` launches the cart insert
+in it, so a rotation just after the tap cancels the write and the item never reaches the cart. The
+comment above it explaining why that is safe is factually wrong.
+**Done when** an `AddProductToCart` use case is called through `execute {}` from the product-detail
+view model; `grep -n 'rememberCoroutineScope' app/src/main/kotlin/**/AppNavHost.kt` returns
+nothing; a view-model test covers the insert.
 **Touches** `app/**/AppNavHost.kt`, `feature/catalog/{domain,presentation}`, `feature/cart/domain`.
+**Read** `app/src/main/kotlin/**/AppNavHost.kt:145-165`.
 **Checks** T1. **Depends** —
 
-### A1X3 BaseViewModel's defaults, and its dead lines (was F12 + half of F14) · 25 · decides D44
+### A1U1 Every non-root screen carries an Up control (was shell.8) · 12
 
-**Why** 21 of about 28 call sites pass `loading = {}`, `whileSubscribed` has no caller, and nullable
-state drops updates — the product-detail favourite race.
-**Decide first** make the overlay opt-in and the state non-null, or opt-in only → D44.
-**Done when** the overlay is opt-in; `grep -rn 'loading = {}' feature` returns nothing;
-`whileSubscribed`, `executeAsFlow`, `AlertPayload` and `displayMessage` are gone; every module's
-tests pass.
-**Touches** `service/core/ui`, every `feature/*/presentation`.
-**Read** `service/core/ui/**/viewmodel/BaseViewModel.kt`.
-**Checks** T1 + full `test` (`service/` changed). **Depends** —
-
-### A1U4 Forms scroll under the keyboard (was H3) · 6
-
-**Why** `LoginScreen` is a fixed centred column, so at large font its submit button is unreachable.
-**Done when** Login, Sign-up and Profile scroll; a large-font golden shows the button.
-**Touches** `feature/auth/presentation`, `feature/profile/presentation`, goldens.
+**Why** `ProductsScreen`, `ProductPickerScreen` and `GalleryScreen` show a top bar with no arrow,
+and `ProductDetailScreen` has no bar at all — four screens whose only way back is the system
+gesture. `AppTopBar` already takes `onNavigateUp` and renders the arrow, so the component is ready.
+**Done when** all four match the other five; each arrow carries `<stem>_upButton`; each screen test
+asserts the navigation event the tap emits.
+**Touches** `feature/catalog/presentation`, `feature/gallery/presentation`, `core/ui` (a test tag
+forwarded to `AppTopBar`'s icon button), goldens.
+**Read** `core/ui/**/component/AppTopBar.kt:30` · `feature/catalog/**/productdetail/ProductDetailScreen.kt:32`.
 **Checks** T1 + goldens. **Depends** —
 
-### A1U5 Predictive back on dirty forms, auto-sizing numerics (was M3+M4) · 6
+### A0X3 The date picker and the dialog speak the device's language · 6
 
-**Why** there is no `BackHandler` anywhere, so a half-filled form is lost silently, and Czech price
-strings wrap.
-**Done when** a dirty form confirms before leaving with `PredictiveBackHandler`; numeric text uses
-`TextAutoSize`; both have a test.
-**Touches** `feature/profile/presentation`, `core/ui/component/AppText.kt`, goldens.
+**Why** `AppDateField.kt:103,107,178,180` and `AppDialog.kt:110` carry the literals `"Cancel"` and
+`"Choose"`. Every other string in the app ships in English and Czech, and `doctor.py` fails a module
+that misses a translation — the design system is the one place that escapes the check.
+**Done when** the five literals are `stringResource(...)` against `core_` resources present in both
+locales; `grep -rn '"Cancel"\|"Choose"\|"OK"' --include='*.kt' core/ui/src/main service/core/ui/src/main`
+returns only KDoc prose; the overlay goldens still pass.
+**Touches** `core/ui/component/{AppDateField,AppDialog}.kt`, `core/ui/src/main/res/values{,-cs}/strings.xml`.
 **Checks** T1 + goldens. **Depends** —
 
-### A2P1 Two flavors (was F18) · 12 · decides D43
+### A1U2 A text field says its own name (was ui.10) · 6
 
-**Why** `staging` is `prod` plus one constant and an unreachable host, and it triples every `:app`
-task.
-**Decide first** cut `staging` and let `DebugMenu` follow `BuildConfig.DEBUG`, or keep three → D43.
-**Done when** `ProjectConfig.Flavor` has two entries; `:app:compileStagingDebugKotlin` is out of
-`build.yml`; the debug menu still appears on `dev` and not on `prod`.
-**Touches** `build-logic/**/ProjectConfig.kt`, `app/build.gradle.kts`, `app/src/staging`,
-`.github/workflows/build.yml`, `feature/devmenu`.
-**Checks** T1 + full `test`. **Depends** —
+**Why** the label is a sibling `Text`, not a semantics property of the input, so a screen reader
+announces an unnamed field.
+**Done when** `AppTextField`'s label is on the input's semantics node; a test in `:core:ui` asserts
+it by `hasText` on the node with `hasSetTextAction`.
+**Touches** `core/ui/component/AppTextField.kt` and its test.
+**Checks** T1 + goldens. **Depends** —
 
-### A2H1 The release job ships a signed AAB or fails (was F17c) · 25 · after A2P1
+### A1U4 Login and Sign-up scroll under the keyboard (was H3) · 3
 
-**Why** a tag pushed before the secrets exist publishes a debug-signed APK, Play needs an AAB, and a
-hotfix's `versionCode` regresses because it counts commits.
-**Done when** the job runs `bundleProdRelease`, fails hard without a keystore, and derives
-`versionCode` from the tag; a dry run on a throwaway tag proves both paths.
-**Touches** `.github/workflows/build.yml`, `build-logic/**/ProjectConfig.kt`, `app/build.gradle.kts`.
-**Checks** T1 + `:app:bundleProdRelease`. **Depends** A2P1
+**Why** both are fixed centred columns, so at large font the submit button is unreachable. The draft
+plan named three screens; `ProfileScreen` already scrolls, so this is two.
+**Done when** Login and Sign-up scroll; a large-font golden shows the submit button.
+**Touches** `feature/auth/presentation`, goldens.
+**Checks** T1 + goldens. **Depends** —
 
-### A2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45 · after A2P1
+### A1X4 The product-detail heart keeps its first value · 3
 
-**Why** the profile is recorded minified into `src/devRelease`, so `prodRelease` never sees it and
-the whole benefit is lost silently.
-**Decide first** fix the wiring, or cut the module and its two Gradle plugins → D45.
-**Done when** either `prodRelease`'s merged assets contain `baseline-prof.txt`, or
-`:baselineprofile` and its plugins are gone and `settings.gradle.kts` no longer includes it.
-**Touches** `baselineprofile/**`, `app/build.gradle.kts`, `build-logic/**`, `settings.gradle.kts`.
-**Checks** T1 + `:app:assembleProdRelease`. **Depends** A2P1
+**Why** the favourite flow and the product load race, and nullable state drops the loser — the heart
+shows the wrong value until something else recomposes it. This is the one-file carve-out from the
+`BaseViewModel` work; the rest of that is B1X1.
+**Done when** the two sources are combined rather than written independently; a view-model test
+drives the race and asserts the heart.
+**Touches** `feature/catalog/presentation/productdetail`.
+**Checks** T1. **Depends** —
 
-### A2H3 The R8 mapping ships with the release (was H1) · 6 · after A2H1
+### A1X5 A cold-start deep link is applied once · 3
+
+**Why** the launch intent is re-read on every activity recreation, so a rotation on a deep-linked
+screen re-applies the link and wipes the back stack built since.
+**Done when** the intent is consumed once; a test or a documented manual rotation proves the back
+stack survives.
+**Touches** `app/src/main/kotlin/**`.
+**Checks** T1. **Depends** —
+
+### A0P2 One ARCHITECTURE.md, no frozen plan, no forward references · 12
+
+**Why** two files are called `ARCHITECTURE.md` — `docs/ARCHITECTURE.md` (408 lines) and
+`docs/spec/ARCHITECTURE.md` (121) — and `docs/README.md` links both, one of them as "splits in task
+A0P2". Fifteen files under `docs/` are absent from the index whose own text says an unlinked file
+fails `doctor.py`. Nine notes across seven documents promise what "task A0P2" will do. `docs/PLAN.md`
+duplicates 41 of the 42 rows of `../spec/DECISIONS.md` and the copies have already drifted.
+**Done when** `docs/ARCHITECTURE.md` is `docs/guides/RECIPES.md` and every citation of the old path
+is repointed (`CLAUDE.md:164,236,290,351`, `README.md:8`, `docs/README.md`);
+`docs/PLAN.md`, `docs/REVIEW.md` and `docs/review/` are deleted;
+`grep -rn 'docs/PLAN.md\|docs/ARCHITECTURE.md\|docs/REVIEW.md\|docs/archive/2026-09-review\|task A0P2\|arrives with task' --include='*.md' --include='*.py' --include='*.yml' .`
+returns nothing; every file under `docs/` appears in `docs/README.md`.
+**Touches** `CLAUDE.md`, `README.md`, `docs/**`.
+**Steps** 1. `git mv docs/ARCHITECTURE.md docs/guides/RECIPES.md`. 2. `git rm docs/PLAN.md docs/REVIEW.md docs/review/*` — D42 says the review dies when A ships, so skip the archive round-trip. 3. Repoint the citations the grep finds. 4. Strip the nine forward references. 5. Rewrite `docs/README.md`'s Work and Archive sections to describe what exists.
+**Checks** T1. **Depends** —
+
+**Deferred out of this task, to B0P1:** `docs/spec/CODEBASE.md`, the `CLAUDE.md` ≤ 300 diet and the
+three new `doctor.py` checks. That half touches `scripts/_common.py`, `doctor.py` and
+`test_scripts.py` and is the 25-point task the draft plan described.
+
+### A2H3 The R8 mapping ships with the release (was H1) · 6
 
 **Why** a minified stack trace is unreadable without `mapping.txt`, and nothing keeps it.
 **Done when** the release job uploads `mapping.txt` as an artifact and attaches it to the tagged
 release.
-**Touches** `.github/workflows/build.yml`. **Checks** T1. **Depends** A2H1
+**Touches** `.github/workflows/build.yml`.
+**Checks** T1. **Depends** A0X1
 
-### A2P2 Hooks become a committed .githooks (was F10) · 12
+### A2H1 The release job refuses to publish a debug-signed build (was F17c) · 6
 
-**Why** `install_hooks.py` is 153 lines reimplementing `core.hooksPath`, and
-`export_service.py --sync-versions` is a 170-line TOML resolver for a script with no consumer.
-**Done when** `.githooks/pre-commit` is committed and `README.md` names the one `core.hooksPath`
-line; `install_hooks.py` is gone; `export_service.py` prints the catalog entries instead of merging
-them; `scripts/README.md` and `test_scripts.py` follow.
-**Touches** `.githooks/**`, `scripts/**`, `README.md`.
-**Checks** T1 + `test_scripts.py`. **Depends** —
+**Why** `KEYSTORE_BASE64` is optional, so a tag pushed before the secrets exist publishes a GitHub
+release carrying an APK signed with an ephemeral CI debug key — indistinguishable from a real one on
+the release page.
+**Done when** the release job fails hard on a `v*` tag with no keystore, and still falls back to the
+debug key on the schedule and on a fork; a dry run on a throwaway tag proves both paths.
+**Touches** `.github/workflows/build.yml`.
+**Checks** T1. **Depends** A0X1
 
-### A2T1 The dead lines in domain and network (was half of F14) · 12 · decides D46
+**Deferred to B2H1:** the AAB and the tag-derived `versionCode`. D32 says a GitHub release carrying
+the artifact *is* the release, so neither is needed to tag v1.0.
 
-**Why** `combineOutcomes`, `recover`, `flatMap` and 222 lines of token-refresh scaffold have no
-caller, and the last duplicates what Ktor's `bearer` already does.
-**Decide first** delete them, or rebuild the refresh path on Ktor now → D46.
-**Done when** `grep -rn 'combineOutcomes\|chainOutcomes\|TokenRefresher' --include='*.kt' .` returns
-nothing, or returns only a Ktor-based implementation with a test.
-**Touches** `service/core/domain`, `service/network`.
-**Checks** T1 + full `test`. **Depends** —
+### A0P4 README is the front door again · 6
 
-### A2T2 Coil and the two single-consumer plugins (was F24) · 6
+**Why** the root README still describes the pre-A0P1 doc world: it links `docs/ARCHITECTURE.md`,
+`docs/PLAN.md` and `docs/REVIEW.md` (two of which A0P2 deletes), omits `docs/README.md` entirely,
+opens its build block with `./gradlew build` — which `CLAUDE.md` forbids — names
+`:app:installDebug`, which is not a task since the flavors landed, and carries a truncated sentence
+at line 47 about a plugin that was deleted.
+**Done when** the front-door table points at `docs/README.md` and `CLAUDE.md`; the commands are the
+ones `CLAUDE.md` § Commands lists, each naming a real variant; no orphan sentence; a stranger can
+clone, build and run from this file alone.
+**Touches** `README.md`.
+**Read** `README.md:1-50` · `CLAUDE.md` § Commands, § Checks.
+**Checks** T1. **Depends** A0P2
 
-**Why** Coil is put on all thirteen Compose modules so that `doctor.py` can forbid it on twelve.
-**Done when** Coil is declared by `core/ui` alone and Ktor by `service/network` alone; the
-convention plugins no longer add either; the `doctor.py` check that forbade Coil is deleted.
-**Touches** `build-logic/**`, `core/ui/build.gradle.kts`, `service/network/build.gradle.kts`,
-`gradle/libs.versions.toml`, `scripts/doctor.py`.
-**Checks** T1 + full `test`. **Depends** —
+### A0P5 .gitignore, .gitkeep and a LICENSE · 3
 
-### A2H4 network_security_config and StrictMode (was H7+H8) · 12
-
-**Why** cleartext is not denied, a debug build cannot be proxied, and a main-thread DataStore read
-goes unnoticed.
-**Done when** a `network_security_config` denies cleartext with a debug override; StrictMode's
-thread and VM policies are installed in debug only; both are asserted by a test or a manifest check.
-**Touches** `app/src/main/res/xml`, `app/src/main/AndroidManifest.xml`, `app/**/App.kt`.
+**Why** `.claude/settings.local.json` and `.claude/worktrees/` are ignored only by the owner's
+global gitignore and `.git/info/exclude`, so a fresh clone of the template shows them as untracked.
+17 `.gitkeep` files are tracked, most in directories that now hold real sources. There is no
+`LICENSE` at the root at all, while D22 says "None. All rights reserved" — the absence reads as an
+oversight rather than a decision. `licenses/SourceSans3-OFL.txt` is correct and stays.
+**Done when** `.gitignore` covers `.claude/settings.local.json`, `.claude/worktrees/` and
+`.claude/scheduled_tasks.*`; every `.gitkeep` whose directory holds a real file is gone; a `LICENSE`
+states D22 in one paragraph; `git status` on a fresh clone is clean.
+**Touches** `.gitignore`, `LICENSE`, the redundant `.gitkeep` files.
 **Checks** T1. **Depends** —
+
+### A0X2 The Maestro flows start where the app starts · 3
+
+**Why** `.maestro/sign-in.yaml` does `clearState`, `launchApp`, then `assertVisible: LoginScreen` —
+but `SessionState.Onboarding` outranks the other two by design, so a cleared app opens the tour.
+Every other flow does `runFlow: sign-in.yaml`, so all five are broken. They run on the weekly
+schedule and on dispatch (D30), which is why nobody has noticed.
+**Done when** `sign-in.yaml` passes the tour before asserting `LoginScreen`; a dispatched
+`gh workflow run build.yml` run is green.
+**Touches** `.maestro/sign-in.yaml`.
+**Read** `.maestro/sign-in.yaml` · `app/src/main/kotlin/**/SessionState.kt`.
+**Checks** T1 + a dispatched maestro run. **Depends** —
+
+### A2T1 The dead lines in domain and network (was half of F14) · 3 · decides D46
+
+**Why** commit `ee47eaf` already deleted `combineOutcomes`, `flatMap`, `recover` and the rest; what
+is left of this task is the token-refresh scaffold and the decision that was never written down.
+**Decide first** keep the scaffold, or delete it → D46. Keep is recommended and is what `F14` acted
+on: it is built on Ktor's `bearer` provider, its stale-token comparison reads correctly, and it is
+tested. Record it rather than re-litigate it.
+**Done when** D46 is a row in `../spec/DECISIONS.md`;
+`grep -rn 'combineOutcomes\|chainOutcomes' --include='*.kt' .` returns nothing;
+`../reference/{DOMAIN,SERVICES}.md` no longer describe the types `ee47eaf` deleted.
+**Touches** `../spec/DECISIONS.md`, `../reference/DOMAIN.md`, `../reference/SERVICES.md`.
+**Checks** T1. **Depends** —
+
+### A1T1 Test plumbing stops being copied (was F19) · 12 · landed as commit `fe6e3bf`
+
+**Why** it is done and the board never said so. `grep -rn '@Config(sdk' --include='*.kt' feature core service app`
+returns one hit and it is KDoc prose; `build-logic/robolectric/robolectric.properties` carries the
+pin; all eleven `PreviewScreenshotTest` files subclass the shared `PreviewScreenshotSpec`.
+**Done when** the board line reads `[x] A1T1 … · 12 → 12`. Do not reopen the work.
+**Touches** this file. **Checks** —. **Depends** —
+
+### A0P3 Ship A · 6
+
+**Why** a release is a tag plus a changelog block, and the block is what the release job checks for.
+**Done when** every line above is `[x]` or `[-]`; `../spec/CHANGELOG.md` carries the
+`## v1.0.0 · release A · <date>` block with `Estimate · Actual · Ratio` and the `Tasks:` line; the
+guard from A0X1 matches it (`grep -qF '## v1.0.0 ·' docs/spec/CHANGELOG.md`); this file is under
+`../archive/plans/`; `../README.md`'s current-plan line points at [B.md](B.md).
+**Touches** `docs/**`. **Checks** T1. **Depends** every other task
+
+**The v1.0.0 block claims, in user words:** a way back from every screen · a category with nothing
+in it says so instead of spinning · a product added to the cart stays added through a rotation ·
+fields, dates and dialogs speak the device's language · forms reach their submit button at any font
+size · a release carries its mapping file and refuses to publish unsigned.

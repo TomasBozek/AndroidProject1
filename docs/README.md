@@ -38,7 +38,8 @@ then it is `CLAUDE.md` § Module structure.
 | Doc | What you get |
 |---|---|
 | [work/PROCESS.md](work/PROCESS.md) | ids, points, lanes, the task loop, states, what to ship |
-| [work/plans/A.md](work/plans/A.md) | **the current plan** · draft |
+| [work/plans/A.md](work/plans/A.md) | **the current plan** · open · ships as v1.0.0 |
+| [work/plans/B.md](work/plans/B.md) | the next release · draft |
 | [work/BACKLOG.md](work/BACKLOG.md) | one line per idea, no ids |
 | [work/plans/TEMPLATE.md](work/plans/TEMPLATE.md) | what a release plan looks like |
 | [PLAN.md](PLAN.md) | Plan 5, frozen. Its open items are release A's tasks; task A0P2 deletes it |
