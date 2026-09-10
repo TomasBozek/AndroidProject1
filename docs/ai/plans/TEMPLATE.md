@@ -13,7 +13,7 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 |---|---|---|
 | `settings.gradle.kts`, `core/di/**`, `app/**/AppNavHost.kt`, `app/**/KoinGraphTest.kt` | | |
 | `gradle/libs.versions.toml` | | |
-| `CLAUDE.md`, `docs/spec/CODEBASE.md`, `docs/README.md` | | |
+| `CLAUDE.md`, `docs/ai/CODEBASE.md`, `docs/README.md` | | |
 | `.github/workflows/build.yml` | | |
 
 ## Board

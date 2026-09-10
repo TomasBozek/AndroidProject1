@@ -6,7 +6,7 @@ which job, and which convention plugin puts it on a module's classpath.
 
 A new dependency has to earn its place: Google, JetBrains and androidx first, then a library with a
 large company behind it and broad adoption. Anything else gets a row in
-[DECISIONS.md](DECISIONS.md), and if it reaches the release build, a first-party alternative that
+[../DECISIONS.md](../DECISIONS.md), and if it reaches the release build, a first-party alternative that
 was tried and found wanting. Build- and test-only tools are judged more leniently but still get the
 row. This applies to what is here as much as to what is added: an unused dependency is removed, not
 kept for symmetry.
@@ -51,7 +51,7 @@ kept for symmetry.
 Renovate watches the catalog and opens one pull request per group — androidx, Kotlin, Koin and the
 Android Gradle Plugin are grouped, and pre-releases are skipped. That pull request runs T2 like any
 other. A bump that fails is not pinned back silently: it gets a line in
-[../work/BACKLOG.md](../work/BACKLOG.md) saying what broke, and the pull request is closed.
+[../BACKLOG.md](../BACKLOG.md) saying what broke, and the pull request is closed.
 
 Two version facts are load-bearing and live outside the catalog: the Gradle daemon's JDK, pinned in
 `gradle/gradle-daemon-jvm.properties` and provisioned through foojay, and the SDK levels in

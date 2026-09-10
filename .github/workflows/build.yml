@@ -26,7 +26,7 @@ jobs:
   changes:
     # What the diff touches, so a pull request pays only for the checks it can actually fail.
     # Plain git rather than a filter action: it is ten lines, and a third-party action here would
-    # need a line in docs/spec/DECISIONS.md that this does not earn.
+    # need a line in docs/DECISIONS.md that this does not earn.
     #
     # Every output is true for anything that is not a pull request, so main, tags and the weekly
     # run stay heavy. `code` is false only for a diff that is entirely documentation, and
@@ -54,7 +54,7 @@ jobs:
           echo "$files"
           code=false; generators=false; ui=false
           if grep -qvE '^(docs/|README\.md$|CLAUDE\.md$|\.claude/|scripts/README\.md$|\.github/pull_request_template\.md$)' <<<"$files"; then code=true; fi
-          if grep -qE '^(scripts/|feature/template/|\.claude/commands/|docs/spec/CODEBASE\.md$)' <<<"$files"; then generators=true; fi
+          if grep -qE '^(scripts/|feature/template/|\.claude/commands/|docs/ai/CODEBASE\.md$)' <<<"$files"; then generators=true; fi
           if grep -qE '(^|/)presentation/|^core/ui/|^service/core/ui/|/test/screenshots/|^build-logic/|^gradle/' <<<"$files"; then ui=true; fi
           printf 'code=%s\ngenerators=%s\nui=%s\n' "$code" "$generators" "$ui" >> "$GITHUB_OUTPUT"
 
@@ -196,8 +196,8 @@ jobs:
       - name: The changelog has a block for this tag
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          grep -qF "· $GITHUB_REF_NAME ·" docs/spec/CHANGELOG.md \
-            || { echo "docs/spec/CHANGELOG.md has no block for $GITHUB_REF_NAME"; exit 1; }
+          grep -qF "· $GITHUB_REF_NAME ·" docs/CHANGELOG.md \
+            || { echo "docs/CHANGELOG.md has no block for $GITHUB_REF_NAME"; exit 1; }
 
       - uses: actions/setup-java@v4
         with:

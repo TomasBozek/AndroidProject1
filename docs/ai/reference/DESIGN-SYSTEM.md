@@ -1,7 +1,7 @@
 # Design system
 
 What `:core:ui` offers a screen. The rules for using it — compose, never draw — are
-[../../CLAUDE.md](../../CLAUDE.md) § Design system.
+[../../../CLAUDE.md](../../../CLAUDE.md) § Design system.
 
 ## Three layers
 

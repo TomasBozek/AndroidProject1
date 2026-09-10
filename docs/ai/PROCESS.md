@@ -11,7 +11,7 @@ says `Status: open`.
 
 | Part | Means |
 |---|---|
-| Release letter | the plan file `plans/<letter>.md`; the tag is chosen at ship and bound in `../spec/CHANGELOG.md` |
+| Release letter | the plan file `plans/<letter>.md`; the tag is chosen at ship and bound in `../CHANGELOG.md` |
 | Lane digit | `0` = the priority lane: one agent, jumps the queue, may ship as a patch tag. `1`–`9` = planned lanes, one agent each |
 | Kind letter | `U` UI and design system · `X` fix · `T` trim · `H` harden · `P` platform (build, CI, scripts, docs, process) · `S` showcase |
 | Seq digit | `1`–`9` within one (release, lane, kind). A tenth means the lane is too big |
@@ -37,7 +37,7 @@ One point is about five minutes, so 25 is two hours.
 
 **A lane holds 90–100 points**, so one agent finishes in roughly 7.5–8 hours. Agents =
 `ceil(total ÷ budget)`, lowered until the lanes touch disjoint paths and none is under 85. Never pad
-a lane; move the work to [BACKLOG.md](BACKLOG.md). Inside a lane: shared-file tasks first, then
+a lane; move the work to [../BACKLOG.md](../BACKLOG.md). Inside a lane: shared-file tasks first, then
 dependencies, then the largest. The recommendation is one header line, written only after every
 task section exists — `Agents: 2 · lane 1 91 (~7.3 h) · lane 2 97 (~7.8 h) · lane 0 open`.
 
@@ -57,7 +57,7 @@ description above rewritten; the numbers 3/6/12/25/50 never change.
 2. `/task <id>` takes the first `[ ]` in your lane; branch `<id>-<slug>` from a fresh `origin/main`.
    If its `Depends` is still `[ ]`, take the next.
 3. A `Decide first` line is settled before the code, as a row in
-   [../spec/DECISIONS.md](../spec/DECISIONS.md) under the pre-assigned number, in this pull request.
+   [../DECISIONS.md](../DECISIONS.md) under the pre-assigned number, in this pull request.
 4. Use the generators for any new module, screen, component or data source.
 5. T0 once or twice while working. Never the whole gate in the loop, never `./gradlew build`.
 6. A fact you changed moves to its one file in the same commit (§ Which doc changes when).
@@ -68,7 +68,7 @@ description above rewritten; the numbers 3/6/12/25/50 never change.
    `<id> <title>`. Open the pull request with the template. Do not wait for CI.
 10. Between tasks, `gh pr checks`. Green: `gh pr merge --rebase --delete-branch`. Red: fix, amend,
     force-push; never weaken a check. Work you find on the way is one line in
-    [BACKLOG.md](BACKLOG.md), never an edit to the plan.
+    [../BACKLOG.md](../BACKLOG.md), never an edit to the plan.
 
 ## States
 
@@ -86,7 +86,7 @@ ship task. At most one plan is open and one draft; `doctor.py` fails otherwise.
 ## Shared files
 
 `settings.gradle.kts` · `core/di/**` · `app/**/AppNavHost.kt` · `app/**/KoinGraphTest.kt` ·
-`gradle/libs.versions.toml` · `CLAUDE.md` · `docs/spec/CODEBASE.md` · `docs/README.md` ·
+`gradle/libs.versions.toml` · `CLAUDE.md` · `docs/ai/CODEBASE.md` · `docs/README.md` ·
 `.github/workflows/build.yml`. Each belongs to one lane per release, named in the plan's Shared files
 table. A generator edit counts: `create_feature.py` writes four of them.
 
@@ -94,27 +94,26 @@ table. A generator edit counts: `create_feature.py` writes four of them.
 
 | You changed | Update, in the same commit |
 |---|---|
-| a module | `../spec/CODEBASE.md` (the generators do it) |
-| a screen, a route, a feature's shape | `../reference/FEATURES.md` |
-| an entity, a repository, a store | `../reference/DOMAIN.md` |
-| a component or a theme role | `../reference/DESIGN-SYSTEM.md` |
-| anything under `service/` | `../reference/SERVICES.md` |
-| `core/ui`, `core/di`, `app` | `../reference/CORE.md` |
-| a dependency | `../spec/DEPENDENCIES.md` |
+| a module | `CODEBASE.md` (the generators do it) |
+| a screen, a route, a feature's shape | `reference/FEATURES.md` |
+| an entity, a repository, a store | `reference/DOMAIN.md` |
+| a component or a theme role | `reference/DESIGN-SYSTEM.md` |
+| anything under `service/` | `reference/SERVICES.md` |
+| `core/ui`, `core/di`, `app` | `reference/CORE.md` |
+| a dependency | `DEPENDENCIES.md` |
 | a rule | `../../CLAUDE.md` |
-| a recipe's steps | `../guides/RECIPES.md` |
-| a decision | `../spec/DECISIONS.md` |
+| a recipe's steps | `RECIPES.md` |
+| a decision | `../DECISIONS.md` |
 | nothing above | nothing. Do not touch a doc to prove you were here |
 
-`CLAUDE.md` ≤ 300 lines and this file ≤ 120, failed by `doctor.py` from task A0P2 — which is what
-brings `CLAUDE.md` under it. The rest are targets in [../README.md](../README.md).
+`CLAUDE.md` ≤ 300 lines and this file ≤ 120. The rest are targets in [../README.md](../README.md).
 
 ## Ship, and draft the next plan
 
 `/release close`: every line `[x]` or `[-]` → the changelog block with the ratio → the doc sweep
-above → the current-plan line in [../README.md](../README.md) → `git mv` the plan into
-`../archive/plans/` → the owner pushes the tag.
+above → the board cut out of [../STATUS.md](../STATUS.md) and the next release's put in its place →
+the owner pushes the tag. The plan file stays where it is, briefs intact; there is no archive.
 
-`/release draft <letter>`: read [BACKLOG.md](BACKLOG.md) § Next and the merged pull requests'
+`/release draft <letter>`: read [../BACKLOG.md](../BACKLOG.md) § Next and the merged pull requests'
 `est → act`, write one task section per item, estimate with the calibrated bands, cut disjoint lanes,
 write the shared-file table and the agents line, assign ids last, leave it a draft. About 25 points.

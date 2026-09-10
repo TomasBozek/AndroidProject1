@@ -6,10 +6,10 @@ Guidance for Claude Code (claude.ai/code) in this repository.
 read when a task names it. A fact lives in exactly one file — write it twice and one copy is already
 wrong.
 
-**Work** is [docs/work/PROCESS.md](docs/work/PROCESS.md) — ids, points, lanes, the task loop — and
-the plan under `docs/work/plans/` whose header says `Status: open`. Take a task with `/task <id>`,
+**Work** is [docs/ai/PROCESS.md](docs/ai/PROCESS.md) — ids, points, lanes, the task loop — and
+the plan under `docs/ai/plans/` whose header says `Status: open`. Take a task with `/task <id>`,
 never by picking something that looks useful. Work you find on the way is one line in
-[docs/work/BACKLOG.md](docs/work/BACKLOG.md).
+[docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Project
 
@@ -22,7 +22,7 @@ Clean/MVI — single activity, type-safe Compose navigation, Koin DI.
 - Dependencies come from `gradle/libs.versions.toml` — never a version in a module build file.
 - **A new dependency has to earn its place.** Google, JetBrains and androidx first; then a library
   with a large company behind it and broad adoption. Anything else needs a row in
-  [docs/spec/DECISIONS.md](docs/spec/DECISIONS.md), and if it ships in the release build, a
+  [docs/DECISIONS.md](docs/DECISIONS.md), and if it ships in the release build, a
   first-party alternative that was tried and found wanting. Build- and test-only tools are judged
   more leniently but still get the row; the standing exceptions are **Koin** and **Coil**. This
   applies to what is here as much as to what is added: an unused dependency is removed, not kept for
@@ -161,7 +161,7 @@ dialog, sheet, menu or picker draws in a window of its own — 349 goldens were 
 picker was clipped, so add an overlay and add a case there. `recordRoborazziDebug` writes the
 goldens, `verifyRoborazziDebug` checks them, and **a golden nobody looked at is a test that passes
 forever** — open what `record` wrote before committing it. The rest is in
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+[docs/ai/TESTING.md](docs/ai/TESTING.md).
 
 ### Test identifiers
 
@@ -233,7 +233,7 @@ wants goes to `:core:ui`, the same way — never copied.
 - **A resource is named after the screen that shows it** — `login_title` — or after the feature when
   two screens share one; `doctor.py` reads the prefixes off the `*Screen.kt` files. **Every string
   ships in every locale**, and `doctor.py` fails on a module missing one; Czech's four plural forms
-  are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+  are in [docs/ai/RECIPES.md](docs/ai/RECIPES.md).
 
 ## API you build on (do not reinvent)
 
@@ -287,12 +287,12 @@ Extend a script rather than working around it.
 
 Pass the name in any case; what comes out is fixed — directories and packages flat lowercase,
 classes PascalCase, functions camelCase, resources snake_case. `--dry-run` shows the plan first, the
-follow-up steps are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the same workflows are
+follow-up steps are in [docs/ai/RECIPES.md](docs/ai/RECIPES.md), and the same workflows are
 slash commands in `.claude/commands/`.
 
 **Do not add a script.** The Kotlin is the work; the ten are the set. Change one when something else
 forces you to and treat that as part of the change that caused it; anything that would be a new tool
-goes to [docs/work/BACKLOG.md](docs/work/BACKLOG.md).
+goes to [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Checks
 
@@ -322,9 +322,9 @@ tasks.
 ## Working a task
 
 - `/task <id>` takes the first `[ ]` line in your lane; the branch is `<id>-<slug>`.
-- A `Decide first` line is settled before the code, as a row in `docs/spec/DECISIONS.md`.
+- A `Decide first` line is settled before the code, as a row in `docs/DECISIONS.md`.
 - Touch only the shared files your lane owns. Otherwise stop and take the next task.
-- A fact you changed moves to its one doc in the same commit — `docs/work/PROCESS.md` § Which doc
+- A fact you changed moves to its one doc in the same commit — `docs/ai/PROCESS.md` § Which doc
   changes when.
 - **One commit** per task, titled `<id> <title>`, carrying the code, the docs and the board line
   flipped to `[x]` with `· est → act`.
@@ -348,7 +348,7 @@ or `prodRelease` and `assembleDebug` alone no longer names a variant. `dev` and 
 application-id suffix and their own launcher label, so all three install side by side.
 `BuildConfig.BASE_URL` differs per flavor and a screen never writes a URL literal; the flavors are
 defined once, in `ProjectConfig.Flavor`. Compose stability reports, coverage and the ktlint rule set
-are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+are in [docs/ai/TESTING.md](docs/ai/TESTING.md).
 
 ## Known constraints
 

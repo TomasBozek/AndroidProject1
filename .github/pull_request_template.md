@@ -26,4 +26,4 @@ none | D<n> — <one statement>
 
 ## Backlog
 
-none | <the line added to docs/work/BACKLOG.md>
+none | <the line added to docs/BACKLOG.md>
