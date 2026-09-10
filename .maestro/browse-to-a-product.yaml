@@ -7,7 +7,8 @@ name: Browse the catalog to a product
 - tapOn:
     id: "CategoriesScreen"
     optional: true
-- tapOn: "Catalog"
+- tapOn:
+    id: "tabs_catalogTab"
 - assertVisible:
     id: "CategoriesScreen"
 - tapOn: "Beverages"
@@ -21,6 +22,7 @@ name: Browse the catalog to a product
 # a by-product of being testable rather than separate work.
 - tapOn:
     id: "productDetail_favouriteButton"
-- tapOn: "Home"
+- tapOn:
+    id: "tabs_homeTab"
 - assertVisible:
     id: "home_favouritesList"

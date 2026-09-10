@@ -4,13 +4,17 @@ name: Add a product to the cart and check out
 ---
 - runFlow: sign-in.yaml
 
-- tapOn: "Catalog"
+- tapOn:
+
+    id: "tabs_catalogTab"
 - tapOn: "Beverages"
 - tapOn: "Coffee"
 - tapOn:
     id: "productDetail_addToCartButton"
 
-- tapOn: "Cart"
+- tapOn:
+
+    id: "tabs_cartTab"
 - assertVisible:
     id: "cart_itemList"
 # The count is a plural, so this is also the assertion that the right form was picked.

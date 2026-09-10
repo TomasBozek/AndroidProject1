@@ -27,6 +27,12 @@ enum class TopLevelDestination(
     val label: Int,
     val icon: ImageVector,
     /**
+     * What a flow and a test find this tab by — `CLAUDE.md` § Test identifiers, "find by id, never
+     * by text". Carried on the entry rather than written at the call site, so a tab cannot be added
+     * without one; `doctor.py` fails on a tab whose tag is not `tabs_<name>Tab`.
+     */
+    val testTag: String,
+    /**
      * Whether this tab shows a count on its icon.
      *
      * A boolean rather than the flow itself: an enum entry is a constant, and the flow comes from
@@ -35,10 +41,10 @@ enum class TopLevelDestination(
     val hasBadge: Boolean = false,
 ) {
 
-    Home(HomeDestination, R.string.tab_home, Icons.Filled.Home),
-    Catalog(CategoriesDestination, R.string.tab_catalog, Icons.AutoMirrored.Filled.List),
-    Cart(CartDestination, R.string.tab_cart, Icons.Filled.ShoppingCart, hasBadge = true),
-    Settings(SettingsDestination, R.string.tab_settings, Icons.Filled.Settings),
+    Home(HomeDestination, R.string.tab_home, Icons.Filled.Home, testTag = "tabs_homeTab"),
+    Catalog(CategoriesDestination, R.string.tab_catalog, Icons.AutoMirrored.Filled.List, testTag = "tabs_catalogTab"),
+    Cart(CartDestination, R.string.tab_cart, Icons.Filled.ShoppingCart, testTag = "tabs_cartTab", hasBadge = true),
+    Settings(SettingsDestination, R.string.tab_settings, Icons.Filled.Settings, testTag = "tabs_settingsTab"),
     ;
 
     companion object {
