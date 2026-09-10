@@ -1,4 +1,6 @@
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.HasUnitTestBuilder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -77,6 +79,15 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             buildFeatures {
                 buildConfig = true
+            }
+        }
+
+        // One variant's unit tests, not six. See `enableUnitTest` in AndroidConventions.kt: `dev`
+        // is the flavor whose fixtures the tests read, and `debug` the build type they assert.
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            beforeVariants { variant ->
+                val tests: HasUnitTestBuilder = variant
+                tests.enableUnitTest = variant.name == "devDebug"
             }
         }
 

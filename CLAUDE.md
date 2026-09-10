@@ -701,11 +701,18 @@ compiling; keep it that way.
 ### Before you call the work done
 
 ```bash
-python3 scripts/doctor.py && ./gradlew ktlintCheck && ./gradlew build && ./gradlew verifyRoborazziDebug
+python3 scripts/doctor.py && ./gradlew ktlintCheck &&
+  ./gradlew test :app:lintDevDebug :app:assembleDevDebug &&
+  ./gradlew verifyRoborazziDebug
 ```
 
-The last one is the goldens, which `build` does not check — see *Screenshots*. It is the slow
-step; run it once at the end rather than after every edit.
+Named tasks rather than `./gradlew build`, which is every variant: `build` assembles all six app
+variants, runs R8 three times and runs each test once per variant. `test` is now exactly one unit
+test task per module — the convention plugins leave one variant's tests enabled — and
+`:app:lintDevDebug` covers every module because `lint.checkDependencies` is on. The last command is
+the goldens, which no `test` run checks (see *Screenshots*); it is the slow step, so run it once at
+the end rather than after every edit. CI runs the same list, plus the `prod` and `staging` source
+sets, which nothing here compiles.
 
 Add `python3 scripts/test_scripts.py` if you touched anything under `scripts/`.
 
@@ -843,7 +850,7 @@ python3 scripts/test_scripts.py --with-gradle
 Smoke tests for all of the above, on `unittest` so there is nothing to install. Each test copies the
 repo into a temp directory and runs the scripts there as subprocesses; the delete-feature test asserts
 the five registration files come back byte-identical. They check generated text, not that it compiles —
-`./gradlew build` is still the real gate.
+the gate above is still the real one.
 
 `--with-gradle` adds the one test that *does* compile what a generator wrote: it generates a feature
 in the temp copy and assembles its presentation module. Generated text can be correct and still not

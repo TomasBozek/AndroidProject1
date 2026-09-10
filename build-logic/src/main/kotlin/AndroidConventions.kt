@@ -76,6 +76,29 @@ internal fun Project.namespaceFromPath(): String {
  * blocks: those action forms are declared on `LibraryExtension` and `ApplicationExtension`
  * separately, not on the interface both share.
  */
+/**
+ * Why the two Android convention plugins switch `enableUnitTest` off for all but one variant.
+ *
+ * A unit test here is a JVM test against the module's own classes, and it does not know which
+ * variant compiled them: `testReleaseUnitTest` runs the same assertions as `testDebugUnitTest`,
+ * and `:app` ran them again once per flavor on top of that — 923 executions for 498 tests, which
+ * was most of a `./gradlew build`. The one variant is `debug` for a library and `devDebug` for
+ * `:app`, because `dev` is the flavor whose fixtures the tests read (D20).
+ *
+ * What that gives up is small and is covered elsewhere. A test that would fail only under
+ * `release` would have to branch on `BuildConfig.DEBUG`; a test that would fail only under `prod`
+ * or `staging` would have to reach into that flavor's source set, which is two files. Both are
+ * compiled by the pull-request gate and assembled, linted and minified by the release job.
+ *
+ * `enableUnitTest = false` removes the component rather than skipping its task, so `test` and
+ * `check` depend only on what is left — there is no exclusion to remember anywhere else.
+ *
+ * Both call sites assign through a `HasUnitTestBuilder` local rather than on the variant builder
+ * directly. On AGP 9.4.0 `variant.enableUnitTest` does not compile — `Unresolved reference` — even
+ * though `LibraryVariantBuilder` and `ApplicationVariantBuilder` both list `HasUnitTestBuilder`
+ * among their supertypes and neither redeclares the property. Naming the interface that declares
+ * it is what makes it resolve, so the local is load-bearing rather than style.
+ */
 internal fun Project.configureAndroid(extension: CommonExtension) {
     if (extension.namespace == null) {
         extension.namespace = namespaceFromPath()

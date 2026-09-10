@@ -62,7 +62,7 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
 
 ## Items
 
-- [ ] **F1 One variant in the PR gate** · S · first — Why `build` is six variants and 923 test
+- [x] (2026-09-10) **F1 One variant in the PR gate** · S · first — Why `build` is six variants and 923 test
   executions for 498 tests. Done an explicit task list; unit tests only on `devDebug`; R8 on release.
 - [ ] **F2 `test_scripts.py` stops copying the worktrees** · S · first — Why `.claude` is not in
   `IGNORED`: 2,271 of 2,856 files, 56 times over. Done `.claude`/`.idea` ignored, one copy per class.

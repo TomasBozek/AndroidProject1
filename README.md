@@ -23,7 +23,7 @@ command line.
 ## Build and run
 
 ```bash
-./gradlew build                # compile, lint and unit-test everything
+./gradlew build                # every variant: slow, and not what the gate runs
 ./gradlew :app:installDebug    # install the debug build on a connected device
 ./gradlew test
 ./gradlew lint
@@ -36,7 +36,9 @@ One module at a time: `./gradlew :feature:auth:presentation:assembleDebug`.
 Before you call a change done, in the order CI runs it:
 
 ```bash
-python3 scripts/doctor.py && python3 scripts/test_scripts.py && ./gradlew ktlintCheck && ./gradlew build && ./gradlew verifyRoborazziDebug
+python3 scripts/doctor.py && python3 scripts/test_scripts.py &&
+  ./gradlew ktlintCheck && ./gradlew test :app:lintDevDebug :app:assembleDevDebug &&
+  ./gradlew verifyRoborazziDebug
 ```
 
 `python3 scripts/install_hooks.py` installs the first of those as a pre-commit hook, once per clone.

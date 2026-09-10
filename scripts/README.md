@@ -70,7 +70,9 @@ name any of it is the `XRepository` interface in `domain`.
 ## Before you call the work done
 
 ```bash
-python3 scripts/doctor.py && python3 scripts/test_scripts.py && ./gradlew build
+python3 scripts/doctor.py && python3 scripts/test_scripts.py &&
+  ./gradlew ktlintCheck && ./gradlew test :app:lintDevDebug :app:assembleDevDebug &&
+  ./gradlew verifyRoborazziDebug
 ```
 
 Conventions first — they fail in seconds where the build takes minutes. This is the order CI runs

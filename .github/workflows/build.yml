@@ -70,18 +70,30 @@ jobs:
       - name: Check formatting
         run: ./gradlew ktlintCheck
 
-      - name: Build, lint and test
-        run: ./gradlew build
+      # Named tasks rather than `build`, which is `assemble` + `check`: it assembled all six app
+      # variants, ran R8 three times and ran every test once per variant. What a pull request needs
+      # is each test once, lint over the whole graph once, and one variant that actually assembles.
+      #
+      # `test` is every module's unit tests — the Kotlin/JVM modules' `test` and, since the
+      # convention plugins leave one variant's unit tests enabled, exactly one Android test task per
+      # module. `:app:lintDevDebug` carries the others with it because `lint.checkDependencies` is
+      # on. The two `compile*` tasks are the `prod` and `staging` source sets, two files each, which
+      # nothing else here would compile; they cost seconds and stop a flavor going stale between
+      # releases. R8, `prodRelease` and the store artefact belong to the release job below.
+      - name: Test, lint and assemble
+        run: >-
+          ./gradlew test :app:lintDevDebug :app:assembleDevDebug
+          :app:compileProdDebugKotlin :app:compileStagingDebugKotlin
 
-      # The goldens. Separate from `build` because the capture only happens when this task asks
-      # for it — an ordinary `test` run leaves Roborazzi switched off, so a screenshot regression
-      # would otherwise pass here and be found by eye. A failure writes the actual image and the
+      # The goldens. A step of its own because the capture only happens when this task asks for
+      # it — the `test` above leaves Roborazzi switched off, so a screenshot regression would
+      # otherwise pass here and be found by eye. A failure writes the actual image and the
       # diff under build/outputs/roborazzi, which the upload step below collects.
       - name: Verify the screenshots
         run: ./gradlew verifyRoborazziDebug
 
-      # A signal, not a gate: no threshold, and it never fails the job. `build` has already run
-      # the tests, so this only assembles the report.
+      # A signal, not a gate: no threshold, and it never fails the job. The tests have already
+      # run above, so this only assembles the report.
       - name: Coverage report
         if: always()
         run: ./gradlew koverHtmlReport koverXmlReport
@@ -100,9 +112,9 @@ jobs:
           if-no-files-found: ignore
 
   release:
-    # R8 is on for release, but `build` only assembles debug — a keep rule that goes missing shows
-    # up when someone cuts a release, which is the worst time to find it. Tags and a weekly run
-    # keep that surface honest without slowing every pull request down.
+    # R8 runs nowhere else: the build job assembles `devDebug` only, so a keep rule that goes
+    # missing would show up when someone cuts a release, which is the worst time to find it. Tags
+    # and a weekly run keep that surface honest without slowing every pull request down.
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
