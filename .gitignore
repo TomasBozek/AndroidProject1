@@ -65,6 +65,16 @@ signing.properties
 .classpath
 
 # ---------------------------------------------------------------------------
+# Claude Code — per-machine, not per-project
+# ---------------------------------------------------------------------------
+# The commands under .claude/commands/ are the project's and are tracked. These are not: a
+# permission allowlist one person built up, the worktrees an agent checks out, and the scheduler's
+# own bookkeeping. Without these lines a fresh clone of the template shows all three as untracked.
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.*
+
+# ---------------------------------------------------------------------------
 # Python (scripts/)
 # ---------------------------------------------------------------------------
 __pycache__/

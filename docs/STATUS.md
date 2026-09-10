@@ -31,7 +31,7 @@ Worked top to bottom. A0P2 is first because every task after it cites a path it 
 - [x] A2H3 The R8 mapping ships with the release (was H1) · 6 → 3
 - [x] A2H1 The release job refuses to publish a debug-signed build (was F17c) · 6 → 3
 - [x] A0P4 README is the front door again · 6 → 3
-- [ ] A0P5 .gitignore, .gitkeep and a LICENSE · 3
+- [x] A0P5 .gitignore, .gitkeep and a LICENSE · 3 → 3
 - [ ] A0X2 The Maestro flows start where the app starts · 3
 - [ ] A2T1 The dead lines in domain and network (was half of F14) · 3 · decides D46
 - [ ] A1T1 Test plumbing stops being copied (was F19) · 12 · landed as commit `fe6e3bf`
