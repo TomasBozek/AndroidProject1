@@ -69,8 +69,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
   2,271 of 2,856 copied files, 56 times over. Done ignored, and a guard test so it cannot come back.
 - [x] (2026-09-10) **F3 `doctor.py` walks the tree once** · S · first — Why 17 `rglob`s over 62,583
   files: 14.0 s. Done one pruned walk into a shared index — 0.24 s, and all 30 checks kept (see D40).
-- [ ] **F17e The date picker fits its dialog** · M · first — Why `AppDialog` is platform-width with
-  24 dp around a 360 dp picker, no cap, no scroll. Done `DatePickerDialog` themed; a golden per overlay.
+- [x] (2026-09-10) **F17e The date picker fits its dialog** · M · first — Why `AppDialog` was
+  platform-width, uncapped and unscrolled. Done `DatePickerDialog` themed; four overlay goldens.
 - [ ] **F8 `CLAUDE.md` on a diet** · M · first — Why 983 lines in every session; the gate appears six
   times in three versions. Done `?` ~300 lines + `docs/ARCHITECTURE.md`, or only the contradictions fixed.
 - [ ] **F4 The golden matrix** · M · first — Why 349 full-frame goldens, 11 MB, five per screen, no
