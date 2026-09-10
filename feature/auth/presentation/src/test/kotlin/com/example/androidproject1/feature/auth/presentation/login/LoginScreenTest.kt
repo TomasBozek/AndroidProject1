@@ -16,7 +16,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * The pattern for testing a screen.
@@ -29,13 +28,7 @@ import org.robolectric.annotation.Config
  * that finds a button by its label fails on a wording change that broke nothing. The tags are the
  * ones from the screen, following `<screenStem>_<element>` — see CLAUDE.md.
  */
-private const val ROBOLECTRIC_SDK = 35
-
 @RunWith(RobolectricTestRunner::class)
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have. Raise it when Robolectric catches up; nothing in a
-// screen test depends on the difference.
-@Config(sdk = [ROBOLECTRIC_SDK])
 class LoginScreenTest {
 
     @get:Rule

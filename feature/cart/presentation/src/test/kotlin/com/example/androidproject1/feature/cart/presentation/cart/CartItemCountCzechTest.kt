@@ -8,8 +8,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
-private const val ROBOLECTRIC_SDK = 35
-
 /**
  * The cart's "N items" in Czech, which is the whole reason feat.9 picked Czech.
  *
@@ -22,7 +20,7 @@ private const val ROBOLECTRIC_SDK = 35
  * Robolectric ships an SDK image per API level and has none for this project's `targetSdk`.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK], qualifiers = "cs")
+@Config(qualifiers = "cs")
 class CartItemCountCzechTest {
 
     private fun label(count: Int): String = CartState(

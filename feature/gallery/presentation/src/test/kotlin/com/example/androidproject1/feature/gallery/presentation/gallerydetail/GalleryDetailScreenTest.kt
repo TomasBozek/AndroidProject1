@@ -22,11 +22,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have.
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * The gallery's demos have to be usable, not only visible.
@@ -37,7 +32,6 @@ private const val ROBOLECTRIC_SDK = 35
  * text — and assert that trying it changes it.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class GalleryDetailScreenTest {
 
     @get:Rule

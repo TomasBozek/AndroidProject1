@@ -17,9 +17,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * What the state becomes, and what navigation is emitted.
@@ -29,7 +26,6 @@ private const val ROBOLECTRIC_SDK = 35
  * rule fired, which is the one thing these tests exist to tell apart.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class ProfileViewModelTest {
 
     @get:Rule

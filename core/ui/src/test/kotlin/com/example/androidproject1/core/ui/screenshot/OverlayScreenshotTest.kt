@@ -24,8 +24,6 @@ import org.robolectric.annotation.GraphicsMode
 import java.time.LocalDate
 import java.time.LocalTime
 
-private const val ROBOLECTRIC_SDK = 35
-
 private const val ONE_FRAME_MILLIS = 16L
 
 /** The tag on the field, so the tap that opens the overlay is not a tap on a string. */
@@ -54,10 +52,6 @@ private const val FIELD = "overlay_underTest"
  * ```
  */
 @RunWith(RobolectricTestRunner::class)
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have — the same pin every other test here carries.
-@Config(sdk = [ROBOLECTRIC_SDK])
-// Robolectric's legacy renderer draws nothing but a stub; NATIVE is what makes the pixels real.
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class OverlayScreenshotTest {
 

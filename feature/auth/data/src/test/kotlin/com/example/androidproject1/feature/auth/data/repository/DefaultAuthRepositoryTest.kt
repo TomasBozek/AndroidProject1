@@ -20,11 +20,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import java.io.IOException
 
 /** Robolectric ships an SDK image per API level and has none for this project's targetSdk. */
-private const val ROBOLECTRIC_SDK = 35
 
 private const val ADA = "ada@example.com"
 
@@ -36,7 +34,6 @@ private const val ADA = "ada@example.com"
  * something the next reader — `MainViewModel`, on the next cold start — actually finds.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class DefaultAuthRepositoryTest {
 
     private lateinit var store: TestSessionStore

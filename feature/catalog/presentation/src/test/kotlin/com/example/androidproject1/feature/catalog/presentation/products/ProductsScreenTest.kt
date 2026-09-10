@@ -12,7 +12,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * What is on screen, and what a tap does — the half `ProductsViewModelTest` cannot reach.
@@ -20,13 +19,7 @@ import org.robolectric.annotation.Config
  * **Everything is found by `testTag`, never by text.** The product names and the category in the
  * top bar are data, and the prices are formatted per locale; none of them is a way to reach a row.
  */
-private const val ROBOLECTRIC_SDK = 35
-
 @RunWith(RobolectricTestRunner::class)
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have. Raise it when Robolectric catches up; nothing in a
-// screen test depends on the difference.
-@Config(sdk = [ROBOLECTRIC_SDK])
 class ProductsScreenTest {
 
     @get:Rule

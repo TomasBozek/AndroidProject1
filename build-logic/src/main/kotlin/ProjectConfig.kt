@@ -16,6 +16,9 @@ object ProjectConfig {
     /** The daemon runs JDK 25 and AGP 9 needs 17 to run at all, so 17 is the sensible floor. */
     val JAVA_VERSION = JavaVersion.VERSION_17
 
+    // Robolectric's API level is not here: it is `build-logic/robolectric/robolectric.properties`,
+    // because Robolectric reads that format itself off the test classpath. One edit, same as these.
+
     /**
      * What a build that is not on a release tag is versioned as.
      *

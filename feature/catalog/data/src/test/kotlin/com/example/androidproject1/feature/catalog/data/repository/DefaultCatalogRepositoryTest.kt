@@ -30,9 +30,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 private const val CATEGORIES_JSON =
     """[{"id":"beverages","name":"Beverages"},{"id":"bakery","name":"Bakery"}]"""
@@ -47,7 +44,6 @@ private const val PRODUCTS_JSON =
  * table the cache reads from — asserted by nothing.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class DefaultCatalogRepositoryTest {
 
     private lateinit var database: CatalogDatabase

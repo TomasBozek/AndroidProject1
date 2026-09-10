@@ -24,7 +24,6 @@ import org.robolectric.annotation.Config
  * **Everything is found by `testTag`, never by text.** Copy gets reworded and translated; a test
  * that finds a button by its label fails on a wording change that broke nothing.
  */
-private const val ROBOLECTRIC_SDK = 35
 
 // Robolectric's default device is a 320 × 470 dp screen from 2012, and this form is five elements
 // tall — the ghost button falls off the bottom of it and `assertIsDisplayed` rightly fails. The
@@ -32,10 +31,7 @@ private const val ROBOLECTRIC_SDK = 35
 private const val PHONE = "w411dp-h891dp"
 
 @RunWith(RobolectricTestRunner::class)
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have. Raise it when Robolectric catches up; nothing in a
-// screen test depends on the difference.
-@Config(sdk = [ROBOLECTRIC_SDK], qualifiers = PHONE)
+@Config(qualifiers = PHONE)
 class SignUpScreenTest {
 
     @get:Rule

@@ -115,6 +115,8 @@ internal fun Project.configureAndroid(extension: CommonExtension) {
 
     configureKotlinJvmTarget()
 
+    configureRobolectricSdk(extension)
+
     // Shared configuration; see lint.xml at the repo root.
     extension.lint.lintConfig = rootProject.file("lint.xml")
     extension.lint.warningsAsErrors = false
@@ -169,6 +171,25 @@ internal fun Project.configureCompose(extension: CommonExtension) {
     extension.testOptions.unitTests.isIncludeAndroidResources = true
 
     configureComposeCompiler()
+}
+
+/**
+ * Puts the shared `robolectric.properties` on every module's test resources.
+ *
+ * Robolectric reads that file from the test classpath, so one copy in `build-logic/robolectric/`
+ * pins the API level for every module at once — the same shape as `compose-stability.conf` beside
+ * it, and it travels with `service/` because `export_service.py` copies `build-logic/`. Before
+ * this, the pin was `private const val ROBOLECTRIC_SDK` and the paragraph explaining it in each of
+ * 51 test files.
+ *
+ * A directory of its own rather than `build-logic/` itself, because a source directory takes
+ * everything under it and `build-logic` is a Gradle build. `findByName` rather than `getByName`
+ * because a `com.android.test` module — `:baselineprofile` — has no `test` source set to add to.
+ */
+internal fun Project.configureRobolectricSdk(extension: CommonExtension) {
+    extension.sourceSets.findByName("test")?.resources?.srcDir(
+        rootProject.file("build-logic/robolectric"),
+    )
 }
 
 /** The Gradle property that turns the compiler's stability reports on: `-PcomposeMetrics`. */

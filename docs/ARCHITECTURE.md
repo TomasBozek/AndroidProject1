@@ -200,10 +200,14 @@ the stateless screen with a fixed state, collects the events it emits, and finds
 `testTag` — never by text, because copy gets reworded and translated. It runs under Robolectric as
 an ordinary unit test, so `./gradlew test` covers it and CI needs no emulator.
 
-Two things it has to say out loud, both of which cost a comment in the file:
+**Robolectric's API level is pinned once**, in `build-logic/robolectric/robolectric.properties`,
+which `configureRobolectricSdk` puts on every module's test resources. Robolectric ships an SDK
+image per API level and has none for this project's `targetSdk`, so an unpinned test would not
+start at all. It used to be a `const` and a paragraph in each of 51 test files. A test that needs a
+different level still says so with `@Config(sdk = [...])`, which wins over the file.
 
-- **`@Config(sdk = …)` is pinned.** Robolectric ships an SDK image per API level and has none for
-  this project's `targetSdk`; the test asks for the newest it does have.
+One thing a screen test does have to say out loud, and it costs a comment in the file:
+
 - **A compound component is tagged on its group.** A caller's `modifier` goes to the outermost
   element, so `Modifier.testTag("login_emailField")` on an `AppTextField` tags the label, input and
   supporting line together. Assertions about the group use the tag directly; a test that types
@@ -216,9 +220,11 @@ build-file edit.
 
 A third test, but one per **module** rather than one per screen: `PreviewScreenshotTest` records a
 golden image for every `@ScreenPreview` and `@ComponentPreview` on its own classpath and fails when
-one of them changes. It is in every `presentation` module and in `:core:ui`, and
-`create_feature.py` clones `feature/template`'s copy, so a generated feature is covered the day it
-is generated.
+one of them changes. It is in every `presentation` module and in `:core:ui` (D35), because a
+module's test sees only its own classpath — but the eleven copies differ by one package string, so
+everything else is `PreviewScreenshotSpec` in `:service:core:ui`'s `testFixtures` and each subclass
+is a dozen lines. `create_feature.py` clones `feature/template`'s copy, so a generated feature is
+covered the day it is generated.
 
 ```bash
 ./gradlew recordRoborazziDebug   # write the goldens after a deliberate change

@@ -154,7 +154,8 @@ a hard bottom edge that shortens on press.
 
 Two tests per screen: `XViewModelTest` (plain JVM) says what the state becomes and what navigation
 is emitted; `XScreenTest` (Robolectric, so `./gradlew test` covers it) says what is on screen and
-what a tap does. `LoginScreenTest` is the pattern. `PreviewScreenshotTest` records a golden per
+what a tap does. `LoginScreenTest` is the pattern, and Robolectric's API level is pinned once in
+`build-logic/robolectric/robolectric.properties`. `PreviewScreenshotTest` records a golden per
 preview, and `OverlayScreenshotTest` in `:core:ui` covers what previews cannot see, because a
 dialog, sheet, menu or picker draws in a window of its own — 349 goldens were green while the date
 picker was clipped, so add an overlay and add a case there. `recordRoborazziDebug` writes the

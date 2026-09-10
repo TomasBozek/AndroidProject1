@@ -28,10 +28,6 @@ import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have.
-private const val ROBOLECTRIC_SDK = 35
-
 /**
  * That the bound [Analytics] actually reaches composition.
  *
@@ -44,7 +40,7 @@ private const val ROBOLECTRIC_SDK = 35
 @RunWith(RobolectricTestRunner::class)
 // The plain Application, not this project's `App`: its `onCreate` starts the real Koin graph,
 // and this test wants a small one it can put a recording Analytics into.
-@Config(sdk = [ROBOLECTRIC_SDK], application = Application::class)
+@Config(application = Application::class)
 class AppNavHostAnalyticsTest {
 
     @get:Rule

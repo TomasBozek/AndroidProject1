@@ -93,8 +93,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
   each, no fake anywhere. Done `?` interface at the repository with a fake, or the per-source rule stands.
 - [ ] **F18 Flavors** · S · trim — Why `staging` is `prod` plus one line and an unreachable host, and
   triples every `:app` task. Done `?` `dev` + `prod` with `DebugMenu` following `BuildConfig.DEBUG`.
-- [ ] **F19 Test plumbing stops being copied** · S · trim — Why the Robolectric pin is in 50 files and
-  11 screenshot tests differ by a package string. Done `robolectric.properties` and one base class.
+- [x] (2026-09-10) **F19 Test plumbing stops being copied** · S · trim — Why the Robolectric pin was
+  in 51 files and 11 screenshot tests differed by one string. Done one properties file, one base class.
 - [ ] **F24 Coil and the two single-consumer plugins** · S · trim — Why Coil is put on all 13 Compose
   modules so `doctor` can forbid it on 12. Done Coil in `core/ui`, Ktor in `service/network`.
 - [ ] **F12 `BaseViewModel`'s defaults** · M · correct — Why 21 of ~28 sites pass `loading = {}`,

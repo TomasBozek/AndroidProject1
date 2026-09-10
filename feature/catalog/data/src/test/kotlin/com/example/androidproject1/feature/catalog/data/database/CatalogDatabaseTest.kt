@@ -16,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * The DAO round trip, against a real SQLite rather than a fake.
@@ -24,10 +23,8 @@ import org.robolectric.annotation.Config
  * A fake DAO would assert that this test's own map lookup works; what is worth testing is the SQL
  * — the join that orders favourites, and the `EXISTS` that drives the heart.
  */
-private const val ROBOLECTRIC_SDK = 35
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class CatalogDatabaseTest {
 
     private lateinit var database: CatalogDatabase
