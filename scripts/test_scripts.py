@@ -42,13 +42,37 @@ if WITH_GRADLE:
 TEMPLATE_PACKAGE_WORD = "android" + "project1"
 TEMPLATE_PROJECT_NAME = "Android" + "Project1"
 
-# Build output and IDE state; everything else is copied so the scripts see a realistic repo.
+# Build output, IDE and agent state; everything else is copied so the scripts see a realistic repo.
 # `screenshots` is the Roborazzi goldens (ui.2) — megabytes of PNG that no script reads, copied
 # once per test. What matters about them, that a clone does not carry them, is asserted by
 # `test_create_feature_does_not_clone_the_goldens`, which writes one of its own.
-IGNORED = shutil.ignore_patterns(
+_IGNORED_NAMES = shutil.ignore_patterns(
     "build", ".gradle", ".git", ".idea", ".kotlin", "__pycache__", ".DS_Store", "screenshots"
 )
+
+
+def ignore_for_copy(directory: str, names: list[str]) -> set[str]:
+    """
+    The patterns above, plus `.claude/worktrees` — the one that got away.
+
+    Each agent worktree is a checkout of this same repository, so copying them meant the copy was
+    mostly copies of itself: four of them were 2,271 of the 2,856 files this copied, 56 times over,
+    and the suite went from the twenty seconds documented to between four and seven minutes with
+    nothing failing to say so. `test_the_repository_copy_stays_small` is what should have caught it.
+
+    Named rather than pattern-matched, because the rest of `.claude` has to be copied:
+    `.claude/commands` holds the slash commands that
+    `test_slash_commands_reference_scripts_that_exist` reads out of the copy.
+    """
+    ignored = set(_IGNORED_NAMES(directory, names))
+    if Path(directory).name == ".claude":
+        ignored.add("worktrees")
+    return ignored
+
+
+# What one test's copy of the repository may hold, with room for the project to grow: today it is
+# about 600 files. A directory that pushes it past this belongs in `ignore_for_copy` above.
+MAX_COPIED_FILES = 1500
 
 
 def hermetic_env() -> dict[str, str]:
@@ -70,7 +94,7 @@ class ScaffoldingTest(unittest.TestCase):
         self._temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self._temporary.cleanup)
         self.repo = Path(self._temporary.name) / "repo"
-        shutil.copytree(REPO_ROOT, self.repo, ignore=IGNORED)
+        shutil.copytree(REPO_ROOT, self.repo, ignore=ignore_for_copy)
 
     # -- helpers ------------------------------------------------------------------------------
 
@@ -117,6 +141,21 @@ class ScaffoldingTest(unittest.TestCase):
 
     def test_doctor_passes_on_a_clean_checkout(self) -> None:
         self.assert_doctor_passes()
+
+    def test_the_repository_copy_stays_small(self) -> None:
+        """
+        Every test copies the repository, so anything that joins the copy is paid 56 times over.
+        This asserts the thing that is easy to regress and impossible to notice: the suite has no
+        other way of telling you it has become fourteen times slower, because it still passes.
+        """
+        copied = sum(len(names) for _, _, names in os.walk(self.repo))
+        self.assertLess(
+            copied,
+            MAX_COPIED_FILES,
+            f"a test's copy of the repository holds {copied} files, over the {MAX_COPIED_FILES} "
+            "budget. Add whatever directory grew to `ignore_for_copy`, or raise the budget in the "
+            "same commit that grew the repository, and say which directory it was.",
+        )
 
     def test_create_feature_registers_every_module(self) -> None:
         self.run_script("create_feature.py", "userProfile")

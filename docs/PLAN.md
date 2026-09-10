@@ -64,8 +64,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
 
 - [x] (2026-09-10) **F1 One variant in the PR gate** · S · first — Why `build` is six variants and 923 test
   executions for 498 tests. Done an explicit task list; unit tests only on `devDebug`; R8 on release.
-- [ ] **F2 `test_scripts.py` stops copying the worktrees** · S · first — Why `.claude` is not in
-  `IGNORED`: 2,271 of 2,856 files, 56 times over. Done `.claude`/`.idea` ignored, one copy per class.
+- [x] (2026-09-10) **F2 `test_scripts.py` stops copying the worktrees** · S · first — Why they were
+  2,271 of 2,856 copied files, 56 times over. Done ignored, and a guard test so it cannot come back.
 - [ ] **F3 `doctor.py` walks the tree once** · S · first — Why 17 `rglob`s over 62,583 files: 14.7 s,
   9.8 s of it kernel. Done one pruned walk into a shared index. `?` do the three weak checks go too.
 - [ ] **F17e The date picker fits its dialog** · M · first — Why `AppDialog` is platform-width with

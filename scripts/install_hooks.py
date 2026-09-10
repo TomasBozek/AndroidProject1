@@ -11,7 +11,7 @@ was never registered, a destination missing from `AppNavHost`, a screen missing 
 CI already gates on it; this just moves the feedback from three minutes away to instant.
 
 The hook is quiet when everything passes and prints the full report when it does not. It also runs
-`test_scripts.py`, but only when the commit touches `scripts/` — it takes ~20s, which is too slow
+`test_scripts.py`, but only when the commit touches `scripts/` — it takes ~105s, which is too slow
 to pay on every commit.
 
 Hooks are not version controlled, so every clone has to run this once.

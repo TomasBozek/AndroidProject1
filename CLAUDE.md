@@ -832,7 +832,7 @@ python3 scripts/install_hooks.py
 
 Installs a `pre-commit` hook running `doctor.py` — quiet on success, and it prints the full report
 and aborts the commit on failure. `test_scripts.py` runs too, but only when the commit touches
-`scripts/`, since it takes ~20s. Hooks are not version controlled, so each clone runs this once;
+`scripts/`, since it takes ~105s. Hooks are not version controlled, so each clone runs this once;
 `--uninstall` removes it, and it refuses to overwrite a hook it did not write.
 
 The same workflows are exposed as Claude Code slash commands in `.claude/commands/`:
