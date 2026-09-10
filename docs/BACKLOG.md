@@ -8,33 +8,24 @@ Add a line here for anything you find while working on something else. Never edi
 
 ## Next
 
-Candidates for the next release, roughly in order.
+Candidates for the next release, roughly in order. What is already carrying an id is release B's
+plan, not this file.
 
-- The module topology, decided once (was F5 + F11) · 50 · the ten `di` modules and the `service/`
-  split are one question: fold `service/` into `:core:*`, or keep the split and give it its own
-  package names — not both. Repo-wide, so it runs alone in lane 0 before the lanes start.
-- The screen shell joins the design system (was F13) · 25 · loading, error, empty and alert are raw
-  Material with dp literals; slots on `Screen()` filled in `AppNavHost`. After the topology.
-- Where the data-source interface lives (was F15) · 12 · ten interfaces, one implementation each, no
-  fake anywhere: interface at the repository with a fake, or the per-source rule stands.
-- SavedStateHandle, connectivity, HTTP cache (was F16) · 25 · a `saved(key)` helper, a
-  `NetworkMonitor` with one root banner, an OkHttp `Cache`.
-- A deep link to an uncached product opens it (was shell.7) · 12 · `getProduct` reads the local
-  table only, so a cold link lands on "no longer available".
-- The dependency graph is submitted (was H6) · 6 · nothing watches the resolved dependencies for
-  known vulnerabilities and Renovate is parked.
-- Unused components earn their place (was F6) · 25 · 27 of 47 are used only by the gallery and
-  `AppFab` has no scaffold slot. Pairs with the showcase features.
-- The gallery is generated from the previews (was F7) · 25 · the gallery catalog hand-copies 44
-  entries in 896 lines with no check that it matches.
-- AppTextField rebuilt, size enums folded (was F23 + M1 + M2) · 25 · two size enums, three
-  components with no `modifier`, no IME action or autofill; rebuild on `TextFieldState`.
-- The design system stops speaking POS (was F22) · 6 · 52 mentions of till, void and cash, and
+- Unused components earn their place (was F6) · 25 · 26 of the 46 `App*` components are reached only
+  by the gallery. Not estimable until B3S1 and B3S2 have shipped and the count of components nothing
+  composes is known; D38 keeps every one of them until then.
+- A connectivity banner (was a third of F16) · 12 · nothing observes connectivity, so a request that
+  fails offline is indistinguishable from one that failed. One `NetworkMonitor` and one root banner;
+  the banner is in `app/**`, which release B's showcase lane owns for the whole release.
+- network_security_config and StrictMode (was H7 + H8) · 6 · the audit corrected the premise —
+  cleartext is already denied by the platform at this `targetSdk`. What stands: a debug build cannot
+  be proxied without a config, and a main-thread DataStore read goes unnoticed without StrictMode.
+- The design system stops speaking POS (was F22) · 6 · 64 mentions of till, void and cash, and
   `AppDensity` scans `InputDevice`.
-- Trips, a showcase feature (was S1) · 50 · five screens give 22 unused components a home: wizard,
-  nav result, snackbar action, dashboard.
-- Field report, a showcase feature (was S2) · 50 · location, camera, Photo Picker and SAF in
-  context, with no new dependency.
+- The dependency graph is submitted (was H6) · 6 · nothing watches the resolved dependencies for
+  known vulnerabilities, and Renovate is parked — so it would be submitted to nothing that acts on it.
+- The category and product names the Maestro flows tap are text, not ids. Fixture data rather than
+  labels, so the tab fix does not cover them; decide whether fixture rows get ids at all.
 
 ## Someday
 

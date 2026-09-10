@@ -30,7 +30,7 @@ It covers T0, T1 and one round of CI fixes, but not waiting for CI. A point is f
 | Band | Means |
 |---|---|
 | 3 | one file, a flag, a documentation row |
-| 6 | one module, one check, one screen tweak |
+| 6 | one module changed **with its test**, or a new check and the code it forces. A fix across two or three files that adds no test is a 3 — six of release A's seven 6s landed at 3 that way |
 | 12 | two to four modules, or a screen with both its tests |
 | 25 | a flow of screens, a cross-cutting refactor, a CI job |
 | 50 | a feature slice. The ceiling — anything larger is split before it gets an id |

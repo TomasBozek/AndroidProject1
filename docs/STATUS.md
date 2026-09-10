@@ -19,9 +19,9 @@ git tag v1.0.0 && git push origin v1.0.0
 
 ## Next · release B
 
-[ai/plans/B.md](ai/plans/B.md) — the refactors, subtractions and new behaviour v1.0 was allowed to
-skip, 141 points carried over plus the backlog candidates. It is a **draft**: `/release draft B`
-cuts its lanes and recalibrates its bands against release A's ratio, and then the owner opens it.
-Its board moves here at that point.
+[ai/plans/B.md](ai/plans/B.md) — the refactors v1.0 skipped, and the two showcase features that
+give the 26 unused components a home. Drafted: 18 tasks, 383 points, four agents — lane 0 runs first
+and alone, then three lanes on disjoint paths. It is still a **draft**, and the owner opens it; its
+board moves here at that point.
 
 Ideas that are not in either plan are [BACKLOG.md](BACKLOG.md).
