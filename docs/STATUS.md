@@ -22,7 +22,7 @@ Worked top to bottom. A0P2 is first because every task after it cites a path it 
 - [x] A1U1 Every non-root screen carries an Up control (was shell.8) · 12 → 12
 - [x] A0X3 The date picker and the dialog speak the device's language · 6 → 3
 - [x] A1U2 A text field says its own name (was ui.10) · 6 → 3
-- [ ] A1U4 Login and Sign-up scroll under the keyboard (was H3) · 3
+- [x] A1U4 Login and Sign-up scroll under the keyboard (was H3) · 3 → 3
 - [ ] A1X4 The product-detail heart keeps its first value · 3
 - [ ] A1X5 A cold-start deep link is applied once · 3
 

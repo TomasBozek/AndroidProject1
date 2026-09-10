@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.example.androidproject1.core.ui.theme.AppTheme
 import org.junit.Assert.assertEquals
@@ -98,5 +99,15 @@ class LoginScreenTest {
         compose.onNodeWithTag("login_submitButton").performClick()
 
         assertEquals(emptyList<LoginEvent>(), events)
+    }
+
+    @Test
+    fun `the submit button can be scrolled to`() {
+        render(LoginState.PREVIEW)
+
+        // performScrollTo throws when nothing above the node scrolls, which is what this form was:
+        // a fixed centred column whose submit button is off-screen at a large font or under an
+        // open keyboard.
+        compose.onNodeWithTag("login_submitButton").performScrollTo().assertIsDisplayed()
     }
 }

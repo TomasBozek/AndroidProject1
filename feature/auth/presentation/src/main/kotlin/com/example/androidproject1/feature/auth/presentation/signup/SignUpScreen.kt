@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +31,12 @@ fun SignUpScreen(
 ) {
     AppScaffold(screenId = "SignUpScreen") {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                // safeDrawingPadding in AppScaffold shrinks the content area when the keyboard
+                // opens, and a large font makes this form taller than a short phone even without
+                // one — a form that cannot reach its own submit button is a form nobody can use.
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(
                 AppTheme.spacing.stack.md,
                 Alignment.CenterVertically,
