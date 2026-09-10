@@ -24,6 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -87,7 +91,14 @@ fun AppTextField(
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.xs),
     ) {
         if (label != null) {
-            Text(text = label, style = AppTheme.typography.labelMd, color = colors.textSecondary)
+            // Drawn for the eye only. The same string is on the input's own semantics node below,
+            // so leaving this one readable would have a screen reader announce the label twice.
+            Text(
+                text = label,
+                style = AppTheme.typography.labelMd,
+                color = colors.textSecondary,
+                modifier = Modifier.clearAndSetSemantics { },
+            )
         }
 
         val ring = if (focused || isError) 3.dp else 1.dp
@@ -133,7 +144,12 @@ fun AppTextField(
                             Modifier
                         },
                     )
-                    .padding(horizontal = AppTheme.spacing.inset.md, vertical = 10.dp),
+                    .padding(horizontal = AppTheme.spacing.inset.md, vertical = 10.dp)
+                    // The label belongs to the input, not to a sibling above it: a `Text` beside
+                    // the field is a separate node, so a screen reader reaching the input read out
+                    // an unnamed edit box. `text` rather than `contentDescription` because the
+                    // value lives in `editableText` and the two do not collide.
+                    .semantics { if (label != null) text = AnnotatedString(label) },
                 decorationBox = { inner ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(modifier = Modifier.weight(1f)) {
