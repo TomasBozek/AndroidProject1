@@ -10,4 +10,7 @@ sealed interface ProductPickerNavigation {
      * is what lets one picker serve the cart today and anything else tomorrow.
      */
     data class Picked(val productId: String) : ProductPickerNavigation
+
+    /** Left without picking. The requester gets no result, which is the answer. */
+    data object NavigateUp : ProductPickerNavigation
 }

@@ -42,6 +42,8 @@ class ProductDetailViewModel(
         ProductDetailEvent.FavouriteToggled -> toggleFavourite()
 
         ProductDetailEvent.AddToCartClicked -> addToCart()
+
+        ProductDetailEvent.NavigateUpClicked -> navigate(ProductDetailNavigation.NavigateUp)
     }
 
     override fun onSystemEvent(event: SystemEvent) {

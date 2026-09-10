@@ -64,4 +64,13 @@ class ProductsScreenTest {
             events,
         )
     }
+
+    @Test
+    fun `the up arrow emits its navigation event`() {
+        render(ProductsState.PREVIEW)
+
+        compose.onNodeWithTag("products_upButton").performClick()
+
+        assertEquals(listOf(ProductsEvent.NavigateUpClicked), events)
+    }
 }

@@ -29,6 +29,7 @@ class ProductsViewModel(
     override fun onUiEvent(event: ProductsEvent) {
         when (event) {
             is ProductsEvent.ProductClicked -> navigate(ProductsNavigation.ProductDetail(event.product.id))
+            ProductsEvent.NavigateUpClicked -> navigate(ProductsNavigation.NavigateUp)
         }
     }
 

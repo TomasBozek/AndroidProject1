@@ -50,6 +50,10 @@ of the controls that read it).
 screen id that becomes both the test id and the analytics screen view. A screen with a scaffold does
 not apply insets itself; a screen without one does, because the activity is edge to edge.
 
+**Every non-root screen passes `onNavigateUp`, and with it `navigateUpTestTag = "<stem>_upButton"`.**
+A tab root passes neither — the bottom bar is what leaves it. The arrow needs a tag of its own
+because the caller's `modifier` goes to the bar, and the label beside it is translated.
+
 Twenty-seven of the components are currently composed only by the gallery. None is deleted until the
 showcase features have had a chance to give them a home.
 

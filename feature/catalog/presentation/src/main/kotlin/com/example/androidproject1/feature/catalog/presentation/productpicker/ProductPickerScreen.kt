@@ -24,7 +24,13 @@ fun ProductPickerScreen(
 ) {
     AppScaffold(
         screenId = "ProductPickerScreen",
-        topBar = { AppTopBar(title = stringResource(R.string.product_picker_title)) },
+        topBar = {
+            AppTopBar(
+                title = stringResource(R.string.product_picker_title),
+                onNavigateUp = { onEvent(ProductPickerEvent.NavigateUpClicked) },
+                navigateUpTestTag = "productPicker_upButton",
+            )
+        },
     ) {
         val formats = LocalFormats.current
         LazyColumn(

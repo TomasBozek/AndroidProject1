@@ -4,4 +4,6 @@ package com.example.androidproject1.feature.catalog.presentation.products
 sealed interface ProductsNavigation {
 
     data class ProductDetail(val productId: String) : ProductsNavigation
+
+    data object NavigateUp : ProductsNavigation
 }

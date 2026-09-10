@@ -31,7 +31,13 @@ fun GalleryScreen(
 ) {
     AppScaffold(
         screenId = "GalleryScreen",
-        topBar = { AppTopBar(title = stringResource(R.string.gallery_title)) },
+        topBar = {
+            AppTopBar(
+                title = stringResource(R.string.gallery_title),
+                onNavigateUp = { onEvent(GalleryEvent.NavigateUpClicked) },
+                navigateUpTestTag = "gallery_upButton",
+            )
+        },
         contentPadding = false,
     ) {
         LazyColumn(

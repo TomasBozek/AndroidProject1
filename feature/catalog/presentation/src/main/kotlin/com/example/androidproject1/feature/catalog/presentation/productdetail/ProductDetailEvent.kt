@@ -9,4 +9,7 @@ sealed interface ProductDetailEvent : UiEvent {
 
     /** Add this product to the cart. What "the cart" is stays outside this module. */
     data object AddToCartClicked : ProductDetailEvent
+
+    /** The Up arrow was tapped. Every non-root screen has one. */
+    data object NavigateUpClicked : ProductDetailEvent
 }

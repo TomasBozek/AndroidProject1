@@ -37,6 +37,7 @@ fun ProductSearchScreen(
             AppTopBar(
                 title = stringResource(R.string.product_search_title),
                 onNavigateUp = { onEvent(ProductSearchEvent.NavigateUpClicked) },
+                navigateUpTestTag = "productSearch_upButton",
             )
         },
         contentPadding = false,

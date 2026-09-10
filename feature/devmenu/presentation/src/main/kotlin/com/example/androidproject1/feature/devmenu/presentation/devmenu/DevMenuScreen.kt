@@ -43,6 +43,7 @@ fun DevMenuScreen(
             AppTopBar(
                 title = stringResource(R.string.dev_menu_title),
                 onNavigateUp = { onEvent(DevMenuEvent.NavigateUpClicked) },
+                navigateUpTestTag = "devMenu_upButton",
             )
         },
     ) {

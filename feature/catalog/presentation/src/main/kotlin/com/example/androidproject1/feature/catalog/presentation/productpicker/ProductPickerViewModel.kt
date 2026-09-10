@@ -25,6 +25,8 @@ class ProductPickerViewModel(
     override fun onUiEvent(event: ProductPickerEvent) = when (event) {
         is ProductPickerEvent.ProductClicked ->
             navigate(ProductPickerNavigation.Picked(event.product.id))
+
+        ProductPickerEvent.NavigateUpClicked -> navigate(ProductPickerNavigation.NavigateUp)
     }
 
     private fun observeProducts() = observe(

@@ -53,4 +53,13 @@ class ProductDetailScreenTest {
 
         assertEquals(listOf(ProductDetailEvent.FavouriteToggled), events)
     }
+
+    @Test
+    fun `the up arrow emits its navigation event`() {
+        render(ProductDetailState.PREVIEW)
+
+        compose.onNodeWithTag("productDetail_upButton").performClick()
+
+        assertEquals(listOf(ProductDetailEvent.NavigateUpClicked), events)
+    }
 }

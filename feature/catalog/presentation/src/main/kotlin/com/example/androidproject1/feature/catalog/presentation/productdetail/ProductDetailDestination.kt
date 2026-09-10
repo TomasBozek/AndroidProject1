@@ -22,6 +22,9 @@ fun EntryProviderScope<NavKey>.productDetailDestination(backStack: NavBackStack<
         Screen(
             viewModel = viewModel,
             onNavigation = { navigation ->
+                when (navigation) {
+                    ProductDetailNavigation.NavigateUp -> backStack.removeLastOrNull()
+                }
             },
         ) { state, onEvent ->
             ProductDetailScreen(
