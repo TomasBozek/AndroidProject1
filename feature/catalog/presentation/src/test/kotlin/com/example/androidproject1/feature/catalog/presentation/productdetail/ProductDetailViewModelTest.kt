@@ -11,6 +11,7 @@ import com.example.androidproject1.feature.cart.domain.test.FakeCartRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -143,5 +144,27 @@ class ProductDetailViewModelTest {
         viewModel.onUiEvent(ProductDetailEvent.AddToCartClicked)
 
         assertEquals(emptyList<CartItem>(), cart.current)
+    }
+
+    @Test
+    fun `the heart keeps its value when the product arrives after it`() = runTest {
+        // The two reads race. Delaying the product puts the favourite flag first, which is the
+        // order that used to lose it: the flag was dropped while `data` was still null, and then
+        // the load wrote a fresh state with the heart empty.
+        val repository = FakeCatalogRepository(getProductDelayMillis = 10)
+
+        val viewModel = viewModel(repository, favouritesRepository = favourites(favourited = true))
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.value.data?.isFavourite)
+    }
+
+    @Test
+    fun `the heart keeps its value when the product arrives before it`() = runTest {
+        // The other order, so neither writer wins by luck.
+        val viewModel = viewModel(FakeCatalogRepository(), favouritesRepository = favourites(favourited = true))
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.value.data?.isFavourite)
     }
 }

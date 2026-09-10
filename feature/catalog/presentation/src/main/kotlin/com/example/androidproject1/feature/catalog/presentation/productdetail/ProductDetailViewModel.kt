@@ -10,6 +10,7 @@ import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.cart.domain.AddProductToCart
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
+import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.presentation.R
 import kotlinx.coroutines.flow.update
 
@@ -33,9 +34,24 @@ class ProductDetailViewModel(
         const val CONTENT_NOT_FOUND = "product_not_found"
     }
 
+    // The screen is two independent reads — the product, once, and the favourite flag, for as long
+    // as the screen lives — and either can arrive first. Each used to write the whole state: the
+    // load overwrote a flag that had already arrived, and the flag was dropped outright while
+    // `data` was still null. Both now write their own half here and the state is composed from the
+    // pair, so whichever loses the race is still in the answer.
+    private var product: Product? = null
+    private var isFavourite = false
+
     init {
         load()
         observeFavourite()
+    }
+
+    private fun publish() {
+        val product = product ?: return
+        uiState.update {
+            it.copy(data = ProductDetailState(product = product, isFavourite = isFavourite))
+        }
     }
 
     override fun onUiEvent(event: ProductDetailEvent) = when (event) {
@@ -66,10 +82,9 @@ class ProductDetailViewModel(
         flow = { favouritesRepository.observeIsFavourite(args.productId) },
         loading = {},
         errorDisplay = ErrorDisplay.Silent,
-        onData = { isFavourite ->
-            uiState.update { state ->
-                state.copy(data = state.data?.copy(isFavourite = isFavourite))
-            }
+        onData = { favourite ->
+            isFavourite = favourite
+            publish()
         },
     )
 
@@ -82,7 +97,7 @@ class ProductDetailViewModel(
      * there is no second read of it either.
      */
     private fun addToCart() {
-        val product = uiState.value.data?.product ?: return
+        val product = product ?: return
         execute(
             loading = {},
             action = { addProductToCart(productId = product.id, name = product.name, price = product.price) },
@@ -92,10 +107,9 @@ class ProductDetailViewModel(
 
     // Alert on failure: the user asked for this, so silence would look like the tap did nothing.
     private fun toggleFavourite() {
-        val current = uiState.value.data?.isFavourite ?: return
         execute(
             loading = {},
-            action = { favouritesRepository.setFavourite(args.productId, !current) },
+            action = { favouritesRepository.setFavourite(args.productId, !isFavourite) },
             onData = { },
         )
     }
@@ -118,7 +132,8 @@ class ProductDetailViewModel(
                 )
                 return@execute
             }
-            uiState.update { it.copy(data = ProductDetailState(product = product)) }
+            this.product = product
+            publish()
         },
     )
 }
