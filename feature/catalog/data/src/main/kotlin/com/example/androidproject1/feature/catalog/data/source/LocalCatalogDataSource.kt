@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.Flow
  *
  * The reads return `null` for "nothing cached" rather than an empty list, because
  * `BaseRepository.cached` has to tell a cache miss from a cached empty result — a category the
- * server really has no products in should not re-fetch on every collection.
+ * server really has no products in should not re-fetch on every collection. `null` means the list
+ * has never been written, not that it is empty; a write always makes it a list.
  */
 interface LocalCatalogDataSource {
 

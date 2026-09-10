@@ -37,3 +37,26 @@ data class FavouriteEntity(
     @PrimaryKey val productId: String,
     val favouritedAt: Long,
 )
+
+/**
+ * When a cached list was last written, keyed by what was written.
+ *
+ * The row is what tells "never fetched" from "fetched, and there is nothing in it" — a distinction
+ * the rows themselves cannot make, because both are an empty table. Without it an empty category
+ * reads as a cache miss for ever and its screen never stops loading.
+ *
+ * The keys are [CatalogFetchKeys], which both the writer and the reader of a marker go through.
+ */
+@Entity(tableName = "catalog_fetches")
+data class CatalogFetchEntity(
+    @PrimaryKey val key: String,
+    val fetchedAt: Long,
+)
+
+/** The keys [CatalogFetchEntity] is stored under. One definition, because two sides read it. */
+object CatalogFetchKeys {
+
+    const val CATEGORIES = "categories"
+
+    fun products(categoryId: String) = "products:$categoryId"
+}
