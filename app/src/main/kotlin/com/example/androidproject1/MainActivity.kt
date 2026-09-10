@@ -24,7 +24,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 /** The app's only Activity; everything else is a composable destination. */
 class MainActivity : ComponentActivity() {
 
-    private val viewModel by viewModel<MainViewModel>()
+    // internal rather than private: `MainActivityDeepLinkTest` recreates this activity and asserts
+    // that the launch intent was not read a second time, which is only visible on the ViewModel
+    // that outlived the recreation.
+    internal val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Before super.onCreate, so the system splash screen is installed before the first frame.
@@ -39,9 +42,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Only on a real cold start. `onCreate` runs again on every rotation and after process
+        // death with the same launch intent still attached, and re-reading it there re-applied the
+        // link — the synthesised path was rebuilt and whatever the user had navigated to since was
+        // thrown away. A non-null `savedInstanceState` is exactly "this is a recreation", and the
+        // back stack that comes back with it already holds the link's own keys.
+        //
         // `coldStart = true`: the app was launched by this link, so there is no back stack
         // behind the product and one has to be synthesised or Up closes the app.
-        viewModel.onDeepLink(intent.deepLinkUri(), coldStart = true)
+        if (savedInstanceState == null) {
+            viewModel.onDeepLink(intent.deepLinkUri(), coldStart = true)
+        }
 
         setContent {
             val theme by viewModel.theme.collectAsStateWithLifecycle()

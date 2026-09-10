@@ -50,7 +50,9 @@ object CatalogModule {
 
         singleOf(::DefaultCatalogRepository) bind CatalogRepository::class
         singleOf(::DefaultFavouritesRepository) bind FavouritesRepository::class
-        singleOf(::DefaultLocalCatalogDataSource) bind LocalCatalogDataSource::class
+        // Spelled out, like the cart's: the data source has a defaulted clock for the fetch
+        // markers, and reflection would try to resolve the `() -> Long` from the graph.
+        single<LocalCatalogDataSource> { DefaultLocalCatalogDataSource(catalogDao = get()) }
         singleOf(::DefaultRemoteCatalogDataSource) bind RemoteCatalogDataSource::class
         singleOf(::DefaultRecentSearchesRepository) bind RecentSearchesRepository::class
         singleOf(::DefaultLocalRecentSearchesDataSource) bind LocalRecentSearchesDataSource::class
