@@ -5,8 +5,8 @@ A multi-module Android template: Kotlin, Jetpack Compose, Koin, single activity,
 | Read this | For |
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | the conventions, in full. Read it before writing code |
-| [docs/PLAN.md](docs/PLAN.md) | the board: what is open, what is next, what needs a decision |
-| [docs/PLAN-DETAIL.md](docs/PLAN-DETAIL.md) | each open item in full, and how to work the plan |
+| [docs/PLAN.md](docs/PLAN.md) | the board: every open item, the decisions, the backlog |
+| [docs/REVIEW.md](docs/REVIEW.md) | the retrospective the current plan comes from |
 | [scripts/README.md](scripts/README.md) | the generators, in detail |
 
 ## Requirements

@@ -1,78 +1,22 @@
-# Plan
+# Plan 5 · after the retrospective
 
-Plan 4, the board: what is open, who may work on it in parallel, and what needs a decision — one
-line per item. Each item's Why / Done / Verify, the working rules and the reasoning behind the
-decisions are in [PLAN-DETAIL.md](PLAN-DETAIL.md); a fact lives in one of the two files, never
-both. `CLAUDE.md` is the rulebook, `README.md` the orientation, `scripts/README.md` the
-generators. History lives in git: Plan 3 in full is `git show dff021c:docs/PLAN.md`, and every
-landed item is one commit named `<id> <title>`. The division of this plan between four parallel
-workers, and the brief for the agent that merges their pull requests, is
-[PLAN-WORKERS.md](PLAN-WORKERS.md).
+The board, and the only plan file. What is open, why it is worth doing, and what finishes it. The
+evidence behind every `F`/`H`/`M`/`S` id is [REVIEW.md](REVIEW.md) and [review/](review/), which
+this file does not repeat. `ui.10`, `shell.7`, `shell.8` and `qa.16` carry over from Plan 4.
 
-## Status
+**How to work it.** One item per commit, titled `<id> <title>`; one or two agents at a time, never a
+fan-out. Before each commit run `python3 scripts/doctor.py`, `./gradlew ktlintCheck` and the touched
+module's own test task — never `./gradlew build`; `verifyRoborazziDebug` only when a preview changed.
 
-**Updated:** 2026-09-10 · **Gate:** doctor 30/30 · test_scripts 52 · ktlint clean · build green
-**Coverage:** 73.3 % of lines, measured 2026-09-10 at `7070c1a` — refresh with
-`./gradlew koverXmlReport` and write the commit beside the number
-**Repo:** 56 modules + `build-logic` · 9 sample features + `template` · 18 screens ·
-47 components · 498 tests · 349 goldens · 6 Maestro flows · 11 scripts
+**A `?` marks an open question**, with both readings on the item; it is settled when that item
+starts, not before. Sixteen of the retrospective's twenty need the code open to answer honestly.
 
-| Track | Owns | Done | Progress |
-|---|---|---|---|
-| **core** · the reusable architecture | `service/`, `core/di`, `build-logic/` | 5 / 5 | `██████████` 100 % |
-| **ui** · design system and adaptive | `core/ui`, `feature/gallery` | 8 / 9 | `█████████░` 89 % |
-| **app** · shell and sample features | `app/`, `feature/*` | 9 / 11 | `████████░░` 82 % |
-| **quality** · tests, CI, release | `.github/`, `.maestro/`, `scripts/`, `feature/template`, `docs/` | 8 / 10 | `████████░░` 80 % |
-| **Total** | | **30 / 35** | `█████████░` 86 % |
-
-**Where this plan comes from.** Plan 3 closed at 15 of 32 on 2026-09-09. The 17 it left open
-keep their ids. Thirteen are new: from the health brief of the same day (`core.7` `core.8`
-`core.9` `shell.6` `qa.11` `qa.12`), from the first person to tap a component in the gallery
-(`ui.6`), from reading the KSD design documents against the code (`ui.7` `ui.8` `ui.9`
-`core.10` `qa.14`), and from the decision to give every screen a directory (`qa.13`, D34).
-
-**Both rounds are merged.** Every one of the thirty items Plan 4 opened with has landed —
-twenty-six across four parallel worktrees on 2026-09-09, then `ui.2`, `feat.9` and `qa.5` on
-2026-09-10. `PLAN-WORKERS.md` holds both splits.
-
-**Start now.** The five open items all come from `qa.5`: the hardware pass found what an emulator
-could not, and each one is a defect rather than an idea. Highest value first:
-
-- **`qa.16` The tabs have no test ids** — every Maestro flow taps a tab by its English label, so
-  the flows break the moment a device runs in Czech. `feat.9` has landed, so this is now live.
-- **`shell.7` A deep link to an uncached product** opens on "no longer available". A data-source
-  decision before it is a repository change, so it is the largest of the five.
-- **`qa.15` The baseline profile never reaches the shipping build** — the profile is generated
-  and committed and then not used, which is the whole benefit lost silently.
-- **`shell.8` Up controls** on the four non-root screens that lack one, and **`ui.10` a text
-  field that says its own name** — both small, both accessibility.
-
-Nothing waits on a decision, and nothing waits on another item.
-
-**Waiting on you.** Q8 blocks only three backlog items. TalkBack was checked structurally by
-`qa.5`, not listened to — whether it *reads* sensibly is still unheard, and that needs a person
-with the device.
-
-**Branches.** `main` is clean and green. The round-one branches (`w1-layout`, `w2-core`,
-`w3-ui`, `w4-app`), the round-two ones (`r2-ui2`, `r2-feat9`, `r2-qa5`), the parked
-`ui.2-roborazzi` and the three `wip/` tags are all merged or superseded and can be deleted.
-
-Legend · size `S` under an hour, `M` half a day, `L` a day or more · risk `stable` known-good
-libraries, `plugin` adds a Gradle plugin or CI action (check its range before writing code),
-`alpha` pre-release library, `device` needs an emulator or hardware, `decision` waits on a Q or D.
-
-## Questions
-
-A question has no default and blocks only its own items.
-
-| | Question | Blocks |
-|---|---|---|
-| Q8 | Will the sample ever talk to a real API, and when? Everything network-shaped is a fixture today. | backlog: certificate pinning, response caching, real token issuance |
+**Do first:** `F1` · `F2`+`F3` · `F17e` · `F8`+`F9` · `F4`. The first three cut what every later
+item costs, the last two what every session costs; only `F8` and `F4` need an answer to start.
 
 ## Decisions
 
-A decision with a default is taken when its item starts; say so before then to change it.
-D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is in the detail file.
+D1–D36 stand from Plans 2–4. A decision with a default is taken when its item starts.
 
 | | Decision | Outcome |
 |---|---|---|
@@ -112,103 +56,94 @@ D1–D29 stand from Plans 2 and 3; the reasoning behind the ones that need it is
 | D34 | Presentation layout | **Decided 2026-09-09: a directory per screen, even a lone one, and a file per component in the feature's `component/`** |
 | D35 | Where a screenshot test lives | **Decided 2026-09-10 with `ui.2`: one per `presentation` module and one in `:core:ui`, cloned from `feature/template`.** A single copy in `:app` sees every module but runs three times over the flavors |
 | D36 | `ComposablePreviewScanner` | **Decided 2026-09-10 with `ui.2`: in, under D27's test-only leniency.** Single maintainer, never in a release build; it reads the `@Preview` functions that already exist, and the alternative is a second list of all 349 goldens kept in step by hand |
-
-## Dependencies
-
-Nothing open waits on anything else. All five items came out of `qa.5` independently, and each
-can start today.
-
-The graph the four-worker round was planned against is `git show 4b9364f:docs/PLAN.md`.
+| D37 | Plan format | **Decided 2026-09-10 with `F9`: one `PLAN.md` under 150 lines.** `PLAN-DETAIL.md` and `PLAN-WORKERS.md` are deleted; a worker split is a PR description |
+| D38 | Deleting components | **Decided 2026-09-10: nothing in `:core:ui` is deleted in Plan 5.** The showcase features give the unused ones a home first; what is still unused after them is a decision then, with the counts in front of us |
+| D39 | The retrospective's questions | **Decided 2026-09-10: answered at the item, not up front.** Each is marked `?` below with both readings; the recommended one is first |
 
 ## Items
 
-`[ ]` open · `[~]` started, with its branch · `[x] (date)` landed. One line each; the four-line
-version of every open item is in the detail file under the same id.
+- [ ] **F1 One variant in the PR gate** · S · first — Why `build` is six variants and 923 test
+  executions for 498 tests. Done an explicit task list; unit tests only on `devDebug`; R8 on release.
+- [ ] **F2 `test_scripts.py` stops copying the worktrees** · S · first — Why `.claude` is not in
+  `IGNORED`: 2,271 of 2,856 files, 56 times over. Done `.claude`/`.idea` ignored, one copy per class.
+- [ ] **F3 `doctor.py` walks the tree once** · S · first — Why 17 `rglob`s over 62,583 files: 14.7 s,
+  9.8 s of it kernel. Done one pruned walk into a shared index. `?` do the three weak checks go too.
+- [ ] **F17e The date picker fits its dialog** · M · first — Why `AppDialog` is platform-width with
+  24 dp around a 360 dp picker, no cap, no scroll. Done `DatePickerDialog` themed; a golden per overlay.
+- [ ] **F8 `CLAUDE.md` on a diet** · M · first — Why 983 lines in every session; the gate appears six
+  times in three versions. Done `?` ~300 lines + `docs/ARCHITECTURE.md`, or only the contradictions fixed.
+- [ ] **F4 The golden matrix** · M · first — Why 349 full-frame goldens, 11 MB, five per screen, no
+  threshold. Done `?` Phone/Dark/LargeFont + components Light/Dark at half resolution, or a smaller cut.
+- [ ] **F5 The ten `di` modules** · M · trim — Why 13–59 lines each, and each pays an AAR and a 20 s
+  Robolectric warm-up. Done `?` bindings beside the classes (56 → 46), or `data`+`presentation` merged.
+- [ ] **F11 The `service/` split, decided once** · L · trim — Why split packages, the namespace gotcha
+  and an un-themed shell, for a reuse that never happened. Done `?` fold into `:core:*`, or keep the
+  split and give `service/` its own package names — not both.
+- [ ] **F10 `export_service.py` and `install_hooks.py` shrink** · S · trim — Why 170 lines of TOML
+  resolver for a script with no consumer; hooks are `core.hooksPath`. Done `.githooks/` committed.
+- [ ] **F14 The ~450 dead lines** · S · trim — Why `combineOutcomes`, `executeAsFlow`, `AlertPayload`,
+  `displayMessage` and 222 lines of token refresh have no callers. Done `?` deleted, or rebuilt on Ktor.
+- [ ] **F15 Where the data-source interface lives** · M · trim — Why ten interfaces, one implementation
+  each, no fake anywhere. Done `?` interface at the repository with a fake, or the per-source rule stands.
+- [ ] **F18 Flavors** · S · trim — Why `staging` is `prod` plus one line and an unreachable host, and
+  triples every `:app` task. Done `?` `dev` + `prod` with `DebugMenu` following `BuildConfig.DEBUG`.
+- [ ] **F19 Test plumbing stops being copied** · S · trim — Why the Robolectric pin is in 50 files and
+  11 screenshot tests differ by a package string. Done `robolectric.properties` and one base class.
+- [ ] **F24 Coil and the two single-consumer plugins** · S · trim — Why Coil is put on all 13 Compose
+  modules so `doctor` can forbid it on 12. Done Coil in `core/ui`, Ktor in `service/network`.
+- [ ] **F12 `BaseViewModel`'s defaults** · M · correct — Why 21 of ~28 sites pass `loading = {}`,
+  `whileSubscribed` has no caller, nullable data drops updates. Done overlay opt-in. `?` non-null state.
+- [ ] **F13 The screen shell joins the design system** · M · correct — Why overlay, error, empty and
+  alert are raw Material with 17 dp literals. Done slots on `Screen()` filled in `AppNavHost`. After `F11`.
+- [ ] **F16 SavedStateHandle, connectivity, HTTP cache** · M · correct — Why the saved-state artifact
+  is used nowhere, offline is found by failing, prod has no cache. Done a `saved(key)` helper, a
+  `NetworkMonitor` with one root banner, an OkHttp `Cache`.
+- [ ] **F17a An empty category stops spinning** · M · correct — Why an empty table maps to `null`, so
+  `cached()` never emits and `products_empty` is unreachable. Done a fetched-at marker, plus a test.
+- [ ] **F17b Add-to-cart leaves the nav host** · M · correct — Why it runs on `rememberCoroutineScope`,
+  so a rotation after the tap cancels the insert. Done an `AddProductToCart` use case, via `execute`.
+- [ ] **F17c The release job cannot ship a debug-signed APK** · M · correct — Why a tag before the
+  secrets exist publishes one, Play needs an AAB, versionCode regresses. Done `bundleProdRelease`, a
+  hard fail without a keystore, the version code from the tag.
+- [ ] **F17d The baseline profile reaches the shipping build** · M · correct (was `qa.15`) — Why it is
+  recorded minified into `src/devRelease` and `prodRelease` never sees it. Done `?` fixed, or cut.
+- [ ] **shell.7 A deep link to an uncached product opens it** · M · correct — Why `getProduct` reads
+  the local table only, so a cold link lands on "no longer available". Done an unbrowsed product opens.
+- [ ] **shell.8 Every non-root screen carries an Up control** · S · correct — Why three screens have a
+  bar with no arrow and `ProductDetailScreen` has no bar. Done four catch up with the other five.
+- [ ] **qa.16 The tabs have test ids** · S · correct — Why they carry no `testTag`, so five Maestro
+  flows tap English labels and break under `cs`. Done `tabs_homeTab` and a `doctor.py` check.
+- [ ] **ui.10 A text field says its own name** · S · correct — Why a field's label does not reach its
+  semantics node, so a screen reader announces an unnamed field. Done the label is announced.
+- [ ] **F6 Unused components earn their place** · M · design — Why 27 of 47 are used only by the
+  gallery and `AppFab` has no slot. Done the showcase gives 18 a home, `AppScaffold` a slot; none deleted.
+- [ ] **F7 The gallery is generated from the previews** · M · design — Why `GalleryCatalog.kt`
+  hand-copies 48 previews in 896 lines with no check. Done one line per preview, plus that check.
+- [ ] **F23 `AppTextField` rebuilt, size enums folded** · M · design — Why two size enums, three
+  components with no `modifier`, no IME action or autofill. Done `TextFieldState` (M1), content types (M2).
+- [ ] **H3 Forms scroll under the keyboard** · S · design — Why `LoginScreen` is a fixed centred column
+  and its submit is unreachable at large font. Done `scrollable` on Login, SignUp and Profile.
+- [ ] **H5 Pull-to-refresh on the catalog lists** · M · design — Why cache-then-refresh exists but
+  nothing triggers it; zero `Refresh` events. Done `AppPullToRefresh` over `PullToRefreshBox`.
+- [ ] **M3+M4 Predictive back on dirty forms, auto-sizing numerics** · S · design — Why zero
+  `BackHandler` uses and Czech strings wrap prices. Done the unsaved-changes confirm; `TextAutoSize`.
+- [ ] **F22 The design system stops speaking POS** · S · design — Why 52 mentions of till/void/cash,
+  and `AppDensity` scans `InputDevice`. Done `?` neutral copy and no pointer detection, or both kept.
+- [ ] **S1 Trips** · L · showcase, after `F4` and `F6` — Why five screens give 22 unused components a
+  home: wizard, nav result, snackbar action, dashboard. Done full stack in memory. `?` which takes the tab.
+- [ ] **S2 Field report** · L · showcase — Why location, camera, Photo Picker and SAF in context, giving
+  `PartiallyGranted` a real user, with no new dependency. Done four screens; the camera helper moves.
+- [ ] **H1 The R8 mapping ships with the release** · S · harden — Why a minified stack trace is
+  unreadable without it. Done `mapping.txt` as an artifact, attached to the tagged release.
+- [ ] **H6 The dependency graph is submitted** · S · harden — Why nothing watches the resolved
+  dependencies for CVEs and Renovate is parked (D26). Done `generate-and-submit` on the main job.
+- [ ] **H7+H8 `network_security_config` and StrictMode** · S · harden — Why cleartext is not denied, a
+  debug build cannot be proxied, main-thread DataStore reads go unnoticed. Done the config and policies.
 
-### core · the reusable architecture
+## Backlog
 
-- [x] (2026-09-09) **core.6 Analytics seam** · M · `stable` — `Analytics` in `:service:core:domain`, a logging
-  default, `AppScaffold` reports each screen once
-- [x] (2026-09-09) **core.7 Room migrations are tested** · M · `stable` — `room-testing` in the Room plugin, a
-  migration test per database, a version bump ships its migration in the same commit
-- [x] (2026-09-09) **core.8 Retry with backoff on the client** · S · `stable` — Ktor's retry
-  plugin for idempotent requests only, tested on `MockEngine`
-- [x] (2026-09-09) **core.9 Permission helpers tested** · S · `stable` — Robolectric tests for the four
-  statuses and the gate
-- [x] (2026-09-09) **core.10 Format roles** · S · `stable` — money, weight, quantity, percent, time, date and
-  duration as one set in `:service:core:ui`; the two `Price.kt` copies go
-
-### ui · design system and adaptive
-
-- [x] (2026-09-10) **ui.2 Screenshot tests with Roborazzi** · M · `plugin` D14 — one
-  `PreviewScreenshotTest` per presentation module and in `:core:ui` (D35), scanned from the
-  previews that already exist; the goldens committed and `verifyRoborazziDebug` in the CI build job
-- [x] (2026-09-09) **ui.3 Component behaviour tests** · M · `stable` — the interactive components
-  asserted by tag; the package leaves 22 %
-- [x] (2026-09-09) **ui.4 Window size class drives density** · S · `stable` — a tablet gets
-  regular density and typography
-- [x] (2026-09-09) **ui.5 List–detail for the catalog on wide screens** · M · `stable` — a
-  scene strategy and metadata on the two catalog keys; the two-pane render is unverified on a
-  device, the AVD stayed down
-- [x] (2026-09-09) **ui.6 Gallery demos are interactive** · S · `stable` — every demo holds its
-  own state, so a checkbox in the gallery toggles; a screen test proves it
-- [x] (2026-09-09) **ui.7 Components match the design's component document** · M · `stable` —
-  every gap row closed or accepted with its reason in the KDoc; the gallery is the running copy
-- [x] (2026-09-09) **ui.8 Icon roles** · S · `stable` D33 — `AppTheme.icons` with the three
-  sizes; no icon size literal outside the theme
-- [x] (2026-09-09) **ui.9 Contrast is asserted** · S · `stable` — a JVM test over every
-  text-on-surface and border-on-surface pair in both palettes, the design's check five
-
-- [ ] **ui.10 A text field says its own name** · S · `stable` — found by `qa.5`
-
-### app · shell and sample features
-
-- [x] (2026-09-09) **shell.1 Deep links** · M · `device` — `<app>://product/{id}` cold and
-  warm, with Up working
-- [x] (2026-09-09) **shell.2 Debug menu, dev and staging only** · M · `stable` D16 — build
-  info, session, crash test, the offline toggle as a switch; the gallery moves here and R8 drops
-  it from prod
-- [x] (2026-09-09) **shell.3 Theme setting** · M · `stable` — light / dark / system, stored,
-  applied at the root
-- [x] (2026-09-09) **shell.4 Notification tap-through** · S · `device`
-- [x] (2026-09-09) **shell.5 Onboarding flow** · M · `stable` — a third flow beside auth and
-  main, behind a stored flag
-- [x] (2026-09-09) **shell.6 Tests for the app shell** · S · `stable` — tab segments and the session switch;
-  the package leaves 12 %
-- [x] (2026-09-09) **feat.4 Search — proves inline error per content id** · M · `stable`
-- [x] (2026-09-09) **feat.8 A screen test for every screen** · M · `stable` — the seven screens
-  without one, then `doctor.py` requires it
-- [x] (2026-09-10) **feat.9 Czech alongside English** · M · `stable` D24 — `values-cs` in all
-  thirteen string modules, the four Czech plural forms, and `doctor.py` fails on a module that
-  ships one locale and not the other
-- [ ] **shell.7 A deep link to an uncached product opens on "no longer available"** · M · `stable`
-  — found by `qa.5`
-- [ ] **shell.8 Every screen that is not a root carries an Up control** · S · `stable` — found by
-  `qa.5`
-
-### quality · tests, CI, release
-
-- [x] (2026-09-09) **qa.4 Generator output compiles in CI** · M · `stable` — on the weekly job
-- [x] (2026-09-10) **qa.5 Hardware pass** · M · `device` D21 — on a Pixel 8 Pro, Android 17: the
-  real Keystore, predictive back on all 16 screens, "don't keep activities" and process death four
-  deep, cold and warm deep links. Two defects fixed in the item, five raised as `ui.10`, `shell.7`,
-  `shell.8`, `qa.15`, `qa.16`; TalkBack checked structurally, not run
-- [x] (2026-09-09) **qa.7 `resourcePrefix` per feature** · S · `stable` — derived from the module path, lint
-  enforces it
-- [x] (2026-09-09) **qa.8 Compose compiler metrics** · S · `stable` — every `XState` reported stable
-- [x] (2026-09-09) **qa.11 Maestro flows in CI** · M · `plugin` D30 — an emulator job on the
-  schedule and on demand; the flows have not yet run on a CI emulator, so the first scheduled run
-  is the one to read
-- [x] (2026-09-09) **qa.12 Version and release notes from the tag** · S · `stable` D31 — `versionName` and
-  `versionCode` from the tag, a GitHub release with the APK and generated notes
-- [x] (2026-09-09) **qa.13 A directory per screen, a file per component** · L · `stable` D34 — every
-  screen's unit in its own sub-package, a feature's composables in `component/` one file each,
-  the template and generators cloning that shape, two `doctor.py` checks holding it
-- [x] (2026-09-09) **qa.14 Maestro ids exist in the code** · S · `stable` — a `doctor.py` check
-  that every `id:` in a flow is a tag in the code, the design's check four
-- [ ] **qa.15 The baseline profile never reaches the shipping build** · M · `stable` — found by
-  `qa.5`
-- [ ] **qa.16 The tabs have no test ids, and every flow taps them by English text** · S · `stable`
-  — found by `qa.5`; breaks under `feat.9`
-
-Backlog, lessons and the Plan 3 roll call are in [PLAN-DETAIL.md](PLAN-DETAIL.md).
+- **Behind Q8:** certificate pinning · ETag caching · real token issuance and the refresh path (`F14`) · WorkManager sync · Paging 3.
+- **Optional seams `H9`–`H11`:** foreground/background with a session re-check · feature flags with debug-menu overrides · a push seam through the deep-link parser. None in Plan 5. **`M5`** shared-element product row → detail is a showcase, not a rule.
+- Renovate (D26) · KSD token pipeline (D29) · ViewModel-readable permission state · module graph asserted at build time · `doctor.py --fix` · feature-owned nav graphs · logger backend · language picker (D24) · detekt at 2.x · `explicitApi()` on `service/` · Play upload (D32) · generated `Ids` · feedback roles · keyboard shortcuts · z-order roles.
+- **Stale worktrees:** four under `.claude/worktrees/` (15 MB) and their `claude/*` branches, merged
+  or superseded. `git worktree remove` + `git branch -D`, not reversible — ask first.

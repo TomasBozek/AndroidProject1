@@ -2,12 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Work in progress:** [docs/PLAN.md](docs/PLAN.md) is the board — what is open, what needs a
-decision, and how the work splits into tracks that can run in parallel worktrees — and
-[docs/PLAN-DETAIL.md](docs/PLAN-DETAIL.md) holds each open item's Why / Done / Verify, the
-working rules and the reasoning behind decisions. Read the board before picking up work and keep
-both current as items land; each fact lives in exactly one of them. The API table and the gotchas
-a cold start needs are in this file, under *API you build on* and *Known constraints*.
+**Work in progress:** [docs/PLAN.md](docs/PLAN.md) is the board and the only plan file — the
+decisions, every open item with its Why / Done, and the backlog. The evidence behind the `F`/`H`/
+`M`/`S` ids is [docs/REVIEW.md](docs/REVIEW.md) and [docs/review/](docs/review/). Read the board
+before picking up work and tick items off as they land. The API table and the gotchas a cold
+start needs are in this file, under *API you build on* and *Known constraints*.
 
 ## Project
 
@@ -720,7 +719,7 @@ paths and the idempotent file-editing helpers — put anything used by two scrip
 only to make the repetitive parts of it fast. The ten below are the set. Change one when something
 else forces you to — a convention moved, a generated file's shape changed, a new `--graph` name —
 and treat that as part of the change that caused it. Anything that would be a new tool goes to the
-backlog in [docs/PLAN-DETAIL.md](docs/PLAN-DETAIL.md) instead.
+backlog in [docs/PLAN.md](docs/PLAN.md) instead.
 `scripts/README.md` documents them at the point of use, and every script's `--help` carries worked
 examples.
 
