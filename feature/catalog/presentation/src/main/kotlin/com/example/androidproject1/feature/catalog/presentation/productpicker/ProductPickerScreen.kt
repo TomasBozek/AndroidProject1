@@ -13,9 +13,9 @@ import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppTopBar
-import com.example.androidproject1.core.ui.format.LocalFormats
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.catalog.presentation.R
+import com.example.androidproject1.service.core.ui.format.LocalFormats
 
 @Composable
 fun ProductPickerScreen(

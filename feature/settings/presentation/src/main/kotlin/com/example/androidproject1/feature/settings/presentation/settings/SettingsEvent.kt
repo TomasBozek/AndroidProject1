@@ -1,7 +1,7 @@
 package com.example.androidproject1.feature.settings.presentation.settings
 
-import com.example.androidproject1.core.ui.event.UiEvent
 import com.example.androidproject1.feature.settings.domain.ThemePreference
+import com.example.androidproject1.service.core.ui.event.UiEvent
 
 sealed interface SettingsEvent : UiEvent {
 

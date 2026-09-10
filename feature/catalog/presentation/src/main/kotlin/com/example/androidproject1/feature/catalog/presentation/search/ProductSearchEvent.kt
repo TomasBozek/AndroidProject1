@@ -1,7 +1,7 @@
 package com.example.androidproject1.feature.catalog.presentation.search
 
-import com.example.androidproject1.core.ui.event.UiEvent
 import com.example.androidproject1.feature.catalog.domain.Product
+import com.example.androidproject1.service.core.ui.event.UiEvent
 
 sealed interface ProductSearchEvent : UiEvent {
 

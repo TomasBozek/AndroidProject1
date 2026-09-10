@@ -2,13 +2,13 @@ package com.example.androidproject1.feature.profile.presentation.profile
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.example.androidproject1.core.ui.form.FieldState
-import com.example.androidproject1.core.ui.form.Form
-import com.example.androidproject1.core.ui.form.email
-import com.example.androidproject1.core.ui.form.minLength
-import com.example.androidproject1.core.ui.form.required
-import com.example.androidproject1.core.ui.text.UiText
 import com.example.androidproject1.feature.profile.domain.Profile
+import com.example.androidproject1.service.core.ui.form.FieldState
+import com.example.androidproject1.service.core.ui.form.Form
+import com.example.androidproject1.service.core.ui.form.email
+import com.example.androidproject1.service.core.ui.form.minLength
+import com.example.androidproject1.service.core.ui.form.required
+import com.example.androidproject1.service.core.ui.text.UiText
 
 /**
  * @property cameraOpen whether the camera half of the picture section is showing. Note what this

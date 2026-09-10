@@ -2,11 +2,11 @@ package com.example.androidproject1.feature.auth.data
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.example.androidproject1.core.data.EncryptedDataStoreProvider
-import com.example.androidproject1.core.data.crypto.AesGcmAead
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.domain.test.TestDispatchers
 import com.example.androidproject1.feature.auth.data.source.DefaultLocalAuthDataSource
+import com.example.androidproject1.service.core.data.EncryptedDataStoreProvider
+import com.example.androidproject1.service.core.data.crypto.AesGcmAead
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.domain.test.TestDispatchers
 import java.io.File
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey

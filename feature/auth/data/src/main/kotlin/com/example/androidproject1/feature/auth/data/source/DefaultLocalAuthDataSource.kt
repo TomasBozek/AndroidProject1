@@ -1,8 +1,8 @@
 package com.example.androidproject1.feature.auth.data.source
 
-import com.example.androidproject1.core.data.EncryptedDataStoreProvider
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
+import com.example.androidproject1.service.core.data.EncryptedDataStoreProvider
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map

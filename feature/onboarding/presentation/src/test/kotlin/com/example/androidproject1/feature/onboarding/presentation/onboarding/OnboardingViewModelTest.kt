@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.onboarding.presentation.onboarding
 
-import com.example.androidproject1.core.domain.error.UnexpectedError
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.onboarding.domain.test.FakeOnboardingRepository
+import com.example.androidproject1.service.core.domain.error.UnexpectedError
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

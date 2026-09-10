@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.catalog.data.repository
 
-import com.example.androidproject1.core.data.BaseRepository
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.catalog.data.source.LocalRecentSearchesDataSource
 import com.example.androidproject1.feature.catalog.domain.RecentSearchesRepository
+import com.example.androidproject1.service.core.data.BaseRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 
 /**

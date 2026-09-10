@@ -12,15 +12,15 @@ import com.example.androidproject1.core.ui.component.AppCard
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.permission.PermissionRationale
-import com.example.androidproject1.core.ui.permission.PermissionRequest
-import com.example.androidproject1.core.ui.permission.PermissionStatus
-import com.example.androidproject1.core.ui.permission.permissionRationale
-import com.example.androidproject1.core.ui.permission.rememberPermissionRequest
-import com.example.androidproject1.core.ui.text.resolve
-import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.feature.profile.presentation.R
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileEvent
+import com.example.androidproject1.service.core.ui.permission.PermissionRationale
+import com.example.androidproject1.service.core.ui.permission.PermissionRequest
+import com.example.androidproject1.service.core.ui.permission.PermissionStatus
+import com.example.androidproject1.service.core.ui.permission.permissionRationale
+import com.example.androidproject1.service.core.ui.permission.rememberPermissionRequest
+import com.example.androidproject1.service.core.ui.text.resolve
+import com.example.androidproject1.service.core.ui.text.toUiText
 
 /** Why this app wants the camera, and the one button that can still do something about it. */
 @Composable

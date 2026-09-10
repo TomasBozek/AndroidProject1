@@ -1,4 +1,4 @@
-package com.example.androidproject1.core.ui.screenshot
+package com.example.androidproject1.service.core.ui.screenshot
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag

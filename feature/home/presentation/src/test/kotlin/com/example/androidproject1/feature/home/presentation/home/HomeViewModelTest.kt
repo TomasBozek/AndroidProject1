@@ -1,13 +1,13 @@
 package com.example.androidproject1.feature.home.presentation.home
 
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.event.SystemEvent
-import com.example.androidproject1.core.ui.event.UiCommand
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
-import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import com.example.androidproject1.feature.home.presentation.R
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.event.SystemEvent
+import com.example.androidproject1.service.core.ui.event.UiCommand
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.service.core.ui.text.toUiText
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

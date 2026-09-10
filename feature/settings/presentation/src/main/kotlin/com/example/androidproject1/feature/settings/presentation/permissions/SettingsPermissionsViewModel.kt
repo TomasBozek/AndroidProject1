@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.settings.presentation.permissions
 
 import android.Manifest
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.event.UiCommand
-import com.example.androidproject1.core.ui.permission.DeclaredPermission
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.event.UiCommand
+import com.example.androidproject1.service.core.ui.permission.DeclaredPermission
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.update
 
 class SettingsPermissionsViewModel(

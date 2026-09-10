@@ -89,10 +89,11 @@ Modules are registered in `settings.gradle.kts` through `includeServiceModule` /
 
 `service/` holds **reusable** modules — the architecture, with no knowledge of this app's features,
 theme or DI graph. Reuse is by directory copy, so keep it self-contained: never reference `:core:*`,
-`:feature:*` or `:app`, and never read `R` from elsewhere. Packages under `service/` stay
-`...core.*` while the Android **namespaces** move to `...service.core.*`, because two modules cannot
-share one. `:core:ui` re-exports `:service:core:ui` with `api(...)`, so a feature's `presentation`
-depends on nothing but `projects.core.ui`. Two rules keep it portable, and both are load-bearing:
+`:feature:*` or `:app`, and never read `R` from elsewhere. **Directory, package and namespace agree**
+— `service/core/ui` is `...service.core.ui` in all three (D49), so an import says which module a
+symbol came from and no package is split across two. `:core:ui` re-exports `:service:core:ui` with
+`api(...)`, so a feature's `presentation` depends on nothing but `projects.core.ui`. Two rules keep
+it portable, and both are load-bearing:
 
 - **`:service:core:domain` stays free of `android.*`.** The `Logger` *interface* lives there,
   `AndroidLogger` in `:service:core:data`. It is a Kotlin/JVM module, so the compiler enforces it —

@@ -12,9 +12,9 @@ import com.example.androidproject1.core.ui.component.AppCard
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.permission.PermissionStatus
-import com.example.androidproject1.core.ui.permission.rememberPermissionRequest
 import com.example.androidproject1.feature.settings.presentation.R
+import com.example.androidproject1.service.core.ui.permission.PermissionStatus
+import com.example.androidproject1.service.core.ui.permission.rememberPermissionRequest
 
 /**
  * The one permission this app asks for itself, asked for where the user came to look at

@@ -27,9 +27,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.example.androidproject1.core.domain.result.Outcome
-import com.example.androidproject1.core.ui.analytics.ProvideAnalytics
-import com.example.androidproject1.core.ui.navigation.ProvideNavResultStore
 import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.feature.auth.presentation.login.loginDestination
 import com.example.androidproject1.feature.auth.presentation.signup.signUpDestination
@@ -55,6 +52,9 @@ import com.example.androidproject1.feature.profile.presentation.profile.ProfileD
 import com.example.androidproject1.feature.profile.presentation.profile.profileDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.settingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.settings.settingsDestination
+import com.example.androidproject1.service.core.domain.result.Outcome
+import com.example.androidproject1.service.core.ui.analytics.ProvideAnalytics
+import com.example.androidproject1.service.core.ui.navigation.ProvideNavResultStore
 import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
 

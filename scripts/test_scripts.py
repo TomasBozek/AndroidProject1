@@ -400,7 +400,7 @@ class ScaffoldingTest(unittest.TestCase):
         # A data source touches disk, so it switches to IO itself — BaseRepository runs on the
         # caller's context, and that caller is viewModelScope.
         implementation = (data / "source/DefaultLocalUserProfileDataSource.kt").read_text()
-        self.assertIn("import com.example.androidproject1.core.domain.coroutines.DispatcherProvider", implementation)
+        self.assertIn("import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider", implementation)
         self.assertIn("private val dispatcherProvider: DispatcherProvider,", implementation)
         self.assertIn(".flowOn(dispatcherProvider.io)", implementation)
         self.assertIn("withContext(dispatcherProvider.io)", implementation)
@@ -724,10 +724,10 @@ class ScaffoldingTest(unittest.TestCase):
     def test_init_project_moves_every_source_set(self) -> None:
         self.run_script("init_project.py", "--package", "com.acme.tracker", "--name", "Field Tracker")
 
-        self.assertTrue((self.repo / "service/core/ui/src/main/kotlin/com/acme/tracker/core/ui").is_dir())
+        self.assertTrue((self.repo / "service/core/ui/src/main/kotlin/com/acme/tracker/service/core/ui").is_dir())
         # testFixtures and test source sets move too, not just main.
         self.assertTrue(
-            (self.repo / "service/core/ui/src/testFixtures/kotlin/com/acme/tracker/core/ui/test").is_dir()
+            (self.repo / "service/core/ui/src/testFixtures/kotlin/com/acme/tracker/service/core/ui/test").is_dir()
         )
         self.assertTrue((self.repo / "app/src/main/kotlin/com/acme/tracker/MainActivity.kt").is_file())
         self.assertFalse((self.repo / "service/core/ui/src/main/kotlin/com/example").exists())
@@ -784,7 +784,7 @@ class ScaffoldingTest(unittest.TestCase):
         target = Path(self._temporary.name) / "target"
         self.run_script("export_service.py", "--to", str(target), "--package", "com.acme.myapp", "--sync-versions")
 
-        self.assertTrue((target / "service/core/ui/src/main/kotlin/com/acme/myapp/core/ui/component/Screen.kt").is_file())
+        self.assertTrue((target / "service/core/ui/src/main/kotlin/com/acme/myapp/service/core/ui/component/Screen.kt").is_file())
 
         # The service build files apply convention.* plugins, so build-logic/ has to come too.
         self.assertTrue((target / "build-logic/settings.gradle.kts").is_file())

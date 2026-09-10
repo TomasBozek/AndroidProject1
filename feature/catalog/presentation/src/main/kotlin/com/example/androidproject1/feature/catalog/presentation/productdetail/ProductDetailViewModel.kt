@@ -1,17 +1,17 @@
 package com.example.androidproject1.feature.catalog.presentation.productdetail
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.event.SystemEvent
-import com.example.androidproject1.core.ui.event.UiCommand
-import com.example.androidproject1.core.ui.state.ContentState
-import com.example.androidproject1.core.ui.text.toUiText
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
-import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.cart.domain.AddProductToCart
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.presentation.R
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.event.SystemEvent
+import com.example.androidproject1.service.core.ui.event.UiCommand
+import com.example.androidproject1.service.core.ui.state.ContentState
+import com.example.androidproject1.service.core.ui.text.toUiText
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import kotlinx.coroutines.flow.update
 
 class ProductDetailViewModel(

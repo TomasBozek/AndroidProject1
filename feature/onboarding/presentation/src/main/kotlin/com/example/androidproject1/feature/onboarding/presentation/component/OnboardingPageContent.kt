@@ -11,10 +11,10 @@ import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.text.resolve
-import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.OnboardingPage
+import com.example.androidproject1.service.core.ui.text.resolve
+import com.example.androidproject1.service.core.ui.text.toUiText
 
 /**
  * One page of the first-run tour: a heading and a sentence, centred.

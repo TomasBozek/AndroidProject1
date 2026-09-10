@@ -1,10 +1,10 @@
 package com.example.androidproject1.feature.cart.presentation.cart
 
 import androidx.compose.runtime.Immutable
-import com.example.androidproject1.core.ui.text.UiText
-import com.example.androidproject1.core.ui.text.toPluralUiText
 import com.example.androidproject1.feature.cart.domain.CartItem
 import com.example.androidproject1.feature.cart.presentation.R
+import com.example.androidproject1.service.core.ui.text.UiText
+import com.example.androidproject1.service.core.ui.text.toPluralUiText
 
 @Immutable
 data class CartState(

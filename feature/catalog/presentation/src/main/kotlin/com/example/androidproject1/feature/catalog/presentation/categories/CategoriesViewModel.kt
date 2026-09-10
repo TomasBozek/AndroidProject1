@@ -1,12 +1,12 @@
 package com.example.androidproject1.feature.catalog.presentation.categories
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.error.DomainError
-import com.example.androidproject1.core.ui.text.toUiText
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
-import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.presentation.R
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.error.DomainError
+import com.example.androidproject1.service.core.ui.text.toUiText
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import kotlinx.coroutines.flow.update
 
 class CategoriesViewModel(

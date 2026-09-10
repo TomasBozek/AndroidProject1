@@ -2,7 +2,7 @@ package com.example.androidproject1.feature.profile.data.source
 
 import android.content.Context
 import android.net.Uri
-import com.example.androidproject1.core.domain.coroutines.DispatcherProvider
+import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
 import kotlinx.coroutines.withContext
 import java.io.File
 

@@ -2,9 +2,9 @@ package com.example.androidproject1.feature.onboarding.presentation.onboarding
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.example.androidproject1.core.ui.text.UiText
-import com.example.androidproject1.core.ui.text.toUiText
 import com.example.androidproject1.feature.onboarding.presentation.R
+import com.example.androidproject1.service.core.ui.text.UiText
+import com.example.androidproject1.service.core.ui.text.toUiText
 
 /**
  * @property pages what the tour says, in order. In the state rather than in the screen because the

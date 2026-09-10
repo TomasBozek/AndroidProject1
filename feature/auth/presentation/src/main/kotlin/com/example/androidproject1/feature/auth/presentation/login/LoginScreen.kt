@@ -20,9 +20,9 @@ import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTextField
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
-import com.example.androidproject1.core.ui.text.resolve
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.R
+import com.example.androidproject1.service.core.ui.text.resolve
 
 @Composable
 fun LoginScreen(

@@ -3,7 +3,7 @@ package com.example.androidproject1.feature.template.presentation.templateargs
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import com.example.androidproject1.core.ui.component.Screen
+import com.example.androidproject1.service.core.ui.component.Screen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf

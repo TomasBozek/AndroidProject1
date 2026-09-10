@@ -1,15 +1,15 @@
 package com.example.androidproject1.feature.cart.presentation.cart
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
-import com.example.androidproject1.core.ui.event.SystemEvent
-import com.example.androidproject1.core.ui.state.setAlert
-import com.example.androidproject1.core.ui.text.toUiText
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
-import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.cart.domain.CartItem
 import com.example.androidproject1.feature.cart.domain.CartRepository
 import com.example.androidproject1.feature.cart.presentation.R
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
+import com.example.androidproject1.service.core.ui.event.SystemEvent
+import com.example.androidproject1.service.core.ui.state.setAlert
+import com.example.androidproject1.service.core.ui.text.toUiText
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import kotlinx.coroutines.flow.update
 
 class CartViewModel(

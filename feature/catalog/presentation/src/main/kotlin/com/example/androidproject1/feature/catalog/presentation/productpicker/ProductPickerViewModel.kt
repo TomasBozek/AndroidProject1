@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.catalog.presentation.productpicker
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
-import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import kotlinx.coroutines.flow.update
 
 class ProductPickerViewModel(

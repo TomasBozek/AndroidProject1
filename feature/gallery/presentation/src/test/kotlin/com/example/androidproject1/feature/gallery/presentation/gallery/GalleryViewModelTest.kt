@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.gallery.presentation.gallery
 
 import app.cash.turbine.test
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.gallery.presentation.galleryItems
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

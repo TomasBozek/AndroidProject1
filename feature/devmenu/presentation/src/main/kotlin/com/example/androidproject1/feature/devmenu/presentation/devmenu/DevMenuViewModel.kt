@@ -1,15 +1,15 @@
 package com.example.androidproject1.feature.devmenu.presentation.devmenu
 
-import com.example.androidproject1.core.domain.ErrorTracker
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.ui.state.updateData
-import com.example.androidproject1.core.ui.text.toUiText
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.feature.auth.domain.AuthService
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
 import com.example.androidproject1.feature.devmenu.presentation.R
+import com.example.androidproject1.service.core.domain.ErrorTracker
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.ui.state.updateData
+import com.example.androidproject1.service.core.ui.text.toUiText
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 
 /**
  * @param buildInfo bound by `:app`, which is the only module allowed to read `BuildConfig`.

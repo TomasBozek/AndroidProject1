@@ -1,9 +1,9 @@
 package com.example.androidproject1.feature.cart.domain.test
 
-import com.example.androidproject1.core.domain.error.DomainError
-import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.cart.domain.CartItem
 import com.example.androidproject1.feature.cart.domain.CartRepository
+import com.example.androidproject1.service.core.domain.error.DomainError
+import com.example.androidproject1.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map

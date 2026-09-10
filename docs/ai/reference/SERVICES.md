@@ -1,9 +1,9 @@
 # service/ — the reusable half
 
 Four modules that know nothing about this app. Reuse is by directory copy, so they never reference
-`:core:*`, `:feature:*` or `:app`, and never read `R` from elsewhere. Packages under `service/` stay
-`…core.*` while the Android namespaces are `…service.core.*`, because two modules cannot share one
-namespace.
+`:core:*`, `:feature:*` or `:app`, and never read `R` from elsewhere. Directory, package and Android
+namespace agree — `service/core/ui` is `…service.core.ui` in all three — so an import names the
+module a symbol came from, and `:core:ui` and `:service:core:ui` no longer share a package (D49).
 
 ## `:service:core:domain`
 

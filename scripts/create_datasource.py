@@ -113,8 +113,8 @@ def data_source_implementation(flat: str, source: str, key: str) -> str:
 
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import {BASE_PACKAGE}.core.data.DataStoreProvider
-import {BASE_PACKAGE}.core.domain.coroutines.DispatcherProvider
+import {BASE_PACKAGE}.service.core.data.DataStoreProvider
+import {BASE_PACKAGE}.service.core.domain.coroutines.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -171,8 +171,8 @@ interface {source}DataSource {{
 def remote_data_source_implementation(flat: str, source: str, path: str) -> str:
     return f"""package {feature_package(flat, "data", "source")}
 
-import {BASE_PACKAGE}.core.domain.coroutines.DispatcherProvider
-import {BASE_PACKAGE}.core.network.HttpErrorMapper
+import {BASE_PACKAGE}.service.core.domain.coroutines.DispatcherProvider
+import {BASE_PACKAGE}.service.network.HttpErrorMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -214,7 +214,7 @@ class Default{source}DataSource(
 def repository_interface(flat: str, repository: str) -> str:
     return f"""package {feature_package(flat, "domain")}
 
-import {BASE_PACKAGE}.core.domain.result.Outcome
+import {BASE_PACKAGE}.service.core.domain.result.Outcome
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -234,9 +234,9 @@ def repository_implementation(flat: str, repository: str, source: str) -> str:
     field = to_camel(source) + "DataSource"
     return f"""package {feature_package(flat, "data", "repository")}
 
-import {BASE_PACKAGE}.core.data.BaseRepository
-import {BASE_PACKAGE}.core.domain.Logger
-import {BASE_PACKAGE}.core.domain.result.Outcome
+import {BASE_PACKAGE}.service.core.data.BaseRepository
+import {BASE_PACKAGE}.service.core.domain.Logger
+import {BASE_PACKAGE}.service.core.domain.result.Outcome
 import {feature_package(flat, "data", "source")}.{source}DataSource
 import {feature_package(flat, "domain")}.{repository}Repository
 import kotlinx.coroutines.flow.Flow
@@ -261,7 +261,7 @@ class Default{repository}Repository(
 def remote_repository_interface(flat: str, repository: str) -> str:
     return f"""package {feature_package(flat, "domain")}
 
-import {BASE_PACKAGE}.core.domain.result.Outcome
+import {BASE_PACKAGE}.service.core.domain.result.Outcome
 
 /**
  * Implemented in the data layer. Declared here so the domain layer depends on nothing.
@@ -279,9 +279,9 @@ def remote_repository_implementation(flat: str, repository: str, source: str) ->
     field = to_camel(source) + "DataSource"
     return f"""package {feature_package(flat, "data", "repository")}
 
-import {BASE_PACKAGE}.core.data.BaseRepository
-import {BASE_PACKAGE}.core.domain.Logger
-import {BASE_PACKAGE}.core.domain.result.Outcome
+import {BASE_PACKAGE}.service.core.data.BaseRepository
+import {BASE_PACKAGE}.service.core.domain.Logger
+import {BASE_PACKAGE}.service.core.domain.result.Outcome
 import {feature_package(flat, "data", "source")}.{source}DataSource
 import {feature_package(flat, "domain")}.{repository}
 import {feature_package(flat, "domain")}.{repository}Repository

@@ -1,13 +1,13 @@
 package com.example.androidproject1.feature.catalog.presentation.search
 
-import com.example.androidproject1.core.domain.Logger
-import com.example.androidproject1.core.domain.result.Outcome
-import com.example.androidproject1.core.ui.state.updateData
-import com.example.androidproject1.core.ui.viewmodel.BaseViewModel
-import com.example.androidproject1.core.ui.viewmodel.ErrorDisplay
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.RecentSearchesRepository
+import com.example.androidproject1.service.core.domain.Logger
+import com.example.androidproject1.service.core.domain.result.Outcome
+import com.example.androidproject1.service.core.ui.state.updateData
+import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
+import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import com.example.androidproject1.core.domain.result.map as mapOutcome
+import com.example.androidproject1.service.core.domain.result.map as mapOutcome
 
 /**
  * Two loads on one screen, each under its own content id.

@@ -12,10 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import com.example.androidproject1.core.ui.analytics.ScreenViewEffect
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
+import com.example.androidproject1.service.core.ui.analytics.ScreenViewEffect
 
 /**
  * The shell every screen sits in: the base surface, the system insets, and an optional top bar.

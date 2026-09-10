@@ -1,13 +1,13 @@
 package com.example.androidproject1.feature.devmenu.presentation.devmenu
 
-import com.example.androidproject1.core.domain.ErrorTracker
-import com.example.androidproject1.core.domain.test.FakeLogger
-import com.example.androidproject1.core.ui.event.UiCommand
-import com.example.androidproject1.core.ui.test.MainDispatcherRule
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
+import com.example.androidproject1.service.core.domain.ErrorTracker
+import com.example.androidproject1.service.core.domain.test.FakeLogger
+import com.example.androidproject1.service.core.ui.event.UiCommand
+import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
