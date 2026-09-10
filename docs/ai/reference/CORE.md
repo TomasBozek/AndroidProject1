@@ -54,4 +54,4 @@ and checked by `doctor.py`:
 | `core/di/…/Koin.kt` | the feature's module in the list |
 | `app/…/AppNavHost.kt` | the destination |
 | `app/…/KoinGraphTest.kt` | the route key, when the screen takes arguments |
-| `docs/spec/CODEBASE.md` | the module tree row |
+| `docs/ai/CODEBASE.md` | the module tree row |

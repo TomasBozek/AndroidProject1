@@ -25,17 +25,16 @@ Candidates for the next release, roughly in order.
   known vulnerabilities and Renovate is parked.
 - Unused components earn their place (was F6) · 25 · 27 of 47 are used only by the gallery and
   `AppFab` has no scaffold slot. Pairs with the showcase features.
-- The gallery is generated from the previews (was F7) · 25 · `GalleryCatalog.kt` hand-copies 44
+- The gallery is generated from the previews (was F7) · 25 · the gallery catalog hand-copies 44
   entries in 896 lines with no check that it matches.
 - AppTextField rebuilt, size enums folded (was F23 + M1 + M2) · 25 · two size enums, three
   components with no `modifier`, no IME action or autofill; rebuild on `TextFieldState`.
 - The design system stops speaking POS (was F22) · 6 · 52 mentions of till, void and cash, and
   `AppDensity` scans `InputDevice`.
 - Trips, a showcase feature (was S1) · 50 · five screens give 22 unused components a home: wizard,
-  nav result, snackbar action, dashboard. The design is
-  `docs/archive/2026-09-review/showcase-trips.md` until this release ships.
+  nav result, snackbar action, dashboard.
 - Field report, a showcase feature (was S2) · 50 · location, camera, Photo Picker and SAF in
-  context, with no new dependency. The design is `docs/archive/2026-09-review/device-feature.md`.
+  context, with no new dependency.
 
 ## Someday
 
@@ -48,7 +47,7 @@ Candidates for the next release, roughly in order.
 - detekt, when 2.x is stable — 1.23.8 cannot run on the JDK the daemon is pinned to.
 - Play upload · feedback roles · keyboard shortcuts · z-order roles.
 - Two `doctor.py` checks that would keep the reference docs honest: every destination appears in
-  `reference/FEATURES.md`, every `App*` file in `reference/DESIGN-SYSTEM.md`.
+  the features reference, every `App*` file in the design-system reference.
 
 ## Behind a decision
 

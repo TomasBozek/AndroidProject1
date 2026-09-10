@@ -1237,6 +1237,76 @@ def check_translated_plurals_are_complete() -> list[str]:
 
 
 # --------------------------------------------------------------------------------------------
+# The documentation tree
+# --------------------------------------------------------------------------------------------
+
+DOCS_DIR = REPO_ROOT / "docs"
+
+# D48: `docs/` is sorted by depth of audience. These six are what a person opens; everything else
+# is a task's own reading and sits under `ai/`.
+HUMAN_DOCS = {"README.md", "STATUS.md", "CHANGELOG.md", "DECISIONS.md", "RELEASING.md", "BACKLOG.md"}
+AI_DIRECTORY = "ai"
+
+SOURCE_PATH_IN_PROSE = re.compile(r"[\w./-]+\.(?:kt|kts|toml|xml)\b")
+
+# A board line: `- [ ] A1U1 <title> · 12`, in any of the three states.
+BOARD_LINE = re.compile(r"^- \[[ x-]\] [A-Z][0-9][UXTHPS][1-9] ", re.MULTILINE)
+
+
+@check("the docs tree keeps its two audiences apart")
+def check_docs_index() -> list[str]:
+    """Three greps that hold D48's shape, because a tree only stays sorted while something sorts it.
+
+    **Granularity.** A file directly under `docs/` that names a source path has started explaining
+    the codebase to someone who did not come for it — that belongs under `ai/`.
+
+    **One board.** The open release's board is `docs/STATUS.md` and nowhere else, so there is one
+    place to look and no second copy to drift. A plan whose header still says `Status: draft` is
+    the one exception: its lines become the board when the release opens, and `/release close`
+    moves them across.
+
+    **A closed set.** Six files and `ai/`. A seventh would be a zone nobody chose.
+    """
+    problems = []
+
+    for path in tree():
+        if path.parent != DOCS_DIR or path.suffix != ".md":
+            continue
+        for number, line in enumerate(path.read_text().splitlines(), 1):
+            match = SOURCE_PATH_IN_PROSE.search(line)
+            if match:
+                problems.append(
+                    problem(path, number, f"names `{match.group(0)}` — a source path belongs under docs/ai/")
+                )
+
+    for path in walk(DOCS_DIR, "*.md"):
+        if path.name == "STATUS.md" and path.parent == DOCS_DIR:
+            continue
+        text = path.read_text()
+        if not BOARD_LINE.search(text):
+            continue
+        if path.parent.name == "plans" and re.search(r"^Status: draft$", text, re.MULTILINE):
+            continue
+        problems.append(problem(path, None, "holds board lines — the board is docs/STATUS.md"))
+
+    if DOCS_DIR.is_dir():
+        files = {path.name for path in tree() if path.parent == DOCS_DIR}
+        for name in sorted(files - HUMAN_DOCS):
+            problems.append(problem(DOCS_DIR / name, None, "is not one of the six files docs/ holds; move it under docs/ai/"))
+        for name in sorted(HUMAN_DOCS - files):
+            problems.append(problem(DOCS_DIR / name, None, "is missing"))
+        directories = {
+            path.relative_to(DOCS_DIR).parts[0]
+            for path in tree()
+            if path.is_relative_to(DOCS_DIR) and len(path.relative_to(DOCS_DIR).parts) > 1
+        }
+        for name in sorted(directories - {AI_DIRECTORY}):
+            problems.append(problem(DOCS_DIR / name, None, "is a zone nobody chose; docs/ holds six files and ai/"))
+
+    return problems
+
+
+# --------------------------------------------------------------------------------------------
 
 
 def main() -> None:

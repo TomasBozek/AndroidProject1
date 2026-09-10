@@ -17,43 +17,8 @@ and new behaviour are release B — [B.md](B.md) holds them with their points in
 Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act`, or
 `· blocked: <≤5 words>`), a `[-]` by the owner, a lane-0 task appended by the owner. Nothing else.
 
-## Board
-
-Worked top to bottom. A0P2 is first because every task after it cites a path it moves.
-
-### A · the docs, before anything else · 25
-
-- [ ] A0P2 Two audiences, one tree · 25 · decides D48
-
-### B · the tag cannot be pushed until these land · 9
-
-- [ ] A0X1 The release job's changelog guard can never match · 6
-- [ ] A0P6 One pull request per release · 3 · decides D47
-
-### C · defects · 57
-
-- [ ] A1X1 An empty category stops spinning (was F17a) · 12
-- [ ] A1X2 Add-to-cart leaves the nav host (was F17b) · 12
-- [ ] A1U1 Every non-root screen carries an Up control (was shell.8) · 12
-- [ ] A0X3 The date picker and the dialog speak the device's language · 6
-- [ ] A1U2 A text field says its own name (was ui.10) · 6
-- [ ] A1U4 Login and Sign-up scroll under the keyboard (was H3) · 3
-- [ ] A1X4 The product-detail heart keeps its first value · 3
-- [ ] A1X5 A cold-start deep link is applied once · 3
-
-### D · a repository that is finished · 39 on the board, 27 of work
-
-- [ ] A2H3 The R8 mapping ships with the release (was H1) · 6
-- [ ] A2H1 The release job refuses to publish a debug-signed build (was F17c) · 6
-- [ ] A0P4 README is the front door again · 6
-- [ ] A0P5 .gitignore, .gitkeep and a LICENSE · 3
-- [ ] A0X2 The Maestro flows start where the app starts · 3
-- [ ] A2T1 The dead lines in domain and network (was half of F14) · 3 · decides D46
-- [ ] A1T1 Test plumbing stops being copied (was F19) · 12 · landed as commit `fe6e3bf`
-
-### E · ship · 6
-
-- [ ] A0P3 Ship A · 6 · after every other task
+The board is [../../STATUS.md](../../STATUS.md); this file holds why each task is there and what
+finishes it. A task's `Done when` is the contract — read that section, not the board line.
 
 ## Tasks
 
@@ -176,21 +141,18 @@ stack survives.
 
 ### A0P2 Two audiences, one tree · 25 · decides D48
 
-**Why** two files are called `ARCHITECTURE.md` — `docs/ARCHITECTURE.md` (408 lines) and
-`docs/spec/ARCHITECTURE.md` (121) — and `docs/README.md` links both, one of them as "splits in task
-A0P2". Nine notes across seven documents promise what "task A0P2" will do. `docs/PLAN.md` duplicates
-41 of the 42 rows of `../spec/DECISIONS.md` and the copies have already drifted. Underneath that,
-33 files are sorted by *kind* — spec, reference, guides, work — which tells a human nothing about
-which of them are for them. Sixteen of the 33 are retrospective material that D42 says dies when
-this release ships.
+**Why** two files were called `ARCHITECTURE.md` and the index linked both, one of them as a promise
+about this task. Nine notes across seven documents promised what this task would do. The frozen
+plan duplicated 41 of the 42 decision rows and the copies had already drifted. Underneath that, 33
+files were sorted by *kind* — spec, reference, guides, work — which tells a person nothing about
+which of them are for them, and 16 of the 33 were retrospective material D42 kills at this release.
 
-**Decide first** sort the tree by depth-of-audience, or keep D41's five zones by kind → D48. Taken:
-**by depth**. `ai/` means AI-*only*, not AI-*all* — the agent reads the whole tree, and audience
-decides how deep a file sits, never what it contains. That last clause is the whole decision: it is
-what makes a human edition and a machine edition of the same fact impossible to write, and D41's
-five zones are superseded.
+**Decided** sort the tree by depth-of-audience, not by kind → D48. `ai/` means AI-*only*, not
+AI-*all* — the agent reads the whole tree, and audience decides how deep a file sits, never what it
+contains. That last clause is the whole decision: it is what makes a human edition and a machine
+edition of the same fact impossible to write, and D41's five zones are superseded.
 
-**The tree it lands on**
+**The tree**
 
 ```
 docs/              for a human — six files, none longer than one screen
@@ -211,42 +173,29 @@ docs/              for a human — six files, none longer than one screen
 root — `context/`, `ai/` — is not in that allowlist, so every documentation change would classify as
 code and pay a 25-minute build, silently and for ever.
 
-**The migration is `git mv` and one cut. There is no step that writes a human version of anything** —
-that step is the disease this decision exists to prevent. `STATUS.md` is not a summary of the board;
-it *is* the board, cut out of this file at the seam that already exists (`## Board` at line 20,
-`## Tasks` at line 53). A moved section has no drift surface and needs no check to keep it honest.
+**The migration was `git mv` and one cut. No step wrote a human version of anything** — that step is
+the disease this decision exists to prevent. `STATUS.md` is not a summary of the board; it *is* the
+board, cut out of this file at the seam that already existed. A moved section has no drift surface
+and needs no check to keep it honest. The retrospective was deleted outright rather than archived,
+so `docs/archive/` was never created (D42).
 
-**Done when**
-- the tree above is on disk; `docs/PLAN.md`, `docs/REVIEW.md` and `docs/review/` are deleted
-- `grep -rn 'docs/PLAN.md\|docs/ARCHITECTURE.md\|docs/REVIEW.md\|docs/spec/\|docs/work/\|docs/guides/\|docs/archive/2026-09-review\|task A0P2\|arrives with task' --include='*.md' --include='*.py' --include='*.yml' .`
-  returns nothing
-- `docs/STATUS.md` holds this release's board and this file holds no `- [ ]` line
-- three checks land in `doctor.py`, inside B0P1's already-scoped `check_docs_index` so the count
-  stays 33: **(1) granularity** — no file directly under `docs/` names a path ending `.kt`, `.kts`,
-  `.toml` or `.xml`; **(2) one board** — `^- \[[ x-]\] [A-Z][0-9][UXTHPS][1-9] ` matches only in
-  `docs/STATUS.md`; **(3) closed set** — `docs/` holds exactly the six named files and `ai/`
-- `python3 scripts/doctor.py` and `python3 scripts/test_scripts.py` are green
+**Landed**
+- the tree above is on disk; the frozen plan, the review index and its 16 evidence files are gone
+- no citation anywhere points into the old zones; `doctor.py` and `test_scripts.py` are green
+- `../../STATUS.md` holds this release's board and this file holds no `- [ ]` line
+- `check_docs_index` in `doctor.py` holds the shape from here on: **(1) granularity** — no file
+  directly under `docs/` names a path ending `.kt`, `.kts`, `.toml` or `.xml`; **(2) one board** —
+  `^- \[[ x-]\] [A-Z][0-9][UXTHPS][1-9] ` matches only in `../../STATUS.md` and in a plan still
+  marked `Status: draft`; **(3) closed set** —
+  `docs/` holds exactly the six named files and `ai/`. B0P1 extends the same check rather than
+  adding a fourth
 
-**Touches** `CLAUDE.md`, `README.md`, `docs/**`, `.claude/commands/*.md`, `scripts/doctor.py`
-(appended).
-
-**Steps**
-1. `git rm docs/PLAN.md docs/REVIEW.md docs/review/*` — D42 says the review dies when A ships, so
-   skip the archive round-trip and never create `docs/archive/`.
-2. `git mv` the survivors onto the tree above. `docs/ARCHITECTURE.md` splits at its own headings
-   into `ai/RECIPES.md` and `ai/TESTING.md`; `docs/guides/OPERATIONS.md` becomes `RELEASING.md`.
-3. Cut this file's `## Board` section into `docs/STATUS.md`, adding one header line: the release
-   title, `Open · ships as v1.0.0`, the counts, and a link to the briefs.
-4. Repoint the citations. 97 today, of which 28 are inside files step 1 deletes. `CLAUDE.md` has 12,
-   `.claude/commands/release.md` 9, `.claude/commands/task.md` 4, `build.yml` 5, `README.md` 3.
-5. Strip the nine forward references and rewrite `docs/README.md` as the six-row rozcestník.
-6. Append the three checks to `doctor.py`.
-
-**Read** `.github/workflows/build.yml:56` · `docs/README.md` · this file's lines 20–52.
+**Touched** `CLAUDE.md`, `README.md`, `docs/**`, `.claude/commands/*.md`, `.github/workflows/build.yml`,
+`scripts/doctor.py` (appended).
 **Checks** T1 + `test_scripts.py`. **Depends** —
 
 **Deferred to B0P1:** `docs/ai/CODEBASE.md`'s content (the module tree moved out of `CLAUDE.md`) and
-the `CLAUDE.md` ≤ 300 diet. This task creates the file and its path; B0P1 fills it and repoints
+the `CLAUDE.md` ≤ 300 diet. This task created the file and its path; B0P1 fills it and repoints
 `scripts/_common.py:25`'s `CLAUDE_MD_FILE`.
 
 
@@ -273,11 +222,10 @@ the artifact *is* the release, so neither is needed to tag v1.0.
 
 ### A0P4 README is the front door again · 6
 
-**Why** the root README still describes the pre-A0P1 doc world: it links `docs/ARCHITECTURE.md`,
-`docs/PLAN.md` and `docs/REVIEW.md` (two of which A0P2 deletes), omits `docs/README.md` entirely,
-opens its build block with `./gradlew build` — which `CLAUDE.md` forbids — names
-`:app:installDebug`, which is not a task since the flavors landed, and carries a truncated sentence
-at line 47 about a plugin that was deleted.
+**Why** A0P2 repointed the front-door table's rows and stopped there. The rest of the file still
+describes a repository that has moved on: it opens its build block with `./gradlew build` — which
+`CLAUDE.md` forbids — names `:app:installDebug`, which is not a task since the flavors landed, and
+carries a truncated sentence about a plugin that was deleted.
 **Done when** the front-door table points at `docs/README.md` and `CLAUDE.md`; the commands are the
 ones `CLAUDE.md` § Commands lists, each naming a real variant; no orphan sentence; a stranger can
 clone, build and run from this file alone.

@@ -1,10 +1,8 @@
 # Architecture
 
 What the system is made of and how a value moves through it. The rules that follow from this are
-[../../CLAUDE.md](../../CLAUDE.md); the steps for changing any of it are the recipes in
-[../ARCHITECTURE.md](../ARCHITECTURE.md), which becomes `guides/RECIPES.md` in task A0P2. The module
-names and the layer table are `CLAUDE.md` § Module structure until the same task moves them to
-`spec/CODEBASE.md`.
+[../../CLAUDE.md](../../CLAUDE.md); the steps for changing any of it are [RECIPES.md](RECIPES.md).
+The module names and the layer table are [CODEBASE.md](CODEBASE.md).
 
 ## Layers
 

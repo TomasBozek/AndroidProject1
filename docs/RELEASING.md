@@ -1,7 +1,6 @@
-# Operations
+# Releasing
 
-How a release is cut. Crash reporting, analytics and translations join this file when
-`docs/ARCHITECTURE.md` is split — task A0P2.
+How a release is cut: the tag, the four secrets, the hotfix rule.
 
 ## Releasing
 
@@ -9,7 +8,7 @@ A release is a tag. Nothing in the repository records a version: `versionName` i
 its `v`, `versionCode` is the commit count, and any build not on a `v*` tag is 1 / `"1.0"`.
 
 1. The release's last task closes the plan: every board line `[x]` or `[-]`, the block written into
-   [../spec/CHANGELOG.md](../spec/CHANGELOG.md), the plan moved into `../archive/plans/`.
+   [CHANGELOG.md](CHANGELOG.md), and the plan's board cut out of it into [STATUS.md](STATUS.md).
 2. Run the end-to-end flows first — they are weekly by default, and `gh workflow run build.yml`
    starts them on demand. An emulator boot plus the flows is fifteen minutes or more.
 3. Tag and push:

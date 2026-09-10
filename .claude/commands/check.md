@@ -26,7 +26,7 @@ git diff --name-only origin/main...HEAD
 - A path under `*/presentation/src/main`, `core/ui` or `service/core/ui` also means
   `./gradlew verifyRoborazziDebug`. If a preview changed on purpose, `recordRoborazziDebug` first
   and **open the images it wrote** — a golden nobody looked at is a test that passes forever.
-- A path under `scripts/`, `feature/template/`, `.claude/commands/` or `docs/spec/CODEBASE.md` also
+- A path under `scripts/`, `feature/template/`, `.claude/commands/` or `docs/ai/CODEBASE.md` also
   means `python3 scripts/test_scripts.py`.
 - A path under `build-logic/`, `gradle/`, `service/` or `core/` also means the whole `./gradlew test`.
 
