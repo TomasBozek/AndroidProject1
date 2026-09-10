@@ -1,43 +1,27 @@
 # Status
 
-**Release A · what a v1.0 tag must not carry** — open · ships as v1.0.0 · one branch, one pull
-request. 19 tasks, 136 on the board, 124 of work. Why each one is here, and what finishes it, is
-[ai/plans/A.md](ai/plans/A.md); the rules are [ai/PROCESS.md](ai/PROCESS.md).
+**Nothing is open.** Release A is closed and waiting for its tag; release B is drafted but not yet
+open. This file is the open release's board — it fills up again when one is.
 
-Worked top to bottom. A0P2 is first because every task after it cites a path it moves.
+## Release A · what a v1.0 tag must not carry
 
-## A · the docs, before anything else · 25
+Closed 2026-09-10. All 19 tasks landed: estimate 136, actual 108, ratio 0.79. What shipped, in user
+words, is the `v1.0.0` block in [CHANGELOG.md](CHANGELOG.md); why each task was there and what
+finished it is [ai/plans/A.md](ai/plans/A.md).
 
-- [x] A0P2 Two audiences, one tree · 25 → 3 · decides D48
+**It becomes a release when the tag is pushed**, which is the owner's:
 
-## B · the tag cannot be pushed until these land · 9
+```bash
+git tag v1.0.0 && git push origin v1.0.0
+```
 
-- [x] A0X1 The release job's changelog guard can never match · 6 → 3
-- [x] A0P6 One pull request per release · 3 → 3 · decides D47
+[RELEASING.md](RELEASING.md) says what CI then does, and what it refuses.
 
-## C · defects · 57
+## Next · release B
 
-- [x] A1X1 An empty category stops spinning (was F17a) · 12 → 12
-- [x] A1X2 Add-to-cart leaves the nav host (was F17b) · 12 → 12
-- [x] A1U1 Every non-root screen carries an Up control (was shell.8) · 12 → 12
-- [x] A0X3 The date picker and the dialog speak the device's language · 6 → 3
-- [x] A1U2 A text field says its own name (was ui.10) · 6 → 3
-- [x] A1U4 Login and Sign-up scroll under the keyboard (was H3) · 3 → 3
-- [x] A1X4 The product-detail heart keeps its first value · 3 → 6
-- [x] A1X5 A cold-start deep link is applied once · 3 → 12
+[ai/plans/B.md](ai/plans/B.md) — the refactors, subtractions and new behaviour v1.0 was allowed to
+skip, 141 points carried over plus the backlog candidates. It is a **draft**: `/release draft B`
+cuts its lanes and recalibrates its bands against release A's ratio, and then the owner opens it.
+Its board moves here at that point.
 
-## D · a repository that is finished · 39 on the board, 27 of work
-
-- [x] A2H3 The R8 mapping ships with the release (was H1) · 6 → 3
-- [x] A2H1 The release job refuses to publish a debug-signed build (was F17c) · 6 → 3
-- [x] A0P4 README is the front door again · 6 → 3
-- [x] A0P5 .gitignore, .gitkeep and a LICENSE · 3 → 3
-- [x] A0X2 The Maestro flows start where the app starts · 3 → 3
-- [x] A2T1 The dead lines in domain and network (was half of F14) · 3 → 3 · decides D46
-- [x] A1T1 Test plumbing stops being copied (was F19) · 12 → 12
-
-## E · ship · 6
-
-- [ ] A0P3 Ship A · 6 · after every other task
-
-The next release is [ai/plans/B.md](ai/plans/B.md), still a draft.
+Ideas that are not in either plan are [BACKLOG.md](BACKLOG.md).

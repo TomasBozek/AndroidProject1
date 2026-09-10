@@ -19,6 +19,8 @@ Refuse unless every board line in the open plan is `[x]` or `[-]`. Then, in one 
    reference file matches what shipped. Fix what drifted here rather than opening a task for it.
 3. Cut the shipped board out of `docs/STATUS.md` and put the next plan's in its place, with its
    header line — the release title, `Open · ships as v<x.y.z>`, the counts, a link to the briefs.
+   If the next plan is still a draft, `docs/STATUS.md` says so and links it instead: a draft's
+   board is written among its briefs and is not a board until `/release draft` has cut it.
 4. The plan file stays where it is, briefs intact, board gone. There is no archive (D48).
 5. Run `/check pr`, then open the pull request.
 

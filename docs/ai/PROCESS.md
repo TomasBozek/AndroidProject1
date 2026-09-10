@@ -82,7 +82,7 @@ ratio))`. A band off by 30 % on three tasks gets its description rewritten; the 
 
 There is no "doing" state: a lane is worked top to bottom by one agent, so the first `[ ]` is the
 one in hand. A release is `Status: draft` → `Status: open` (the owner says the word) → closed by the
-ship task, which cuts its board out of `../STATUS.md`. One plan is open and one is a draft.
+ship task, which cuts its board out of `../STATUS.md`. At most one plan is open, and one a draft.
 
 ## Shared files
 

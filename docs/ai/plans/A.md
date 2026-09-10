@@ -1,7 +1,7 @@
 # Release A · what a v1.0 tag must not carry
 
-Status: open
-Agents: 1 · 19 tasks · 136 on the board, 124 of work (~10.3 h) · one branch, one pull request
+Status: closed 2026-09-10 · shipped as v1.0.0
+Agents: 1 · 19 tasks · estimate 136, actual 108, ratio 0.79 · one branch, one pull request
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D46, D47, D48
 
 This release ships as **one pull request**, not one per task — D47, taken in A0P6. That is the only
@@ -17,8 +17,9 @@ and new behaviour are release B — [B.md](B.md) holds them with their points in
 Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act`, or
 `· blocked: <≤5 words>`), a `[-]` by the owner, a lane-0 task appended by the owner. Nothing else.
 
-The board is [../../STATUS.md](../../STATUS.md); this file holds why each task is there and what
-finishes it. A task's `Done when` is the contract — read that section, not the board line.
+The board this file was worked from is gone: it closed into the `v1.0.0` block in
+[../../CHANGELOG.md](../../CHANGELOG.md). What is left here is why each task was there and what
+finished it.
 
 ## Tasks
 
@@ -282,11 +283,16 @@ pin; all eleven `PreviewScreenshotTest` files subclass the shared `PreviewScreen
 ### A0P3 Ship A · 6
 
 **Why** a release is a tag plus a changelog block, and the block is what the release job checks for.
-**Done when** every line in `docs/STATUS.md` is `[x]` or `[-]`; `../../CHANGELOG.md` carries the
-`## v1.0.0 · release A · <date>` block with `Estimate · Actual · Ratio` and the `Tasks:` line; the
-guard from A0X1 matches it (`grep -qF '## v1.0.0 ·' docs/CHANGELOG.md`); `docs/STATUS.md` shows
-release B as the open one and links its briefs; this file stays at `docs/ai/plans/A.md` with its
-board gone and its briefs intact — D48 created no archive, so nothing is moved out of sight.
+**Landed** every board line was `[x]`; `../../CHANGELOG.md` carries the `## v1.0.0 · release A ·
+2026-09-10` block with its `Tasks:` line and `Estimate 136 · Actual 108 · Ratio 0.79`, and A0X1's
+guard matches it; this file stays here, board gone, briefs intact — D48 created no archive, so
+nothing is moved out of sight. **The tag is the owner's**, and so is opening the next release.
+
+**One deviation.** The brief says `../../STATUS.md` shows release B as the open one. B's board is
+written among its briefs rather than above them, so there is nothing to cut across without
+rewriting the file — which is `/release draft B`'s job, and opening a release is the owner's word
+either way (`../PROCESS.md` § States). `STATUS.md` therefore says nothing is open, records what
+release A closed at, and links B as the next one.
 **Touches** `docs/**`. **Checks** T1. **Depends** every other task
 
 **The v1.0.0 block claims, in user words:** a way back from every screen · a category with nothing
