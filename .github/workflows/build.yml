@@ -231,11 +231,23 @@ jobs:
       - name: Assemble and lint the release build
         run: ./gradlew assembleProdRelease lintProdRelease
 
-      - name: Upload the release APK
+      # The mapping travels with the APK it belongs to, and it is named for the tag: a
+      # `mapping.txt` on a release page next to three others is a file nobody can match to a
+      # build. A minified stack trace without it is unreadable, and R8 rewrites the names on
+      # every build, so the copy kept here is the only one that ever fits this APK.
+      - name: Name the R8 mapping after the build
+        run: |
+          mapping=app/build/outputs/mapping/prodRelease/mapping.txt
+          test -f "$mapping" || { echo "R8 wrote no mapping at $mapping"; exit 1; }
+          cp "$mapping" "app/build/outputs/mapping/prodRelease/mapping-${GITHUB_REF_NAME//\//-}.txt"
+
+      - name: Upload the release APK and its mapping
         uses: actions/upload-artifact@v4
         with:
           name: prod-release
-          path: app/build/outputs/apk/prod/release/*.apk
+          path: |
+            app/build/outputs/apk/prod/release/*.apk
+            app/build/outputs/mapping/prodRelease/mapping-*.txt
           if-no-files-found: error
 
       # Only on a tag: the weekly run of this job exists to keep R8 honest, not to publish. The
@@ -248,10 +260,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          assets=(
+            app/build/outputs/apk/prod/release/*.apk
+            app/build/outputs/mapping/prodRelease/mapping-*.txt
+          )
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk --clobber
+            gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/prod/release/*.apk \
+            gh release create "$GITHUB_REF_NAME" "${assets[@]}" \
               --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md"
           fi
 

@@ -24,5 +24,9 @@ its `v`, `versionCode` is the commit count, and any build not on a `v*` tag is 1
 Without the signing secrets the build falls back to the debug key. The four secrets are
 `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
 
+The release carries two files: the APK and the R8 mapping it was built with, named for the tag. A
+minified stack trace is unreadable without it, and the names are rewritten on every build — so the
+copy attached to a release is the only one that will ever fit that APK.
+
 **A hotfix to a shipped release** keeps that release's letter — `A0X1` — goes through lane 0 with no
 open plan, ships as a patch tag and gets its own short block in the changelog.
