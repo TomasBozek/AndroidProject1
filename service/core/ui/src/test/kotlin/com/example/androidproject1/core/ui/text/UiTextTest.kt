@@ -7,9 +7,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * Resolved against a real resource table rather than a mocked `Resources`.
@@ -20,7 +17,6 @@ private const val ROBOLECTRIC_SDK = 35
  * they are not the same number by accident.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class UiTextTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()

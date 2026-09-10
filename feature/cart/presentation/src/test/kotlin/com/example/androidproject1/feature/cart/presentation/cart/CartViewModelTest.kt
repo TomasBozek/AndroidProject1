@@ -17,16 +17,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * Robolectric because the plural assertions resolve against the real resource table — the
  * behaviour worth testing is that the quantity picks the form, which a fake cannot show.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class CartViewModelTest {
 
     @get:Rule

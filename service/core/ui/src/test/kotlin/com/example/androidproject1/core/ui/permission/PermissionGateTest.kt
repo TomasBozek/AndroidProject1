@@ -18,9 +18,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.annotation.Config
 
-private const val ROBOLECTRIC_SDK = 35
 private const val CONTENT_TAG = "gate_content"
 
 /**
@@ -31,7 +29,6 @@ private const val CONTENT_TAG = "gate_content"
  * the type is that an ungranted case cannot be forgotten, and only composition can show that.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class PermissionGateTest {
 
     @get:Rule

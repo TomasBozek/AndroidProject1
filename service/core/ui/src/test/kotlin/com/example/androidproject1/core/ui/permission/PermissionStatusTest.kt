@@ -7,9 +7,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * The four statuses, against a real `PackageManager` with the grants shadowed.
@@ -20,7 +17,6 @@ private const val ROBOLECTRIC_SDK = 35
  * nothing. Each case is asserted rather than the boolean it used to be.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class PermissionStatusTest {
 
     private val application = RuntimeEnvironment.getApplication()

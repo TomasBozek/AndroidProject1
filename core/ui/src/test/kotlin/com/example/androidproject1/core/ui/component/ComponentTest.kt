@@ -6,15 +6,9 @@ import com.example.androidproject1.core.ui.theme.AppTheme
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /** The tag every one of these tests reaches the component under test by. */
 internal const val TAG = "component_underTest"
-
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk; this is
-// the newest it does have. It is declared here rather than on each test, because Robolectric reads
-// @Config up the class hierarchy.
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * What every component test is: the component composed inside [AppTheme], found by `testTag`, and
@@ -38,7 +32,6 @@ private const val ROBOLECTRIC_SDK = 35
  * button wired to confirm.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 abstract class ComponentTest {
 
     @get:Rule

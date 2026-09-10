@@ -34,6 +34,19 @@ dependencies {
     testFixturesImplementation(libs.junit)
     testFixturesImplementation(libs.kotlinx.coroutines.test)
 
+    // The screenshot harness every `presentation` module's PreviewScreenshotTest subclasses.
+    // `Api`, not `Implementation`: the base class names Roborazzi and the preview scanner in its
+    // own signature, so a consumer compiling against it needs them too. Test-only, so none of it
+    // reaches a release build — and it travels with `service/`, which is the point: a project that
+    // copies this directory gets the screenshot convention with it, not just the architecture.
+    testFixturesApi(platform(libs.androidx.compose.bom))
+    testFixturesApi(libs.androidx.compose.ui.test.junit4)
+    testFixturesApi(libs.roborazzi)
+    testFixturesApi(libs.roborazzi.compose)
+    testFixturesApi(libs.roborazzi.preview.scanner)
+    testFixturesApi(libs.preview.scanner)
+    testFixturesImplementation(libs.robolectric)
+
     testImplementation(testFixtures(projects.service.core.domain))
     testImplementation(libs.bundles.testing)
 }

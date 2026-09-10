@@ -8,7 +8,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * The same shape as `TemplateScreenTest`, for the screen that takes a route argument.
@@ -17,10 +16,8 @@ import org.robolectric.annotation.Config
  * this variant exists to prevent is a screen that loads from a `LaunchedEffect` instead of from
  * the key it was handed.
  */
-private const val ROBOLECTRIC_SDK = 35
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class TemplateArgsScreenTest {
 
     @get:Rule

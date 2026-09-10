@@ -12,10 +12,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /** Robolectric ships an SDK image per API level and has none for this project's targetSdk. */
-private const val ROBOLECTRIC_SDK = 35
 
 private val ADA = StoredSession(id = "1c2f", email = "ada@example.com")
 
@@ -30,7 +28,6 @@ private const val SEPARATOR = "\u001F"
  * every test here goes through AES-GCM and the disk.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class DefaultLocalAuthDataSourceTest {
 
     private lateinit var store: TestSessionStore

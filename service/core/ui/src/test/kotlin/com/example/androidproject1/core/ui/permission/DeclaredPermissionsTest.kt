@@ -9,9 +9,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * What the merged manifest asks for, read back through `PackageManager`.
@@ -21,7 +18,6 @@ private const val ROBOLECTRIC_SDK = 35
  * remember to add it.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class DeclaredPermissionsTest {
 
     @get:Rule

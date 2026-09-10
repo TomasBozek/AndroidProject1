@@ -210,10 +210,13 @@ class ScaffoldingTest(unittest.TestCase):
 
         test = self.presentation("userprofile", "test") / "screenshot/PreviewScreenshotTest.kt"
         self.assertTrue(test.is_file(), "the screenshot test was not cloned")
-        self.assertIn(
-            'scanPackageTrees("com.example.androidproject1.feature.userprofile.presentation")',
-            test.read_text(),
-        )
+        # The package tree it scans, which is the one thing that differs between the copies — the
+        # rest is `PreviewScreenshotSpec`. Asserted as the string rather than as the call around it,
+        # so reformatting the generated file does not fail this.
+        contents = test.read_text()
+        self.assertIn('"com.example.androidproject1.feature.userprofile.presentation"', contents)
+        self.assertIn("PreviewScreenshotSpec", contents)
+        self.assertNotIn("template", contents)
 
     def test_create_feature_renames_string_resources(self) -> None:
         """The template's `template_title` must not survive into a generated feature."""

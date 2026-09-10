@@ -19,4 +19,9 @@ dependencies {
     // own screens: `service/` stays the architecture, and a project that reuses it adds this the
     // day it wants two panes. Re-exported, so a destination can carry the metadata.
     api(libs.androidx.adaptive.navigation3)
+
+    // PreviewScreenshotSpec, which this module's own PreviewScreenshotTest subclasses. A feature's
+    // `presentation` module gets the same line from `convention.feature.presentation`; :core:ui
+    // applies the compose library plugin directly, so it asks for itself.
+    testImplementation(testFixtures(projects.service.core.ui))
 }

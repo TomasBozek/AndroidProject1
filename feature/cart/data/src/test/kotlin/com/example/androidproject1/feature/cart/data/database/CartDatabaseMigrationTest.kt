@@ -10,9 +10,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-private const val ROBOLECTRIC_SDK = 35
 
 // A name of its own, so this never opens the database the app or the DAO test uses.
 private const val DATABASE_NAME = "cart-migration-test.db"
@@ -30,7 +27,6 @@ private const val DATABASE_NAME = "cart-migration-test.db"
  * this test rather than needing someone to remember to extend it.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class CartDatabaseMigrationTest {
 
     // Robolectric rather than an instrumentation test: the schemas are on the unit test's assets

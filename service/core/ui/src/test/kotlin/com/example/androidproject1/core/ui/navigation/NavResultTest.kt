@@ -19,9 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-private const val ROBOLECTRIC_SDK = 35
 private const val RESULT_KEY = "picked_product"
 
 /**
@@ -32,7 +30,6 @@ private const val RESULT_KEY = "picked_product"
  * it just as thoroughly as a pop does — without making this a Navigation 3 test.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class NavResultTest {
 
     @get:Rule

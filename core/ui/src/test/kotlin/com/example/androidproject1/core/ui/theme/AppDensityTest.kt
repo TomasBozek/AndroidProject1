@@ -11,11 +11,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk; this is
-// the newest it does have.
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * What a screen is handed at each size class, and what a pointer changes.
@@ -24,7 +19,6 @@ private const val ROBOLECTRIC_SDK = 35
  * looks different, and this says in what — which typography, which touch target, which row height.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class AppDensityTest {
 
     @get:Rule

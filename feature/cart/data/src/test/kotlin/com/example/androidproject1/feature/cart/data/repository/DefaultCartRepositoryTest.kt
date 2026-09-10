@@ -22,11 +22,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import java.io.IOException
 
 /** Robolectric ships an SDK image per API level and has none for this project's targetSdk. */
-private const val ROBOLECTRIC_SDK = 35
 
 private val COFFEE = CartItem("coffee", "Coffee", price = 450, quantity = 1)
 
@@ -38,7 +36,6 @@ private val COFFEE = CartItem("coffee", "Coffee", price = 450, quantity = 1)
  * one does not silently end the flow the tab badge lives on.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class DefaultCartRepositoryTest {
 
     private lateinit var database: CartDatabase

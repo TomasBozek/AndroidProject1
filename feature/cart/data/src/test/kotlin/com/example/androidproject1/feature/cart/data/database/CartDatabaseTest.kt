@@ -12,10 +12,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /** Robolectric ships an SDK image per API level and has none for this project's targetSdk. */
-private const val ROBOLECTRIC_SDK = 35
 
 /**
  * The cart's DAO round trip, against a real SQLite rather than a fake.
@@ -25,7 +23,6 @@ private const val ROBOLECTRIC_SDK = 35
  * fake DAO would test this file's own bookkeeping and none of the app's.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class CartDatabaseTest {
 
     private lateinit var database: CartDatabase

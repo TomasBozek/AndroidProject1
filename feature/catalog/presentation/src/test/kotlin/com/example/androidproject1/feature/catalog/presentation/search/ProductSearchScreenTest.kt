@@ -15,14 +15,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-
-// Robolectric ships an SDK image per API level and has none for this project's targetSdk, so the
-// level is pinned to the newest it does have.
-private const val ROBOLECTRIC_SDK = 35
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [ROBOLECTRIC_SDK])
 class ProductSearchScreenTest {
 
     @get:Rule
