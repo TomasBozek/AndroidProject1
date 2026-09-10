@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="categories_title">Categories</string>
+    <string name="product_detail_added_to_cart">Added to your cart</string>
     <string name="product_detail_not_found">This product is no longer available.</string>
     <string name="product_detail_go_back">Go back</string>
     <string name="catalog_stale">Showing saved items — could not reach the server.</string>

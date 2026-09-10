@@ -18,7 +18,7 @@ Worked top to bottom. A0P2 is first because every task after it cites a path it 
 ## C · defects · 57
 
 - [x] A1X1 An empty category stops spinning (was F17a) · 12 → 12
-- [ ] A1X2 Add-to-cart leaves the nav host (was F17b) · 12
+- [x] A1X2 Add-to-cart leaves the nav host (was F17b) · 12 → 12
 - [ ] A1U1 Every non-root screen carries an Up control (was shell.8) · 12
 - [ ] A0X3 The date picker and the dialog speak the device's language · 6
 - [ ] A1U2 A text field says its own name (was ui.10) · 6

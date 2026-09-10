@@ -5,6 +5,9 @@ import com.example.androidproject1.core.ui.event.SystemEvent
 import com.example.androidproject1.core.ui.event.UiCommand
 import com.example.androidproject1.core.ui.state.ContentState
 import com.example.androidproject1.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.feature.cart.domain.AddProductToCart
+import com.example.androidproject1.feature.cart.domain.CartItem
+import com.example.androidproject1.feature.cart.domain.test.FakeCartRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import kotlinx.coroutines.flow.first
@@ -28,6 +31,7 @@ class ProductDetailViewModelTest {
         repository: FakeCatalogRepository,
         productId: String = "coffee",
         favouritesRepository: FakeFavouritesRepository = favourites(),
+        cartRepository: FakeCartRepository = FakeCartRepository(),
     ) = ProductDetailViewModel(
         logger = FakeLogger(),
         // The route key the destination hands in. A plain object on Navigation 3 — no Bundle, and
@@ -35,6 +39,7 @@ class ProductDetailViewModelTest {
         args = ProductDetailDestination(productId = productId),
         catalogRepository = repository,
         favouritesRepository = favouritesRepository,
+        addProductToCart = AddProductToCart(cartRepository),
     )
 
     @Test
@@ -105,5 +110,38 @@ class ProductDetailViewModelTest {
         viewModel.onSystemEvent(SystemEvent.ContentAction(ProductDetailViewModel.CONTENT_NOT_FOUND))
 
         assertEquals(UiCommand.NavigateBack, viewModel.command.first())
+    }
+
+    @Test
+    fun `adding to the cart writes the line here, not in the nav host`() = runTest {
+        val cart = FakeCartRepository()
+        val viewModel = viewModel(FakeCatalogRepository(), cartRepository = cart)
+
+        viewModel.onUiEvent(ProductDetailEvent.AddToCartClicked)
+
+        // The write runs in this ViewModel's scope, which survives the rotation that used to
+        // cancel it: the nav host launched it in `rememberCoroutineScope`.
+        assertEquals(
+            listOf(
+                CartItem(
+                    productId = "coffee",
+                    name = FakeCatalogRepository.COFFEE.name,
+                    price = FakeCatalogRepository.COFFEE.price,
+                    quantity = 1,
+                ),
+            ),
+            cart.current,
+        )
+    }
+
+    @Test
+    fun `adding to the cart before the product has loaded does nothing`() = runTest {
+        val cart = FakeCartRepository()
+        // A product id the fake does not know, so the state stays null.
+        val viewModel = viewModel(FakeCatalogRepository(), productId = "nothing", cartRepository = cart)
+
+        viewModel.onUiEvent(ProductDetailEvent.AddToCartClicked)
+
+        assertEquals(emptyList<CartItem>(), cart.current)
     }
 }

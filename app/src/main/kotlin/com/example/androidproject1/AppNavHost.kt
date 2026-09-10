@@ -15,7 +15,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -57,7 +56,6 @@ import com.example.androidproject1.feature.profile.presentation.profile.profileD
 import com.example.androidproject1.feature.settings.presentation.permissions.settingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.settings.settingsDestination
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 /**
@@ -145,30 +143,11 @@ private fun AppNavDisplay(
     // Resolved here rather than inside the entry: `mainEntries` is a plain function, and the
     // cart needs the catalog to turn a picked id into a line it can hold.
     val catalogRepository: CatalogRepository = koinInject()
-    val cartRepository: CartRepository = koinInject()
-    val scope = rememberCoroutineScope()
-
-    // Adding from product detail is a write with no screen behind it: the user taps and stays, or
-    // taps and leaves. It runs in the nav host's scope so it is not cancelled either way.
-    val addToCart: (String) -> Unit = { productId ->
-        scope.launch {
-            (catalogRepository.getProduct(productId) as? Outcome.Success)?.data?.let { product ->
-                cartRepository.add(
-                    CartItem(
-                        productId = product.id,
-                        name = product.name,
-                        price = product.price,
-                        quantity = 1,
-                    ),
-                )
-            }
-        }
-    }
 
     val entries = entryProvider<NavKey> {
         onboardingEntries(backStack)
         authEntries(backStack)
-        mainEntries(backStack, catalogRepository, addToCart)
+        mainEntries(backStack, catalogRepository)
     }
 
     // Two panes where there is width for them, one where there is not. The decision is the
@@ -254,10 +233,9 @@ private fun EntryProviderScope<NavKey>.authEntries(backStack: NavBackStack<NavKe
 private fun EntryProviderScope<NavKey>.mainEntries(
     backStack: NavBackStack<NavKey>,
     catalogRepository: CatalogRepository,
-    addToCart: (String) -> Unit,
 ) {
     homeEntries(backStack)
-    catalogEntries(backStack, addToCart)
+    catalogEntries(backStack)
     settingsEntries(backStack)
     cartDestination(
         backStack = backStack,
@@ -283,18 +261,10 @@ private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKe
     homeDestination(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.catalogEntries(
-    backStack: NavBackStack<NavKey>,
-    addToCart: (String) -> Unit,
-) {
+private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<NavKey>) {
     categoriesDestination(backStack = backStack)
     productsDestination(backStack = backStack)
-    productDetailDestination(
-        backStack = backStack,
-        // Fire and forget on the application scope, not a screen's: the user leaves product
-        // detail immediately after tapping, and an add cancelled by that would silently do nothing.
-        onAddToCart = { productId -> addToCart(productId) },
-    )
+    productDetailDestination(backStack = backStack)
     productSearchDestination(backStack = backStack)
 }
 

@@ -5,6 +5,7 @@ import com.example.androidproject1.feature.cart.data.database.CartDatabase
 import com.example.androidproject1.feature.cart.data.repository.DefaultCartRepository
 import com.example.androidproject1.feature.cart.data.source.DefaultLocalCartDataSource
 import com.example.androidproject1.feature.cart.data.source.LocalCartDataSource
+import com.example.androidproject1.feature.cart.domain.AddProductToCart
 import com.example.androidproject1.feature.cart.domain.CartRepository
 import com.example.androidproject1.feature.cart.presentation.cart.CartViewModel
 import org.koin.android.ext.koin.androidContext
@@ -18,6 +19,9 @@ object CartModule {
 
     val module: Module = module {
         viewModelOf(::CartViewModel)
+
+        // Product detail adds to the cart without depending on this feature's presentation.
+        singleOf(::AddProductToCart)
 
         // Its own database, not the catalog\'s: feat.5 replaces the catalog table on every
         // refresh, and the cart must survive the shop reorganising itself.
