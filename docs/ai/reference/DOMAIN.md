@@ -59,7 +59,7 @@ erDiagram
 value, or a failure carrying a `DomainError`. Nothing throws across a layer boundary.
 
 `DomainError` is a sealed hierarchy, not a message: `NetworkError`, `ServerError`,
-`UnauthorizedError`, `BadRequestError`, `NotFoundError`, `CredentialsError`, `UnexpectedError`. Each
+`UnauthorizedError`, `BadRequestError`, `NotFoundError`, `UnexpectedError`. Each
 maps to its own wording in `:service:core:ui`'s error strings, so a feature never writes one.
 
 ## Repositories
