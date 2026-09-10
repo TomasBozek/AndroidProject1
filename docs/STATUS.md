@@ -13,7 +13,7 @@ Worked top to bottom. A0P2 is first because every task after it cites a path it 
 ## B · the tag cannot be pushed until these land · 9
 
 - [x] A0X1 The release job's changelog guard can never match · 6 → 3
-- [ ] A0P6 One pull request per release · 3 · decides D47
+- [x] A0P6 One pull request per release · 3 → 3 · decides D47
 
 ## C · defects · 57
 

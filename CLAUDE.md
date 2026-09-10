@@ -321,7 +321,8 @@ tasks.
 
 ## Working a task
 
-- `/task <id>` takes the first `[ ]` line in your lane; the branch is `<id>-<slug>`.
+- `/task <id>` takes the first `[ ]` line in your lane; the branch is `<id>-<slug>`, unless the open
+  plan ships as one pull request (D47) — then it is the release's branch and there is one of them.
 - A `Decide first` line is settled before the code, as a row in `docs/DECISIONS.md`.
 - Touch only the shared files your lane owns. Otherwise stop and take the next task.
 - A fact you changed moves to its one doc in the same commit — `docs/ai/PROCESS.md` § Which doc
@@ -329,6 +330,7 @@ tasks.
 - **One commit** per task, titled `<id> <title>`, carrying the code, the docs and the board line
   flipped to `[x]` with `· est → act`.
 - Open the pull request with the template; `gh pr merge --rebase --delete-branch` once it is green.
+  Under D47 that happens once for the release, not once per task.
 
 ## Commands
 
