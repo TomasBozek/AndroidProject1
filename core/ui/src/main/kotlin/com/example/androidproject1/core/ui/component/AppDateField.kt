@@ -33,7 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.androidproject1.core.ui.R
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -100,11 +102,15 @@ fun AppDateField(
             shape = AppTheme.shapes.xl,
             colors = DatePickerDefaults.colors(containerColor = AppTheme.colors.surfaceRaised),
             dismissButton = {
-                AppButton(label = "Cancel", onClick = { open = false }, kind = ButtonKind.Ghost)
+                AppButton(
+                    label = stringResource(R.string.app_dialog_cancel),
+                    onClick = { open = false },
+                    kind = ButtonKind.Ghost,
+                )
             },
             confirmButton = {
                 AppButton(
-                    label = "Choose",
+                    label = stringResource(R.string.app_picker_choose),
                     onClick = {
                         // The picker works in UTC midnights, so the date is read back in the same
                         // zone it was written in — anything else is off by one for half the world.
@@ -175,9 +181,13 @@ fun AppTimeField(
             onDismiss = { open = false },
             content = { TimePicker(state = state, layoutType = TimePickerLayoutType.Vertical) },
             actions = {
-                AppButton(label = "Cancel", onClick = { open = false }, kind = ButtonKind.Ghost)
                 AppButton(
-                    label = "Choose",
+                    label = stringResource(R.string.app_dialog_cancel),
+                    onClick = { open = false },
+                    kind = ButtonKind.Ghost,
+                )
+                AppButton(
+                    label = stringResource(R.string.app_picker_choose),
                     onClick = {
                         onValueChange(LocalTime.of(state.hour, state.minute))
                         open = false

@@ -5,7 +5,9 @@
     the string lives with the component and not in each feature that uses it.
 -->
 <resources>
+    <string name="app_dialog_cancel">Cancel</string>
     <string name="app_navigate_up">Navigate up</string>
+    <string name="app_picker_choose">Choose</string>
     <string name="app_search_clear">Clear search</string>
     <string name="app_stepper_decrement">One fewer</string>
     <string name="app_stepper_increment">One more</string>
