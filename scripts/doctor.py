@@ -14,6 +14,8 @@ version catalog. Exits non-zero when something is wrong, so it can run in CI.
 from __future__ import annotations
 
 import argparse
+import fnmatch
+import os
 import re
 import sys
 from pathlib import Path
@@ -67,32 +69,68 @@ def check(name: str):
     return decorate
 
 
-def skipped_part(parts: tuple[str, ...]) -> bool:
-    """Gradle output, and anything inside a dot directory.
+_TREE: list[Path] | None = None
 
-    A nested git worktree — the one an agent harness creates under `.claude/worktrees/` — is a
-    whole second copy of the repo, and every module in it would otherwise be reported as missing
-    from `settings.gradle.kts`.
+
+def tree() -> list[Path]:
     """
-    return "build" in parts or any(part.startswith(".") for part in parts)
+    Every file in the repository worth looking at, from one pruned walk.
+
+    `Path.rglob` cannot prune. It descends into `build/`, `.gradle/` and `.git/` — 62,583 files
+    against the 920 that are source — and every check then discarded most of the result with a
+    filter. Seventeen of those walks was fourteen seconds, nine of them kernel time in `stat`, for
+    thirty checks that between them read a few hundred files.
+
+    Walking once and filtering the list is the whole of the fix. `os.walk` can prune, because
+    editing `subdirectories` in place stops it descending.
+    """
+    global _TREE
+    if _TREE is None:
+        found: list[Path] = []
+        for directory, subdirectories, names in os.walk(REPO_ROOT):
+            # A dot directory is `.git`, `.gradle`, `.idea` — and `.claude/worktrees`, which is a
+            # whole second checkout of this repository and would report every module in it twice.
+            subdirectories[:] = [
+                name for name in subdirectories
+                if name != "build" and name != "__pycache__" and not name.startswith(".")
+            ]
+            base = Path(directory)
+            # Dot *files* go too — `.gitignore`, `.DS_Store`, `.gitkeep`. No check reads one, and
+            # the filter this replaces dropped them as well, because it tested every component of
+            # the path including the name. A `.DS_Store` that Finder leaves in a `values/`
+            # directory would otherwise read as a resource.
+            found.extend(base / name for name in names if not name.startswith("."))
+        _TREE = sorted(found)
+    return _TREE
+
+
+def walk(directory: Path, pattern: str = "*") -> list[Path]:
+    """
+    `directory.rglob(pattern)`, answered from `tree()` rather than from the disk.
+
+    Sorted, pruned, files only, and `[]` for a directory that does not exist — which is what every
+    call site wanted, and why most of them no longer need an `is_dir()` guard of their own.
+    """
+    if not directory.is_dir():
+        return []
+    prefix = str(directory) + os.sep
+    if "/" in pattern:
+        # A path-shaped pattern — `src/main/res/values/strings.xml` — matches a trailing run of
+        # components, exactly as `rglob` treats one.
+        tail = os.sep + pattern.replace("/", os.sep)
+        return [path for path in tree() if str(path).startswith(prefix) and str(path).endswith(tail)]
+    return [
+        path for path in tree()
+        if str(path).startswith(prefix) and fnmatch.fnmatch(path.name, pattern)
+    ]
 
 
 def kotlin_files(root: Path):
-    if not root.is_dir():
-        return
-    for path in sorted(root.rglob("*.kt")):
-        if skipped_part(path.relative_to(root).parts):
-            continue
-        yield path
+    yield from walk(root, "*.kt")
 
 
 def build_files(root: Path):
-    if not root.is_dir():
-        return
-    for path in sorted(root.rglob("build.gradle.kts")):
-        if skipped_part(path.relative_to(root).parts):
-            continue
-        yield path
+    yield from walk(root, "build.gradle.kts")
 
 
 def feature_names() -> list[str]:
@@ -158,7 +196,7 @@ def check_resource_prefix() -> list[str]:
     if build_file.is_file() and 'resourcePrefix = "core_"' not in build_file.read_text():
         problems.append(problem(build_file, None, 'missing resourcePrefix = "core_"'))
 
-    for path in sorted((module / "src/main/res").rglob("*.xml")) if (module / "src/main/res").is_dir() else []:
+    for path in walk(module / "src/main/res", "*.xml"):
         for number, line in enumerate(path.read_text().split("\n"), start=1):
             for name in re.findall(r'\bname="([^"]+)"', line):
                 if not name.startswith("core_"):
@@ -175,7 +213,7 @@ def check_resource_prefix() -> list[str]:
 def check_screen_units() -> list[str]:
     problems = []
     for feature in feature_names():
-        for destination in sorted(presentation_dir(feature).rglob("*Destination.kt")) if presentation_dir(feature).is_dir() else []:
+        for destination in walk(presentation_dir(feature), "*Destination.kt"):
             if NOT_A_SCREEN.search(destination.name):
                 continue
             screen = destination.name[: -len("Destination.kt")]
@@ -211,7 +249,7 @@ def check_state_previews() -> list[str]:
     problems = []
     for feature in feature_names():
         directory = presentation_dir(feature)
-        for state in sorted(directory.rglob("*State.kt")) if directory.is_dir() else []:
+        for state in walk(directory, "*State.kt"):
             if not re.search(r"\bval PREVIEW\b", state.read_text()):
                 problems.append(problem(state, None, "no `val PREVIEW` — it is the preview fixture and the usual initialState"))
     return problems
@@ -230,7 +268,7 @@ def check_no_loading_in_init() -> list[str]:
     problems = []
     for feature in feature_names():
         directory = presentation_dir(feature)
-        for view_model in sorted(directory.rglob("*ViewModel.kt")) if directory.is_dir() else []:
+        for view_model in walk(directory, "*ViewModel.kt"):
             lines = view_model.read_text().split("\n")
             for number, line in enumerate(lines):
                 if line.strip() != "init {":
@@ -345,7 +383,7 @@ def check_view_models_registered() -> list[str]:
             / BASE_PACKAGE.replace(".", "/") / "feature" / feature / "di"
         )
         di_text = "\n".join(p.read_text() for p in di_dir.glob("*Module.kt")) if di_dir.is_dir() else ""
-        for view_model in sorted(directory.rglob("*ViewModel.kt")):
+        for view_model in walk(directory, "*ViewModel.kt"):
             if f"viewModelOf(::{view_model.stem})" not in di_text:
                 problems.append(problem(view_model, None, f"no viewModelOf(::{view_model.stem}) in feature/{feature}/di"))
     return problems
@@ -401,7 +439,7 @@ def check_destinations_registered() -> list[str]:
         if feature == TEMPLATE_FEATURE:
             continue
         directory = presentation_dir(feature)
-        for destination in sorted(directory.rglob("*Destination.kt")) if directory.is_dir() else []:
+        for destination in walk(directory, "*Destination.kt"):
             for function in re.findall(r"fun EntryProviderScope<NavKey>\.(\w+)\(", destination.read_text()):
                 if f"{function}(" not in nav_host:
                     problems.append(problem(destination, None, f"{function}() is never called in AppNavHost.kt"))
@@ -429,7 +467,7 @@ def check_route_keys_verified() -> list[str]:
         if feature == TEMPLATE_FEATURE:
             continue
         directory = presentation_dir(feature)
-        for view_model in sorted(directory.rglob("*ViewModel.kt")) if directory.is_dir() else []:
+        for view_model in walk(directory, "*ViewModel.kt"):
             if not ROUTE_KEY_PARAMETER.search(view_model.read_text()):
                 continue
             entry = f"definition<{view_model.stem}>("
@@ -748,11 +786,8 @@ FOREIGN_IDENTIFIERS = [
 @check("no foreign project identifiers")
 def check_foreign_identifiers() -> list[str]:
     problems = []
-    for path in sorted(REPO_ROOT.rglob("*")):
-        if not path.is_file() or path.suffix not in {".kt", ".kts", ".py", ".xml", ".toml", ".md", ".yml", ".pro"}:
-            continue
-        parts = path.relative_to(REPO_ROOT).parts
-        if skipped_part(parts) or "__pycache__" in parts:
+    for path in walk(REPO_ROOT):
+        if path.suffix not in {".kt", ".kts", ".py", ".xml", ".toml", ".md", ".yml", ".pro"}:
             continue
         if path.name == "doctor.py":
             continue  # this list lives here
@@ -822,7 +857,7 @@ def screen_destinations(feature: str):
     directory = presentation_dir(feature)
     if not directory.is_dir():
         return
-    for destination in sorted(directory.rglob("*Destination.kt")):
+    for destination in walk(directory, "*Destination.kt"):
         if NOT_A_SCREEN.search(destination.name):
             continue
         yield destination, destination.name[: -len("Destination.kt")]
@@ -922,9 +957,9 @@ TAG_CONSTANT = re.compile(r'const\s+val\s+[A-Z0-9_]*_TAG\s*(?::\s*String\s*)?=\s
 
 def main_source_kotlin_files():
     """Every `src/main` Kotlin file in the repo — what actually ships, so what a flow can drive."""
-    for path in sorted(REPO_ROOT.rglob("*.kt")):
+    for path in walk(REPO_ROOT, "*.kt"):
         parts = path.relative_to(REPO_ROOT).parts
-        if skipped_part(parts) or "src" not in parts:
+        if "src" not in parts:
             continue
         if parts[parts.index("src") + 1] != "main":
             continue
@@ -1000,7 +1035,7 @@ def screen_prefixes(feature: str) -> set[str]:
     if sources.is_dir():
         prefixes.update(
             to_snake(path.stem.removesuffix("Screen"))
-            for path in sources.rglob("*Screen.kt")
+            for path in walk(sources, "*Screen.kt")
             if path.stem != "Screen" and "build" not in path.parts
         )
     return {prefix for prefix in prefixes if prefix}
@@ -1025,7 +1060,7 @@ def check_feature_resource_prefixes() -> list[str]:
         prefixes = screen_prefixes(feature)
         expected = " or ".join(sorted(f"{prefix}_" for prefix in prefixes))
 
-        for path in sorted(res.rglob("*")):
+        for path in walk(res):
             if not path.is_file() or "build" in path.parts:
                 continue
 
@@ -1070,7 +1105,7 @@ def check_screens_pass_screen_id() -> list[str]:
         if not sources.is_dir():
             continue
 
-        for path in sorted(sources.rglob("*Screen.kt")):
+        for path in walk(sources, "*Screen.kt"):
             if "build" in path.parts or path.stem == "Screen":
                 continue
             text = path.read_text()
@@ -1097,11 +1132,7 @@ PLURAL_QUANTITIES = {
 
 def default_string_files() -> list[Path]:
     """Every `res/values/strings.xml` in the repo, in path order."""
-    return sorted(
-        path
-        for path in REPO_ROOT.rglob("src/main/res/values/strings.xml")
-        if not skipped_part(path.relative_to(REPO_ROOT).parts)
-    )
+    return walk(REPO_ROOT, "src/main/res/values/strings.xml")
 
 
 def resource_entries(path: Path) -> dict[str, str] | str:
@@ -1182,9 +1213,7 @@ def check_translated_plurals_are_complete() -> list[str]:
 
     problems = []
     for locale, quantities in PLURAL_QUANTITIES.items():
-        for path in sorted(REPO_ROOT.rglob(f"src/main/res/values-{locale}/strings.xml")):
-            if skipped_part(path.relative_to(REPO_ROOT).parts):
-                continue
+        for path in walk(REPO_ROOT, f"src/main/res/values-{locale}/strings.xml"):
             try:
                 root = ElementTree.parse(path).getroot()
             except ElementTree.ParseError:

@@ -59,6 +59,7 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
 | D37 | Plan format | **Decided 2026-09-10 with `F9`: one `PLAN.md` under 150 lines.** `PLAN-DETAIL.md` and `PLAN-WORKERS.md` are deleted; a worker split is a PR description |
 | D38 | Deleting components | **Decided 2026-09-10: nothing in `:core:ui` is deleted in Plan 5.** The showcase features give the unused ones a home first; what is still unused after them is a decision then, with the counts in front of us |
 | D39 | The retrospective's questions | **Decided 2026-09-10: answered at the item, not up front.** Each is marked `?` below with both readings; the recommended one is first |
+| D40 | `doctor.py`'s weaker checks | **Decided 2026-09-10 with `F3`: all 30 stay.** The review proposed dropping the CLAUDE.md-tree, foreign-identifier and four style checks, mostly because they were slow; the pruned walk took the whole suite to 0.24 s, so the cost argument is gone and only taste is left. Reopen on taste, not on time |
 
 ## Items
 
@@ -66,8 +67,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
   executions for 498 tests. Done an explicit task list; unit tests only on `devDebug`; R8 on release.
 - [x] (2026-09-10) **F2 `test_scripts.py` stops copying the worktrees** · S · first — Why they were
   2,271 of 2,856 copied files, 56 times over. Done ignored, and a guard test so it cannot come back.
-- [ ] **F3 `doctor.py` walks the tree once** · S · first — Why 17 `rglob`s over 62,583 files: 14.7 s,
-  9.8 s of it kernel. Done one pruned walk into a shared index. `?` do the three weak checks go too.
+- [x] (2026-09-10) **F3 `doctor.py` walks the tree once** · S · first — Why 17 `rglob`s over 62,583
+  files: 14.0 s. Done one pruned walk into a shared index — 0.24 s, and all 30 checks kept (see D40).
 - [ ] **F17e The date picker fits its dialog** · M · first — Why `AppDialog` is platform-width with
   24 dp around a 360 dp picker, no cap, no scroll. Done `DatePickerDialog` themed; a golden per overlay.
 - [ ] **F8 `CLAUDE.md` on a diet** · M · first — Why 983 lines in every session; the gate appears six
@@ -145,5 +146,3 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
 - **Behind Q8:** certificate pinning · ETag caching · real token issuance and the refresh path (`F14`) · WorkManager sync · Paging 3.
 - **Optional seams `H9`–`H11`:** foreground/background with a session re-check · feature flags with debug-menu overrides · a push seam through the deep-link parser. None in Plan 5. **`M5`** shared-element product row → detail is a showcase, not a rule.
 - Renovate (D26) · KSD token pipeline (D29) · ViewModel-readable permission state · module graph asserted at build time · `doctor.py --fix` · feature-owned nav graphs · logger backend · language picker (D24) · detekt at 2.x · `explicitApi()` on `service/` · Play upload (D32) · generated `Ids` · feedback roles · keyboard shortcuts · z-order roles.
-- **Stale worktrees:** four under `.claude/worktrees/` (15 MB) and their `claude/*` branches, merged
-  or superseded. `git worktree remove` + `git branch -D`, not reversible — ask first.
