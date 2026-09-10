@@ -1,8 +1,8 @@
 # Release A · what a v1.0 tag must not carry
 
 Status: open
-Agents: 1 · 19 tasks · 123 on the board, 111 of work (~9.3 h) · one branch, one pull request
-Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D46, D47
+Agents: 1 · 19 tasks · 136 on the board, 124 of work (~10.3 h) · one branch, one pull request
+Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D46, D47, D48
 
 This release ships as **one pull request**, not one per task — D47, taken in A0P6. That is the only
 rule this plan bends, and it bends it once: D17 stands for every release after this one.
@@ -19,12 +19,18 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 
 ## Board
 
-### A · the tag cannot be pushed until these land · 9
+Worked top to bottom. A0P2 is first because every task after it cites a path it moves.
+
+### A · the docs, before anything else · 25
+
+- [ ] A0P2 Two audiences, one tree · 25 · decides D48
+
+### B · the tag cannot be pushed until these land · 9
 
 - [ ] A0X1 The release job's changelog guard can never match · 6
 - [ ] A0P6 One pull request per release · 3 · decides D47
 
-### B · defects · 57
+### C · defects · 57
 
 - [ ] A1X1 An empty category stops spinning (was F17a) · 12
 - [ ] A1X2 Add-to-cart leaves the nav host (was F17b) · 12
@@ -35,9 +41,8 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 - [ ] A1X4 The product-detail heart keeps its first value · 3
 - [ ] A1X5 A cold-start deep link is applied once · 3
 
-### C · a repository that is finished · 51 on the board, 39 of work
+### D · a repository that is finished · 39 on the board, 27 of work
 
-- [ ] A0P2 One ARCHITECTURE.md, no frozen plan, no forward references · 12
 - [ ] A2H3 The R8 mapping ships with the release (was H1) · 6
 - [ ] A2H1 The release job refuses to publish a debug-signed build (was F17c) · 6
 - [ ] A0P4 README is the front door again · 6
@@ -46,7 +51,7 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 - [ ] A2T1 The dead lines in domain and network (was half of F14) · 3 · decides D46
 - [ ] A1T1 Test plumbing stops being copied (was F19) · 12 · landed as commit `fe6e3bf`
 
-### D · ship · 6
+### E · ship · 6
 
 - [ ] A0P3 Ship A · 6 · after every other task
 
@@ -55,18 +60,18 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 ### A0X1 The release job's changelog guard can never match · 6
 
 **Why** `.github/workflows/build.yml:199` greps `"· $GITHUB_REF_NAME ·"`, and the block heading
-`docs/spec/CHANGELOG.md:10` documents is `## v<x.y.z> · release <letter> · <date>` — the version is
+`docs/CHANGELOG.md:10` documents is `## v<x.y.z> · release <letter> · <date>` — the version is
 preceded by `## `, never by a middot. Verified: `grep -qF "· v1.0.0 ·"` against that heading exits
 non-zero. Every tag fails at the first step of the release job, before anything is built. Two more
-holes ride along: `docs/guides/OPERATIONS.md:18` still worked-examples `v0.1.0`, and
+holes ride along: `docs/RELEASING.md` still worked-examples `v0.1.0`, and
 `--generate-notes` on the first tag of a repository has no previous tag to diff against, so the
 v1.0.0 release page would be the entire commit history.
 **Done when** the guard greps `"## $GITHUB_REF_NAME ·"`; a throwaway heading proves both the match
 and the refusal (`grep -qF '## v1.0.0 ·'` passes, `grep -qF '## v9.9.9 ·'` fails);
-`OPERATIONS.md` says `v1.0.0`; the release step passes `--notes-file` or a written note rather than
+`RELEASING.md` says `v1.0.0`; the release step passes `--notes-file` or a written note rather than
 `--generate-notes` for a first tag.
-**Touches** `.github/workflows/build.yml`, `docs/guides/OPERATIONS.md`.
-**Read** `.github/workflows/build.yml:193-205,238-247` · `docs/spec/CHANGELOG.md:1-25`.
+**Touches** `.github/workflows/build.yml`, `docs/RELEASING.md`.
+**Read** `.github/workflows/build.yml:193-205,238-247` · `docs/CHANGELOG.md:1-25`.
 **Checks** T1. **Depends** —
 
 ### A0P6 One pull request per release · 3 · decides D47
@@ -77,10 +82,10 @@ otherwise a violation of the repository's own rules, recorded nowhere.
 **Decide first** one pull request for this release only with D17 standing afterwards, or one pull
 request per release from now on → D47. The first is recommended: the per-task rule earned itself on
 Plans 1–4 and only fails here because the release is a cleanup, not a body of work.
-**Done when** D47 is a row in `../spec/DECISIONS.md`; `../PROCESS.md` names the exception in the
+**Done when** D47 is a row in `../../DECISIONS.md`; `../PROCESS.md` names the exception in the
 five sentences that assert the per-task rule (§ Ids, § Task loop 9 and 10, § States, § Ship);
 `CLAUDE.md` § Working a task says the same; no other sentence in either file contradicts it.
-**Touches** `../spec/DECISIONS.md`, `../PROCESS.md`, `CLAUDE.md`.
+**Touches** `../../DECISIONS.md`, `../PROCESS.md`, `CLAUDE.md`.
 **Read** `../PROCESS.md:20,66-72,84-92` · `CLAUDE.md` § Working a task.
 **Checks** T1. **Depends** —
 
@@ -169,25 +174,81 @@ stack survives.
 **Touches** `app/src/main/kotlin/**`.
 **Checks** T1. **Depends** —
 
-### A0P2 One ARCHITECTURE.md, no frozen plan, no forward references · 12
+### A0P2 Two audiences, one tree · 25 · decides D48
 
 **Why** two files are called `ARCHITECTURE.md` — `docs/ARCHITECTURE.md` (408 lines) and
 `docs/spec/ARCHITECTURE.md` (121) — and `docs/README.md` links both, one of them as "splits in task
-A0P2". Fifteen files under `docs/` are absent from the index whose own text says an unlinked file
-fails `doctor.py`. Nine notes across seven documents promise what "task A0P2" will do. `docs/PLAN.md`
-duplicates 41 of the 42 rows of `../spec/DECISIONS.md` and the copies have already drifted.
-**Done when** `docs/ARCHITECTURE.md` is `docs/guides/RECIPES.md` and every citation of the old path
-is repointed (`CLAUDE.md:164,236,290,351`, `README.md:8`, `docs/README.md`);
-`docs/PLAN.md`, `docs/REVIEW.md` and `docs/review/` are deleted;
-`grep -rn 'docs/PLAN.md\|docs/ARCHITECTURE.md\|docs/REVIEW.md\|docs/archive/2026-09-review\|task A0P2\|arrives with task' --include='*.md' --include='*.py' --include='*.yml' .`
-returns nothing; every file under `docs/` appears in `docs/README.md`.
-**Touches** `CLAUDE.md`, `README.md`, `docs/**`.
-**Steps** 1. `git mv docs/ARCHITECTURE.md docs/guides/RECIPES.md`. 2. `git rm docs/PLAN.md docs/REVIEW.md docs/review/*` — D42 says the review dies when A ships, so skip the archive round-trip. 3. Repoint the citations the grep finds. 4. Strip the nine forward references. 5. Rewrite `docs/README.md`'s Work and Archive sections to describe what exists.
-**Checks** T1. **Depends** —
+A0P2". Nine notes across seven documents promise what "task A0P2" will do. `docs/PLAN.md` duplicates
+41 of the 42 rows of `../spec/DECISIONS.md` and the copies have already drifted. Underneath that,
+33 files are sorted by *kind* — spec, reference, guides, work — which tells a human nothing about
+which of them are for them. Sixteen of the 33 are retrospective material that D42 says dies when
+this release ships.
 
-**Deferred out of this task, to B0P1:** `docs/spec/CODEBASE.md`, the `CLAUDE.md` ≤ 300 diet and the
-three new `doctor.py` checks. That half touches `scripts/_common.py`, `doctor.py` and
-`test_scripts.py` and is the 25-point task the draft plan described.
+**Decide first** sort the tree by depth-of-audience, or keep D41's five zones by kind → D48. Taken:
+**by depth**. `ai/` means AI-*only*, not AI-*all* — the agent reads the whole tree, and audience
+decides how deep a file sits, never what it contains. That last clause is the whole decision: it is
+what makes a human edition and a machine edition of the same fact impossible to write, and D41's
+five zones are superseded.
+
+**The tree it lands on**
+
+```
+docs/              for a human — six files, none longer than one screen
+  README.md        the rozcestník: what to open for what
+  STATUS.md        the open release's board, at a glance
+  CHANGELOG.md     one block per release, in user words
+  DECISIONS.md     every decision, outcome only
+  RELEASING.md     cutting a release: the tag, the four secrets, the hotfix rule
+  BACKLOG.md       one line per idea, no ids
+  ai/              read when a task names it, never by default
+    ARCHITECTURE.md  CODEBASE.md  RECIPES.md  TESTING.md  PROCESS.md  DEPENDENCIES.md
+    reference/       CORE.md DESIGN-SYSTEM.md DOMAIN.md FEATURES.md SERVICES.md
+    plans/           A.md B.md TEMPLATE.md — task briefs, no board
+```
+
+**Everything stays under `docs/`, and that is not taste.** `.github/workflows/build.yml:56` decides
+"documentation-only" with `grep -qvE '^(docs/|README\.md$|CLAUDE\.md$|\.claude/|…)'`. A sibling
+root — `context/`, `ai/` — is not in that allowlist, so every documentation change would classify as
+code and pay a 25-minute build, silently and for ever.
+
+**The migration is `git mv` and one cut. There is no step that writes a human version of anything** —
+that step is the disease this decision exists to prevent. `STATUS.md` is not a summary of the board;
+it *is* the board, cut out of this file at the seam that already exists (`## Board` at line 20,
+`## Tasks` at line 53). A moved section has no drift surface and needs no check to keep it honest.
+
+**Done when**
+- the tree above is on disk; `docs/PLAN.md`, `docs/REVIEW.md` and `docs/review/` are deleted
+- `grep -rn 'docs/PLAN.md\|docs/ARCHITECTURE.md\|docs/REVIEW.md\|docs/spec/\|docs/work/\|docs/guides/\|docs/archive/2026-09-review\|task A0P2\|arrives with task' --include='*.md' --include='*.py' --include='*.yml' .`
+  returns nothing
+- `docs/STATUS.md` holds this release's board and this file holds no `- [ ]` line
+- three checks land in `doctor.py`, inside B0P1's already-scoped `check_docs_index` so the count
+  stays 33: **(1) granularity** — no file directly under `docs/` names a path ending `.kt`, `.kts`,
+  `.toml` or `.xml`; **(2) one board** — `^- \[[ x-]\] [A-Z][0-9][UXTHPS][1-9] ` matches only in
+  `docs/STATUS.md`; **(3) closed set** — `docs/` holds exactly the six named files and `ai/`
+- `python3 scripts/doctor.py` and `python3 scripts/test_scripts.py` are green
+
+**Touches** `CLAUDE.md`, `README.md`, `docs/**`, `.claude/commands/*.md`, `scripts/doctor.py`
+(appended).
+
+**Steps**
+1. `git rm docs/PLAN.md docs/REVIEW.md docs/review/*` — D42 says the review dies when A ships, so
+   skip the archive round-trip and never create `docs/archive/`.
+2. `git mv` the survivors onto the tree above. `docs/ARCHITECTURE.md` splits at its own headings
+   into `ai/RECIPES.md` and `ai/TESTING.md`; `docs/guides/OPERATIONS.md` becomes `RELEASING.md`.
+3. Cut this file's `## Board` section into `docs/STATUS.md`, adding one header line: the release
+   title, `Open · ships as v1.0.0`, the counts, and a link to the briefs.
+4. Repoint the citations. 97 today, of which 28 are inside files step 1 deletes. `CLAUDE.md` has 12,
+   `.claude/commands/release.md` 9, `.claude/commands/task.md` 4, `build.yml` 5, `README.md` 3.
+5. Strip the nine forward references and rewrite `docs/README.md` as the six-row rozcestník.
+6. Append the three checks to `doctor.py`.
+
+**Read** `.github/workflows/build.yml:56` · `docs/README.md` · this file's lines 20–52.
+**Checks** T1 + `test_scripts.py`. **Depends** —
+
+**Deferred to B0P1:** `docs/ai/CODEBASE.md`'s content (the module tree moved out of `CLAUDE.md`) and
+the `CLAUDE.md` ≤ 300 diet. This task creates the file and its path; B0P1 fills it and repoints
+`scripts/_common.py:25`'s `CLAUDE_MD_FILE`.
+
 
 ### A2H3 The R8 mapping ships with the release (was H1) · 6
 
@@ -256,10 +317,10 @@ is left of this task is the token-refresh scaffold and the decision that was nev
 **Decide first** keep the scaffold, or delete it → D46. Keep is recommended and is what `F14` acted
 on: it is built on Ktor's `bearer` provider, its stale-token comparison reads correctly, and it is
 tested. Record it rather than re-litigate it.
-**Done when** D46 is a row in `../spec/DECISIONS.md`;
+**Done when** D46 is a row in `../../DECISIONS.md`;
 `grep -rn 'combineOutcomes\|chainOutcomes' --include='*.kt' .` returns nothing;
-`../reference/{DOMAIN,SERVICES}.md` no longer describe the types `ee47eaf` deleted.
-**Touches** `../spec/DECISIONS.md`, `../reference/DOMAIN.md`, `../reference/SERVICES.md`.
+`reference/{DOMAIN,SERVICES}.md` no longer describe the types `ee47eaf` deleted.
+**Touches** `../../DECISIONS.md`, `reference/DOMAIN.md`, `reference/SERVICES.md`.
 **Checks** T1. **Depends** —
 
 ### A1T1 Test plumbing stops being copied (was F19) · 12 · landed as commit `fe6e3bf`
@@ -273,10 +334,11 @@ pin; all eleven `PreviewScreenshotTest` files subclass the shared `PreviewScreen
 ### A0P3 Ship A · 6
 
 **Why** a release is a tag plus a changelog block, and the block is what the release job checks for.
-**Done when** every line above is `[x]` or `[-]`; `../spec/CHANGELOG.md` carries the
+**Done when** every line in `docs/STATUS.md` is `[x]` or `[-]`; `../../CHANGELOG.md` carries the
 `## v1.0.0 · release A · <date>` block with `Estimate · Actual · Ratio` and the `Tasks:` line; the
-guard from A0X1 matches it (`grep -qF '## v1.0.0 ·' docs/spec/CHANGELOG.md`); this file is under
-`../archive/plans/`; `../README.md`'s current-plan line points at [B.md](B.md).
+guard from A0X1 matches it (`grep -qF '## v1.0.0 ·' docs/CHANGELOG.md`); `docs/STATUS.md` shows
+release B as the open one and links its briefs; this file stays at `docs/ai/plans/A.md` with its
+board gone and its briefs intact — D48 created no archive, so nothing is moved out of sight.
 **Touches** `docs/**`. **Checks** T1. **Depends** every other task
 
 **The v1.0.0 block claims, in user words:** a way back from every screen · a category with nothing

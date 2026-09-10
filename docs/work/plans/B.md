@@ -18,9 +18,11 @@ so they touch disjoint paths. Assign ids last; the ones below are provisional.
 
 - [ ] B0P1 The module tree moves, CLAUDE.md goes on a diet · 25
 
-The half of A0P2 that v1.0 did not need: `docs/spec/CODEBASE.md` holds the fenced module tree and
+The half of A0P2 that v1.0 did not need: `docs/ai/CODEBASE.md` holds the fenced module tree and
 the convention-plugin table byte for byte, `CLAUDE.md` comes under its own 300-line budget, and
 `doctor.py` grows `check_docs_index`, `check_task_ids` and `check_doc_budgets` — 33 checks, not 30.
+A0P2 already put its three D48 checks inside `check_docs_index`, so this task extends that check
+rather than adding a fourth.
 Touches `scripts/_common.py`, `scripts/doctor.py`, `scripts/test_scripts.py`, so it runs alone.
 Repoint `CLAUDE_MD_FILE` to `MODULE_TREE_FILE`. Read `scripts/_common.py:25,65,426-475` ·
 `scripts/doctor.py:392-427` · `scripts/test_scripts.py:185,249,413`.
@@ -91,7 +93,7 @@ dependency has to stay in a convention plugin that only that module applies.
 
 ## Backlog candidates · not yet estimated
 
-From [../BACKLOG.md](../BACKLOG.md) § Next, roughly in order. These get task sections when this plan
+From [../../BACKLOG.md](../../BACKLOG.md) § Next, roughly in order. These get task sections when this plan
 is drafted properly; until then the backlog line is the record.
 
 - The module topology, decided once (was F5 + F11) · 50 · the ten `di` modules and the `service/`
