@@ -54,6 +54,11 @@ not apply insets itself; a screen without one does, because the activity is edge
 A tab root passes neither — the bottom bar is what leaves it. The arrow needs a tag of its own
 because the caller's `modifier` goes to the bar, and the label beside it is translated.
 
+**A label a component supplies itself is a resource, never a literal.** The picker's Cancel and
+Choose and the confirm dialog's default Cancel live in `:core:ui`'s `strings.xml` under `app_`,
+in both locales, beside the back arrow and the stepper's keys — a component's own control carries
+the same name everywhere it appears, and `doctor.py`'s translation check does not read Kotlin.
+
 Twenty-seven of the components are currently composed only by the gallery. None is deleted until the
 showcase features have had a chance to give them a home.
 

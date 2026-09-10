@@ -4,7 +4,9 @@
     action rather than the icon.
 -->
 <resources>
+    <string name="app_dialog_cancel">Zrušit</string>
     <string name="app_navigate_up">Přejít nahoru</string>
+    <string name="app_picker_choose">Vybrat</string>
     <string name="app_search_clear">Vymazat dotaz</string>
     <string name="app_stepper_decrement">Snížit počet</string>
     <string name="app_stepper_increment">Zvýšit počet</string>

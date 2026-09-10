@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.androidproject1.core.ui.R
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -107,7 +109,7 @@ fun AppConfirmDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     message: String? = null,
-    dismissLabel: String = "Cancel",
+    dismissLabel: String = stringResource(R.string.app_dialog_cancel),
     destructive: Boolean = true,
 ) {
     AppDialog(
@@ -131,6 +133,6 @@ private fun Preview() = ThemedComponentPreview {
     // A dialog draws in its own window, so the preview shows the buttons it would carry.
     AppText(text = "Void this order?", role = TextRole.TitleLarge)
     AppText(text = "The items go back to stock and the order is closed.", role = TextRole.Body)
-    AppButton(label = "Cancel", onClick = {}, kind = ButtonKind.Ghost)
+    AppButton(label = stringResource(R.string.app_dialog_cancel), onClick = {}, kind = ButtonKind.Ghost)
     AppButton(label = "Void order", onClick = {}, kind = ButtonKind.Destructive)
 }
