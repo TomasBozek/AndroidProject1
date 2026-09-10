@@ -40,6 +40,12 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 - [ ] B3S1 Trips, a showcase feature (was S1) · 50
 - [ ] B3S2 Field report, a showcase feature (was S2) · 50
 
+## Next · release C
+
+[ai/plans/C.md](ai/plans/C.md) — the arcade: nine small games that are each an excuse to drive one
+group of components properly, and the release that finally answers D38. 24 tasks, 380 points, four
+agents. It is a **draft**; the owner opens it when B closes.
+
 ## Shipped
 
 Release A · what a v1.0 tag must not carry. Closed 2026-09-10, all 19 tasks landed: estimate 136,

@@ -26,6 +26,12 @@ plan, not this file.
   known vulnerabilities, and Renovate is parked — so it would be submitted to nothing that acts on it.
 - The category and product names the Maestro flows tap are text, not ids. Fixture data rather than
   labels, so the tab fix does not cover them; decide whether fixture rows get ids at all.
+- A history, not just a record (arcade) · 12 · the table holds one row per game on purpose (D54);
+  every run kept, plus a sparkline per game, is a second table and a chart component that does not
+  exist yet.
+- Sound in the arcade · 12 · a tick on the stepper and a buzz on a false start. Needs an asset
+  pipeline and a settings switch to turn it off, and neither exists.
+- Difficulty per game (arcade) · 25 · after the nine exist and someone has actually played them.
 
 ## Someday
 
