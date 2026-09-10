@@ -134,18 +134,21 @@ jobs:
       # on. The two `compile*` tasks are the `prod` and `staging` source sets, two files each, which
       # nothing else here would compile; they cost seconds and stop a flavor going stale between
       # releases. R8, `prodRelease` and the store artefact belong to the release job below.
-      - name: Test, lint and assemble
+      #
+      # `verifyRoborazziDebug` is in the same invocation rather than a step of its own, and that is
+      # the whole point: a Gradle task runs at most once per invocation, so asking for both means
+      # the Robolectric tests execute once with the capture switched on. As two steps they executed
+      # twice — measured at 913 s and 773 s on this runner, where one pass over :core:ui is 77 s
+      # against 125 s for the pair. The capture still gates: replacing one golden with a different
+      # image fails `testDebugUnitTest` in the combined run, which is what makes this safe.
+      #
+      # A failure writes the actual image and the diff under build/outputs/roborazzi, which the
+      # upload step below collects.
+      - name: Test, lint, assemble and verify the screenshots
         run: >-
           ./gradlew test :app:lintDevDebug :app:assembleDevDebug
           :app:compileProdDebugKotlin :app:compileStagingDebugKotlin
-
-      # The goldens. A step of its own because the capture only happens when this task asks for
-      # it — the `test` above leaves Roborazzi switched off, so a screenshot regression would
-      # otherwise pass here and be found by eye. A failure writes the actual image and the
-      # diff under build/outputs/roborazzi, which the upload step below collects.
-      - name: Verify the screenshots
-        if: needs.changes.outputs.ui == 'true'
-        run: ./gradlew verifyRoborazziDebug
+          ${{ needs.changes.outputs.ui == 'true' && 'verifyRoborazziDebug' || '' }}
 
       # A signal, not a gate, and a signal nobody reads on a pull request. The tests have already
       # run above, so this only assembles the report -- on main, where the trend lives.
