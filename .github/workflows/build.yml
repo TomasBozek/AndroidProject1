@@ -113,6 +113,20 @@ jobs:
       - uses: actions/checkout@v4
 
       # Must match gradle/gradle-daemon-jvm.properties, which pins the daemon's JDK.
+      # A tag publishes a GitHub release, and an APK signed with an ephemeral CI debug key is
+      # indistinguishable from a real one on the release page — same green tick, same download.
+      # The secrets are optional everywhere else on purpose, so this is the one place that
+      # difference can still be caught, and it is caught before R8 spends ten minutes.
+      - name: A tagged release is signed with the release key
+        if: startsWith(github.ref, 'refs/tags/') && github.event.repository.fork == false
+        run: |
+          test -n "$KEYSTORE_BASE64" || {
+            echo "$GITHUB_REF_NAME would publish an APK signed with the CI debug key."
+            echo "Set KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD, then"
+            echo "delete the tag and push it again."
+            exit 1
+          }
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -215,8 +229,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # Absent on a fork or a pull request, and that is fine: the build falls back to the debug
-      # key and still assembles, which is what 5.2 is for.
+      # Absent on the schedule, on a fork and on a pull request, and that is fine: those builds
+      # exist to keep R8 honest rather than to publish, so they fall back to the debug key and
+      # still assemble. A tag does not get that fallback — the step above refuses it.
       - name: Write the release keystore
         if: env.KEYSTORE_BASE64 != ''
         run: |

@@ -21,8 +21,10 @@ its `v`, `versionCode` is the commit count, and any build not on a `v*` tag is 1
    first tag of a repository has no previous tag to diff against, and the block is already written
    in the words someone using the app would recognise.
 
-Without the signing secrets the build falls back to the debug key. The four secrets are
-`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
+The four secrets are `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
+**A tag without them is refused**, before anything is built: an APK signed with the CI debug key
+looks exactly like a real one on the release page. The weekly run and a fork have no secrets and
+fall back to the debug key, because those builds exist to keep R8 honest, not to publish.
 
 The release carries two files: the APK and the R8 mapping it was built with, named for the tag. A
 minified stack trace is unreadable without it, and the names are rewritten on every build — so the
