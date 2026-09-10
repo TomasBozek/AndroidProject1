@@ -27,7 +27,7 @@ from _common import (  # noqa: E402
     APP_NAV_HOST_FILE,
     KOIN_GRAPH_TEST_FILE,
     BASE_PACKAGE,
-    CLAUDE_MD_FILE,
+    MODULE_TREE_FILE,
     CORE_DI_BUILD_FILE,
     FEATURE_TREE_ENTRY,
     KOIN_FILE,
@@ -389,18 +389,18 @@ def check_view_models_registered() -> list[str]:
     return problems
 
 
-@check("every feature is listed in CLAUDE.md's module tree")
+@check("every feature is listed in the module tree")
 def check_feature_tree() -> list[str]:
     """
-    CLAUDE.md is the rulebook a cold session reads before touching anything, and a module tree
-    that has drifted teaches the wrong structure. The generators keep the tree in step; this is
-    what makes forgetting visible when a feature is added by hand.
+    docs/ai/CODEBASE.md holds the tree a cold session reads before touching a module, and one that
+    has drifted teaches the wrong structure. The generators keep it in step; this is what makes
+    forgetting visible when a feature is added by hand.
     """
-    if not CLAUDE_MD_FILE.is_file():
-        return [problem(CLAUDE_MD_FILE, None, "not found")]
+    if not MODULE_TREE_FILE.is_file():
+        return [problem(MODULE_TREE_FILE, None, "not found")]
 
     listed = {}
-    for number, line in enumerate(CLAUDE_MD_FILE.read_text().split("\n"), start=1):
+    for number, line in enumerate(MODULE_TREE_FILE.read_text().split("\n"), start=1):
         match = FEATURE_TREE_ENTRY.match(line)
         if match:
             listed[match.group(1)] = (number, [l for l in match.group(2).split(",") if l])
@@ -410,20 +410,20 @@ def check_feature_tree() -> list[str]:
     for feature in on_disk:
         layers = [l for l in ALL_LAYERS if (REPO_ROOT / "feature" / feature / l).is_dir()]
         if feature not in listed:
-            problems.append(problem(CLAUDE_MD_FILE, None, f"feature/{feature} is missing from the module tree"))
+            problems.append(problem(MODULE_TREE_FILE, None, f"feature/{feature} is missing from the module tree"))
             continue
         number, documented = listed[feature]
         if documented != layers:
             problems.append(
                 problem(
-                    CLAUDE_MD_FILE,
+                    MODULE_TREE_FILE,
                     number,
                     f"feature/{feature} has {','.join(layers)}; the tree says {','.join(documented)}",
                 )
             )
     for feature, (number, _) in listed.items():
         if feature not in on_disk:
-            problems.append(problem(CLAUDE_MD_FILE, number, f"lists :feature:{feature}, which does not exist"))
+            problems.append(problem(MODULE_TREE_FILE, number, f"lists :feature:{feature}, which does not exist"))
     return problems
 
 
@@ -1252,6 +1252,21 @@ SOURCE_PATH_IN_PROSE = re.compile(r"[\w./-]+\.(?:kt|kts|toml|xml)\b")
 # A board line: `- [ ] A1U1 <title> · 12`, in any of the three states.
 BOARD_LINE = re.compile(r"^- \[[ x-]\] [A-Z][0-9][UXTHPS][1-9] ", re.MULTILINE)
 
+# What a board line looks like before its id is read: anything after the checkbox, so a malformed
+# id is a failure rather than a line BOARD_LINE quietly skips.
+BOARD_LINE_LOOSE = re.compile(r"^- \[[ x-]\] (\S+)", re.MULTILINE)
+
+# `<release><lane><kind><seq>` — ../PROCESS.md § Ids. The kinds are UI, fiX, Trim, Harden,
+# Platform, Showcase.
+TASK_ID = re.compile(r"^[A-Z][0-9][UXTHPS][1-9]$")
+
+# ../PROCESS.md § Which doc changes when, and docs/README.md § Budgets. A file over its budget has
+# started explaining itself; the rest of the tree carries targets, which are not checked.
+DOC_BUDGETS = {
+    REPO_ROOT / "CLAUDE.md": 300,
+    DOCS_DIR / "ai/PROCESS.md": 120,
+}
+
 
 @check("the docs tree keeps its two audiences apart")
 def check_docs_index() -> list[str]:
@@ -1266,8 +1281,23 @@ def check_docs_index() -> list[str]:
     moves them across.
 
     **A closed set.** Six files and `ai/`. A seventh would be a zone nobody chose.
+
+    **One tree.** The module tree is `ai/CODEBASE.md`, and the generators write it there (B0P1,
+    B0P2). A second copy in `CLAUDE.md` is what the move was for, and it would go stale first.
     """
     problems = []
+
+    for path in walk(DOCS_DIR, "*.md"):
+        if path == MODULE_TREE_FILE:
+            continue
+        for number, line in enumerate(path.read_text().splitlines(), 1):
+            if FEATURE_TREE_ENTRY.match(line):
+                problems.append(problem(path, number, "holds a module-tree entry — the tree is docs/ai/CODEBASE.md"))
+    for number, line in enumerate((REPO_ROOT / "CLAUDE.md").read_text().splitlines(), 1):
+        if FEATURE_TREE_ENTRY.match(line):
+            problems.append(
+                problem(REPO_ROOT / "CLAUDE.md", number, "holds a module-tree entry — the tree is docs/ai/CODEBASE.md")
+            )
 
     for path in tree():
         if path.parent != DOCS_DIR or path.suffix != ".md":
@@ -1303,6 +1333,53 @@ def check_docs_index() -> list[str]:
         for name in sorted(directories - {AI_DIRECTORY}):
             problems.append(problem(DOCS_DIR / name, None, "is a zone nobody chose; docs/ holds six files and ai/"))
 
+    return problems
+
+
+@check("every task id on a board is well formed and used once")
+def check_task_ids() -> list[str]:
+    """`../PROCESS.md` § Ids: an id appears in the board line, the section, the branch, the commit
+    and the changelog, so a malformed one is wrong in five places at once — and a duplicate points
+    two of them at the same work.
+
+    Checked against the loose form of a board line rather than the strict one, because the strict
+    pattern would skip exactly the lines this is looking for.
+    """
+    problems = []
+    seen: dict[str, Path] = {}
+
+    for path in [DOCS_DIR / "STATUS.md", *sorted(walk(DOCS_DIR / "ai/plans", "*.md"))]:
+        if not path.is_file() or path.name == "TEMPLATE.md":
+            continue
+        for number, line in enumerate(path.read_text().splitlines(), 1):
+            match = BOARD_LINE_LOOSE.match(line)
+            if not match:
+                continue
+            task_id = match.group(1)
+            if not TASK_ID.match(task_id):
+                problems.append(problem(path, number, f"`{task_id}` is not a task id — see PROCESS.md § Ids"))
+                continue
+            if task_id in seen:
+                problems.append(problem(path, number, f"{task_id} already has a board line in {relative_to_repo(seen[task_id])}"))
+            else:
+                seen[task_id] = path
+    return problems
+
+
+@check("no documentation file is over its budget")
+def check_doc_budgets() -> list[str]:
+    """A file over budget has started explaining itself rather than saying what to do. Two files
+    carry a hard number — `CLAUDE.md`, which every session reads in full, and `PROCESS.md`, which
+    every task reads once. The rest of the tree carries targets, which are nobody's gate.
+    """
+    problems = []
+    for path, budget in DOC_BUDGETS.items():
+        if not path.is_file():
+            problems.append(problem(path, None, "not found"))
+            continue
+        length = len(path.read_text().splitlines())
+        if length > budget:
+            problems.append(problem(path, None, f"is {length} lines, over its {budget}-line budget"))
     return problems
 
 
