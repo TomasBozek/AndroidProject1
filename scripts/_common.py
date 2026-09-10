@@ -28,6 +28,10 @@ KOIN_GRAPH_TEST_FILE = REPO_ROOT / "app/src/test/kotlin" / BASE_PATH / "KoinGrap
 CORE_DI_BUILD_FILE = REPO_ROOT / "core/di/build.gradle.kts"
 APP_NAV_HOST_FILE = REPO_ROOT / "app/src/main/kotlin" / BASE_PATH / "AppNavHost.kt"
 VERSION_CATALOG_FILE = REPO_ROOT / "gradle/libs.versions.toml"
+GALLERY_CATALOG_FILE = (
+    REPO_ROOT / "feature/gallery/presentation/src/main/kotlin" / BASE_PATH
+    / "feature/gallery/presentation/GalleryCatalog.kt"
+)
 
 # Order matters: this is also the order layers are listed in settings.gradle.kts.
 ALL_LAYERS = ["domain", "data", "presentation", "di"]
@@ -473,3 +477,39 @@ def unregister_from_feature_tree(flat: str, dry_run: bool) -> None:
         return "\n".join(line for i, line in enumerate(lines) if i not in drop)
 
     edit_file(MODULE_TREE_FILE, transform, dry_run, "remove the module from docs/ai/CODEBASE.md")
+
+
+# --------------------------------------------------------------------------------------------
+# The gallery catalogue
+# --------------------------------------------------------------------------------------------
+
+GALLERY_ANCHOR = "    // create_component.py appends a starter entry here"
+
+
+def register_in_gallery(pascal: str, dry_run: bool) -> None:
+    """Lists a new `:core:ui` component in the gallery, so `doctor.py` does not fail on it.
+
+    A starter entry with one variant, not a finished one: what a component is worth showing is a
+    judgement the person writing it makes. The point is that the entry exists and says which
+    component it is — a gallery that silently omits a component is what `check_gallery_lists_every_component`
+    was added for.
+    """
+    identifier = pascal.removeprefix("App")
+    identifier = identifier[0].lower() + identifier[1:] if identifier else pascal.lower()
+    entry = (
+        f'    entry(\n'
+        f'        "{identifier}", "{pascal}", "Content",\n'
+        f'        "TODO: one sentence on what this is for and when to reach for it.",\n'
+        f'        "Default" to {{ {pascal}() }},\n'
+        f'    ),\n'
+    )
+
+    def transform(text: str) -> str:
+        if f'"{pascal}"' in text:
+            return text
+        if GALLERY_ANCHOR not in text:
+            print("  GalleryCatalog.kt: no anchor found — add the entry by hand")
+            return text
+        return text.replace(GALLERY_ANCHOR, entry + GALLERY_ANCHOR, 1)
+
+    edit_file(GALLERY_CATALOG_FILE, transform, dry_run, "list the component in the gallery")

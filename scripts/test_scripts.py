@@ -190,6 +190,29 @@ class ScaffoldingTest(unittest.TestCase):
 
         self.assert_doctor_passes()
 
+    def test_create_component_lists_a_core_ui_component_in_the_gallery(self) -> None:
+        """The one registration a component has (D52): doctor.py fails on a component with none."""
+        self.run_script("create_component.py", "PriceTicker")
+
+        catalog = self.read(
+            "feature/gallery/presentation/src/main/kotlin/"
+            f"{BASE_PATH}/feature/gallery/presentation/GalleryCatalog.kt"
+        )
+        self.assertIn('"priceTicker", "PriceTicker"', catalog)
+        self.assert_doctor_passes()
+
+    def test_create_component_for_a_feature_stays_out_of_the_gallery(self) -> None:
+        """The gallery lists `:core:ui`, which is the set every feature may compose from."""
+        self.run_script("create_feature.py", "userProfile")
+        self.run_script("create_component.py", "ProductCard", "--feature", "userprofile")
+
+        catalog = self.read(
+            "feature/gallery/presentation/src/main/kotlin/"
+            f"{BASE_PATH}/feature/gallery/presentation/GalleryCatalog.kt"
+        )
+        self.assertNotIn("ProductCard", catalog)
+        self.assert_doctor_passes()
+
     def test_create_feature_does_not_clone_the_goldens(self) -> None:
         """The screenshot test is cloned; the images it recorded for the template are not.
 

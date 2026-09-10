@@ -938,6 +938,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             }
         },
     ),
+    // create_component.py appends a starter entry here; doctor.py fails on a component with none.
 )
 
 /**

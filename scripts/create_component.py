@@ -33,6 +33,7 @@ from _common import (  # noqa: E402
     BASE_PATH,
     REPO_ROOT,
     feature_source_dir,
+    register_in_gallery,
     to_flat,
     to_pascal,
     write_file,
@@ -216,9 +217,15 @@ def main() -> None:
     if not wrote:
         sys.exit("Nothing was generated.")
 
+    # A feature's own component is not in the gallery: the gallery lists `:core:ui`, which is the
+    # set every feature may compose from.
+    if not args.feature:
+        register_in_gallery(pascal, args.dry_run)
+
     print(
-        "\nDone. A component needs no registration — no Koin binding, no nav entry.\n"
-        "Replace the placeholder content, then: ./gradlew build"
+        "\nDone. A component needs no Koin binding and no nav entry — the gallery entry above is\n"
+        "the one registration, and doctor.py fails without it. Replace the placeholder content and\n"
+        "the entry's summary, then: ./gradlew :core:ui:assembleDebug"
     )
 
 

@@ -1373,6 +1373,47 @@ def check_tab_test_ids() -> list[str]:
     return problems
 
 
+GALLERY_CATALOG_FILE = (
+    REPO_ROOT / "feature/gallery/presentation/src/main/kotlin" / BASE_PACKAGE.replace(".", "/")
+    / "feature/gallery/presentation/GalleryCatalog.kt"
+)
+
+GALLERY_ENTRY = re.compile(r'entry\(\s*"[^"]+",\s*"(\w+)"')
+
+# The two files in `core/ui/component` that are deliberately not entries, for the reasons
+# GalleryCatalog.kt's own KDoc gives: the scaffold is the shell every gallery page already is, and
+# ControlSize is a scale rather than a component — it shows up as the size variants of the controls
+# that read it.
+NOT_GALLERY_ENTRIES = {"AppScaffold", "ControlSize"}
+
+
+@check("every :core:ui component is in the gallery")
+def check_gallery_lists_every_component() -> list[str]:
+    """The gallery is the running counterpart to the design-system document, and it was kept in
+    step by `CLAUDE.md` asking politely (D52).
+
+    Nothing enforced it, so a component added in a hurry was invisible to the one screen whose job
+    is to show every component — and to anyone deciding whether the thing they need already exists.
+    `create_component.py` now writes a starter entry and this fails when one is missing, which is
+    the pair that keeps it true rather than merely true today.
+    """
+    root = REPO_ROOT / "core/ui/src/main/kotlin" / BASE_PACKAGE.replace(".", "/") / "core/ui/component"
+    if not root.is_dir() or not GALLERY_CATALOG_FILE.is_file():
+        return []
+
+    listed = set(GALLERY_ENTRY.findall(GALLERY_CATALOG_FILE.read_text()))
+    problems = []
+    for path in sorted(kotlin_files(root)):
+        if path.stem in NOT_GALLERY_ENTRIES or path.stem in listed:
+            continue
+        problems.append(problem(path, None, "is in no gallery entry — run create_component.py, or add one by hand"))
+
+    on_disk = {path.stem for path in kotlin_files(root)}
+    for name in sorted(listed - on_disk):
+        problems.append(problem(GALLERY_CATALOG_FILE, None, f"lists {name}, which is not a file in core/ui/component"))
+    return problems
+
+
 @check("every task id on a board is well formed and used once")
 def check_task_ids() -> list[str]:
     """`../PROCESS.md` § Ids: an id appears in the board line, the section, the branch, the commit
