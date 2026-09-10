@@ -6,6 +6,7 @@ import com.example.androidproject1.core.domain.result.Outcome
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.Category
 import com.example.androidproject1.feature.catalog.domain.Product
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -22,6 +23,7 @@ class FakeCatalogRepository(
     var products: List<Product> = listOf(COFFEE),
     var failWith: DomainError? = null,
     var staleThenFail: Boolean = false,
+    var getProductDelayMillis: Long = 0,
 ) : CatalogRepository {
 
     var observeProductsCallCount = 0
@@ -44,8 +46,13 @@ class FakeCatalogRepository(
         return emissions(products.filter { it.name.contains(query, ignoreCase = true) })
     }
 
-    override suspend fun getProduct(productId: String): Outcome<Product?> =
-        failWith?.let { Outcome.Failure(it) } ?: Outcome.Success(products.find { it.id == productId })
+    override suspend fun getProduct(productId: String): Outcome<Product?> {
+        // Lets a test put the product read second, which is the order that used to lose the
+        // favourite flag on product detail. Zero by default, so nothing else waits.
+        if (getProductDelayMillis > 0) delay(getProductDelayMillis)
+        return failWith?.let { Outcome.Failure(it) }
+            ?: Outcome.Success(products.find { it.id == productId })
+    }
 
     private fun <T> emissions(data: T): Flow<Outcome<T>> {
         val error = failWith
