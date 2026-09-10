@@ -4,6 +4,16 @@ name: Sign in reaches Home
 ---
 - clearState
 - launchApp
+
+# The tour first. `SessionState.Onboarding` outranks the other two by design — someone who has not
+# finished it is shown it whether or not a session is stored — so a cleared app opens here and not
+# on Login. Every other flow runs this one, so asserting LoginScreen straight after clearState is
+# what broke all five.
+- assertVisible:
+    id: "OnboardingScreen"
+- tapOn:
+    id: "onboarding_skipButton"
+
 - assertVisible:
     id: "LoginScreen"
 
