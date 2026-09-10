@@ -44,6 +44,7 @@ the boundary. Do not make it an Android library to reach a framework class — m
 | `state/UiState` | the `(data, loading, alert)` envelope |
 | `state/ContentState` | the error and empty states, rendered instead of content |
 | `component/Screen()` | the only collector in the app and the only interpreter of `UiCommand` |
+| `component/ScreenChrome` | the seam that lets an app draw `Screen()`'s surface, overlay, alert, empty state and snackbar host in its own design system (D50). `LocalScreenChrome` carries it; `DefaultScreenChrome` is stock Material, which is what this module renders when it is copied into a project that has no theme yet |
 | `event/UiEvent`, `UiCommand`, `SystemEvent` | what the user did, what the shell should do, what came back |
 | `navigation/NavResultStore` | a value handed from one screen back to another, consumed once |
 | `permission/` | `rememberPermissionRequest`, `PermissionStatus`, `PermissionGate`, `rememberDeclaredPermissions`. The one package here whose tests need Robolectric |

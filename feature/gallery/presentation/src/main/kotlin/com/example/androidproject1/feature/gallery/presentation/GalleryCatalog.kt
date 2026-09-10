@@ -54,6 +54,7 @@ import com.example.androidproject1.core.ui.component.AppProgress
 import com.example.androidproject1.core.ui.component.AppRadio
 import com.example.androidproject1.core.ui.component.AppRadioGroup
 import com.example.androidproject1.core.ui.component.AppRangeSlider
+import com.example.androidproject1.core.ui.component.AppScreenChrome
 import com.example.androidproject1.core.ui.component.AppScrollShadow
 import com.example.androidproject1.core.ui.component.AppSearchField
 import com.example.androidproject1.core.ui.component.AppSectionHeader
@@ -93,6 +94,9 @@ import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.component.ToastTone
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryItem
+import com.example.androidproject1.service.core.ui.state.ContentState
+import com.example.androidproject1.service.core.ui.state.LoadingState
+import com.example.androidproject1.service.core.ui.text.toUiText
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.math.roundToInt
@@ -136,6 +140,10 @@ private fun entry(
  * containing a scaffold would demonstrate it worse than the gallery does by existing. `ControlSize`
  * is the shared sm / md / lg scale and not a component at all; it shows up as the size variants of
  * the controls that read it.
+ *
+ * `AppScreenChrome` is the one entry nothing else composes: it is what `Screen()` draws around
+ * every feature (D50), so rendering it here is the only way to look at it. Its alert dialog and its
+ * snackbar host draw in windows of their own and are goldens in `OverlayScreenshotTest` instead.
  */
 val galleryCatalog: List<GalleryEntry> = listOf(
     entry(
@@ -864,6 +872,45 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             }
         },
     ),
+    entry(
+        "screenChrome",
+        "AppScreenChrome",
+        "Feedback",
+        "What Screen() draws around every feature: the base surface, the loading overlay and the " +
+            "empty and error states. A feature never composes these — it puts a ContentState or a " +
+            "LoadingState in its UiState and this renders it.",
+        "Error, with a retry" to {
+            Box(modifier = Modifier.height(AppTheme.density.listRowHeight * CHROME_DEMO_ROWS)) {
+                AppScreenChrome.ContentMessage(
+                    state = ContentState.Error(message = "Nothing came back. Try again.".toUiText()),
+                    onAction = {},
+                    modifier = Modifier,
+                )
+            }
+        },
+        "Empty" to {
+            Box(modifier = Modifier.height(AppTheme.density.listRowHeight * CHROME_DEMO_ROWS)) {
+                AppScreenChrome.ContentMessage(
+                    state = ContentState.Empty(message = "No orders on this table yet.".toUiText()),
+                    onAction = {},
+                    modifier = Modifier,
+                )
+            }
+        },
+        "Loading overlay" to {
+            Box(modifier = Modifier.height(AppTheme.density.listRowHeight * CHROME_DEMO_ROWS)) {
+                AppScreenChrome.LoadingOverlay(state = LoadingState(), modifier = Modifier)
+            }
+        },
+        "Loading overlay, worded" to {
+            Box(modifier = Modifier.height(AppTheme.density.listRowHeight * CHROME_DEMO_ROWS)) {
+                AppScreenChrome.LoadingOverlay(
+                    state = LoadingState(message = "Saving the photo".toUiText()),
+                    modifier = Modifier,
+                )
+            }
+        },
+    ),
 )
 
 /**
@@ -892,5 +939,8 @@ private fun CheckboxDemo(initial: CheckState, label: String) = Demo(initial) { c
 fun galleryItems(): List<GalleryItem> = galleryCatalog.map {
     GalleryItem(id = it.id, name = it.name, group = it.group, summary = it.summary)
 }
+
+/** Tall enough that an overlay reads as an overlay rather than as a strip. */
+private const val CHROME_DEMO_ROWS = 3
 
 fun galleryEntry(id: String): GalleryEntry? = galleryCatalog.firstOrNull { it.id == id }

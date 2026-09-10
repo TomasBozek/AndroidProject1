@@ -1,5 +1,6 @@
 package com.example.androidproject1.service.core.ui.screenshot
 
+import android.os.SystemClock
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.hasAnyAncestor
@@ -10,11 +11,16 @@ import androidx.compose.ui.test.performClick
 import com.example.androidproject1.core.ui.component.AppButton
 import com.example.androidproject1.core.ui.component.AppDateField
 import com.example.androidproject1.core.ui.component.AppDialog
+import com.example.androidproject1.core.ui.component.AppScreenChrome
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTimeField
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.theme.AppTheme
+import com.example.androidproject1.service.core.ui.state.AlertState
+import com.example.androidproject1.service.core.ui.text.toUiText
 import com.github.takahirom.roborazzi.captureScreenRoboImage
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +29,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
+import java.util.TimeZone
 
 private const val ONE_FRAME_MILLIS = 16L
 
@@ -57,6 +65,27 @@ class OverlayScreenshotTest {
 
     @get:Rule
     val compose = createComposeRule()
+
+    /**
+     * The date picker rings *today*, and it reads today from the wall clock — so these two goldens
+     * were a test that failed once a day, every day, for a reason that had nothing to do with the
+     * code. Pinning the clock is what makes them assert the picker instead of the calendar.
+     *
+     * The zone is pinned with it: the instant below is midday UTC, so the date it lands on is the
+     * same in every zone a machine running this might be set to.
+     */
+    @Before
+    fun pinTheClock() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        SystemClock.setCurrentTimeMillis(
+            LocalDate.of(2026, 9, 10).atTime(12, 0).toInstant(ZoneOffset.UTC).toEpochMilli(),
+        )
+    }
+
+    @After
+    fun unpinTheZone() {
+        TimeZone.setDefault(null)
+    }
 
     @Test
     @Config(qualifiers = "w360dp-h640dp-xhdpi")
@@ -101,6 +130,57 @@ class OverlayScreenshotTest {
             }
         }
         capture("overlay_dialog_longContent")
+    }
+
+    /**
+     * The alert every screen raises, drawn by the design system's own dialog rather than Material's
+     * (D50). It is `Screen()`'s chrome, so nothing composes it directly and no preview can see it —
+     * this is the only place it is looked at.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h640dp-xhdpi")
+    fun `the alert dialog on the narrowest phone`() {
+        compose.setContent {
+            AppTheme {
+                AppScreenChrome.AlertDialog(
+                    state = AlertState(
+                        id = "preview",
+                        title = "Place this order?".toUiText(),
+                        message = "The kitchen starts on it straight away.".toUiText(),
+                        confirmLabel = "Order".toUiText(),
+                        declineLabel = "Not yet".toUiText(),
+                    ),
+                    onConfirm = {},
+                    onDecline = {},
+                    onDismiss = {},
+                    modifier = Modifier,
+                )
+            }
+        }
+        capture("overlay_alertDialog_narrowPhone")
+    }
+
+    /** The same alert with one button, which is what an error raises. */
+    @Test
+    @Config(qualifiers = "w360dp-h640dp-xhdpi")
+    fun `the alert dialog with a single action`() {
+        compose.setContent {
+            AppTheme {
+                AppScreenChrome.AlertDialog(
+                    state = AlertState(
+                        id = "preview",
+                        title = "Something went wrong".toUiText(),
+                        message = "The order did not reach the kitchen.".toUiText(),
+                        confirmLabel = "OK".toUiText(),
+                    ),
+                    onConfirm = {},
+                    onDecline = {},
+                    onDismiss = {},
+                    modifier = Modifier,
+                )
+            }
+        }
+        capture("overlay_alertDialog_singleAction")
     }
 
     private fun openDateField() {

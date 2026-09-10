@@ -44,6 +44,7 @@ of the controls that read it).
 | Form | `AppTextField` `AppSearchField` `AppSelect` `AppCheckbox` `AppRadio` `AppSwitch` `AppSegmented` `AppStepper` `AppSlider` `AppDateField` `AppFieldGroup` `AppFormField` |
 | Navigation | `AppTopBar` `AppToolbar` `AppBottomNav` `AppNavRail` `AppTabs` `AppPager` `AppBottomActionBar` |
 | Overlay | `AppDialog` `AppSheet` `AppMenu` `AppTooltip` `AppToast` |
+| Shell | `AppScaffold` `AppScreenChrome` — the second is what `Screen()` draws around every feature (D50): the base surface, the loading overlay, the empty and error states, the alert and the snackbar host. A feature composes none of them; it puts a `ContentState` or a `LoadingState` in its `UiState` |
 | Status | `AppBadge` `AppTag` `AppAvatar` `AppProgress` `AppSpinner` `AppSkeleton` `AppStatusDot` |
 
 `AppScaffold` is the screen shell: base surface, system insets, an optional `AppTopBar`, and the

@@ -80,6 +80,15 @@ data class AppColors(
     val scrim: Color,
     /** How far the scrim dims what is under an overlay. */
     val scrimAlpha: Float,
+    /**
+     * Text and icons *on* the scrim — the loading overlay's wording and its spinner.
+     *
+     * The one role that does not flip between the themes, and the reason it exists: the scrim is a
+     * dark wash in both, so what sits on it is light in both. [textOnInverse] is the role this
+     * looks like and it is the wrong one — it follows the inverse *surface*, which does flip, and
+     * in dark mode that puts near-black text on a near-black wash.
+     */
+    val textOnScrim: Color,
     val isLight: Boolean,
 ) {
     /** Account state. The three are aliases, so a status row and a button cannot drift apart. */
@@ -112,6 +121,7 @@ fun lightAppColors(): AppColors = AppColors(
     focusRing = Ramp.Blue500,
     scrim = Ramp.Gray950,
     scrimAlpha = 0.45f,
+    textOnScrim = Ramp.Gray50,
     isLight = true,
 )
 
@@ -145,6 +155,7 @@ fun darkAppColors(): AppColors = AppColors(
     focusRing = Ramp.Blue400,
     scrim = Ramp.Gray950,
     scrimAlpha = 0.60f,
+    textOnScrim = Ramp.Gray50,
     isLight = false,
 )
 

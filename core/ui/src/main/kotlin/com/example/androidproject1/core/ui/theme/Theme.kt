@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalWindowInfo
+import com.example.androidproject1.core.ui.component.AppScreenChrome
+import com.example.androidproject1.service.core.ui.component.LocalScreenChrome
 
 /**
  * The theme every screen composes inside.
@@ -48,6 +50,9 @@ fun AppTheme(
         LocalAppDensity provides densityFor(sizeClass, pointer),
         LocalAppIcons provides AppIcons(),
         LocalSpacing provides Spacing(),
+        // What `Screen()` draws its surface, overlay, alert and empty state with (D50). Installed
+        // here so a screen gets it by being a screen, and so `:service:core:ui` never names us.
+        LocalScreenChrome provides AppScreenChrome,
     ) {
         MaterialTheme(
             colorScheme = colors.toColorScheme(),
