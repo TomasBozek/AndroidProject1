@@ -71,8 +71,8 @@ D1–D36 stand from Plans 2–4. A decision with a default is taken when its ite
   files: 14.0 s. Done one pruned walk into a shared index — 0.24 s, and all 30 checks kept (see D40).
 - [x] (2026-09-10) **F17e The date picker fits its dialog** · M · first — Why `AppDialog` was
   platform-width, uncapped and unscrolled. Done `DatePickerDialog` themed; four overlay goldens.
-- [ ] **F8 `CLAUDE.md` on a diet** · M · first — Why 983 lines in every session; the gate appears six
-  times in three versions. Done `?` ~300 lines + `docs/ARCHITECTURE.md`, or only the contradictions fixed.
+- [x] (2026-09-10) **F8 `CLAUDE.md` on a diet** · M · first — Why 983 lines in every session, the
+  gate in it six times. Done 363 lines plus `docs/ARCHITECTURE.md`; one gate, no contradictions.
 - [ ] **F4 The golden matrix** · M · first — Why 349 full-frame goldens, 11 MB, five per screen, no
   threshold. Done `?` Phone/Dark/LargeFont + components Light/Dark at half resolution, or a smaller cut.
 - [ ] **F5 The ten `di` modules** · M · trim — Why 13–59 lines each, and each pays an AAR and a 20 s
