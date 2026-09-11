@@ -1406,6 +1406,70 @@ def check_gallery_lists_every_component() -> list[str]:
     return problems
 
 
+# The reference documents are the inventory an agent reads *instead of* the code, so a missing row
+# is a wrong answer rather than a gap. Both files key on a backtick-quoted name in the first column.
+FEATURES_FILE = DOCS_DIR / "ai/reference/FEATURES.md"
+
+DESIGN_SYSTEM_FILE = DOCS_DIR / "ai/reference/DESIGN-SYSTEM.md"
+
+# The *first* column of a table row, not any backticked word: a name mentioned in the prose below
+# the table would otherwise satisfy the check, which is how `Trips` passed while its row was gone.
+FEATURES_ROW = re.compile(r"^\| `(\w+)` \|", re.MULTILINE)
+
+# The design-system table puts the names in the second column, one group per row.
+DESIGN_SYSTEM_ROW = re.compile(r"^\| \w+ \| (`App\w+`(?:[^|]*))\|", re.MULTILINE)
+
+COMPONENT_NAME = re.compile(r"`(App\w+)`")
+
+
+@check("every destination is in the features reference")
+def check_features_lists_every_destination() -> list[str]:
+    """`FEATURES.md` § Screens is the route inventory, and it was kept in step by hand.
+
+    B3S1 added five destinations and remembered all five; the check is here because remembering is
+    not a mechanism, and the reference is what an agent reads before deciding a screen already
+    exists. `create_screen.py` and `create_feature.py` now write a starter row and this fails when
+    one is missing — the pair is what keeps it true rather than true today. The check alone was not
+    enough and was briefly worse than nothing: without the generator half it failed on every screen
+    the generators produced, which is eleven of `test_scripts.py`'s cases.
+    """
+    if not FEATURES_FILE.is_file():
+        return []
+
+    listed = set(FEATURES_ROW.findall(FEATURES_FILE.read_text()))
+    problems = []
+    for path in sorted(REPO_ROOT.glob("feature/*/presentation/src/main/**/*Destination.kt")):
+        screen = path.stem.removesuffix("Destination")
+        if screen not in listed:
+            problems.append(problem(path, None, f"is in no FEATURES.md row — add `{screen}` to the Screens table"))
+    return problems
+
+
+@check("every :core:ui component is in the design-system reference")
+def check_design_system_lists_every_component() -> list[str]:
+    """`DESIGN-SYSTEM.md`'s group table is the other half of the gallery check.
+
+    The gallery is what a person browses; this table is what an agent greps before writing a
+    component that already exists. `AppAvatarPhoto` sat on disk and in the gallery and in neither
+    the table nor anyone's memory, which is the failure this closes.
+    """
+    root = REPO_ROOT / "core/ui/src/main/kotlin" / BASE_PACKAGE.replace(".", "/") / "core/ui/component"
+    if not root.is_dir() or not DESIGN_SYSTEM_FILE.is_file():
+        return []
+
+    listed = {
+        name
+        for row in DESIGN_SYSTEM_ROW.findall(DESIGN_SYSTEM_FILE.read_text())
+        for name in COMPONENT_NAME.findall(row)
+    }
+    problems = []
+    for path in sorted(kotlin_files(root)):
+        if not path.stem.startswith("App") or path.stem in listed:
+            continue
+        problems.append(problem(path, None, "is in no DESIGN-SYSTEM.md group row"))
+    return problems
+
+
 @check("every task id on a board is well formed and used once")
 def check_task_ids() -> list[str]:
     """`../PROCESS.md` § Ids: an id appears in the board line, the section, the branch, the commit

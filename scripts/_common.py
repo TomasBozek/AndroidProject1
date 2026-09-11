@@ -485,6 +485,57 @@ def unregister_from_feature_tree(flat: str, dry_run: bool) -> None:
 
 GALLERY_ANCHOR = "    // create_component.py appends a starter entry here"
 
+FEATURES_REFERENCE_FILE = REPO_ROOT / "docs/ai/reference/FEATURES.md"
+
+FEATURES_ANCHOR = "<!-- create_screen.py appends a starter row here -->"
+
+DESIGN_SYSTEM_FILE = REPO_ROOT / "docs/ai/reference/DESIGN-SYSTEM.md"
+
+# The group a starter component lands in, matching the gallery entry create_component.py writes.
+DESIGN_SYSTEM_GROUP = "| Content |"
+
+
+def register_in_features_reference(screen_pascal: str, feature: str, arguments: str, dry_run: bool) -> None:
+    """Adds a row to `FEATURES.md` § Screens, so `doctor.py` does not fail on the new destination.
+
+    A starter row, not a finished one: what reaches a screen is a decision the person wiring it up
+    makes, and the generator has only just created it. The point is that the row exists and names
+    the screen — a reference that silently omits a destination is what
+    `check_features_lists_every_destination` was added for, and the generator writing the row is
+    the half that keeps it true rather than merely true today.
+    """
+    row = f"| `{screen_pascal}` | {feature} | {arguments or chr(8212)} | TODO: what reaches this screen |\n"
+
+    def transform(text: str) -> str:
+        if f"| `{screen_pascal}` |" in text:
+            return text
+        if FEATURES_ANCHOR not in text:
+            print("  FEATURES.md: no anchor found — add the row by hand")
+            return text
+        return text.replace(FEATURES_ANCHOR, row + FEATURES_ANCHOR, 1)
+
+    edit_file(FEATURES_REFERENCE_FILE, transform, dry_run, "list the screen in the features reference")
+
+
+def register_in_design_system(pascal: str, dry_run: bool) -> None:
+    """Adds a new `:core:ui` component to the design-system reference's group table.
+
+    The counterpart to `register_in_gallery`: the gallery is what a person browses and the table is
+    what an agent greps before writing something that already exists, so a component has to reach
+    both or `check_design_system_lists_every_component` fails. It lands in Content, the same group
+    the starter gallery entry uses; move the name to the right row when you know which it is.
+    """
+    def transform(text: str) -> str:
+        if f"`{pascal}`" in text:
+            return text
+        for line in text.splitlines():
+            if line.startswith(DESIGN_SYSTEM_GROUP):
+                return text.replace(line, line.rstrip().removesuffix("|").rstrip() + f" `{pascal}` |", 1)
+        print("  DESIGN-SYSTEM.md: no Content group row found — add the name by hand")
+        return text
+
+    edit_file(DESIGN_SYSTEM_FILE, transform, dry_run, "list the component in the design-system reference")
+
 
 def register_in_gallery(pascal: str, dry_run: bool) -> None:
     """Lists a new `:core:ui` component in the gallery, so `doctor.py` does not fail on it.

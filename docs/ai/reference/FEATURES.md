@@ -21,7 +21,9 @@ What the sample app contains. The layer rules and the module list are
 
 ## Screens
 
-Twenty-three, each a directory of six files plus two tests. A route key with no parameters is a
+One row below per screen, each a directory of six files plus two tests — the count is the table's
+length rather than a number written here, because a number written here goes stale the next time a
+generator runs. A route key with no parameters is a
 `data object`; one with parameters is a `data class`, and those parameters reach the view model
 through its constructor.
 
@@ -50,10 +52,12 @@ through its constructor.
 | `TripWizard` | trips | — | Trips, TripsList |
 | `TripDetail` | trips | `tripId` | TripsList, Trips' next-trip card |
 | `DestinationPicker` | trips | `resultKey` | TripWizard; returns its choice through the result store |
+<!-- create_screen.py appends a starter row here -->
 
 ## Tabs
 
-Four, in this order: **Home**, **Catalog**, **Cart** (the only one with a badge), **Settings**. They
+Five, in this order: **Home**, **Catalog**, **Cart** (the only one with a badge), **Trips**,
+**Settings** — five being Material's ceiling for a bottom bar, so a sixth is a decision (D59). They
 are one `TopLevelDestination` entry each — a route key, a label string in `:app` and an icon — and
 the bar renders as a rail once there is width for one. A tab root carries no up control; the bar is
 what leaves it.
