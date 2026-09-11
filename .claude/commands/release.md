@@ -20,7 +20,9 @@ Refuse unless every board line in the open plan is `[x]` or `[-]`. Then, in one 
 3. Cut the shipped board out of `docs/STATUS.md` and put the next plan's in its place, with its
    header line — the release title, `Open · ships as v<x.y.z>`, the counts, a link to the briefs.
    If the next plan is still a draft, `docs/STATUS.md` says so and links it instead: a draft's
-   board is written among its briefs and is not a board until `/release draft` has cut it.
+   board is written among its briefs and is not a board until `/release draft` has cut it. If it is
+   `Status: paused`, its board is already in `docs/STATUS.md` under a `Paused` heading — flip its
+   header to `open` and lift the board into place, keeping every `[x]` it earned before it paused.
 4. The plan file stays where it is, briefs intact, board gone. There is no archive (D48).
 5. Run `/check pr`, then open the pull request.
 

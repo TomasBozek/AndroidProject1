@@ -35,8 +35,10 @@ It covers T0, T1 and one round of CI fixes, but not waiting for CI. A point is f
 | 25 | a flow of screens, a cross-cutting refactor, a CI job |
 | 50 | a feature slice. The ceiling — anything larger is split before it gets an id |
 
-**A lane holds 90–100 points**, so one agent finishes in roughly 7.5–8 hours. Agents =
-`ceil(total ÷ budget)`, lowered until the lanes touch disjoint paths and none is under 85. Never pad
+**A lane holds 90–100 points**, so one agent finishes in roughly 7.5–8 hours. The band sizes a
+**lane**, not a release: a release is as big as its work, and a small one is a single lane under the
+floor rather than a padded one. Agents = `ceil(total ÷ budget)`, lowered until the lanes touch
+disjoint paths and no lane of a multi-lane release is under 85. Never pad
 a lane; move the work to [../BACKLOG.md](../BACKLOG.md). Inside a lane: shared-file tasks first, then
 dependencies, then the largest. The header line is written last — `Agents: 2 · lane 1 91 (~7.3 h) ·
 lane 2 97 (~7.8 h) · lane 0 open`.
@@ -82,7 +84,13 @@ ratio))`. A band off by 30 % on three tasks gets its description rewritten; the 
 
 There is no "doing" state: a lane is worked top to bottom by one agent, so the first `[ ]` is the
 one in hand. A release is `Status: draft` → `Status: open` (the owner says the word) → closed by the
-ship task, which cuts its board out of `../STATUS.md`. At most one plan is open, and one a draft.
+ship task, which cuts its board out of `../STATUS.md`.
+
+**Exactly one plan is open.** A release the owner sets aside before it closes becomes
+`Status: paused` and keeps its board in `../STATUS.md` under a `Paused` heading, merged tasks
+intact — so work already done is never cut to make room. Any number of plans may sit behind the open
+one as `draft` or `paused`; the owner says which is next, and `../STATUS.md` says so in one line.
+That is what keeps "the plan whose header says `Status: open`" a question with one answer.
 
 ## Shared files
 
@@ -107,7 +115,8 @@ table. A generator edit counts: `create_feature.py` writes four of them.
 | a decision | `../DECISIONS.md` |
 | nothing above | nothing. Do not touch a doc to prove you were here |
 
-`CLAUDE.md` ≤ 300 lines and this file ≤ 120. The rest are targets in [../README.md](../README.md).
+Every doc carries a length target, and they are written once, in
+[../README.md](../README.md) § Rules for these docs.
 
 ## Ship, and draft the next plan
 

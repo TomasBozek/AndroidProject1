@@ -38,6 +38,8 @@ commands that drive them are [../.claude/commands/](../.claude/commands/).
 - No history — git holds that. A landed task grows no paragraph anywhere.
 - A file under `docs/` names no source path; if it needs one, it belongs under `ai/`.
 - Which file goes with what you changed is [ai/PROCESS.md](ai/PROCESS.md) § Which doc changes when.
-- Budgets: `CLAUDE.md` ≤ 300 lines, `ai/PROCESS.md` ≤ 120. The rest are
-  targets — around 120 for a guide, around 100 for a reference. A doc over budget has started
-  explaining itself.
+- Budgets, and this is the only place they are written: `CLAUDE.md` ≤ 400 lines,
+  `ai/PROCESS.md` ≤ 160 — the two the checker enforces. The rest are targets — around 150 for a
+  guide, around 120 for a reference. A number is a proxy for the thing that matters, which is that a
+  doc over its budget has started explaining itself instead of saying what to do; raise one when the
+  content earns it, and cut when it does not.
