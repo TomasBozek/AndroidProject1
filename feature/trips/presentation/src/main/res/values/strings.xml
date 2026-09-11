@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Trips (dashboard) -->
+    <string name="trips_title">Trips</string>
+    <string name="trips_section_header">Your trips</string>
+    <string name="trips_view_all">View all</string>
+    <string name="trips_count_label">Trips planned</string>
+    <string name="trips_countdown_label">Getting close</string>
+    <string name="trips_open_next_trip">Open</string>
+    <string name="trips_empty_title">No trips yet</string>
+    <string name="trips_empty_message">Trips you plan will show up here.</string>
+    <string name="trips_new_trip">New trip</string>
+
+    <!-- Shared status -->
+    <string name="trips_status_upcoming">Upcoming</string>
+    <string name="trips_status_active">Active</string>
+    <string name="trips_status_completed">Completed</string>
+
+    <!-- TripsList -->
+    <string name="trips_list_title">All trips</string>
+    <string name="trips_list_new_trip">New trip</string>
+    <string name="trips_list_empty">No trips yet. Start one with the button below.</string>
+
+    <!-- TripWizard -->
+    <string name="trip_wizard_title">Plan a trip</string>
+    <string name="trip_wizard_step_label">Step %1$d of %2$d</string>
+    <string name="trip_wizard_name_label">Trip name</string>
+    <string name="trip_wizard_type_leisure">Leisure</string>
+    <string name="trip_wizard_type_business">Business</string>
+    <string name="trip_wizard_type_family">Family</string>
+    <string name="trip_wizard_start_date_label">Start date</string>
+    <string name="trip_wizard_end_date_label">End date</string>
+    <string name="trip_wizard_advanced_label">Advanced</string>
+    <string name="trip_wizard_notes_label">Notes</string>
+    <string name="trip_wizard_no_destination">No destination chosen yet.</string>
+    <string name="trip_wizard_choose_destination">Choose destination</string>
+    <string name="trip_wizard_change_destination">Change destination</string>
+    <string name="trip_wizard_budget_label">Budget</string>
+    <string name="trip_wizard_budget_tooltip">A range, not a total — the trip may cost less.</string>
+    <string name="trip_wizard_next">Next</string>
+    <string name="trip_wizard_save">Save trip</string>
+
+    <!-- TripDetail -->
+    <string name="trip_detail_title">Trip</string>
+    <string name="trip_detail_menu">More actions</string>
+    <string name="trip_detail_delete_title">Delete this trip?</string>
+    <string name="trip_detail_delete_message">This cannot be undone.</string>
+    <string name="trip_detail_delete_confirm">Delete trip</string>
+    <string name="trip_detail_delete_cancel">Cancel</string>
+    <string name="trip_detail_tab_itinerary">Itinerary</string>
+    <string name="trip_detail_tab_notes">Notes</string>
+    <string name="trip_detail_tab_budget">Budget</string>
+    <string name="trip_detail_no_notes">No notes for this trip yet.</string>
+    <string name="trip_detail_itinerary_label">Itinerary</string>
+    <string name="trip_detail_destination_label">Destination</string>
+    <string name="trip_detail_dates_label">Dates</string>
+    <string name="trip_detail_travelers_label">Travelers</string>
+
+    <!-- DestinationPicker -->
+    <string name="destination_picker_title">Choose a destination</string>
+</resources>

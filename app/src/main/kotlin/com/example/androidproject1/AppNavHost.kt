@@ -55,6 +55,11 @@ import com.example.androidproject1.feature.profile.presentation.profile.ProfileD
 import com.example.androidproject1.feature.profile.presentation.profile.profileDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.settingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.settings.settingsDestination
+import com.example.androidproject1.feature.trips.presentation.destinationpicker.destinationPickerDestination
+import com.example.androidproject1.feature.trips.presentation.tripdetail.tripDetailDestination
+import com.example.androidproject1.feature.trips.presentation.trips.tripsDestination
+import com.example.androidproject1.feature.trips.presentation.tripslist.tripsListDestination
+import com.example.androidproject1.feature.trips.presentation.tripwizard.tripWizardDestination
 import com.example.androidproject1.service.core.domain.result.Outcome
 import com.example.androidproject1.service.core.ui.analytics.ProvideAnalytics
 import com.example.androidproject1.service.core.ui.navigation.ProvideNavResultStore
@@ -261,6 +266,11 @@ private fun EntryProviderScope<NavKey>.mainEntries(
         },
     )
     productPickerDestination(backStack = backStack)
+    tripsDestination(backStack = backStack)
+    tripsListDestination(backStack = backStack)
+    tripWizardDestination(backStack = backStack)
+    tripDetailDestination(backStack = backStack)
+    destinationPickerDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {

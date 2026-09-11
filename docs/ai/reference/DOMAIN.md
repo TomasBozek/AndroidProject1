@@ -11,6 +11,7 @@ erDiagram
     PRODUCT ||--o| FAVOURITE : "productId"
     PRODUCT ||--o{ CART_ITEM : "productId"
     SESSION ||--|| PROFILE : "the signed-in person"
+    DESTINATION ||--o{ TRIP : "destinationId"
 
     CATEGORY {
         string id
@@ -41,6 +42,25 @@ erDiagram
         string email
         string avatarUri
     }
+    DESTINATION {
+        string id
+        string name
+        string country
+        string description
+    }
+    TRIP {
+        string id
+        string name
+        string destinationId
+        string destinationName
+        string type
+        date startDate
+        date endDate
+        int travelers
+        long budgetMinMinor
+        long budgetMaxMinor
+        string notes
+    }
 ```
 
 | Type | Module | Notes |
@@ -52,6 +72,8 @@ erDiagram
 | `Tokens` | `feature/auth/domain` | the shape a real token pair would take; nothing issues one yet |
 | `Profile` | `feature/profile/domain` | `avatarUri` is nullable; `Profile.EMPTY` is the blank one |
 | `ThemePreference` | `feature/settings/domain` | `System`, `Light`, `Dark` |
+| `Destination` | `feature/trips/domain` | `id`, `name`, `country`, `description`; fixture data, seeded once |
+| `Trip` | `feature/trips/domain` | `destinationId`/`destinationName` denormalized so a renamed destination cannot orphan a trip; `budgetMinMinor`/`budgetMaxMinor` follow `Product.price`'s convention; `status(today)` is derived, never stored |
 
 ## Results and failures
 
@@ -76,6 +98,8 @@ Every method returns `Outcome`, and every observation is a `Flow<Outcome<T>>`.
 | `OnboardingRepository` | `feature/onboarding/domain` | `observeSeen`, `markSeen` |
 | `ProfileRepository` | `feature/profile/domain` | `get`, `save`, `setAvatar` |
 | `ThemeRepository` | `feature/settings/domain` | `observeTheme`, `setTheme` |
+| `TripsRepository` | `feature/trips/domain` | `observeTrips`, `getTrip`, `saveTrip`, `deleteTrip` |
+| `DestinationsRepository` | `feature/trips/domain` | `observeDestinations`, `getDestination` |
 
 ## Use cases
 
@@ -105,10 +129,13 @@ store below swappable.
 | `LocalProfileDataSource` | DataStore |
 | `AvatarDataSource` | the content resolver for reading, `filesDir` for the copy the app keeps |
 | `LocalThemeDataSource` | DataStore |
+| `LocalTripsDataSource` | Room · `TripsDatabase` · `trips` |
+| `LocalDestinationsDataSource` | Room · `TripsDatabase` · `destinations`; seeded from a fixture list on first read, not a network fetch — no new dependency, D20 still stands |
 
-Both databases export their schema under the module's `schemas/`, and a `version` bump ships its
+Every database exports its schema under the module's `schemas/`, and a `version` bump ships its
 migration and its migration test in the same commit. `fallbackToDestructiveMigration` is never used:
-what it means is that the next update empties the cart.
+what it means is that the next update empties the cart. `TripsDatabase` is version 1 and carries no
+migration yet — `TripsDatabase.MIGRATIONS` is where the first one goes.
 
 `catalog_fetches` holds one row per cached list — `categories`, `products:<categoryId>` — written in
 the same transaction as the rows. It is what makes a cached list `null` until it has been fetched and

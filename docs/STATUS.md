@@ -37,7 +37,7 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 
 ### Lane 3 · the showcase · 100
 
-- [ ] B3S1 Trips, a showcase feature (was S1) · 50
+- [x] B3S1 Trips, a showcase feature (was S1) · 50 → 50
 - [ ] B3S2 Field report, a showcase feature (was S2) · 50
 
 ## Next · release C

@@ -13,6 +13,10 @@ import com.example.androidproject1.feature.catalog.presentation.products.Product
 import com.example.androidproject1.feature.catalog.presentation.products.ProductsViewModel
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailViewModel
+import com.example.androidproject1.feature.trips.presentation.destinationpicker.DestinationPickerDestination
+import com.example.androidproject1.feature.trips.presentation.destinationpicker.DestinationPickerViewModel
+import com.example.androidproject1.feature.trips.presentation.tripdetail.TripDetailDestination
+import com.example.androidproject1.feature.trips.presentation.tripdetail.TripDetailViewModel
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -53,6 +57,8 @@ class KoinGraphTest {
             // screen; `doctor.py` fails if one is missing, and `create_screen.py --with-args`
             // writes it.
             injections = injectedParameters(
+                definition<DestinationPickerViewModel>(DestinationPickerDestination::class),
+                definition<TripDetailViewModel>(TripDetailDestination::class),
                 definition<ProductPickerViewModel>(ProductPickerDestination::class),
                 definition<GalleryDetailViewModel>(GalleryDetailDestination::class),
                 definition<ProductsViewModel>(ProductsDestination::class),
