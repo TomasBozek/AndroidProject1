@@ -26,7 +26,7 @@ kept for symmetry.
 | DataStore preferences | key-value storage | `:service:core:data` |
 | Room (runtime, ktx, compiler via KSP) | the two databases | `convention.android.room` |
 | Ktor client (core, auth, logging, content negotiation, JSON, OkHttp) | HTTP | `convention.service.network` |
-| Coil (compose, okhttp) | remote images | `AndroidConventions`, every Compose module |
+| Coil (compose, okhttp) | remote images | `convention.core.ui`, `:core:ui`'s only consumer |
 | LeakCanary | leak reports, debug build only | `convention.android.application` |
 
 ## Build and test only
