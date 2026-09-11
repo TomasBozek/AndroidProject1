@@ -4,15 +4,15 @@ Copies the reusable `service/` modules into another project.
 
 `service/` is written to be portable: nothing in it references `:core:*`, `:feature:*` or `:app`,
 and it reads no `R` but its own. What it cannot do on its own is change its package — the sources
-sit in `com.example.androidproject1.core.*` because that is this project's base package — or bring
-the version catalog entries its build files rely on. This script does the copy, the package
-rewrite and (with `--sync-versions`) the catalog merge in one step.
+sit in `com.example.androidproject1.core.*` because that is this project's base package. This
+script does the copy and the package rewrite; the version catalog entries the copied build files
+need are merged by hand from this project's own `gradle/libs.versions.toml`, which the script's own
+output points at.
 
 `build-logic/` comes along with it: the service build files apply the `convention.*` plugins, so
 the modules do not compile without it.
 
     python3 scripts/export_service.py --to ~/Projects/android/MyNewApp --package com.acme.myapp
-    python3 scripts/export_service.py --to ~/Projects/android/MyNewApp --sync-versions
 
 Afterwards, add the printed `includeBuild` and `includeServiceModule` block to the target's
 `settings.gradle.kts` (along with the `ModuleSuffix` / `includeModule` helpers if it does not have
@@ -26,7 +26,6 @@ import argparse
 import re
 import shutil
 import sys
-import tomllib
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -36,7 +35,6 @@ from _common import (  # noqa: E402
     BASE_PATH,
     LAYER_SUFFIX,
     REPO_ROOT,
-    VERSION_CATALOG_FILE,
 )
 
 SERVICE_DIR = REPO_ROOT / "service"
@@ -51,8 +49,6 @@ TEXT_SUFFIXES = {".kt", ".kts", ".xml", ".pro", ".md", ".conf"}
 SERVICE_LAYER_ORDER = ["domain", "data", "ui", "presentation", "di"]
 
 LAYER_SUFFIXES = {**LAYER_SUFFIX, "ui": "Ui"}
-
-CATALOG_SECTIONS = ["versions", "libraries", "bundles", "plugins"]
 
 
 # --------------------------------------------------------------------------------------------
@@ -97,7 +93,6 @@ def parse_args() -> argparse.Namespace:
         epilog=(
             'Examples:\n'
             '  python3 scripts/export_service.py --to ~/Projects/OtherApp --package com.acme.other\n'
-            '  python3 scripts/export_service.py --to ~/Projects/OtherApp --package com.acme.other --sync-versions\n'
             '\n'
             'Copies service/ into another project. To rename *this* project instead, use init_project.py.'
         ),
@@ -117,12 +112,6 @@ def parse_args() -> argparse.Namespace:
         "--modules",
         default=",".join(SERVICE_MODULES),
         help=f"Comma-separated service modules to copy. Default: all ({','.join(SERVICE_MODULES)}).",
-    )
-    parser.add_argument(
-        "--sync-versions",
-        action="store_true",
-        help="Merge the version catalog entries the copied build files need into the target's "
-             "gradle/libs.versions.toml, creating it if needed.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print what would happen.")
     parser.add_argument(
@@ -211,187 +200,7 @@ def copy_module(
 
 
 # --------------------------------------------------------------------------------------------
-# Version catalog
-# --------------------------------------------------------------------------------------------
-
-ACCESSOR = re.compile(r"\blibs\.(?:(plugins|bundles)\.)?([A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*)")
-
-# How a convention plugin names the same thing: `libs.findBundle("compose-core")`. Since the shared
-# dependencies moved into build-logic/, this is where most of them are declared.
-FINDER = re.compile(r'\blibs\.find(Library|Bundle|Plugin)\(\s*"([A-Za-z0-9_.\-]+)"')
-
-FINDER_SECTION = {"Library": "libraries", "Bundle": "bundles", "Plugin": "plugins"}
-
-
-def catalog_entry_lines(text: str) -> dict[str, dict[str, str]]:
-    """
-    Maps section -> alias -> the alias's raw source lines.
-
-    Re-emitting the original text rather than serialising the parsed data keeps the target
-    catalog's entries byte-identical to this project's, comments in the value included.
-    """
-    sections: dict[str, dict[str, str]] = {name: {} for name in CATALOG_SECTIONS}
-    current: str | None = None
-    lines = text.split("\n")
-    index = 0
-
-    while index < len(lines):
-        line = lines[index]
-        header = re.match(r"\s*\[([\w.\-]+)\]\s*$", line)
-        if header:
-            current = header.group(1)
-            sections.setdefault(current, {})
-            index += 1
-            continue
-
-        entry = re.match(r"\s*([A-Za-z0-9_.\-]+)\s*=", line)
-        if entry and current:
-            block = [line]
-            depth = line.count("[") - line.count("]") + line.count("{") - line.count("}")
-            while depth > 0 and index + 1 < len(lines):
-                index += 1
-                block.append(lines[index])
-                depth += lines[index].count("[") - lines[index].count("]")
-                depth += lines[index].count("{") - lines[index].count("}")
-            sections[current][entry.group(1)] = "\n".join(block)
-        index += 1
-
-    return sections
-
-
-def normalise(alias: str) -> str:
-    return alias.replace("-", ".").replace("_", ".")
-
-
-def accessors(text: str) -> list[tuple[str, str]]:
-    """Every catalog reference in a file, as (section, alias-as-written), in either spelling."""
-    found = [
-        ({"plugins": "plugins", "bundles": "bundles"}.get(kind, "libraries"), accessor)
-        for kind, accessor in ACCESSOR.findall(text)
-    ]
-    found += [(FINDER_SECTION[kind], accessor) for kind, accessor in FINDER.findall(text)]
-    return found
-
-
-def required_catalog_entries(sources: list[Path], catalog: dict) -> dict[str, list[str]]:
-    """
-    Resolves every `libs.*` accessor used by the copied files into catalog aliases, pulling in the
-    version refs they point at and the libraries a bundle is made of.
-    """
-    lookup = {
-        section: {normalise(alias): alias for alias in catalog.get(section, {})}
-        for section in CATALOG_SECTIONS
-    }
-    needed: dict[str, set[str]] = {section: set() for section in CATALOG_SECTIONS}
-    unresolved: set[str] = set()
-
-    def add_library(alias: str) -> None:
-        needed["libraries"].add(alias)
-        version = catalog.get("libraries", {}).get(alias, {})
-        if isinstance(version, dict):
-            ref = version.get("version", {})
-            if isinstance(ref, dict) and "ref" in ref:
-                needed["versions"].add(ref["ref"])
-
-    for path in sources:
-        for section, accessor in accessors(path.read_text()):
-            alias = lookup[section].get(normalise(accessor))
-            if alias is None:
-                unresolved.add(f"{section}: {accessor}")
-                continue
-
-            if section == "plugins":
-                needed["plugins"].add(alias)
-                ref = catalog.get("plugins", {}).get(alias, {}).get("version", {})
-                if isinstance(ref, dict) and "ref" in ref:
-                    needed["versions"].add(ref["ref"])
-            elif section == "bundles":
-                needed["bundles"].add(alias)
-                for member in catalog.get("bundles", {}).get(alias, []):
-                    add_library(member)
-            else:
-                add_library(alias)
-
-    if unresolved:
-        print(f"  warning: could not resolve {', '.join(sorted(unresolved))} in {VERSION_CATALOG_FILE.name}")
-
-    return {section: sorted(aliases) for section, aliases in needed.items()}
-
-
-def merge_catalog(target_file: Path, needed: dict[str, list[str]], source_lines: dict[str, dict[str, str]], dry_run: bool) -> None:
-    existing_text = target_file.read_text() if target_file.is_file() else ""
-    existing = catalog_entry_lines(existing_text) if existing_text else {}
-
-    missing = {
-        section: [alias for alias in aliases if alias not in existing.get(section, {})]
-        for section, aliases in needed.items()
-    }
-    conflicts = [
-        f"{section}.{alias}"
-        for section, aliases in needed.items()
-        for alias in aliases
-        if alias in existing.get(section, {})
-        and existing[section][alias].strip() != source_lines[section][alias].strip()
-    ]
-
-    if not any(missing.values()):
-        print(f"  version catalog: {target_file} already has every entry")
-    else:
-        text = existing_text or ""
-        for section in CATALOG_SECTIONS:
-            aliases = missing[section]
-            if not aliases:
-                continue
-            block = "\n".join(source_lines[section][alias] for alias in aliases)
-            header = f"[{section}]"
-            # `^` as well as `\n`: the first section starts at the very beginning of the file.
-            pattern = re.compile(rf"(^|\n)(\[{section}\]\n)(.*?)(?=\n\[|\Z)", re.DOTALL)
-            if pattern.search(text):
-                # Append at the end of the existing section, before the next header.
-                text = pattern.sub(
-                    lambda m: m.group(1) + m.group(2) + m.group(3).rstrip("\n") + "\n" + block + "\n",
-                    text,
-                    count=1,
-                )
-            else:
-                text = text.rstrip("\n") + f"\n\n{header}\n{block}\n"
-            print(f"  version catalog: adding {len(aliases)} entr{'y' if len(aliases) == 1 else 'ies'} to [{section}]")
-
-        if dry_run:
-            print(f"  would write {target_file}")
-        else:
-            target_file.parent.mkdir(parents=True, exist_ok=True)
-            target_file.write_text(text.lstrip("\n"))
-            print(f"  wrote {target_file}")
-
-    if conflicts:
-        print(
-            f"  warning: {len(conflicts)} alias(es) already exist in the target with a different "
-            f"definition and were left alone: {', '.join(conflicts)}"
-        )
-
-
-def sync_versions(target_root: Path, modules: list[str], dry_run: bool) -> None:
-    catalog = tomllib.loads(VERSION_CATALOG_FILE.read_text())
-    source_lines = catalog_entry_lines(VERSION_CATALOG_FILE.read_text())
-    sources = [
-        path
-        for module in modules
-        for path in iter_source_files(SERVICE_DIR / module)
-        if path.name == "build.gradle.kts"
-    ]
-    # The convention plugins declare most of what the service modules depend on, so scanning only
-    # the build files would export a catalog that is missing half of it.
-    sources += [path for path in iter_source_files(BUILD_LOGIC_DIR) if path.suffix in {".kts", ".kt"}]
-    needed = required_catalog_entries(sources, catalog)
-    # Every `convention.*` alias ships with build-logic/, whether or not a service module happens to
-    # apply it: the target's own core/ and feature/ modules will want the rest of them.
-    needed["plugins"] = sorted(
-        set(needed["plugins"]) | {a for a in catalog.get("plugins", {}) if a.startswith("convention-")}
-    )
-    merge_catalog(target_root / "gradle/libs.versions.toml", needed, source_lines, dry_run)
-
-
+# build-logic/
 # --------------------------------------------------------------------------------------------
 
 
@@ -462,10 +271,11 @@ def main() -> None:
     total += copy_build_logic(target_root, args.package, args.dry_run, args.force)
     print(f"\n{total} files.")
 
-    if args.sync_versions:
-        sync_versions(target_root, modules, args.dry_run)
-    else:
-        print("\nRe-run with --sync-versions to merge the required gradle/libs.versions.toml entries.")
+    print(
+        "\nMerge the gradle/libs.versions.toml entries these files reference into the target's "
+        "own — copy the [versions]/[libraries]/[bundles]/[plugins] rows this project's catalog "
+        "has for them, including every `convention-*` plugin alias."
+    )
 
     print("\nAdd to the target's settings.gradle.kts, inside pluginManagement { }:\n")
     print('    includeBuild("build-logic")')

@@ -24,7 +24,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import tomllib
 import unittest
 from pathlib import Path
 
@@ -618,44 +617,16 @@ class ScaffoldingTest(unittest.TestCase):
             self.assertIn(script.name, readme, f"scripts/README.md does not mention {script.name}")
 
 
-    # -- install_hooks.py ---------------------------------------------------------------------
+    # -- .githooks -----------------------------------------------------------------------------
 
-    def test_install_hooks_writes_an_executable_pre_commit_hook(self) -> None:
-        import subprocess
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True, env=hermetic_env())
-
-        self.run_script("install_hooks.py")
-
-        hook = self.repo / ".git/hooks/pre-commit"
+    def test_pre_commit_hook_is_executable_and_runs_doctor(self) -> None:
+        hook = REPO_ROOT / ".githooks/pre-commit"
         self.assertTrue(hook.is_file())
         self.assertTrue(hook.stat().st_mode & 0o111, "hook is not executable")
         text = hook.read_text()
         self.assertIn("doctor.py", text)
         # test_scripts.py takes ~20s, so it runs only when the commit touches the generators.
         self.assertIn("grep -q '^scripts/'", text)
-
-    def test_install_hooks_is_idempotent_and_uninstalls(self) -> None:
-        import subprocess
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True, env=hermetic_env())
-
-        self.run_script("install_hooks.py")
-        self.run_script("install_hooks.py")
-        self.assertTrue((self.repo / ".git/hooks/pre-commit").is_file())
-
-        self.run_script("install_hooks.py", "--uninstall")
-        self.assertFalse((self.repo / ".git/hooks/pre-commit").exists())
-
-    def test_install_hooks_refuses_to_clobber_a_foreign_hook(self) -> None:
-        import subprocess
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True, env=hermetic_env())
-        hook = self.repo / ".git/hooks/pre-commit"
-        hook.parent.mkdir(parents=True, exist_ok=True)
-        hook.write_text("#!/bin/sh\necho mine\n")
-
-        result = self.run_script("install_hooks.py", expect_success=False)
-
-        self.assertNotEqual(0, result.returncode)
-        self.assertIn("echo mine", hook.read_text(), "someone else's hook was overwritten")
 
     # -- slash commands -----------------------------------------------------------------------
 
@@ -803,9 +774,9 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertTrue((self.repo / f"service/core/ui/src/main/kotlin/{BASE_PATH}").is_dir())
 
 
-    def test_export_service_rewrites_the_package_and_the_catalog(self) -> None:
+    def test_export_service_rewrites_the_package(self) -> None:
         target = Path(self._temporary.name) / "target"
-        self.run_script("export_service.py", "--to", str(target), "--package", "com.acme.myapp", "--sync-versions")
+        self.run_script("export_service.py", "--to", str(target), "--package", "com.acme.myapp")
 
         self.assertTrue((target / "service/core/ui/src/main/kotlin/com/acme/myapp/service/core/ui/component/Screen.kt").is_file())
 
@@ -821,19 +792,11 @@ class ScaffoldingTest(unittest.TestCase):
         ]
         self.assertEqual([], leftovers, "the base package survived the export")
 
-        catalog = tomllib.loads((target / "gradle/libs.versions.toml").read_text())
-        self.assertIn("kotlinx-coroutines-core", catalog["libraries"])
-        self.assertIn("compose-core", catalog["bundles"])
-        self.assertIn("android-library", catalog["plugins"])
-        # All seven convention plugins, not just the two the service modules happen to apply.
-        self.assertIn("convention-feature-presentation", catalog["plugins"])
-        self.assertIn("convention-android-library", catalog["plugins"])
-        # Declared only inside a convention plugin, as libs.findLibrary("androidx-compose-bom") —
-        # no service build file names it any more.
-        self.assertIn("androidx-compose-bom", catalog["libraries"])
-        # Version refs the copied build files rely on must come along too.
-        self.assertIn("coroutines", catalog["versions"])
-        self.assertIn("agp", catalog["versions"])
+        # No catalog merge any more: the printed output points at this project's own
+        # gradle/libs.versions.toml instead of writing one.
+        result = self.run_script("export_service.py", "--to", str(target), "--package", "com.acme.myapp", "--force")
+        self.assertIn("gradle/libs.versions.toml", result.stdout)
+        self.assertFalse((target / "gradle/libs.versions.toml").exists())
 
     def test_doctor_catches_an_unregistered_view_model(self) -> None:
         self.run_script("create_feature.py", "userProfile")
