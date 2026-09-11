@@ -17,10 +17,11 @@ What the sample app contains. The layer rules and the module list are
 | `gallery` | presentation · di | Every component in `:core:ui`, with its states. Reached from the debug menu |
 | `devmenu` | presentation · di | Build information and the way into the gallery. Debug builds only |
 | `template` | domain · data · presentation · di | What the generators clone. Compiled by the build so it cannot rot |
+| `trips` | domain · data · presentation · di | A trip list, a three-step wizard, a detail with tabs, a destination picker and a dashboard — the showcase for the components only the gallery reached before (B3S1) |
 
 ## Screens
 
-Eighteen, each a directory of six files plus two tests. A route key with no parameters is a
+Twenty-three, each a directory of six files plus two tests. A route key with no parameters is a
 `data object`; one with parameters is a `data class`, and those parameters reach the view model
 through its constructor.
 
@@ -44,6 +45,11 @@ through its constructor.
 | `GalleryDetail` | gallery | `componentId` | Gallery |
 | `Template` | template | — | not reachable; the generators clone it |
 | `TemplateArgs` | template | `templateId` | not reachable; cloned by `--with-args` |
+| `Trips` | trips | — | registered in the main flow; no tab links to it yet — see § Flows |
+| `TripsList` | trips | — | Trips |
+| `TripWizard` | trips | — | Trips, TripsList |
+| `TripDetail` | trips | `tripId` | TripsList, Trips' next-trip card |
+| `DestinationPicker` | trips | `resultKey` | TripWizard; returns its choice through the result store |
 
 ## Tabs
 
@@ -68,3 +74,14 @@ so one picker can serve several callers and knows nothing about any of them.
 **Debug menu.** Present on `dev` and `staging` only. Settings shows the entry, the entries
 themselves are registered only when it is enabled, and the gallery sits behind it — so no release
 build contains a route to either.
+
+**Planning a trip.** `Trips` is the dashboard: a next-trip card and a way into `TripsList`. Either
+one's "new trip" opens `TripWizard`, whose three steps are one screen with a `step` in its state.
+The second step pushes `DestinationPicker` with a result key and gets a destination id back the
+same way the cart gets a product — set, then pop, read once by `NavResultEffect`. Saving pops the
+wizard; the list and the dashboard are both observing the same table, so the new trip appears on
+either without a refresh.
+
+`trips` registers under the signed-in flow's `mainEntries()` like every other feature, but no tab
+links to it yet — `TopLevelDestination.kt` and `:app`'s `strings.xml` are outside this lane's file
+set (D47). One line in [../../BACKLOG.md](../../BACKLOG.md) for the lane that owns them.

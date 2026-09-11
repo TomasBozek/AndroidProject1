@@ -10,6 +10,7 @@ import com.example.androidproject1.feature.home.di.HomeModule
 import com.example.androidproject1.feature.onboarding.di.OnboardingModule
 import com.example.androidproject1.feature.profile.di.ProfileModule
 import com.example.androidproject1.feature.settings.di.SettingsModule
+import com.example.androidproject1.feature.trips.di.TripsModule
 import com.example.androidproject1.service.core.data.AndroidLogger
 import com.example.androidproject1.service.core.data.DataStoreProvider
 import com.example.androidproject1.service.core.data.EncryptedDataStoreProvider
@@ -93,6 +94,7 @@ fun appModules(isDebug: Boolean): List<Module> = listOf(
     CartModule.module,
     ProfileModule.module,
     OnboardingModule.module,
+    TripsModule.module,
 )
 
 /**

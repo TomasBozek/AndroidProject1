@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Trips (dashboard) -->
+    <string name="trips_title">Výlety</string>
+    <string name="trips_section_header">Vaše výlety</string>
+    <string name="trips_view_all">Zobrazit vše</string>
+    <string name="trips_count_label">Naplánované výlety</string>
+    <string name="trips_countdown_label">Už to bude</string>
+    <string name="trips_open_next_trip">Otevřít</string>
+    <string name="trips_empty_title">Zatím žádné výlety</string>
+    <string name="trips_empty_message">Výlety, které naplánujete, se zobrazí zde.</string>
+    <string name="trips_new_trip">Nový výlet</string>
+
+    <!-- Shared status -->
+    <string name="trips_status_upcoming">Nadcházející</string>
+    <string name="trips_status_active">Probíhá</string>
+    <string name="trips_status_completed">Dokončený</string>
+
+    <!-- TripsList -->
+    <string name="trips_list_title">Všechny výlety</string>
+    <string name="trips_list_new_trip">Nový výlet</string>
+    <string name="trips_list_empty">Zatím žádné výlety. Začněte tlačítkem níže.</string>
+
+    <!-- TripWizard -->
+    <string name="trip_wizard_title">Naplánovat výlet</string>
+    <string name="trip_wizard_step_label">Krok %1$d z %2$d</string>
+    <string name="trip_wizard_name_label">Název výletu</string>
+    <string name="trip_wizard_type_leisure">Dovolená</string>
+    <string name="trip_wizard_type_business">Pracovní cesta</string>
+    <string name="trip_wizard_type_family">Rodinný výlet</string>
+    <string name="trip_wizard_start_date_label">Datum odjezdu</string>
+    <string name="trip_wizard_end_date_label">Datum návratu</string>
+    <string name="trip_wizard_advanced_label">Pokročilé</string>
+    <string name="trip_wizard_notes_label">Poznámky</string>
+    <string name="trip_wizard_no_destination">Zatím nevybrána žádná destinace.</string>
+    <string name="trip_wizard_choose_destination">Vybrat destinaci</string>
+    <string name="trip_wizard_change_destination">Změnit destinaci</string>
+    <string name="trip_wizard_budget_label">Rozpočet</string>
+    <string name="trip_wizard_budget_tooltip">Rozmezí, ne celková částka — výlet může vyjít levněji.</string>
+    <string name="trip_wizard_next">Další</string>
+    <string name="trip_wizard_save">Uložit výlet</string>
+
+    <!-- TripDetail -->
+    <string name="trip_detail_title">Výlet</string>
+    <string name="trip_detail_menu">Další akce</string>
+    <string name="trip_detail_delete_title">Smazat tento výlet?</string>
+    <string name="trip_detail_delete_message">Tuto akci nelze vrátit zpět.</string>
+    <string name="trip_detail_delete_confirm">Smazat výlet</string>
+    <string name="trip_detail_delete_cancel">Zrušit</string>
+    <string name="trip_detail_tab_itinerary">Itinerář</string>
+    <string name="trip_detail_tab_notes">Poznámky</string>
+    <string name="trip_detail_tab_budget">Rozpočet</string>
+    <string name="trip_detail_no_notes">K tomuto výletu zatím nejsou žádné poznámky.</string>
+    <string name="trip_detail_itinerary_label">Itinerář</string>
+    <string name="trip_detail_destination_label">Destinace</string>
+    <string name="trip_detail_dates_label">Termín</string>
+    <string name="trip_detail_travelers_label">Cestující</string>
+
+    <!-- DestinationPicker -->
+    <string name="destination_picker_title">Vyberte destinaci</string>
+</resources>

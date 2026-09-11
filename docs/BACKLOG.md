@@ -38,6 +38,9 @@ plan, not this file.
   its project dependencies. Nothing else." Found during lane 1 of release B, filed here rather than
   during B2T1: that task's scope was Coil specifically, and folding this in would have grown a
   6-point task into a much larger one for a different, unrelated defect. Stays its own task.
+- A `Trips` tab · 3 · B3S1 registered the whole feature under `mainEntries()` but did not add a
+  bottom-bar tab for it — the bottom-bar enum and `:app`'s own strings are outside that lane's
+  file set. One entry, one label string, one `xEntries()` call.
 - `OverlayScreenshotTest`'s two date-picker goldens fail under a full multi-module `./gradlew test`
   but pass reliably run alone, even at `--max-workers=1` — found running T1 for lane 2 of release B,
   on code none of that lane's tasks touch (the same failure reproduces against a clean `origin/main`
