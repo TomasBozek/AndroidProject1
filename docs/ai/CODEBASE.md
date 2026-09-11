@@ -24,6 +24,7 @@ lines.
 | `convention.feature.data` | android library plus coroutines, the `testing` bundle, `testFixtures(:service:core:domain)`, MockEngine and Robolectric |
 | `convention.feature.di` | android library plus the Koin BOM and bundle |
 | `convention.feature.presentation` | the compose library plus serialization, Koin, Navigation 3's ViewModel decorator, lifecycle, the `testing` bundle and `testFixtures(:service:core:ui)` |
+| `convention.android.library.testfixtures` | turns on AGP's `src/testFixtures/` for the module — stacked on top, for the rare module that ships a `Fake*` for another module's tests |
 | `convention.android.application` | `:app`: app identity, R8 on release, `lint.checkDependencies` |
 
 The **namespace is derived** from the project path and `basePackage` in `gradle.properties`, so
