@@ -11,9 +11,9 @@ Add a line here for anything you find while working on something else. Never edi
 Candidates for the next release, roughly in order. What is already carrying an id is release B's
 plan, not this file.
 
-- Unused components earn their place (was F6) · 25 · 26 of the 46 `App*` components are reached only
-  by the gallery. Not estimable until B3S1 and B3S2 have shipped and the count of components nothing
-  composes is known; D38 keeps every one of them until then.
+- Unused components earn their place (was F6) · 25 · 16 of the 47 `App*` components are reached only
+  by the gallery, down from 27 before Trips. The count D38 was waiting on is now known and the method
+  is in the design-system reference; B3S2 is the last input. Carries an id already — C0T1.
 - A connectivity banner (was a third of F16) · 12 · nothing observes connectivity, so a request that
   fails offline is indistinguishable from one that failed. One `NetworkMonitor` and one root banner;
   the banner is in `app/**`, which release B's showcase lane owns for the whole release.

@@ -24,7 +24,7 @@ kept for symmetry.
 | Coroutines core | everything asynchronous | `convention.kotlin.jvm`, `convention.feature.data` |
 | kotlinx.serialization JSON | route keys and network payloads | `convention.feature.presentation`, `convention.service.network` |
 | DataStore preferences | key-value storage | `:service:core:data` |
-| Room (runtime, ktx, compiler via KSP) | the two databases | `convention.android.room` |
+| Room (runtime, ktx, compiler via KSP) | the three databases | `convention.android.room` |
 | Ktor client (core, auth, logging, content negotiation, JSON, OkHttp) | HTTP | `convention.service.network` |
 | Coil (compose, okhttp) | remote images | `convention.core.ui`, `:core:ui`'s only consumer |
 | LeakCanary | leak reports, debug build only | `convention.android.application` |

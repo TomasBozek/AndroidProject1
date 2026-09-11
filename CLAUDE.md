@@ -14,7 +14,7 @@ never by picking something that looks useful. Work you find on the way is one li
 ## Project
 
 Multi-module Android app (Kotlin + Compose), base package `com.example.androidproject1`, and a
-**template**: the structure and conventions matter more than the five sample features. Layered
+**template**: the structure and conventions matter more than the sample features. Layered
 Clean/MVI — single activity, type-safe Compose navigation, Koin DI.
 
 - `minSdk = 29`, `targetSdk = compileSdk = 37`, Java 17 — all in `build-logic`'s `ProjectConfig`.

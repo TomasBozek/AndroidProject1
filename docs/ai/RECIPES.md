@@ -11,7 +11,8 @@ themselves are [../../CLAUDE.md](../../CLAUDE.md); the generators document thems
 python3 scripts/create_feature.py userProfile
 ```
 
-Clones all five layers and registers them everywhere. Then, in order:
+Clones all four layers — `domain`, `data`, `presentation`, `di` — and registers them everywhere.
+Then, in order:
 
 1. Replace the placeholder `val title: String` / `val counter: Int` in `UserProfileState`, its
    `PREVIEW` and the three states in `UserProfileStatePreviews` with the real ones. Keep all three:
