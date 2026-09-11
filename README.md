@@ -48,7 +48,7 @@ python3 scripts/doctor.py && python3 scripts/test_scripts.py &&
 ```
 
 Most changes need less than that; which parts, and when, is [CLAUDE.md](CLAUDE.md) § Checks.
-`python3 scripts/install_hooks.py` installs `doctor.py` as a pre-commit hook, once per clone.
+`git config core.hooksPath .githooks` runs `doctor.py` as a pre-commit hook, once per clone.
 
 ## Make it your project
 

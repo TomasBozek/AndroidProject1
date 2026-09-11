@@ -11,11 +11,11 @@ examples. In Claude Code the common ones are also slash commands (`/new-feature`
 ## Once per clone
 
 ```bash
-python3 scripts/install_hooks.py
+git config core.hooksPath .githooks
 ```
 
-Installs a `pre-commit` hook that runs `doctor.py` — silent when it passes, loud when it does not.
-Hooks are not version controlled, so this does not arrive with the clone.
+Points Git at the committed `pre-commit` hook, which runs `doctor.py` — silent when it passes,
+loud when it does not — and `test_scripts.py` too, but only on a commit that touches `scripts/`.
 
 ## Once per project
 
