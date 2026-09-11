@@ -45,6 +45,7 @@ from _common import (  # noqa: E402
     module_namespace,
     read_string_resources,
     register_destination,
+    register_in_features_reference,
     register_route_key_injection,
     rewrite_test_tags,
     to_camel,
@@ -444,6 +445,13 @@ def main() -> None:
 
     if arguments:
         register_route_key_injection(feature, screen_pascal, sub_package, args.dry_run)
+
+    register_in_features_reference(
+        screen_pascal,
+        feature,
+        ", ".join(f"`{name}`" for name, _ in arguments or []),
+        args.dry_run,
+    )
 
     print(
         "\nDone. Fill in the placeholders, then run the T0 pair — never `./gradlew build`, which\n"

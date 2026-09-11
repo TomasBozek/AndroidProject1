@@ -36,6 +36,7 @@ from _common import (  # noqa: E402
     edit_file,
     insert_import,
     register_destination,
+    register_in_features_reference,
     register_in_feature_tree,
     rewrite_relative_path,
     rewrite_resource_names,
@@ -353,6 +354,7 @@ def main() -> None:
             graph=args.graph,
             dry_run=args.dry_run,
         )
+        register_in_features_reference(pascal, flat, "", args.dry_run)
 
     print(
         "\nDone. Fill in the placeholders, then run the T0 pair — never `./gradlew build`, which\n"

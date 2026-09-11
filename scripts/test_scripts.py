@@ -878,6 +878,31 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("AppButton.kt", result.stdout)
         self.assertIn("@ComponentPreview", result.stdout)
 
+    def test_doctor_catches_a_destination_missing_from_the_features_reference(self) -> None:
+        """The reference is what an agent reads instead of the code, so a missing row is a wrong
+        answer rather than a gap. It reads the table's first column only — a name mentioned in the
+        prose below it used to satisfy this, which is how `Trips` passed while its row was gone.
+        """
+        reference = self.repo / "docs/ai/reference/FEATURES.md"
+        reference.write_text(reference.read_text().replace("| `Trips` | trips |", "| `Zzz` | trips |", 1))
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("TripsDestination.kt", result.stdout)
+        self.assertIn("FEATURES.md", result.stdout)
+
+    def test_doctor_catches_a_component_missing_from_the_design_system_reference(self) -> None:
+        """The counterpart to the gallery check: the gallery is what a person browses, the table is
+        what an agent greps before writing something that already exists.
+        """
+        reference = self.repo / "docs/ai/reference/DESIGN-SYSTEM.md"
+        reference.write_text(reference.read_text().replace(" `AppAvatarPhoto`", "", 1))
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("AppAvatarPhoto.kt", result.stdout)
+        self.assertIn("DESIGN-SYSTEM.md", result.stdout)
+
     # -- the presentation layout (D34) --------------------------------------------------------
 
     def test_create_screen_brings_the_feature_component_it_composes(self) -> None:

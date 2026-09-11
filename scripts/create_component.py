@@ -33,6 +33,7 @@ from _common import (  # noqa: E402
     BASE_PATH,
     REPO_ROOT,
     feature_source_dir,
+    register_in_design_system,
     register_in_gallery,
     to_flat,
     to_pascal,
@@ -221,6 +222,7 @@ def main() -> None:
     # set every feature may compose from.
     if not args.feature:
         register_in_gallery(pascal, args.dry_run)
+        register_in_design_system(pascal, args.dry_run)
 
     print(
         "\nDone. A component needs no Koin binding and no nav entry — the gallery entry above is\n"
