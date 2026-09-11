@@ -41,6 +41,7 @@ kept for symmetry.
 | Roborazzi and its preview-scanner support | screenshot goldens | `convention.android.library.compose` |
 | ComposablePreviewScanner | finds the `@Preview` functions the goldens are recorded from | `convention.android.library.compose` |
 | Ktor MockEngine | the `dev` flavor's fixtures, and data-layer tests | `convention.feature.data`, `convention.service.network` |
+| OkHttp MockWebServer | tests the real engine's on-disk HTTP cache against a real request/response cycle, rather than reimplementing OkHttp's cache logic with a fake | `:app`'s own test source set |
 | Koin test | `KoinGraphTest` | `convention.android.application` |
 | androidx test core | Robolectric's `ApplicationScenario`/`ApplicationProvider` | `convention.feature.data` |
 | gitleaks, Maestro | secret scanning and end-to-end flows, in CI only | `.github/workflows/build.yml` |

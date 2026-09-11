@@ -1,5 +1,6 @@
 package com.example.androidproject1.feature.catalog.presentation.search
 
+import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogRepository
 import com.example.androidproject1.feature.catalog.domain.test.FakeRecentSearchesRepository
@@ -35,10 +36,11 @@ class ProductSearchViewModelTest {
      * drive the wrong clock. Every test here therefore runs the ViewModel's `init` explicitly with
      * `advanceUntilIdle()` rather than finding it already done.
      */
-    private fun TestScope.viewModel(): ProductSearchViewModel {
+    private fun TestScope.viewModel(savedStateHandle: SavedStateHandle = SavedStateHandle()): ProductSearchViewModel {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         return ProductSearchViewModel(
             logger = FakeLogger(),
+            savedStateHandle = savedStateHandle,
             catalogRepository = catalogRepository,
             recentSearchesRepository = recentSearchesRepository,
         )
@@ -153,6 +155,26 @@ class ProductSearchViewModelTest {
 
         assertEquals("recents", (viewModel.state.value.content as? ContentState.Error)?.id)
         assertEquals(listOf(COFFEE), viewModel.state.value.data?.results)
+    }
+
+    @Test
+    fun `a query is written back to the saved state handle as it is typed`() = runTest {
+        val handle = SavedStateHandle()
+        val viewModel = viewModel(handle)
+        advanceUntilIdle()
+
+        viewModel.onUiEvent(ProductSearchEvent.QueryChanged("cof"))
+
+        assertEquals("cof", handle.get<String>("query"))
+    }
+
+    @Test
+    fun `a query restored from a saved state handle is on screen from the first frame`() = runTest {
+        val handle = SavedStateHandle(mapOf("query" to "cof"))
+        val viewModel = viewModel(handle)
+        advanceUntilIdle()
+
+        assertEquals("cof", viewModel.state.value.data?.query)
     }
 
     @Test

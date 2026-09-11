@@ -1,5 +1,6 @@
 package com.example.androidproject1.service.core.ui.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidproject1.service.core.domain.Logger
@@ -44,6 +45,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * Base class for every ViewModel, on a **State / Event / Navigation** contract: `State` is what the
@@ -59,11 +62,14 @@ import kotlin.coroutines.cancellation.CancellationException
  *
  * A screen that takes navigation arguments declares its route key as a constructor parameter and
  * Koin passes it in — see `TemplateArgsViewModel`. There is no `SavedStateHandle` detour on
- * Navigation 3: the key is an ordinary object the back stack already holds.
+ * Navigation 3: the key is an ordinary object the back stack already holds. [savedStateHandle] is
+ * not that — it is for the transient state a route key cannot carry: a half-typed search, a
+ * scroll position, a partly filled form. See [saved].
  */
 abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
     initialState: State?,
     protected val logger: Logger,
+    private val savedStateHandle: SavedStateHandle? = null,
 ) : ViewModel() {
 
     companion object {
@@ -144,6 +150,26 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
             return
         }
         uiState.update { state -> state.copy(data = state.data?.action()) }
+    }
+
+    /**
+     * A property that survives process death: read from [savedStateHandle] under [key], written
+     * back on every set, [default] until anything has been saved.
+     *
+     * `null` [savedStateHandle] — most ViewModels are not given one, since most state is either
+     * derived from a call or not worth this — falls back to an ordinary field, so `saved()` is
+     * always safe to call: `private var query: String by saved("query", "")`.
+     */
+    protected fun <T> saved(key: String, default: T): ReadWriteProperty<Any?, T> {
+        val handle = savedStateHandle ?: return FieldProperty(default)
+        return object : ReadWriteProperty<Any?, T> {
+            override fun getValue(thisRef: Any?, property: KProperty<*>): T =
+                handle.get<T>(key) ?: default
+
+            override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+                handle[key] = value
+            }
+        }
     }
 
     protected fun showContent(state: ContentState) = uiState.setContent(state)
@@ -462,4 +488,14 @@ enum class ErrorDisplay {
 
     /** Nowhere — the caller handles it, or the failure genuinely does not matter. */
     Silent,
+}
+
+/** [BaseViewModel.saved] with no [SavedStateHandle] to back it: an ordinary mutable field. */
+private class FieldProperty<T>(private var value: T) : ReadWriteProperty<Any?, T> {
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T = value
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        this.value = value
+    }
 }

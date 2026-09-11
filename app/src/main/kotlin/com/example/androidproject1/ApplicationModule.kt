@@ -31,7 +31,7 @@ object ApplicationModule {
 
         // `dev` resolves this to the MockEngine over res/raw fixtures (D20); the other flavors to
         // OkHttp. Different source sets, so the wrong one is not in the build at all.
-        single<HttpClientEngine> { networkEngine(androidContext()) }
+        single<HttpClientEngine> { networkEngine(androidContext(), get<NetworkConfig>().httpCacheSizeBytes) }
 
         // Only where there is a debug menu to show them. A binding is a reference, and a `prod`
         // build that named `BuildInfo` would keep it; `DebugMenu.ENABLED` is a const, so the

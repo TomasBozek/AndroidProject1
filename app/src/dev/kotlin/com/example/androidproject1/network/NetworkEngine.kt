@@ -22,8 +22,11 @@ import kotlinx.serialization.json.jsonPrimitive
  * behaviour as a laptop, and the fixtures are reviewable JSON in `res/raw`. What it cannot do is
  * go offline on its own — the engine is in-process — which is what [FixtureNetwork.failing] is
  * for: flip it and every request fails, so the cache-then-network path can be seen by hand.
+ *
+ * @param cacheSizeBytes unused — a fixture is not worth caching, and this parameter exists only
+ * so the one call site in `ApplicationModule` compiles against every flavor's `networkEngine`.
  */
-fun networkEngine(context: Context): HttpClientEngine {
+fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine {
     val categories = context.readRaw(R.raw.fixture_categories)
     val products = context.readRaw(R.raw.fixture_products)
     FixtureNetwork.attach(context)
