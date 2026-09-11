@@ -33,6 +33,12 @@ plan, not this file.
   pipeline and a settings switch to turn it off, and neither exists.
 - Difficulty per game (arcade) · 25 · after the nine exist and someone has actually played them.
 
+- `service/core/ui`'s build file declares about fifteen library dependencies directly (and
+  `service/core/data`'s a few), against CLAUDE.md's "a module build file is a `plugins` block and
+  its project dependencies. Nothing else." Found during lane 1 of release B, filed here rather than
+  during B2T1: that task's scope was Coil specifically, and folding this in would have grown a
+  6-point task into a much larger one for a different, unrelated defect. Stays its own task.
+
 ## Someday
 
 - Certificate pinning · ETag caching · WorkManager sync · Paging 3.
