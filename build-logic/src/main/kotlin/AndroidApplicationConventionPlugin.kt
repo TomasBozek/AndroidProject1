@@ -14,9 +14,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         // Coverage. Aggregated by the root build; a signal, never a gate — see build.gradle.kts.
         pluginManager.apply("org.jetbrains.kotlinx.kover")
         pluginManager.apply(libs.findPlugin("kotlin-serialization").get().get().pluginId)
-        // Consumes the profile that :baselineprofile generates and packages it into the APK, so a
-        // cold start compiles ahead of time rather than interpreting its way to the first frame.
-        pluginManager.apply(libs.findPlugin("androidx-baselineprofile").get().get().pluginId)
 
         extensions.configure<ApplicationExtension> {
             configureAndroid(this)

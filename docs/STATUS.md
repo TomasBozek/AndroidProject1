@@ -28,7 +28,7 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 
 - [x] B2P1 Two flavors (was F18) · 12 · decides D43 · 12 → 6
 - [x] B2H1 The release ships an AAB with a tag-derived versionCode (was rest of F17c) · 12 → 12
-- [ ] B2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45
+- [x] B2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45 · 12 → 25
 - [ ] B2T1 Coil moves to the module that imports it (was half of F24) · 6
 - [ ] B2P2 Where the data-source interface lives (was F15) · 12 · decides D53
 - [ ] B2X1 A deep link to an uncached product opens it (was shell.7) · 12

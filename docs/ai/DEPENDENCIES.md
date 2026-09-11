@@ -36,14 +36,13 @@ kept for symmetry.
 | Android Gradle Plugin, Kotlin, Compose compiler, KSP, Room plugin | the build itself | the convention plugins, `compileOnly` |
 | ktlint Gradle plugin | formatting; the rule set is `.editorconfig` | the root build file, on every module |
 | Kover | coverage, a signal and never a gate | the root build file |
-| Baseline profile and benchmark | the startup profile committed into `:app` | `:baselineprofile` |
 | JUnit, coroutines-test, Turbine | unit tests | `convention.kotlin.jvm`, the `testing` bundle |
 | Robolectric | screen tests as ordinary unit tests | `AndroidConventions`, `convention.feature.data` |
 | Roborazzi and its preview-scanner support | screenshot goldens | `convention.android.library.compose` |
 | ComposablePreviewScanner | finds the `@Preview` functions the goldens are recorded from | `convention.android.library.compose` |
 | Ktor MockEngine | the `dev` flavor's fixtures, and data-layer tests | `convention.feature.data`, `convention.service.network` |
 | Koin test | `KoinGraphTest` | `convention.android.application` |
-| androidx test core, ext-junit, uiautomator | instrumented and benchmark tests | `:baselineprofile`, `convention.feature.data` |
+| androidx test core | Robolectric's `ApplicationScenario`/`ApplicationProvider` | `convention.feature.data` |
 | gitleaks, Maestro | secret scanning and end-to-end flows, in CI only | `.github/workflows/build.yml` |
 
 ## Updating
