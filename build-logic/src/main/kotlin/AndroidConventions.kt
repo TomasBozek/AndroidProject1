@@ -152,11 +152,6 @@ internal fun Project.configureCompose(extension: CommonExtension) {
         add("api", platform(libs.findLibrary("androidx-compose-bom").get()))
         add("api", libs.findBundle("compose-core").get())
         add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
-        // Images. Declared here because that is where library dependencies live, but only
-        // :core:ui may import it — `AppImage` is the one place features get a remote image, and
-        // doctor.py fails on a `coil3` import anywhere under feature/.
-        add("implementation", libs.findLibrary("coil-compose").get())
-        add("implementation", libs.findLibrary("coil-network").get())
 
         // Compose's test rule plus Robolectric, so anything composable in this module can be
         // asserted by `./gradlew test` with no emulator. `convention.feature.presentation` adds

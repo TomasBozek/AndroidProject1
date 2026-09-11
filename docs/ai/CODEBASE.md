@@ -19,6 +19,7 @@ lines.
 |---|---|
 | `convention.android.library` | `com.android.library`, SDK levels, Java target, shared `lint.xml`, derived namespace. No dependencies |
 | `convention.android.library.compose` | the above plus the Compose compiler, `buildFeatures.compose`, the BOM and the `compose-core` bundle |
+| `convention.core.ui` | the compose library plus Coil. `:core:ui`'s own plugin, and Coil's one consumer — no other Compose module gets it |
 | `convention.kotlin.jvm` | Kotlin/JVM, Java target, coroutines, JUnit, coroutines-test. Every `domain` module |
 | `convention.feature.data` | android library plus coroutines, the `testing` bundle, `testFixtures(:service:core:domain)`, MockEngine and Robolectric |
 | `convention.feature.di` | android library plus the Koin BOM and bundle |

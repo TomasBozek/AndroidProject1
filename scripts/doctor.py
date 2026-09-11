@@ -661,8 +661,6 @@ def check_modifier_parameter() -> list[str]:
 MATERIAL_IMPORT = re.compile(r"^import androidx\.compose\.material3\.(\w+)", re.MULTILINE)
 DIMENSION_LITERAL = re.compile(r"(?<![\w.])\d+(?:\.\d+)?\.(dp|sp)\b")
 RAW_COLOR = re.compile(r"\bColor\(0x|\bMaterialTheme\.colorScheme\b")
-# Swapping the image loader should be a change to AppImage and nothing else.
-IMAGE_LIBRARY = re.compile(r"^import coil3?\.", re.MULTILINE)
 
 # A number a person reads has a role, the same way a colour does — see core.10. What this catches
 # is the two copies of `Price.kt` that grew before there was one: a feature formatting its own
@@ -706,16 +704,6 @@ def check_features_use_the_design_system() -> list[str]:
                         line,
                         f"has a bare `{match.group(0)}` — ask AppTheme.spacing, "
                         "AppTheme.typography or AppTheme.icons for a role",
-                    )
-                )
-            for match in IMAGE_LIBRARY.finditer(text):
-                line = text[: match.start()].count("\n") + 1
-                problems.append(
-                    problem(
-                        path,
-                        line,
-                        "imports the image library directly — use AppImage, which is the one "
-                        "place that knows it exists",
                     )
                 )
             for match in RAW_COLOR.finditer(text):

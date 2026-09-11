@@ -49,6 +49,10 @@ gradlePlugin {
             id = "convention.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
+        register("coreUi") {
+            id = "convention.core.ui"
+            implementationClass = "CoreUiConventionPlugin"
+        }
         register("kotlinJvm") {
             id = "convention.kotlin.jvm"
             implementationClass = "KotlinJvmConventionPlugin"
