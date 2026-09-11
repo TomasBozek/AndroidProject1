@@ -33,4 +33,7 @@ dependencies {
     testImplementation(testFixtures(projects.feature.onboarding.domain))
     testImplementation(testFixtures(projects.feature.catalog.domain))
     testImplementation(testFixtures(projects.feature.cart.domain))
+    // Tests the real OkHttp engine's on-disk cache against a real request/response cycle rather
+    // than reimplementing OkHttp's cache logic with a fake.
+    testImplementation(libs.okhttp.mockwebserver)
 }

@@ -1,5 +1,6 @@
 package com.example.androidproject1.feature.catalog.presentation.search
 
+import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.feature.catalog.domain.CatalogRepository
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.RecentSearchesRepository
@@ -26,18 +27,27 @@ import com.example.androidproject1.service.core.domain.result.map as mapOutcome
  */
 class ProductSearchViewModel(
     logger: Logger,
+    savedStateHandle: SavedStateHandle,
     private val catalogRepository: CatalogRepository,
     private val recentSearchesRepository: RecentSearchesRepository,
 ) : BaseViewModel<ProductSearchState, ProductSearchEvent, ProductSearchNavigation>(
     initialState = ProductSearchState.EMPTY,
     logger = logger.withTag("ProductSearchViewModel"),
+    savedStateHandle = savedStateHandle,
 ) {
 
-    // The field's own value, and the source the search is debounced from. Held here rather than
-    // read back out of the state so the debounce sees keystrokes and not every state change.
-    private val query = MutableStateFlow("")
+    // Saved rather than a plain field: a half-typed search is exactly the transient state a user
+    // notices losing to process death. The field's own value, and the source the search is
+    // debounced from — held here rather than read back out of the state so the debounce sees
+    // keystrokes and not every state change.
+    private var savedQuery: String by saved(KEY_QUERY, "")
+    private val query = MutableStateFlow(savedQuery)
 
     init {
+        // The restored value is echoed into the state on the very first frame, the same way a
+        // keystroke is — see QueryChanged below.
+        if (savedQuery.isNotEmpty()) updateData { copy(query = savedQuery) }
+
         observeResults()
 
         observe(
@@ -86,11 +96,13 @@ class ProductSearchViewModel(
             is ProductSearchEvent.QueryChanged -> {
                 updateData { copy(query = event.query) }
                 query.value = event.query
+                savedQuery = event.query
             }
 
             is ProductSearchEvent.RecentClicked -> {
                 updateData { copy(query = event.query) }
                 query.value = event.query
+                savedQuery = event.query
             }
 
             ProductSearchEvent.ClearRecentsClicked -> execute(
@@ -115,5 +127,7 @@ class ProductSearchViewModel(
         const val CONTENT_ID_RESULTS = "results"
 
         const val CONTENT_ID_RECENTS = "recents"
+
+        const val KEY_QUERY = "query"
     }
 }

@@ -40,7 +40,7 @@ the boundary. Do not make it an Android library to reach a framework class — m
 
 | Holds | What it is |
 |---|---|
-| `viewmodel/BaseViewModel` | `execute {}` and `observe(flow = …) {}`; turns a failure into an alert or an inline retry, rethrows cancellation. The overlay is opt-in — `loading = overlay()` (D44). Never `try`/`catch` in a view model |
+| `viewmodel/BaseViewModel` | `execute {}` and `observe(flow = …) {}`; turns a failure into an alert or an inline retry, rethrows cancellation. The overlay is opt-in — `loading = overlay()` (D44). Never `try`/`catch` in a view model. `saved(key, default)` is a property that survives process death through the optional `SavedStateHandle` constructor parameter — for a half-typed search or a scroll position, never for a route argument, which Navigation 3's back stack already carries |
 | `state/UiState` | the `(data, loading, alert)` envelope |
 | `state/ContentState` | the error and empty states, rendered instead of content |
 | `component/Screen()` | the only collector in the app and the only interpreter of `UiCommand` |
@@ -66,6 +66,11 @@ and `:app` the OkHttp one without this module knowing either. Its retry policy m
 `NetworkConfig.retries` further attempts on a 5xx or a transport failure, with exponential backoff
 and jitter, **on idempotent methods only** — never a POST. Do not add a retry loop in a data source.
 `HttpErrorMapper` turns a status into a `DomainError`.
+
+The on-disk HTTP cache is not here: it is a property of the engine, not of the client wrapping it,
+so `:app`'s `cachedOkHttpEngine` (`src/main`, shared by `prod` and `staging`) builds it from
+`NetworkConfig.httpCacheSizeBytes` and the platform's own cache directory. `dev`'s fixture engine
+ignores it — a fixture is not worth caching.
 
 ## Taking it to another project
 

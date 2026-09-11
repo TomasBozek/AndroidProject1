@@ -37,6 +37,7 @@ Logging is WARN and above in a release build.
 | `TopLevelDestination` | the four tabs: route key, label, icon and test id each — the id is `tabs_<name>Tab`, carried on the entry so a fifth tab cannot be added without one |
 | `App` | the `Application`: `initKoin`, the notification channel |
 | `DebugMenu` | the flag that decides whether the debug entries are registered at all |
+| `network/CachedOkHttpEngine` | the real engine's on-disk HTTP cache, sized from `NetworkConfig`. In `src/main`, not `src/prod`/`src/staging` where the engine itself lives, because `:app`'s unit tests run for `devDebug` only and this is the one part of the real engine worth a JVM test |
 
 `:app` is also where a vendor is swapped in. Add the dependency here and override the one binding in
 `:app`'s own Koin module, which is loaded after `coreModule` and therefore wins — that is the whole

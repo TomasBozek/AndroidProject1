@@ -21,4 +21,10 @@ data class NetworkConfig(
      * Only idempotent methods are ever retried; see [HttpClientFactory].
      */
     val retries: Int = 2,
+    /**
+     * The on-disk HTTP cache's size limit. Read by the flavor that builds the real OkHttp engine —
+     * `HttpClientFactory` never touches it, because the cache is a property of the engine, not of
+     * the client wrapping it, and `dev`'s fixture engine has no use for one at all.
+     */
+    val httpCacheSizeBytes: Long = 10L * 1024 * 1024,
 )

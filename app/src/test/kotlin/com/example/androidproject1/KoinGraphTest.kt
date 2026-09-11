@@ -1,6 +1,7 @@
 package com.example.androidproject1
 
 import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import com.example.androidproject1.core.di.appModules
 import com.example.androidproject1.core.di.debugMenuModules
 import com.example.androidproject1.debug.DebugMenu
@@ -44,8 +45,9 @@ class KoinGraphTest {
         }
 
         graph.verify(
-            // Supplied at resolution time rather than by a module: Context by androidContext().
-            extraTypes = listOf(Context::class),
+            // Supplied at resolution time rather than by a module: Context by androidContext(),
+            // SavedStateHandle by Koin's own ViewModel factory — see BaseViewModel.saved().
+            extraTypes = listOf(Context::class, SavedStateHandle::class),
             // A screen that takes navigation arguments gets its route key from the destination
             // through `parametersOf(key)`, so the graph does not provide it. One line per such
             // screen; `doctor.py` fails if one is missing, and `create_screen.py --with-args`
