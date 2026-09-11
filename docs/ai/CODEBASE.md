@@ -113,7 +113,7 @@ Read this before writing something that exists. A plan holds only open work, so 
 | `ErrorTracker` / `TrackingLogger` | `service/core/domain/`, `service/core/data/` | See Crash reporting above |
 | `Analytics` / `LocalAnalytics` / `ScreenViewEffect` | `service/core/domain/`, `service/core/ui/analytics/` | `AppScaffold` sends the screen view; see Analytics below |
 | `HttpClientFactory` retry policy | `service/network/.../HttpClientFactory.kt` | Up to `NetworkConfig.retries` more tries on a 5xx or a transport failure, exponential backoff with jitter. **Idempotent methods only** — never a POST; do not add a retry loop in a data source |
-| `SessionState` | `app/SessionState.kt` | `Unknown` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows |
+| `SessionState` | `app/SessionState.kt` | `Unknown` / `Onboarding` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows. `Onboarding` outranks the other two — someone who has not finished the tour is shown it whether or not a session is stored |
 | `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
 | `MainDispatcherRule`, `FakeLogger`, `TestDispatchers`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain` (both middle two), `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first three; the convention plugin adds it, and `convention.feature.data` takes `:service:core:domain`'s directly |
 | `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, flavors. One edit each; the version comes from the tag |

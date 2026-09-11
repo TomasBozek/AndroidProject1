@@ -4,7 +4,7 @@ Status: draft
 Agents: 4 · lane 0 124 (~10 h, first and last) · lane 1 85 (~6.8 h) · lane 2 85 (~6.8 h) · lane 3 86 (~6.9 h)
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D54–D57
 
-The app has five features and twenty-one screens, and **26 of the 46 `App*` components in `:core:ui`
+The app has ten features and twenty-three screens, and **16 of the 47 `App*` components in `:core:ui`
 are reached only by the gallery** — a screen that exists to list them. D38 has said since the design
 system landed that none of them is deleted until a real screen has had the chance to use it. Nothing
 in a catalogue, a cart or a settings list wants a tri-state checkbox, a date field, a tooltip or a
@@ -17,8 +17,11 @@ prize behind a tab. Each is one screen, one view model and two tests — the uni
 built around — so the release is mostly the same task nine times, which is the point: it is what the
 architecture is for.
 
-**Twenty-five of the twenty-six get a home here.** The one that does not is `AppImage`, and C0T1 is
-the task that decides it — see § What the games are for.
+**§ What the games are for maps the games onto twenty-six homeless components, and sixteen are left**
+— Trips gave nine of them a home after this draft was written, and B3S2 may give more. Re-derive that
+table when C is drafted for real, against the method in `../reference/DESIGN-SYSTEM.md`; the games
+themselves are unlikely to change, but which of them is still load-bearing for D38 will. `AppImage`
+was the one no game could place, and C0T1 is the task that decides it.
 
 ## Relationship to release B
 

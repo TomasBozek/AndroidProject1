@@ -33,7 +33,7 @@ A touch target is `AppTheme.density.minTouchTarget` and a different question fro
 
 ## Components
 
-Forty-four in the gallery, in six groups, plus `AppScaffold` (the screen shell, which every gallery
+Forty-six in the gallery, in seven groups, plus `AppScaffold` (the screen shell, which every gallery
 page already is) and `ControlSize` (the shared sm/md/lg scale, which shows up as the size variants
 of the controls that read it).
 
@@ -45,7 +45,7 @@ of the controls that read it).
 | Navigation | `AppTopBar` `AppToolbar` `AppBottomNav` `AppNavRail` `AppTabs` `AppPager` `AppBottomActionBar` |
 | Overlay | `AppDialog` `AppSheet` `AppMenu` `AppTooltip` `AppToast` |
 | Shell | `AppScaffold` `AppScreenChrome` — the second is what `Screen()` draws around every feature (D50): the base surface, the loading overlay, the empty and error states, the alert and the snackbar host. A feature composes none of them; it puts a `ContentState` or a `LoadingState` in its `UiState` |
-| Status | `AppBadge` `AppTag` `AppAvatar` `AppProgress` `AppSpinner` `AppSkeleton` `AppStatusDot` |
+| Status | `AppBadge` `AppTag` `AppAvatar` `AppAvatarPhoto` `AppProgress` `AppSpinner` `AppSkeleton` `AppStatusDot` |
 
 `AppScaffold` is the screen shell: base surface, system insets, an optional `AppTopBar`, and the
 screen id that becomes both the test id and the analytics screen view. A screen with a scaffold does
@@ -85,8 +85,13 @@ Choose and the confirm dialog's default Cancel live in `:core:ui`'s `strings.xml
 in both locales, beside the back arrow and the stepper's keys — a component's own control carries
 the same name everywhere it appears, and `doctor.py`'s translation check does not read Kotlin.
 
-Twenty-seven of the components are currently composed only by the gallery. None is deleted until the
-showcase features have had a chance to give them a home.
+Sixteen of the components are composed by nothing outside `:core:ui` and the gallery — down from
+twenty-seven before the Trips showcase landed. The scan behind that number is literal, which is the
+only way it stays reproducible: for each `App*.kt`, whether any file outside `core/ui/` and
+`feature/gallery/` names it. Read it with one caveat — it counts `AppScreenChrome`, which `AppTheme`
+installs behind every screen and which no feature names on purpose (D50), so fifteen is the figure
+if you are asking which components nothing has found a use for. None is deleted until the showcase
+features have had a chance to give them a home (D38).
 
 ## Previews and goldens
 

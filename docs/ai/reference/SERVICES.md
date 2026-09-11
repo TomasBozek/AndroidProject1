@@ -13,7 +13,7 @@ the boundary. Do not make it an Android library to reach a framework class — m
 | Holds | What it is |
 |---|---|
 | `result/Outcome` | success or failure with a `DomainError`; the return type of every repository call |
-| `error/DomainError` | `Network`, `Server`, `Unauthorized`, `BadRequest`, `NotFound`, `Credentials`, `Unexpected` |
+| `error/DomainError` | `Network`, `Server`, `Unauthorized`, `BadRequest`, `NotFound`, `Unexpected` |
 | `Logger` | the interface only; the Android implementation lives one module up |
 | `ErrorTracker` | the crash seam. `LoggingErrorTracker` is bound by default; the repo carries no vendor SDK |
 | `Analytics` | `screen(id)` and `event(name, params)`. `LoggingAnalytics` is bound by default |

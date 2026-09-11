@@ -39,7 +39,7 @@ build-file edit.
 A third test, but one per **module** rather than one per screen: `PreviewScreenshotTest` records a
 golden image for every `@ScreenPreview` and `@ComponentPreview` on its own classpath and fails when
 one of them changes. It is in every `presentation` module and in `:core:ui` (D35), because a
-module's test sees only its own classpath — but the eleven copies differ by one package string, so
+module's test sees only its own classpath — but the twelve copies differ by one package string, so
 everything else is `PreviewScreenshotSpec` in `:service:core:ui`'s `testFixtures` and each subclass
 is a dozen lines. `create_feature.py` clones `feature/template`'s copy, so a generated feature is
 covered the day it is generated.
