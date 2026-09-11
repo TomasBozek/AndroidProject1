@@ -201,7 +201,7 @@ Extend a script rather than working around it.
 
 | I need | Command |
 |---|---|
-| to turn this template into a real project | `python3 scripts/init_project.py --package com.acme.app --name "My App"` |
+| to turn this template into a real project | `python3 scripts/init_project.py --package com.acme.app --name "My App" --author "Acme"` |
 | a new feature, full stack | `python3 scripts/create_feature.py userProfile` |
 | a new screen-only feature | `python3 scripts/create_feature.py userProfile --layers presentation,di` |
 | another screen in an existing feature | `python3 scripts/create_screen.py userprofile UserProfileDetail` |

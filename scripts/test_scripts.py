@@ -736,6 +736,28 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("Theme.FieldTracker", self.read("app/src/main/res/values/themes.xml"))
         self.assertIn(">Field Tracker<", self.read("app/src/main/res/values/strings.xml"))
 
+    def test_init_project_rewrites_the_licence_holder(self) -> None:
+        """
+        `LICENSE` has no suffix, so the suffix-driven walk never saw it and every project generated
+        from this template shipped the template's own copyright holder.
+        """
+        self.run_script(
+            "init_project.py", "--package", "com.acme.tracker", "--name", "Field Tracker",
+            "--author", "Acme Ltd",
+        )
+
+        licence = self.read("LICENSE")
+        self.assertIn("Copyright (c) 2026 Acme Ltd.", licence)
+        self.assertNotIn("Božek", licence)
+        # The terms are the new owner's to change; only the holder moves.
+        self.assertIn("No licence is granted.", licence)
+
+    def test_init_project_defaults_the_licence_holder_to_the_app_name(self) -> None:
+        """--author is optional, but shipping someone else's name is never the default."""
+        self.run_script("init_project.py", "--package", "com.acme.tracker", "--name", "Field Tracker")
+
+        self.assertIn("Copyright (c) 2026 Field Tracker.", self.read("LICENSE"))
+
     def test_init_project_leaves_the_generators_working(self) -> None:
         """
         The regression this guards: `_common.py` holds the package as dots and this file holds it

@@ -53,7 +53,6 @@ plan, not this file.
 - A logger backend · a language picker · `explicitApi()` on `service/` · generated test ids.
 - detekt, when 2.x is stable — 1.23.8 cannot run on the JDK the daemon is pinned to.
 - Play upload · feedback roles · keyboard shortcuts · z-order roles.
-- `init_project.py` rewrites `LICENSE`'s copyright holder, which today names this template's.
 - Two `doctor.py` checks that would keep the reference docs honest: every destination appears in
   the features reference, every `App*` file in the design-system reference.
 

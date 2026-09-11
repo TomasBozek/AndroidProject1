@@ -36,6 +36,10 @@ from _common import (  # noqa: E402
 # theme, the launcher label and the README title.
 PROJECT_NAME = "AndroidProject1"
 
+# The template's own copyright holder. `LICENSE` has no suffix, so the suffix-driven walk below
+# never sees it — which is how every project generated from this template shipped this name.
+COPYRIGHT_HOLDER = "Tomáš Božek"
+
 TEXT_SUFFIXES = {
     ".kt", ".kts", ".xml", ".toml", ".py", ".md", ".pro", ".yml", ".yaml", ".properties",
     # build-logic/compose-stability.conf names the domain packages it vouches for.
@@ -170,6 +174,30 @@ def rewrite_files(package: str, gradle_name: str, display_name: str, dry_run: bo
     return changed
 
 
+def rewrite_license(author: str, dry_run: bool) -> bool:
+    """`LICENSE` keeps its terms and changes hands.
+
+    Handled apart from `rewrite_files` for two reasons: the file has no suffix, so `text_files()`
+    cannot reach it, and the holder is not the package or the project name, so the blanket
+    replacement has nothing to match. The terms themselves are the new owner's to change.
+    """
+    path = REPO_ROOT / "LICENSE"
+    if not path.is_file():
+        return False
+
+    original = path.read_text()
+    updated = original.replace(COPYRIGHT_HOLDER, author)
+    if updated == original:
+        return False
+
+    if dry_run:
+        print(f"  would rewrite {relative_to_repo(path)} to {author}")
+    else:
+        path.write_text(updated)
+        print(f"  rewrote {relative_to_repo(path)} to {author}")
+    return True
+
+
 # --------------------------------------------------------------------------------------------
 # Moving the package directories
 # --------------------------------------------------------------------------------------------
@@ -242,6 +270,11 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Override the Gradle/theme name derived from --name (default: FieldTracker)",
     )
+    parser.add_argument(
+        "--author",
+        help="Copyright holder for LICENSE. Defaults to --name; the template's own holder is "
+             "never what a generated project should ship.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Show what would happen, change nothing.")
     parser.add_argument(
         "--force",
@@ -257,10 +290,12 @@ def main() -> None:
     validate_package(args.package)
     display_name = args.name.strip()
     gradle_name = args.gradle_name or to_gradle_name(display_name)
+    author = (args.author or display_name).strip()
 
     print(f"Package:      {BASE_PACKAGE} -> {args.package}")
     print(f"Project name: {PROJECT_NAME} -> {gradle_name}")
     print(f"App label:    {display_name}")
+    print(f"Copyright:    {COPYRIGHT_HOLDER} -> {author}")
     if args.dry_run:
         print("-- dry run, nothing will be written --")
     else:
@@ -268,6 +303,9 @@ def main() -> None:
 
     print("\nRewriting sources")
     rewrite_files(args.package, gradle_name, display_name, args.dry_run)
+
+    print("\nRewriting LICENSE")
+    rewrite_license(author, args.dry_run)
 
     print("\nMoving package directories")
     move_packages(args.package, args.dry_run)
