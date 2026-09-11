@@ -41,14 +41,38 @@ plan, not this file.
 - A `Trips` tab · 3 · B3S1 registered the whole feature under `mainEntries()` but did not add a
   bottom-bar tab for it — the bottom-bar enum and `:app`'s own strings are outside that lane's
   file set. One entry, one label string, one `xEntries()` call.
-- `OverlayScreenshotTest`'s two date-picker goldens fail under a full multi-module `./gradlew test`
-  but pass reliably run alone, even at `--max-workers=1` — found running T1 for lane 2 of release B,
-  on code none of that lane's tasks touch (the same failure reproduces against a clean `origin/main`
-  checkout run the same way, and does not reproduce running `:core:ui` by itself against either).
-  The test pins the wall clock in `@Before` specifically because the picker rings *today*; something
-  about another module's Robolectric suite running at the same time changes what gets rendered
-  before or after the pin takes effect. Worth a real look — the pin was written for exactly this
-  flakiness and is not holding under load.
+- **MAX PRIORITY — `./gradlew test` must always be green.** `OverlayScreenshotTest`'s two
+  date-picker goldens (`the date picker on the narrowest phone`, `the date picker in landscape`)
+  fail under a full multi-module `./gradlew test` but pass reliably run alone, even at
+  `--max-workers=1` — found running T1 for lane 2 of release B, on code none of that lane's tasks
+  touch, and reproduced again independently on B3S1 (`gh` PR #17), same two tests, same way. The
+  same failure reproduces against a clean `origin/main` checkout run the same way, and does not
+  reproduce running `:core:ui` by itself against either.
+  **What it actually is, confirmed by reading the Roborazzi diff
+  (`core/ui/build/outputs/roborazzi/overlay_datePicker_narrowPhone_compare.png`):** not pixel
+  antialiasing noise — the "today" ring on the calendar grid lands on a different day than the
+  golden (off by exactly one day in the reproduction seen on B3S1), while the *selected* date
+  circle is unchanged. `@Before pinTheClock()` sets `android.os.SystemClock.setCurrentTimeMillis`
+  because the Material3 `DatePicker`'s "today" comes from the wall clock; something specific to
+  running alongside other modules' Robolectric suites makes that pin not hold by the time the
+  picker composes. **Ruled out:** `changeThreshold` tolerance (`PreviewScreenshotSpec`'s own
+  `CHANGE_THRESHOLD = 0.001f` pattern) — a whole day's digit is not a rendering-jitter difference
+  and papering over it with pixel tolerance would hide a real date bug, not a flaky one.
+  **Confirmed, not just theorized:** `./gradlew :core:ui:testDebugUnitTest --tests
+  "*OverlayScreenshotTest*"` passes 100% alone — the pin mechanism itself is sound; only the
+  concurrent-with-other-modules condition breaks it. Leading cause, per Gradle's own docs on
+  `forkEvery` ("a way to manage leaky tests or frameworks that have static state that can't be
+  cleared or reset between tests") and Robolectric's own history of parallel-execution timing
+  issues: Gradle defaults `forkEvery` to unlimited, so one Test task's worker JVM is reused across
+  every test class in that module — static JVM/JDK state (`TimeZone`, native graphics
+  initialization) is not guaranteed clean between classes, and that is *before* factoring in
+  several other modules' Robolectric suites competing for CPU at the same time, which is exactly
+  the condition the docs describe scheduling losing precision under. The well-established fix is
+  `forkEvery = 1` on the Robolectric test tasks that need real clock isolation, which is real
+  ongoing cost to test speed and belongs in a `build-logic` convention plugin, not a module build
+  file (`core/ui` is lane 1's, and CLAUDE.md's "a module build file is a `plugins` block and its
+  project dependencies, nothing else" forbids putting it there directly) — asked the user directly
+  rather than silently touching build-logic or another lane's file from an unrelated task's branch.
 
 ## Someday
 
