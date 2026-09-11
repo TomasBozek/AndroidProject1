@@ -1,7 +1,5 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    alias(libs.plugins.androidx.baselineprofile) apply false
-    alias(libs.plugins.android.test) apply false
     alias(libs.plugins.kover)
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
@@ -40,10 +38,8 @@ dependencies {
     // Every module that compiles code contributes to the aggregate. Read off the project tree
     // rather than listed by hand, so a new module is covered the day it is created. `:core` and
     // `:feature` are grouping paths with no build file of their own, hence the filter.
-    // `:baselineprofile` is a `com.android.test` module: it runs on a device, has no unit tests
-    // and does not apply Kover, so aggregating it fails variant resolution for the whole report.
     subprojects
-        .filter { it.projectDir.resolve("build.gradle.kts").exists() && it.path != ":baselineprofile" }
+        .filter { it.projectDir.resolve("build.gradle.kts").exists() }
         .forEach { kover(project(it.path)) }
 }
 

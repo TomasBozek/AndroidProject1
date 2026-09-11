@@ -184,7 +184,7 @@ internal fun Project.configureCompose(extension: CommonExtension) {
  *
  * A directory of its own rather than `build-logic/` itself, because a source directory takes
  * everything under it and `build-logic` is a Gradle build. `findByName` rather than `getByName`
- * because a `com.android.test` module — `:baselineprofile` — has no `test` source set to add to.
+ * so a module with no `test` source set is a no-op rather than a configuration-time failure.
  */
 internal fun Project.configureRobolectricSdk(extension: CommonExtension) {
     extension.sourceSets.findByName("test")?.resources?.srcDir(
