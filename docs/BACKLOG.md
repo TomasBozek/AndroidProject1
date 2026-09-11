@@ -38,6 +38,14 @@ plan, not this file.
   its project dependencies. Nothing else." Found during lane 1 of release B, filed here rather than
   during B2T1: that task's scope was Coil specifically, and folding this in would have grown a
   6-point task into a much larger one for a different, unrelated defect. Stays its own task.
+- `OverlayScreenshotTest`'s two date-picker goldens fail under a full multi-module `./gradlew test`
+  but pass reliably run alone, even at `--max-workers=1` — found running T1 for lane 2 of release B,
+  on code none of that lane's tasks touch (the same failure reproduces against a clean `origin/main`
+  checkout run the same way, and does not reproduce running `:core:ui` by itself against either).
+  The test pins the wall clock in `@Before` specifically because the picker rings *today*; something
+  about another module's Robolectric suite running at the same time changes what gets rendered
+  before or after the pin takes effect. Worth a real look — the pin was written for exactly this
+  flakiness and is not holding under load.
 
 ## Someday
 
