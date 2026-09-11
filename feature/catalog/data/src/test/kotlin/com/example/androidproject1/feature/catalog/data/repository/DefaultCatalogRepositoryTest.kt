@@ -38,6 +38,9 @@ private const val CATEGORIES_JSON =
 private const val PRODUCTS_JSON =
     """[{"id":"coffee","categoryId":"beverages","name":"Coffee","price":450,"description":"Ground."}]"""
 
+private const val SINGLE_PRODUCT_JSON =
+    """{"id":"coffee","categoryId":"beverages","name":"Coffee","price":450,"description":"Ground."}"""
+
 /**
  * Cache-then-network end to end: a real `MockEngine` on one side, a real SQLite on the other.
  *
@@ -190,5 +193,15 @@ class DefaultCatalogRepositoryTest {
 
         assertEquals(emptyList<Product>(), (emissions.first() as Outcome.Success).data)
         assertTrue(emissions.last() is Outcome.Failure)
+    }
+
+    @Test
+    fun `a deep link to a product nobody browsed to fetches it and caches the row`() = runTest {
+        // The table is empty: nothing has called observeProducts for "beverages" yet, which is
+        // exactly a cold start on a link nobody has visited.
+        val outcome = repository(serving(SINGLE_PRODUCT_JSON)).getProduct("coffee")
+
+        assertEquals("Coffee", (outcome as Outcome.Success).data?.name)
+        assertEquals(1, database.catalogDao().productCount())
     }
 }

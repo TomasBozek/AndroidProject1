@@ -31,6 +31,10 @@ class DefaultRemoteCatalogDataSource(
             .map { it.toDomain() }
     }
 
+    override suspend fun getProduct(productId: String): Product = request {
+        client.get("product") { parameter("id", productId) }.body<ProductDto>().toDomain()
+    }
+
     private suspend fun <T> request(block: suspend () -> T): T = withContext(dispatcherProvider.io) {
         try {
             block()

@@ -1,0 +1,33 @@
+# A deep link to a product nobody has browsed to still opens it: the row is never in the local
+# table on a cold start, so the repository has to fall back to the network once to answer at all.
+appId: com.example.androidproject1.dev
+name: A deep link to an uncached product opens it
+---
+- clearState
+
+# Cold: the process is not running, so this is what a real link from another app looks like.
+# MainActivity reads it on this launch and fetches the product right away — the keys wait for a
+# session to apply them to, but the fetch itself does not.
+- openLink: "com.example.androidproject1.dev://product/olive-oil"
+
+- assertVisible:
+    id: "OnboardingScreen"
+- tapOn:
+    id: "onboarding_skipButton"
+
+- assertVisible:
+    id: "LoginScreen"
+- tapOn:
+    id: "login_emailField"
+- inputText: "ada@example.com"
+- tapOn:
+    id: "login_passwordField"
+- inputText: "hunter2!!"
+- hideKeyboard
+- tapOn:
+    id: "login_submitButton"
+
+# Pantry was never browsed to in this flow, so this only opens if the fallback fetched the row.
+- assertVisible:
+    id: "ProductDetailScreen"
+- assertVisible: "Olive oil"
