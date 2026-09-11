@@ -26,7 +26,7 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 
 ### Lane 2 · build, release and the data layer · 90
 
-- [ ] B2P1 Two flavors (was F18) · 12 · decides D43
+- [x] B2P1 Two flavors (was F18) · 12 · decides D43 · 12 → 6
 - [ ] B2H1 The release ships an AAB with a tag-derived versionCode (was rest of F17c) · 12
 - [ ] B2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45
 - [ ] B2T1 Coil moves to the module that imports it (was half of F24) · 6
