@@ -209,7 +209,11 @@ def main() -> None:
     if not args.dry_run:
         report_leftovers(flat)
 
-    print("\nDone. Run ./gradlew build")
+    print(
+        "\nDone. Run the T0 pair — never `./gradlew build`, which assembles every variant and\n"
+        "runs R8 three times (CLAUDE.md \u00a7 Checks):\n"
+        "  python3 scripts/doctor.py && ./gradlew :app:assembleDevDebug test"
+    )
 
 
 if __name__ == "__main__":

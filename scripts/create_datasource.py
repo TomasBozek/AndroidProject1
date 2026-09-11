@@ -451,7 +451,11 @@ def main() -> None:
             f"feature/{flat}/data/build.gradle.kts:\n"
             "    api(projects.service.network)"
         )
-    print("\nDone. Run ./gradlew build")
+    print(
+        "\nDone. Fill in the placeholders, then run the T0 pair — never `./gradlew build`, which\n"
+        "assembles every variant and runs R8 three times (CLAUDE.md \u00a7 Checks):\n"
+        f"  python3 scripts/doctor.py && ./gradlew :feature:{flat}:data:assembleDebug test"
+    )
 
 
 if __name__ == "__main__":
