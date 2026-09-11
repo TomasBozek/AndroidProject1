@@ -71,15 +71,29 @@ internal fun Project.releaseVersionName(): String =
         ?: ProjectConfig.VERSION_NAME
 
 /**
- * The `versionCode`: the number of commits on this history, or [ProjectConfig.VERSION_CODE].
+ * The `versionCode`: the release tag parsed as `major.minor.patch`, or [ProjectConfig.VERSION_CODE].
  *
- * The commit count rather than a counter of its own because it only ever goes up, needs nothing
- * stored anywhere, and is the same number on any clone of the same commit. Store listings refuse
- * a second upload of the same code, which is the bug this replaces: every release build was 1.
+ * Not the commit count: that only ever goes up on the history it is counted from, not on the
+ * history a hotfix branches from, so a hotfix tagged off an older tag could produce a code lower
+ * than one a store has already seen — and a store refuses to accept it. Parsing the tag itself
+ * fixes that: `v1.2.3` becomes `10203`, two digits each for minor and patch, so `v1.2.1` sorts
+ * above `v1.2.0` and below `v1.3.0` regardless of how the two branches' histories compare.
  */
-internal fun Project.releaseVersionCode(): Int {
-    if (releaseVersionName() == ProjectConfig.VERSION_NAME) return ProjectConfig.VERSION_CODE
-    return git("rev-list", "--count", "HEAD")?.toIntOrNull() ?: ProjectConfig.VERSION_CODE
+internal fun Project.releaseVersionCode(): Int = versionCodeFor(releaseVersionName())
+
+/**
+ * The pure half of [releaseVersionCode]: `major.minor.patch` → `major * 10_000 + minor * 100 +
+ * patch`. [ProjectConfig.VERSION_CODE] is the fallback for anything that is not exactly that shape
+ * — no tag (`versionName` is [ProjectConfig.VERSION_NAME]), a component that is not a non-negative
+ * integer, or a minor/patch of 100 or more, which the two-digit encoding cannot carry — so a
+ * malformed tag fails safe to the constant rather than producing a wrong number.
+ */
+internal fun versionCodeFor(versionName: String): Int {
+    val components = versionName.split(".").map { it.toIntOrNull() }
+    if (components.size != 3 || components.any { it == null || it < 0 }) return ProjectConfig.VERSION_CODE
+    val (major, minor, patch) = components.map { it!! }
+    if (minor > 99 || patch > 99) return ProjectConfig.VERSION_CODE
+    return major * 10_000 + minor * 100 + patch
 }
 
 /**

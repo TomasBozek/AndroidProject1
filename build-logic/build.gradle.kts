@@ -29,6 +29,8 @@ dependencies {
     // convention plugin compiles against their DSL without putting them on a module's classpath.
     compileOnly(libs.room.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
+
+    testImplementation(libs.junit)
 }
 
 // One entry per plugin id. The `convention.` prefix means init_project.py never has to rename them
