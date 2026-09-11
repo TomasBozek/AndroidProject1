@@ -53,7 +53,7 @@ Most changes need less than that; which parts, and when, is [CLAUDE.md](CLAUDE.m
 ## Make it your project
 
 ```bash
-python3 scripts/init_project.py --package com.acme.tracker --name "Field Tracker"
+python3 scripts/init_project.py --package com.acme.tracker --name "Field Tracker" --author "Acme Ltd"
 ```
 
 Run once, on a clean tree. It rewrites the base package in every source file, moves the package
