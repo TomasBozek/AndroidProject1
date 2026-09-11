@@ -162,6 +162,7 @@ convention-android-application = { id = "convention.android.application", versio
 convention-android-library = { id = "convention.android.library", version = "unspecified" }
 convention-android-library-compose = { id = "convention.android.library.compose", version = "unspecified" }
 convention-core-ui = { id = "convention.core.ui", version = "unspecified" }
+convention-android-library-testfixtures = { id = "convention.android.library.testfixtures", version = "unspecified" }
 convention-kotlin-jvm = { id = "convention.kotlin.jvm", version = "unspecified" }
 convention-feature-data = { id = "convention.feature.data", version = "unspecified" }
 convention-android-room = { id = "convention.android.room", version = "unspecified" }

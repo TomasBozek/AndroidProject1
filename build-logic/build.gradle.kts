@@ -53,6 +53,10 @@ gradlePlugin {
             id = "convention.core.ui"
             implementationClass = "CoreUiConventionPlugin"
         }
+        register("androidLibraryTestFixtures") {
+            id = "convention.android.library.testfixtures"
+            implementationClass = "AndroidLibraryTestFixturesConventionPlugin"
+        }
         register("kotlinJvm") {
             id = "convention.kotlin.jvm"
             implementationClass = "KotlinJvmConventionPlugin"
