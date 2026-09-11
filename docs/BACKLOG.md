@@ -73,6 +73,25 @@ plan, not this file.
   file (`core/ui` is lane 1's, and CLAUDE.md's "a module build file is a `plugins` block and its
   project dependencies, nothing else" forbids putting it there directly) — asked the user directly
   rather than silently touching build-logic or another lane's file from an unrelated task's branch.
+  **Tried `forkEvery = 1` on `:core:ui`'s own test task, via its convention plugin, per the user's
+  go-ahead — and it did not hold.** Same two tests failed the same way in a full `./gradlew test`
+  with every test class in a fresh JVM. That rules the leaked-static-JVM-state theory out; the
+  change was reverted rather than left in for a cost with no benefit. What is left standing:
+  something that specifically needs *other modules* running at the same time, which points at CPU
+  contention affecting the wall-clock read itself rather than anything `:core:ui`'s own test task
+  can isolate on its own — matching what Robolectric's own issue tracker says about parallel Gradle
+  execution making `currentTimeMillis`/`nanoTime`-sensitive tests lose precision under load, not a
+  state-leak story. Next things worth trying, in rough order of cost: (1) read
+  `androidx.compose.material3.CalendarModel` (or the `Legacy`/`Api26Impl` it resolves to at this
+  Robolectric SDK) to confirm exactly which clock call "today" comes from, since `Calendar
+  .getInstance()` and `LocalDate.now()` are shadowed by different Robolectric mechanisms and only
+  one of `android.os.SystemClock` and `java.lang.System.currentTimeMillis` is guaranteed to move
+  together with it; (2) once that is known, pin whichever clock is actually read, directly, rather
+  than the `android.os.SystemClock` shadow the test pins today; (3) if the actual mechanism turns
+  out to be scheduler precision under real CPU load rather than a wrong clock, a golden that
+  asserts the picker's *shape* without asserting which specific day is ringed (two goldens instead
+  of one, or a crop that excludes the calendar grid) is the fallback that keeps the check honest
+  without waiting on Robolectric to fix its own parallel-execution timing.
 
 ## Someday
 
