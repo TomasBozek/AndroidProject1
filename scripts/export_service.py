@@ -262,7 +262,10 @@ def main() -> None:
         sys.exit("Target is this project. Pass --to with a different directory.")
 
     print(f"Exporting service modules to {target_root}")
-    print(f"Modules: {', '.join(f'{m} ({", ".join(SERVICE_MODULES[m]) or "flat"})' for m in modules)}")
+    # Built before the f-string rather than inside it: nesting the same quote character within an
+    # f-string expression is PEP 701 syntax, which only parses on 3.12, and README.md promises 3.10+.
+    described = ", ".join(f"{m} ({', '.join(SERVICE_MODULES[m]) or 'flat'})" for m in modules)
+    print(f"Modules: {described}")
     print(f"Package: {BASE_PACKAGE} -> {args.package}")
     if args.dry_run:
         print("-- dry run, nothing will be written --")
