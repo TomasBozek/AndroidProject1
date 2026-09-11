@@ -15,7 +15,7 @@ its actual, `[-]` dropped.
 ### Lane 1 · reachability, then the patch-ups · 60
 
 - [x] D1P1 One plan open, a queue behind it, and room to write · 6 → 6 · decides D58
-- [ ] D1X1 Trips takes the fifth tab · 6 · decides D59 · after D1P1
+- [x] D1X1 Trips takes the fifth tab · 6 → 6 · decides D59 · after D1P1
 - [ ] D1X2 The dev menu jumps straight to a screen · 12 · after D1X1
 - [ ] D1X3 `export_service.py` parses on the Python the README promises · 3
 - [ ] D1P2 The generators stop recommending the build that is forbidden · 6

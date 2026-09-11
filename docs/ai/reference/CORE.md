@@ -34,7 +34,7 @@ Logging is WARN and above in a release build.
 | `AppNavHost` | every destination, in three groups: onboarding, auth and main. The only place a cross-feature navigation lambda is wired, and the place `ProvideNavResultStore` and `ProvideAnalytics` wrap everything below |
 | `MainViewModel` | a plain `ViewModel`, the owner of `SessionState` and the only thing that switches flows |
 | `SessionState` | `Unknown`, `Onboarding`, `SignedIn`, `SignedOut` |
-| `TopLevelDestination` | the four tabs: route key, label, icon and test id each — the id is `tabs_<name>Tab`, carried on the entry so a fifth tab cannot be added without one |
+| `TopLevelDestination` | the five tabs — Home, Catalog, Cart, Trips, Settings: route key, label, icon and test id each. The id is `tabs_<name>Tab`, carried on the entry so a tab cannot be added without one. Five is Material's ceiling for a bottom bar, so a sixth is a decision, not an entry (D59) |
 | `App` | the `Application`: `initKoin`, the notification channel |
 | `DebugMenu` | the flag that decides whether the debug entries are registered at all |
 | `network/CachedOkHttpEngine` | the real engine's on-disk HTTP cache, sized from `NetworkConfig`. In `src/main`, not `src/prod`/`src/staging` where the engine itself lives, because `:app`'s unit tests run for `devDebug` only and this is the one part of the real engine worth a JVM test |

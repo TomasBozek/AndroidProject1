@@ -2,6 +2,7 @@ package com.example.androidproject1
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -12,6 +13,7 @@ import com.example.androidproject1.feature.cart.presentation.cart.CartDestinatio
 import com.example.androidproject1.feature.catalog.presentation.categories.CategoriesDestination
 import com.example.androidproject1.feature.home.presentation.home.HomeDestination
 import com.example.androidproject1.feature.settings.presentation.settings.SettingsDestination
+import com.example.androidproject1.feature.trips.presentation.trips.TripsDestination
 
 /**
  * A tab of the bottom bar: a top-level destination, and the root of its own back stack.
@@ -44,6 +46,7 @@ enum class TopLevelDestination(
     Home(HomeDestination, R.string.tab_home, Icons.Filled.Home, testTag = "tabs_homeTab"),
     Catalog(CategoriesDestination, R.string.tab_catalog, Icons.AutoMirrored.Filled.List, testTag = "tabs_catalogTab"),
     Cart(CartDestination, R.string.tab_cart, Icons.Filled.ShoppingCart, testTag = "tabs_cartTab", hasBadge = true),
+    Trips(TripsDestination, R.string.tab_trips, Icons.Filled.DateRange, testTag = "tabs_tripsTab"),
     Settings(SettingsDestination, R.string.tab_settings, Icons.Filled.Settings, testTag = "tabs_settingsTab"),
     ;
 

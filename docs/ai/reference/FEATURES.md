@@ -45,7 +45,7 @@ through its constructor.
 | `GalleryDetail` | gallery | `componentId` | Gallery |
 | `Template` | template | — | not reachable; the generators clone it |
 | `TemplateArgs` | template | `templateId` | not reachable; cloned by `--with-args` |
-| `Trips` | trips | — | registered in the main flow; no tab links to it yet — see § Flows |
+| `Trips` | trips | — | the Trips tab |
 | `TripsList` | trips | — | Trips |
 | `TripWizard` | trips | — | Trips, TripsList |
 | `TripDetail` | trips | `tripId` | TripsList, Trips' next-trip card |
@@ -82,6 +82,6 @@ same way the cart gets a product — set, then pop, read once by `NavResultEffec
 wizard; the list and the dashboard are both observing the same table, so the new trip appears on
 either without a refresh.
 
-`trips` registers under the signed-in flow's `mainEntries()` like every other feature, but no tab
-links to it yet — `TopLevelDestination.kt` and `:app`'s `strings.xml` are outside this lane's file
-set (D47). One line in [../../BACKLOG.md](../../BACKLOG.md) for the lane that owns them.
+`trips` is the fifth tab (D59). It registers under the signed-in flow's `mainEntries()` like every
+other feature, and `TripsScreen` is a tab root with no up arrow — so the bottom bar is the only
+thing that reaches it, and the four screens behind it are reached from there.
