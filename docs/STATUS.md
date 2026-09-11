@@ -22,7 +22,7 @@ its actual, `[-]` dropped.
 - [x] D1X5 `init_project.py` rewrites the LICENSE it leaves behind · 3 → 3
 - [x] D1P3 The reference docs catch up with B3S1 · 6 → 6 · after D1X1
 - [x] D1P4 Two `doctor.py` checks that keep the reference docs honest · 6 → 12 · after D1P3
-- [ ] D1X4 The test ids rejoin the closed vocabulary · 12 · decides D60 · after D1P4
+- [ ] D1X4 The test ids rejoin the closed vocabulary · 12 · decides D60 · after D1P4 · blocked: no JDK 25 toolchain
 
 ## Paused · release B · the refactors v1.0 skipped, and the two features that use them
 
