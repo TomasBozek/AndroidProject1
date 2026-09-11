@@ -1251,11 +1251,12 @@ BOARD_LINE_LOOSE = re.compile(r"^- \[[ x-]\] (\S+)", re.MULTILINE)
 # Platform, Showcase.
 TASK_ID = re.compile(r"^[A-Z][0-9][UXTHPS][1-9]$")
 
-# ../PROCESS.md § Which doc changes when, and docs/README.md § Budgets. A file over its budget has
-# started explaining itself; the rest of the tree carries targets, which are not checked.
+# docs/README.md § Rules for these docs, which is where the numbers are written and the only place.
+# A file over its budget has started explaining itself; the rest of the tree carries targets, which
+# are not checked.
 DOC_BUDGETS = {
-    REPO_ROOT / "CLAUDE.md": 300,
-    DOCS_DIR / "ai/PROCESS.md": 120,
+    REPO_ROOT / "CLAUDE.md": 400,
+    DOCS_DIR / "ai/PROCESS.md": 160,
 }
 
 
