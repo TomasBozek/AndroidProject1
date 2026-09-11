@@ -53,4 +53,7 @@ class DefaultLocalCatalogDataSource(
 
     override suspend fun getProduct(productId: String): Product? =
         catalogDao.product(productId)?.toDomain()
+
+    override suspend fun storeProduct(product: Product) =
+        catalogDao.insertProducts(listOf(product.toEntity()))
 }

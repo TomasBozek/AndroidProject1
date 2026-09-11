@@ -14,11 +14,13 @@ import com.example.androidproject1.feature.catalog.domain.Product
  *
  * @property categories returned by [getCategories].
  * @property products returned by [getProducts], keyed by category id.
- * @property failWith thrown from both instead of answering.
+ * @property productsById answered by [getProduct]; missing means the server has never heard of it.
+ * @property failWith thrown from all three instead of answering.
  */
 class FakeRemoteCatalogDataSource(
     var categories: List<Category> = emptyList(),
     var products: Map<String, List<Product>> = emptyMap(),
+    var productsById: Map<String, Product> = emptyMap(),
     var failWith: Throwable? = null,
 ) : RemoteCatalogDataSource {
 
@@ -30,5 +32,10 @@ class FakeRemoteCatalogDataSource(
     override suspend fun getProducts(categoryId: String): List<Product> {
         failWith?.let { throw it }
         return products[categoryId].orEmpty()
+    }
+
+    override suspend fun getProduct(productId: String): Product {
+        failWith?.let { throw it }
+        return productsById.getValue(productId)
     }
 }

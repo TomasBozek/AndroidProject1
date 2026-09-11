@@ -32,4 +32,12 @@ interface LocalCatalogDataSource {
     suspend fun replaceProducts(categoryId: String, products: List<Product>)
 
     suspend fun getProduct(productId: String): Product?
+
+    /**
+     * Writes one product row with no fetch marker and no delete — unlike [replaceProducts], which
+     * replaces a whole category. A single product fetched on its own says nothing about whether
+     * the rest of its category has been fetched, so it must not make an unfetched category look
+     * fetched, or make a fetched one drop the products this call did not mention.
+     */
+    suspend fun storeProduct(product: Product)
 }

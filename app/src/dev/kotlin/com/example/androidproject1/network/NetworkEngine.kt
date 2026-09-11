@@ -39,6 +39,9 @@ fun networkEngine(context: Context): HttpClientEngine {
         val body = when (path) {
             "categories" -> categories
             "products" -> products.forCategory(request.url.parameters["categoryId"])
+            "product" -> products.forProduct(request.url.parameters["id"])
+                ?: return@MockEngine respondError(HttpStatusCode.NotFound)
+
             else -> return@MockEngine respondError(HttpStatusCode.NotFound)
         }
         respond(
@@ -105,4 +108,16 @@ private fun String.forCategory(categoryId: String?): String {
         it.jsonObject["categoryId"]?.jsonPrimitive?.content == categoryId
     }
     return JsonArray(kept).toString()
+}
+
+/**
+ * One product's own JSON object, by id — `null` if the fixture has no such product, which is a
+ * 404 to the caller. The full fixture list is searched regardless of what the local table holds:
+ * the "server" knows about every product whether or not this session has browsed to it.
+ */
+private fun String.forProduct(productId: String?): String? {
+    val found = Json.parseToJsonElement(this).jsonArray.firstOrNull {
+        it.jsonObject["id"]?.jsonPrimitive?.content == productId
+    } ?: return null
+    return found.toString()
 }

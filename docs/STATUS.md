@@ -31,7 +31,7 @@ start. A task's state is `[ ]` open, `[x]` merged with its actual, `[-]` dropped
 - [x] B2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45 · 12 → 25
 - [x] B2T1 Coil moves to the module that imports it (was half of F24) · 6 → 12
 - [x] B2P2 Where the data-source interface lives (was F15) · 12 · decides D53 · 12 → 25
-- [ ] B2X1 A deep link to an uncached product opens it (was shell.7) · 12
+- [x] B2X1 A deep link to an uncached product opens it (was shell.7) · 12 → 25
 - [ ] B2H3 The HTTP cache, and state that survives process death (was half of F16) · 12
 - [ ] B2P3 Hooks become a committed .githooks (was F10) · 12
 

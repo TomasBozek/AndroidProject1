@@ -14,4 +14,7 @@ interface RemoteCatalogDataSource {
     suspend fun getCategories(): List<Category>
 
     suspend fun getProducts(categoryId: String): List<Product>
+
+    /** One product by id, for the deep link a browsing session never fetched it through. */
+    suspend fun getProduct(productId: String): Product
 }

@@ -45,10 +45,13 @@ class DefaultCatalogRepository(
     override fun searchProducts(query: String): Flow<Outcome<List<Product>>> =
         observe(source = localCatalogDataSource.observeProductsMatching(query), retries = RETRIES)
 
-    // Not cached(): detail is always reached from a list, so the product is already in the table.
-    // Fetching it again would make opening a product a network round trip for nothing.
+    // Not cached(): the happy path is a list already having fetched this row, so the read stays
+    // plain. A deep link is the exception — nobody has fetched anything yet — so a miss falls
+    // back to the network once and caches what it gets, rather than reporting a real product as
+    // one that does not exist.
     override suspend fun getProduct(productId: String): Outcome<Product?> = execute {
         localCatalogDataSource.getProduct(productId)
+            ?: remoteCatalogDataSource.getProduct(productId).also { localCatalogDataSource.storeProduct(it) }
     }
 
     private companion object {
