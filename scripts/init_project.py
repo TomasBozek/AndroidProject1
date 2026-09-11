@@ -278,7 +278,7 @@ def main() -> None:
 
     print(
         "\nDone. Now:\n"
-        "  python3 scripts/doctor.py && ./gradlew build\n"
+        "  python3 scripts/doctor.py && ./gradlew :app:assembleDevDebug test\n"
         "\n"
         "Then replace the sample features with your own:\n"
         "  python3 scripts/delete_feature.py catalog\n"

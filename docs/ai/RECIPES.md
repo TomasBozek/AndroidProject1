@@ -181,8 +181,8 @@ miss it.
 
 `feature/template` **is** the template — `create_feature.py` and `create_screen.py` clone it verbatim
 and only rewrite names. To change the shape of every future feature or screen, edit `feature/template`,
-not the scripts. It is included in `settings.gradle.kts` precisely so `./gradlew build` keeps it
-compiling; keep it that way.
+not the scripts. It is included in `settings.gradle.kts` precisely so `./gradlew test` keeps it
+compiling — it has its own module tests and nothing depends on it; keep it that way.
 
 ## Crash reporting
 

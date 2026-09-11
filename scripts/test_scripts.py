@@ -8,7 +8,7 @@ Smoke tests for the scaffolding scripts.
 
 Each test copies the repository's sources into a temporary directory and runs the scripts there as
 subprocesses, so nothing touches the working tree. They check the registrations and the generated
-text — not that the result compiles; `./gradlew build` is still the real gate.
+text — not that the result compiles; T1 is still the real gate (`CLAUDE.md` § Checks).
 
 `--with-gradle` adds the one test that does compile what a generator wrote. It costs minutes
 rather than seconds, so it is off by default and CI runs it on the weekly schedule only.

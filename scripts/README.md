@@ -95,7 +95,7 @@ not the scripts. It holds two screens and one component:
   `doctor.py` fails on a module that ships one and not the other. Adding a locale means adding its
   file here and its code to `TRANSLATED_LOCALES` in `_common.py`; both generators then write it.
 
-Both are compiled by `./gradlew build` and checked by `doctor.py`, so a broken template fails before
+Both are compiled by `./gradlew test` and checked by `doctor.py`, so a broken template fails before
 it can generate anything broken.
 
 `create_component.py` and `create_datasource.py` are the exceptions — they generate from templates
