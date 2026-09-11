@@ -1,6 +1,5 @@
 package com.example.androidproject1.service.core.ui.screenshot
 
-import android.os.SystemClock
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.hasAnyAncestor
@@ -19,8 +18,6 @@ import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.service.core.ui.state.AlertState
 import com.example.androidproject1.service.core.ui.text.toUiText
 import com.github.takahirom.roborazzi.captureScreenRoboImage
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,13 +26,14 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.ZoneOffset
-import java.util.TimeZone
 
 private const val ONE_FRAME_MILLIS = 16L
 
 /** The tag on the field, so the tap that opens the overlay is not a tap on a string. */
 private const val FIELD = "overlay_underTest"
+
+/** See [OverlayScreenshotTest.openDateField] — a month with no real "today" anywhere near it. */
+private val SELECTED_DATE: LocalDate = LocalDate.of(2020, 1, 9)
 
 /**
  * A golden per overlay, on the device shapes an overlay actually breaks on.
@@ -65,27 +63,6 @@ class OverlayScreenshotTest {
 
     @get:Rule
     val compose = createComposeRule()
-
-    /**
-     * The date picker rings *today*, and it reads today from the wall clock — so these two goldens
-     * were a test that failed once a day, every day, for a reason that had nothing to do with the
-     * code. Pinning the clock is what makes them assert the picker instead of the calendar.
-     *
-     * The zone is pinned with it: the instant below is midday UTC, so the date it lands on is the
-     * same in every zone a machine running this might be set to.
-     */
-    @Before
-    fun pinTheClock() {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-        SystemClock.setCurrentTimeMillis(
-            LocalDate.of(2026, 9, 10).atTime(12, 0).toInstant(ZoneOffset.UTC).toEpochMilli(),
-        )
-    }
-
-    @After
-    fun unpinTheZone() {
-        TimeZone.setDefault(null)
-    }
 
     @Test
     @Config(qualifiers = "w360dp-h640dp-xhdpi")
@@ -187,7 +164,14 @@ class OverlayScreenshotTest {
         compose.setContent {
             AppTheme {
                 AppDateField(
-                    value = LocalDate.of(2026, 9, 9),
+                    // A date years in the past, deliberately — the picker opens on this date's
+                    // month, and Material3's "today" ring reads the real, unpinnable wall clock
+                    // (Robolectric's SystemClock.setCurrentTimeMillis does not actually move
+                    // java.time.LocalDate.now(), a long-standing Robolectric limitation: see
+                    // docs/BACKLOG.md). A month nowhere near the real one is what keeps that ring
+                    // off this grid entirely, so the golden asserts the layout — the thing this
+                    // test exists to catch — rather than which day happens to be real when it runs.
+                    value = SELECTED_DATE,
                     onValueChange = {},
                     label = "Delivery",
                     modifier = Modifier.testTag(FIELD),
