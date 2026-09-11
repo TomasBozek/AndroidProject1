@@ -5,6 +5,7 @@
     <string name="tab_home">Domů</string>
     <string name="tab_catalog">Katalog</string>
     <string name="tab_cart">Košík</string>
+    <string name="tab_trips">Výlety</string>
     <string name="tab_settings">Nastavení</string>
 
     <string name="notification_channel_general">Obecné</string>

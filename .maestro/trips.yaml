@@ -1,0 +1,24 @@
+# The tab reaches the feature. B3S1 shipped five trips screens and nothing that opened them —
+# this flow is what stops that happening twice.
+appId: com.example.androidproject1.dev
+name: Open Trips from the bottom bar
+---
+- runFlow: sign-in.yaml
+
+- tapOn:
+    id: "tabs_tripsTab"
+- assertVisible:
+    id: "TripsScreen"
+
+# Nothing deeper is asserted here on purpose: every screen past this one needs a trip in the
+# database, and a cleared app has none. What the tab has to prove is that the root is reachable at
+# all — TripsScreen is the only trips screen with no up arrow, so it is the only one a tab can
+# reach and the only one that was stranded.
+- tapOn:
+    id: "tabs_homeTab"
+- assertVisible:
+    id: "HomeScreen"
+- tapOn:
+    id: "tabs_tripsTab"
+- assertVisible:
+    id: "TripsScreen"
