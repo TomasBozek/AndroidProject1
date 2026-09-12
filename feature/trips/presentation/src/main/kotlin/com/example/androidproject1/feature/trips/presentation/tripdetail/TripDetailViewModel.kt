@@ -18,7 +18,7 @@ class TripDetailViewModel(
     // the back stack entry after process death.
     private val args: TripDetailDestination,
     private val tripsRepository: TripsRepository,
-    private val clock: Clock = Clock.systemDefaultZone(),
+    private val clock: Clock,
 ) : BaseViewModel<TripDetailState, TripDetailEvent, TripDetailNavigation>(
     // The route key is already enough to draw with; the trip itself fills in once it loads.
     initialState = TripDetailState(tripId = args.tripId, today = LocalDate.now(clock)),

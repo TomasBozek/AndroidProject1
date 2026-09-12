@@ -7,10 +7,14 @@ release C is a draft behind it: D, then B's last task, then C.
 
 ## Release D · the patch-up: what B3S1 left unreachable, and the rules that boxed it in
 
-Opened 2026-09-11. 9 tasks, 60 points, one agent. B3S1 shipped the Trips feature and nothing
+Opened 2026-09-11. 10 tasks, 66 points, one agent. B3S1 shipped the Trips feature and nothing
 constructs `TripsDestination`, so five screens are in the APK and unreachable. That is the headline;
 the rest are fixes that are broken now and silent. A task's state is `[ ]` open, `[x]` merged with
 its actual, `[-]` dropped.
+
+### Lane 0 · priority · 6
+
+- [x] D0X1 The Trips tab crashes on open · 6 → 6
 
 ### Lane 1 · reachability, then the patch-ups · 60
 

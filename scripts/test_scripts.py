@@ -878,6 +878,28 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("AppButton.kt", result.stdout)
         self.assertIn("@ComponentPreview", result.stdout)
 
+    def test_doctor_catches_a_koin_built_class_with_a_defaulted_parameter(self) -> None:
+        """The Trips crash: Koin's `*Of` builders resolve every parameter through `get()` and never
+        consult a Kotlin default, so a defaulted `Clock` nobody bound compiled, read as safe, passed
+        `verify()` and threw the first time the screen opened.
+        """
+        view_model = self.repo / (
+            "feature/trips/presentation/src/main/kotlin/"
+            f"{BASE_PATH}/feature/trips/presentation/trips/TripsViewModel.kt"
+        )
+        view_model.write_text(
+            view_model.read_text().replace(
+                "private val clock: Clock,",
+                "private val clock: Clock = Clock.systemDefaultZone(),",
+                1,
+            )
+        )
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("TripsViewModel", result.stdout)
+        self.assertIn("bind the type instead", result.stdout)
+
     def test_doctor_catches_a_destination_missing_from_the_features_reference(self) -> None:
         """The reference is what an agent reads instead of the code, so a missing row is a wrong
         answer rather than a gap. It reads the table's first column only — a name mentioned in the

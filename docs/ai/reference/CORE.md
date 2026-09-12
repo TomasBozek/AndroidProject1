@@ -22,7 +22,12 @@ makes `appModules(isDebug)` the one list.
 
 `KoinGraphTest` in `:app` verifies that list. Koin's `verify()` cannot see a `parametersOf`
 argument, so a route key a screen takes as a parameter is listed by hand in `injectedParameters`;
-`create_screen.py --with-args` writes that line and `doctor.py` fails if it is missing.
+`create_screen.py --with-args` writes that line and `doctor.py` fails if it is missing. What
+`verify()` also cannot see is a Kotlin default: it treats a defaulted constructor parameter as
+satisfied, while Koin's `*Of` builders resolve every parameter through `get()` and never read the
+default. `Clock` is bound here beside `DispatcherProvider` for that reason — ambient system state a
+test has to be able to fix, named by the constructors that need it rather than defaulted in them.
+`check_koin_constructor_defaults` is what keeps that true.
 
 Logging is WARN and above in a release build.
 
