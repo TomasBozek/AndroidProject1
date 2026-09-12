@@ -1,7 +1,7 @@
 # Release D · the patch-up: what B3S1 left unreachable, and the rules that boxed it in
 
 Status: open · 2026-09-11
-Agents: 1 · lane 1 60 (~5 h)
+Agents: 1 · lane 0 6 · lane 1 60 (~5.5 h)
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D58–D60
 
 B3S1 landed fifty points of Trips — five screens, thirty source files, ten tests and a Room
@@ -38,11 +38,13 @@ is touched rather than arbitrating. It still matters to what comes next: B3S2 an
 | `feature/{trips,cart,home,catalog}/presentation/**`, `.maestro/**` | 1 | D1X4 |
 | `scripts/**` | 1 | D1X3, D1P2, D1P4, D1X5 |
 | `docs/ai/CODEBASE.md`, `docs/ai/reference/**`, `docs/ai/TESTING.md`, `docs/ai/DEPENDENCIES.md` | 1 | D1P3, D1P4 |
+| `core/di/**`, `feature/trips/presentation/**` | 0 | D0X1 |
 
-`settings.gradle.kts`, `core/di/**`, `gradle/libs.versions.toml`, `build-logic/**` and
+`settings.gradle.kts`, `gradle/libs.versions.toml`, `build-logic/**` and
 `.github/workflows/build.yml` are untouched: no task adds a module, a dependency or a job. That is
 deliberate — a `build-logic/` edit escalates T1 to the whole `./gradlew test`, which is not what a
-patch release is for. See § Not in this release.
+patch release is for. See § Not in this release. `core/di/**` was in that list until `D0X1`, which
+is what a lane-0 task is for: it may touch anything, and the table records it afterwards.
 
 ## Board
 
@@ -55,6 +57,33 @@ Shared-file tasks first, then dependencies, then the largest — `../PROCESS.md`
 release is named for depends on it.
 
 ## Tasks
+
+### D0X1 The Trips tab crashes on open · 6
+
+**Why** Appended after `D1X1` shipped, because making Trips reachable is what made this reachable
+too. `TripsViewModel`, `TripsListViewModel` and `TripDetailViewModel` each default a `Clock`
+— `private val clock: Clock = Clock.systemDefaultZone()` — and no module binds one. Koin's `*Of`
+builders resolve every constructor parameter through `get()` and never consult a Kotlin default, so
+`koinViewModel<TripsViewModel>()` asks the graph for a `Clock`, finds none, and throws
+`NoDefinitionFoundException` the moment the tab is tapped. `KoinGraphTest` does not catch it:
+`verify()` treats a defaulted parameter as already satisfied. Nothing constructed these three view
+models before `D1X1`, which is why a feature that had been merged and green for a day crashed on
+first contact.
+**Done when** `single<Clock>` is bound in `core/di`; no `*ViewModel` defaults a constructor
+parameter; `python3 scripts/doctor.py` passes and **fails** when a default is put back;
+`python3 scripts/test_scripts.py` passes; the Trips tab opens.
+**Touches** `core/di/**/Koin.kt`, the three trips view models, `TripDetailViewModelTest`,
+`scripts/doctor.py`, `scripts/test_scripts.py`, `docs/ai/CODEBASE.md`, `docs/ai/reference/CORE.md`.
+**Read** `core/di/src/main/kotlin/.../Koin.kt` § `DefaultDispatcherProvider` ·
+`feature/trips/presentation/.../trips/TripsViewModel.kt:13-17` ·
+`app/src/test/kotlin/.../KoinGraphTest.kt:50-67` · `docs/ai/CODEBASE.md` § Known constraints.
+**Steps** 1. Bind `Clock` beside `DispatcherProvider` — ambient system state a test has to be able
+to fix, which is the same argument that put the dispatchers there. 2. Drop the three defaults: they
+are what made the constructor read as safe. 3. `TripDetailViewModelTest` was relying on the
+default and on the system clock with it, so it gains the fixed clock its two siblings already use.
+4. `check_koin_constructor_defaults` in `doctor.py`, with its fixture — `verify()` cannot see this
+class of defect, so something has to.
+**Checks** T1. **Depends** D1X1
 
 ### D1P1 One plan open, a queue behind it, and room to write · 6 · decides D58
 

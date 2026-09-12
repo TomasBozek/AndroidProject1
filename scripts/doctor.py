@@ -1422,6 +1422,64 @@ DESIGN_SYSTEM_ROW = re.compile(r"^\| \w+ \| (`App\w+`(?:[^|]*))\|", re.MULTILINE
 COMPONENT_NAME = re.compile(r"`(App\w+)`")
 
 
+# `viewModelOf(::Foo)`, `singleOf(::Foo)`, `factoryOf(::Foo)` — Koin's constructor DSL.
+KOIN_CONSTRUCTOR_DSL = re.compile(r"\b(?:viewModelOf|singleOf|factoryOf)\(::(\w+)\)")
+
+
+@check("no class Koin constructs has a defaulted constructor parameter")
+def check_koin_constructor_defaults() -> list[str]:
+    """Koin's `*Of` builders resolve every constructor parameter through `get()`.
+
+    They never consult a Kotlin default. So `class TripsViewModel(..., clock: Clock = systemUTC())`
+    compiles, reads as safe, passes `KoinGraphTest` — `verify()` treats a defaulted parameter as
+    already satisfied — and throws `NoDefinitionFoundException` the first time the screen opens.
+    That is exactly how the Trips tab crashed: three view models defaulted a `Clock` nobody bound,
+    and the feature was unreachable, so nothing constructed them until a tab existed.
+
+    Bind the type instead, and let the constructor say what it needs.
+    """
+    constructed = set()
+    for path in walk(REPO_ROOT / "core", "*.kt") + walk(REPO_ROOT / "feature", "*.kt"):
+        if "/src/main/" not in path.as_posix():
+            continue
+        constructed.update(KOIN_CONSTRUCTOR_DSL.findall(path.read_text()))
+    if not constructed:
+        return []
+
+    problems = []
+    for directory in ("core", "feature", "service", "app"):
+        for path in walk(REPO_ROOT / directory, "*.kt"):
+            if "/src/main/" not in path.as_posix():
+                continue
+            lines = path.read_text().splitlines()
+            for number, line in enumerate(lines, 1):
+                name = line.partition("class ")[2].partition("(")[0].strip()
+                if not line.lstrip().startswith("class ") or name not in constructed:
+                    continue
+                # A one-line constructor closes on the `class` line itself; a wrapped one runs to
+                # the line that closes it — `) : Base<...>` or `) {`. Without the first case the
+                # scan walks into the class body and reads every named argument as a default.
+                if ")" in line:
+                    parameters = [line.partition("(")[2].rpartition(")")[0]]
+                else:
+                    parameters = []
+                    for parameter in lines[number:]:
+                        if parameter.startswith(")"):
+                            break
+                        parameters.append(parameter)
+                for parameter in parameters:
+                    if " = " in parameter:
+                        problems.append(
+                            problem(
+                                path,
+                                number,
+                                f"{name} is built by Koin's *Of DSL and defaults "
+                                f"`{parameter.strip().rstrip(',')}` — bind the type instead",
+                            )
+                        )
+    return problems
+
+
 @check("every destination is in the features reference")
 def check_features_lists_every_destination() -> list[str]:
     """`FEATURES.md` § Screens is the route inventory, and it was kept in step by hand.

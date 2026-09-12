@@ -11,16 +11,24 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 
 class TripDetailViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    // Fixed, like the other two trips view-model tests: a trip's status is read against today, so
+    // the system clock would make what this asserts depend on the day it runs.
+    private val fixedClock = Clock.fixed(Instant.parse("2026-09-11T00:00:00Z"), ZoneOffset.UTC)
+
     private fun viewModel(repository: FakeTripsRepository = FakeTripsRepository()) = TripDetailViewModel(
         logger = FakeLogger(),
         args = TripDetailDestination(tripId = FakeTripsRepository.LISBON_TRIP.id),
         tripsRepository = repository,
+        clock = fixedClock,
     )
 
     @Test

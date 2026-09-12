@@ -32,6 +32,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.time.Clock
 
 /**
  * Cross-cutting dependencies available to every module.
@@ -58,6 +59,11 @@ fun coreModule(isDebug: Boolean): Module = module {
     factory<Logger> { TrackingLogger(AndroidLogger(minLevel = minLogLevel), get()) }
 
     singleOf(::DefaultDispatcherProvider) bind DispatcherProvider::class
+    // Beside the dispatchers, and for the same reason: ambient system state a test has to be able
+    // to fix. It is bound rather than defaulted in a constructor because Koin's `*Of` builders
+    // resolve every constructor parameter through `get()` and never consult a Kotlin default —
+    // a default there compiles, reads as safe, and throws NoDefinitionFoundException on first use.
+    single<Clock> { Clock.systemDefaultZone() }
     single { DataStoreProvider(androidContext()) }
 
     // The session, encrypted at rest with a key the Keystore will not hand back. Separate from the

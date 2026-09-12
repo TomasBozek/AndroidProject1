@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
 class TripsViewModel(
     logger: Logger,
     private val tripsRepository: TripsRepository,
-    private val clock: Clock = Clock.systemDefaultZone(),
+    private val clock: Clock,
 ) : BaseViewModel<TripsState, TripsEvent, TripsNavigation>(
     // The shell draws immediately; the stats and the next-trip card are skeletons until the
     // first load lands.

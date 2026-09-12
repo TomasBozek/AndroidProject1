@@ -138,6 +138,12 @@ result are `CLAUDE.md` § Known constraints.
 - Koin's `verify()` cannot see a `parametersOf` argument, and `Module.mappings` is internal API,
   so the route keys a screen takes are listed by hand in `KoinGraphTest`'s `injectedParameters`.
   `create_screen.py --with-args` writes the line; `doctor.py` fails if it is missing.
+- **Koin's `*Of` builders ignore Kotlin default arguments.** `viewModelOf(::Foo)` resolves every
+  constructor parameter through `get()`, so `Foo(…, clock: Clock = systemDefaultZone())` compiles,
+  reads as safe, and throws `NoDefinitionFoundException` the first time it is constructed — and
+  `verify()` does not catch it, because it treats a defaulted parameter as already satisfied. Bind
+  the type instead and let the constructor say what it needs. `check_koin_constructor_defaults`
+  fails on a default, which is the only thing that makes this visible before a screen opens.
 - Robolectric ships no `AndroidKeyStore` provider, so `KeystoreAead` cannot run under it. That is
   why the class is split: everything worth getting wrong is in `AesGcmAead` and JVM-tested.
 - Robolectric 4.16 reads JDK 25 bytecode; 4.14 did not. A tool that fails here with a class-file

@@ -13,7 +13,7 @@ import java.time.LocalDate
 class TripsListViewModel(
     logger: Logger,
     private val tripsRepository: TripsRepository,
-    private val clock: Clock = Clock.systemDefaultZone(),
+    private val clock: Clock,
 ) : BaseViewModel<TripsListState, TripsListEvent, TripsListNavigation>(
     // The shell (top bar, FAB) draws immediately; the rows are skeletons until the first load
     // lands — see TripsListState.loading. The shared overlay would only sit over a screen that
