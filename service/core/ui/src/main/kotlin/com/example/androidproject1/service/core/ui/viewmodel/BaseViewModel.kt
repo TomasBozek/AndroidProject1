@@ -188,13 +188,16 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
         }
     }
 
-    protected fun showToast(message: UiText) = sendCommand(UiCommand.ShowToast(message))
+    /**
+     * A message the user reads and does not act on. A snackbar with no action (D63): there is one
+     * mechanism, rendered inside the screen by the chrome, so it wears the theme and a screen test
+     * can see it. A message that has to outlive its screen is a different feature.
+     */
+    protected fun showToast(message: UiText) = showSnackbar(message)
 
     /**
-     * Prefer this to [showToast] for anything the user might want to act on or dismiss — it is
-     * rendered inside the screen by `Screen()`'s host, so it respects the app's theme and insets.
-     */
-    /**
+     * Prefer this to [showToast] for anything the user might want to act on or dismiss.
+     *
      * @param id comes back as [SystemEvent.SnackbarAction] when the action button is pressed.
      * Only worth naming when the screen raises more than one actionable snackbar.
      */
@@ -430,7 +433,7 @@ abstract class BaseViewModel<State, Event : UiEvent, Navigation>(
             if (onError(throwable)) return
 
             // A server outage is transient and not the user's problem to solve, so in Alert mode it
-            // gets a toast rather than a dialog. Inline has nowhere quieter to put it.
+            // gets a snackbar rather than a dialog. Inline has nowhere quieter to put it.
             if (throwable is ServerError && errorDisplay == ErrorDisplay.Alert) {
                 showToast(R.string.core_error_server_unavailable.toUiText())
                 return

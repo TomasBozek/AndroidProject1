@@ -96,7 +96,7 @@ class DevMenuViewModelTest {
         viewModel.onUiEvent(DevMenuEvent.NotificationClicked)
 
         assertEquals(1, notificationTester.postCount)
-        assertTrue(viewModel.command.first() is UiCommand.ShowToast)
+        assertTrue(viewModel.command.first() is UiCommand.ShowSnackbar)
     }
 
     @Test
@@ -107,7 +107,7 @@ class DevMenuViewModelTest {
 
         viewModel.onUiEvent(DevMenuEvent.NotificationClicked)
 
-        assertTrue(viewModel.command.first() is UiCommand.ShowToast)
+        assertTrue(viewModel.command.first() is UiCommand.ShowSnackbar)
     }
 
     @Test

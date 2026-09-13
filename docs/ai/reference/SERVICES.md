@@ -45,7 +45,7 @@ the boundary. Do not make it an Android library to reach a framework class — m
 | `state/ContentState` | the error and empty states, rendered instead of content |
 | `component/Screen()` | the only collector in the app and the only interpreter of `UiCommand` |
 | `component/ScreenChrome` | the seam that lets an app draw `Screen()`'s surface, overlay, alert, empty state and snackbar host in its own design system (D50). `LocalScreenChrome` carries it; `DefaultScreenChrome` is stock Material, which is what this module renders when it is copied into a project that has no theme yet |
-| `event/UiEvent`, `UiCommand`, `SystemEvent` | what the user did, what the shell should do, what came back |
+| `event/UiEvent`, `UiCommand`, `SystemEvent` | what the user did, what the shell should do, what came back. A toast is `ShowSnackbar` with no action, drawn by the chrome — there is no Android `Toast` anywhere (D63) |
 | `navigation/NavResultStore` | a value handed from one screen back to another, consumed once |
 | `permission/` | `rememberPermissionRequest`, `PermissionStatus`, `PermissionGate`, `rememberDeclaredPermissions`. The one package here whose tests need Robolectric |
 | `form/DiscardBackHandler` | the back gesture on a form with unsaved input: `PredictiveBackHandler`, so a cancelled swipe asks nothing, and `discardAlert()` for the one wording every form uses |
