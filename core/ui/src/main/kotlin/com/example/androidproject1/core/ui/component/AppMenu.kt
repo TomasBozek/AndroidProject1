@@ -11,16 +11,24 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
 
-/** One row of an [AppMenu]. A destructive item is drawn apart from the rest and always last. */
+/**
+ * One row of an [AppMenu]. A destructive item is drawn apart from the rest and always last.
+ *
+ * @param testTag what a flow and a test find the row by — `<stem>_<name>Item`. A row is a plain
+ * value, so there is no modifier to hang one on; it needs the same treatment as `AppTopBar`'s
+ * arrow, because the label is translated and a menu draws in a window of its own.
+ */
 data class MenuItem(
     val label: String,
     val destructive: Boolean = false,
     val enabled: Boolean = true,
+    val testTag: String? = null,
     val onClick: () -> Unit,
 )
 
@@ -65,7 +73,8 @@ fun AppMenu(
                             .padding(
                                 horizontal = AppTheme.spacing.inset.lg,
                                 vertical = AppTheme.spacing.inset.md,
-                            ),
+                            )
+                            .then(if (item.testTag != null) Modifier.testTag(item.testTag) else Modifier),
                     ) {
                         AppText(
                             text = item.label,

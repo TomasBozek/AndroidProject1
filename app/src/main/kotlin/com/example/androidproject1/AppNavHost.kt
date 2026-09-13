@@ -51,6 +51,7 @@ import com.example.androidproject1.feature.gallery.presentation.gallery.galleryD
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.galleryDetailDestination
 import com.example.androidproject1.feature.home.presentation.home.homeDestination
 import com.example.androidproject1.feature.inventory.presentation.inventory.inventoryDestination
+import com.example.androidproject1.feature.inventory.presentation.inventorydetail.inventoryDetailDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.inventoryEditorDestination
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileDestination
@@ -271,6 +272,7 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     tripsEntries(backStack)
     inventoryDestination(backStack = backStack)
     inventoryEditorDestination(backStack = backStack)
+    inventoryDetailDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {
