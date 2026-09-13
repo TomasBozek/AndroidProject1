@@ -266,11 +266,7 @@ private fun EntryProviderScope<NavKey>.mainEntries(
         },
     )
     productPickerDestination(backStack = backStack)
-    tripsDestination(backStack = backStack)
-    tripsListDestination(backStack = backStack)
-    tripWizardDestination(backStack = backStack)
-    tripDetailDestination(backStack = backStack)
-    destinationPickerDestination(backStack = backStack)
+    tripsEntries(backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {
@@ -282,6 +278,14 @@ private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<Na
     productsDestination(backStack = backStack)
     productDetailDestination(backStack = backStack)
     productSearchDestination(backStack = backStack)
+}
+
+private fun EntryProviderScope<NavKey>.tripsEntries(backStack: NavBackStack<NavKey>) {
+    tripsDestination(backStack = backStack)
+    tripsListDestination(backStack = backStack)
+    tripWizardDestination(backStack = backStack)
+    tripDetailDestination(backStack = backStack)
+    destinationPickerDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<NavKey>) {

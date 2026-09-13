@@ -22,7 +22,7 @@ with its actual, `[-]` dropped.
 - [x] E1X2 A toast wears the theme · 6 → 3 · decides D63
 - [x] E1H1 A stored trip the code no longer understands does not crash the read · 6 → 3
 - [x] E1X3 The section header's action carries a test id · 3 → 3
-- [ ] E1T1 Three small things the review found · 3
+- [x] E1T1 Three small things the review found · 3 → 3
 
 ### Lane 2 · build and platform · 46
 
