@@ -7,4 +7,10 @@
     <string name="home_favourite_remove">Remove %1$s from favourites</string>
     <string name="home_favourite_removed">Removed from favourites</string>
     <string name="home_favourite_undo">Undo</string>
+    <string name="home_inventory_title">Inventory</string>
+    <string name="home_inventory_open">Open</string>
+    <plurals name="home_inventory_count">
+        <item quantity="one">%d item kept</item>
+        <item quantity="other">%d items kept</item>
+    </plurals>
 </resources>

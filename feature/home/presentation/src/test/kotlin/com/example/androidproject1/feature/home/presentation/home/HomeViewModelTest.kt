@@ -3,6 +3,7 @@ package com.example.androidproject1.feature.home.presentation.home
 import com.example.androidproject1.feature.catalog.domain.Product
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import com.example.androidproject1.feature.home.presentation.R
+import com.example.androidproject1.feature.inventory.domain.test.FakeInventoryRepository
 import com.example.androidproject1.service.core.domain.test.FakeLogger
 import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.event.UiCommand
@@ -32,8 +33,10 @@ class HomeViewModelTest {
     private fun repository(favourites: List<Product> = listOf(coffee)) =
         FakeFavouritesRepository(initial = favourites).apply { known = listOf(coffee) }
 
+    private val inventory = FakeInventoryRepository()
+
     private fun viewModel(repository: FakeFavouritesRepository = repository()) =
-        HomeViewModel(logger = FakeLogger(), favouritesRepository = repository)
+        HomeViewModel(logger = FakeLogger(), favouritesRepository = repository, inventoryRepository = inventory)
 
     @Test
     fun `renders immediately, with no loading overlay`() = runTest {
@@ -42,6 +45,18 @@ class HomeViewModelTest {
         assertEquals(R.string.home_greeting.toUiText(), state.data?.greeting)
         // The favourites flow must not raise the overlay — the greeting is renderable at once.
         assertNull(state.loading)
+    }
+
+    @Test
+    fun `counts the inventory it observes, and the card opens it`() = runTest {
+        val viewModel = viewModel()
+        assertEquals(inventory.current.size, viewModel.state.value.data?.inventoryCount)
+
+        inventory.saveItem(FakeInventoryRepository.DRILL.copy(id = "item-drill-2"))
+        assertEquals(inventory.current.size, viewModel.state.value.data?.inventoryCount)
+
+        viewModel.onUiEvent(HomeEvent.InventoryClicked)
+        assertEquals(HomeNavigation.OpenInventory, viewModel.navigation.first())
     }
 
     @Test

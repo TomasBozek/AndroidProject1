@@ -65,6 +65,16 @@ class HomeScreenTest {
     }
 
     @Test
+    fun `the inventory card is there, and its button reports the event`() {
+        render(HomeState.PREVIEW)
+
+        compose.onNodeWithTag("home_inventoryCard").assertIsDisplayed()
+        compose.onNodeWithTag("home_inventoryButton").performClick()
+
+        assertEquals(listOf(HomeEvent.InventoryClicked), events)
+    }
+
+    @Test
     fun `removing a favourite reports it as an event`() {
         render(HomeState.PREVIEW)
 

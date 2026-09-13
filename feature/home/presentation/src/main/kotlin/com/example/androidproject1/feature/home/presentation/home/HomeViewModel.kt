@@ -2,6 +2,7 @@ package com.example.androidproject1.feature.home.presentation.home
 
 import com.example.androidproject1.feature.catalog.domain.FavouritesRepository
 import com.example.androidproject1.feature.home.presentation.R
+import com.example.androidproject1.feature.inventory.domain.InventoryRepository
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.text.toUiText
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.update
 class HomeViewModel(
     logger: Logger,
     private val favouritesRepository: FavouritesRepository,
+    private val inventoryRepository: InventoryRepository,
 ) : BaseViewModel<HomeState, HomeEvent, HomeNavigation>(
     initialState = HomeState(greeting = R.string.home_greeting.toUiText()),
     logger = logger.withTag("HomeViewModel"),
@@ -34,10 +36,12 @@ class HomeViewModel(
 
     init {
         observeFavourites()
+        observeInventory()
     }
 
     override fun onUiEvent(event: HomeEvent) = when (event) {
         is HomeEvent.FavouriteRemoved -> removeFavourite(event.productId)
+        HomeEvent.InventoryClicked -> navigate(HomeNavigation.OpenInventory)
     }
 
     override fun onSystemEvent(event: SystemEvent) {
@@ -59,6 +63,13 @@ class HomeViewModel(
                 state.copy(data = state.data?.copy(favourites = favourites))
             }
         },
+    )
+
+    // Silent for the same reason: a count that cannot be read is a card saying 0, not a dialog.
+    private fun observeInventory() = observe(
+        flow = { inventoryRepository.observeItems() },
+        errorDisplay = ErrorDisplay.Silent,
+        onData = { items -> updateData { copy(inventoryCount = items.size) } },
     )
 
     private fun removeFavourite(productId: String) {

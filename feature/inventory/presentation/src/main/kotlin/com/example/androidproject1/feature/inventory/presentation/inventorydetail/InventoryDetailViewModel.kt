@@ -30,6 +30,13 @@ class InventoryDetailViewModel(
      */
     private data class DeleteItem(val itemId: String) : AlertPayload
 
+    /**
+     * Set once this screen has decided to go. A confirmed delete pops the screen, and the observed
+     * item then emits `null` for the same deletion — two reasons to leave, one pop: the second
+     * would take the list below with it, which is what a first run of the flow did.
+     */
+    private var leaving = false
+
     init {
         observeItem()
     }
@@ -68,8 +75,8 @@ class InventoryDetailViewModel(
             if (item != null) {
                 updateData { copy(item = item) }
             } else {
-                // Gone — deleted from another screen, or a stale link. Nothing left to show here.
-                navigate(InventoryDetailNavigation.NavigateUp)
+                // Gone — deleted here or from another screen, or a stale link. Nothing left to show.
+                leave()
             }
         },
     )
@@ -77,8 +84,14 @@ class InventoryDetailViewModel(
     private fun delete(itemId: String) = execute(
         loading = overlay(),
         action = { inventoryRepository.deleteItems(setOf(itemId)) },
-        onData = { navigate(InventoryDetailNavigation.NavigateUp) },
+        onData = { leave() },
     )
+
+    private fun leave() {
+        if (leaving) return
+        leaving = true
+        navigate(InventoryDetailNavigation.NavigateUp)
+    }
 
     private companion object {
 

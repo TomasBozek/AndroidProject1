@@ -7,4 +7,12 @@
     <string name="home_favourite_remove">Odebrat z oblíbených: %1$s</string>
     <string name="home_favourite_removed">Odebráno z oblíbených</string>
     <string name="home_favourite_undo">Zpět</string>
+    <string name="home_inventory_title">Inventář</string>
+    <string name="home_inventory_open">Otevřít</string>
+    <plurals name="home_inventory_count">
+        <item quantity="one">%d položka</item>
+        <item quantity="few">%d položky</item>
+        <item quantity="many">%d položky</item>
+        <item quantity="other">%d položek</item>
+    </plurals>
 </resources>

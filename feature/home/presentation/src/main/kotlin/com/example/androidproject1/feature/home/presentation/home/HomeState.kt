@@ -11,12 +11,15 @@ data class HomeState(
     // UiText rather than String: the ViewModel picks the text without a Context.
     val greeting: UiText,
     val favourites: List<Product> = emptyList(),
+    /** How many items the inventory holds — the card's number, and its reason to exist. */
+    val inventoryCount: Int = 0,
 ) {
 
     companion object {
 
         val PREVIEW = HomeState(
             greeting = R.string.home_greeting.toUiText(),
+            inventoryCount = 12,
             favourites = listOf(
                 Product(
                     id = "coffee",

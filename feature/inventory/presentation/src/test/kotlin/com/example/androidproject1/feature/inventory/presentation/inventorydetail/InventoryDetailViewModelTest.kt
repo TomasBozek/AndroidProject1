@@ -6,6 +6,7 @@ import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -13,6 +14,11 @@ import org.junit.Rule
 import org.junit.Test
 
 class InventoryDetailViewModelTest {
+
+    private companion object {
+
+        const val TIMEOUT_MILLIS = 100L
+    }
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -82,6 +88,9 @@ class InventoryDetailViewModelTest {
 
         assertEquals(setOf("item-drill"), repository.deletedIds)
         assertEquals(InventoryDetailNavigation.NavigateUp, viewModel.navigation.first())
+        // The delete and the observed `null` are one departure, not two: a second pop would take
+        // the list below with it. The flow is a channel, so a second intent would be waiting here.
+        assertNull(withTimeoutOrNull(TIMEOUT_MILLIS) { viewModel.navigation.first() })
     }
 
     @Test

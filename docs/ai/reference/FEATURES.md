@@ -32,7 +32,7 @@ through its constructor.
 | `Onboarding` | onboarding | — | the first-run flow, when the seen flag is unset |
 | `Login` | auth | — | the auth flow's root |
 | `SignUp` | auth | — | Login |
-| `Home` | home | — | the Home tab |
+| `Home` | home | — | the Home tab; an `AppCard` with the inventory count opens Inventory, the one cross-feature push from a tab root |
 | `Categories` | catalog | — | the Catalog tab |
 | `Products` | catalog | `categoryId`, `categoryName` | Categories |
 | `ProductDetail` | catalog | `productId` | Products, Search, the cart, a deep link |
@@ -77,6 +77,13 @@ flows itself.
 **Picking a product for the cart.** The cart pushes the picker with a result key, the picker sets a
 result and pops, and the cart's registered callback fires once. The key travels as a route argument,
 so one picker can serve several callers and knows nothing about any of them.
+
+**Keeping an inventory.** Inventory has no tab (D59); the card on Home is its door, wired as a
+lambda in `AppNavHost.homeEntries` the way Settings reaches Profile. From the list, the FAB mints
+a new id and opens the editor on it; the four steps end in `saveItem` and a pop; a row opens the
+detail, which observes the item; the detail's menu opens the editor on the same id or asks before
+`deleteItems`, and leaves once — the delete and the observed `null` are one departure, not two.
+`.maestro/inventory.yaml` drives the whole loop by id, sign-in to empty list.
 
 **Debug menu.** Present on `dev` and `staging` only. Settings shows the entry, the entries
 themselves are registered only when it is enabled, and the gallery sits behind it — so no release

@@ -15,6 +15,8 @@ dependencies {
     // both domains. Another feature's *domain* is allowed; its presentation is not.
     implementation(projects.feature.cart.domain)
     implementation(projects.feature.catalog.domain)
+    // Home's inventory count is faked in AppNavHostAnalyticsTest, so the test names the interface.
+    implementation(projects.feature.inventory.domain)
     // MainActivity draws the whole app in the stored theme, so it reads the preference.
     implementation(projects.feature.settings.domain)
     // The stored `seen` flag decides whether the app opens on the tour.
@@ -32,4 +34,5 @@ dependencies {
     testImplementation(testFixtures(projects.feature.onboarding.domain))
     testImplementation(testFixtures(projects.feature.catalog.domain))
     testImplementation(testFixtures(projects.feature.cart.domain))
+    testImplementation(testFixtures(projects.feature.inventory.domain))
 }
