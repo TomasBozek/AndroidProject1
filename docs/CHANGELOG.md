@@ -25,6 +25,26 @@ with its board cut out and its briefs intact. The ratio sets the next release's 
 
 <!-- Blocks go below this line, newest first. -->
 
+## v1.2.0 · release E · 2026-09-13
+
+- Inventory: the things you own, reached from a card on Home. Search, filter and sort the list;
+  add an item in four steps; open one to see its picture, owner, tags and history; edit or delete
+  it; hold a row to select several and delete them or mark them favourites at once.
+- Status tags say New, Pending or Failed rather than Paid or Void, and the sample copy no longer
+  reads like a cash register.
+- A long form keeps its Next button on screen, and a sheet's last control can be reached on the
+  smallest phone.
+- A trip stored by a newer version of the app still shows instead of taking the whole list down,
+  and an empty "All trips" keeps its back arrow.
+- Toasts look like the app.
+- For operators: the weekly run installs the release build and signs in on it; the resolved
+  dependency graph is submitted, so Dependabot can raise alerts; a debug build can be proxied
+  through a user certificate and logs main-thread disk reads; every library dependency lives in
+  a convention plugin, so a copied `service/` brings its build with it.
+
+Tasks: E0P1, E0X1, E0P2 · E1X1–E1X3, E1H1, E1T1 · E2P1, E2P2, E2H1, E2H2 · E3U1, E3S1–E3S6, E3T1
+Estimate 239 · Actual 117 · Ratio 0.49
+
 ## v1.1.0 · releases B and D · 2026-09-13
 
 - A fifth tab, Trips: plan a trip in three steps, pick its destination from a list, watch the next
