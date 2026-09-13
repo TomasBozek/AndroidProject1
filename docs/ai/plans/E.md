@@ -1,7 +1,7 @@
 # Release E · the fixes the backlog was carrying, and a showcase that gives every component a home
 
-Status: open · 2026-09-13
-Agents: 1 · lane 0 15 · lane 1 Kotlin and core fixes 30 · lane 2 build and platform 46 · lane 3 the design system and its showcase 148
+Status: closed 2026-09-13 · shipped as v1.2.0
+Agents: 1 · 19 tasks, all shipped · estimate 239, actual 117, ratio 0.49 — the 25-point Inventory briefs took 12 each
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D63–D65
 
 Three plans were in flight on 2026-09-13 — D open with two tasks "blocked", B paused at its last
@@ -44,8 +44,10 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 
 ## Board
 
-The board is [../../STATUS.md](../../STATUS.md) — one place to look, and no second copy to drift.
-What is left here is why each task is there and what finishes it.
+The board this file was worked from is gone: it closed into the `v1.2.0` block in
+[../../CHANGELOG.md](../../CHANGELOG.md). What is left here is why each task was there and what
+finished it. Every task shipped; the one line appended after opening, `E0X1`, is what the first
+emulator run on record found, and it took four more runs to prove.
 
 ## Tasks
 
