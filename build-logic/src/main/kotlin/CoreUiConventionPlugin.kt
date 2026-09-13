@@ -3,7 +3,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
 /**
- * [AndroidLibraryComposeConventionPlugin] plus Coil.
+ * [AndroidLibraryComposeConventionPlugin] plus Coil and the adaptive Navigation 3 scenes.
  *
  * `:core:ui` is Coil's one consumer — `AppImage` is the one place a feature gets a remote image —
  * so the library lives in the one plugin that module applies rather than in every Compose module's
@@ -18,6 +18,13 @@ class CoreUiConventionPlugin : Plugin<Project> {
         dependencies {
             add("implementation", libs.findLibrary("coil-compose").get())
             add("implementation", libs.findLibrary("coil-network").get())
+
+            // The adaptive scene strategies for Navigation 3. Here rather than in
+            // `:service:core:ui` beside the rest of Navigation 3, because a pane layout is a
+            // decision an app makes about its own screens: `service/` stays the architecture, and a
+            // project that reuses it adds this the day it wants two panes. Re-exported, so a
+            // destination can carry the metadata.
+            add("api", libs.findLibrary("androidx-adaptive-navigation3").get())
         }
     }
 }

@@ -89,9 +89,9 @@ internal fun Project.releaseVersionCode(): Int = versionCodeFor(releaseVersionNa
  * malformed tag fails safe to the constant rather than producing a wrong number.
  */
 internal fun versionCodeFor(versionName: String): Int {
-    val components = versionName.split(".").map { it.toIntOrNull() }
-    if (components.size != 3 || components.any { it == null || it < 0 }) return ProjectConfig.VERSION_CODE
-    val (major, minor, patch) = components.map { it!! }
+    val components = versionName.split(".").map { it.toIntOrNull() ?: return ProjectConfig.VERSION_CODE }
+    if (components.size != 3 || components.any { it < 0 }) return ProjectConfig.VERSION_CODE
+    val (major, minor, patch) = components
     if (minor > 99 || patch > 99) return ProjectConfig.VERSION_CODE
     return major * 10_000 + minor * 100 + patch
 }

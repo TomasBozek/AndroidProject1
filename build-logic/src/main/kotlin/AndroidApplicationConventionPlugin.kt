@@ -106,6 +106,12 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             add("implementation", libs.findLibrary("androidx-compose-material3-navigation-suite").get())
             add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
 
+            // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp
+            // elsewhere. The flavor-specific configuration exists because `productFlavors` above
+            // created it, which is why the line lives here and not in the module (D64).
+            add("implementation", libs.findLibrary("ktor-client-okhttp").get())
+            add("${ProjectConfig.Flavor.DEV.flavorName}Implementation", libs.findLibrary("ktor-client-mock").get())
+
             // No androidTest source set: UI tests run under Robolectric as unit tests, so CI needs
             // no emulator. See plan item 4.3.
             // Debug only, and it installs itself — no code in :app references it. A leaked
@@ -117,6 +123,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             add("testImplementation", libs.findBundle("testing").get())
             add("testImplementation", libs.findLibrary("koin-test").get())
             add("testImplementation", libs.findLibrary("koin-test-junit4").get())
+            // Tests the real OkHttp engine's on-disk cache against a real request/response cycle
+            // rather than reimplementing OkHttp's cache logic with a fake.
+            add("testImplementation", libs.findLibrary("okhttp-mockwebserver").get())
         }
     }
 }

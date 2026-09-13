@@ -803,8 +803,8 @@ HARDCODED_COORDINATE = re.compile(
 # build-logic/, and 24 copies of it were the reason `minSdk` used to be 24 edits.
 SHARED_ANDROID_CONFIG = re.compile(r"^\s*(compileSdk|minSdk|targetSdk|compileOptions|lint)\b\s*[({=]")
 
-# resourcePrefix and testFixtures are genuinely per module; :service:core:ui sets both.
-MODULE_OWNED_ANDROID_CONFIG = {"resourcePrefix", "testFixtures"}
+# resourcePrefix is genuinely per module — its value is the module's own name (D64).
+MODULE_OWNED_ANDROID_CONFIG = {"resourcePrefix"}
 
 
 @check("no module build file repeats the shared Android configuration")
@@ -822,6 +822,39 @@ def check_no_duplicated_android_config() -> list[str]:
             if match and match.group(1) not in MODULE_OWNED_ANDROID_CONFIG:
                 problems.append(
                     problem(path, number, f"sets {match.group(1)} — that belongs to a build-logic convention plugin")
+                )
+    return problems
+
+
+# A catalog reference that is not a plugin alias — `libs.junit`, `libs.bundles.testing`,
+# `platform(libs.androidx.compose.bom)` — and a hand-written test-fixtures block, which
+# `convention.android.library.testfixtures` exists for.
+LIBRARY_REFERENCE = re.compile(r"\blibs\.(?!plugins\.)")
+TEST_FIXTURES_BLOCK = re.compile(r"^\s*testFixtures\s*\{")
+
+
+@check("every module build file is a plugins block, its project dependencies and resourcePrefix")
+def check_module_build_files_are_thin() -> list[str]:
+    """
+    `CLAUDE.md`: a module build file is a `plugins` block and its project dependencies, and D64
+    lets it keep `resourcePrefix`. Library dependencies live in the convention plugin the module
+    applies — which is what makes a copied `service/` bring its build with it, and what keeps a
+    feature from reaching for a library its layer is not allowed. Five files broke the rule for two
+    releases while the check above looked only at Android settings.
+    """
+    problems = []
+    for path in build_files(REPO_ROOT):
+        if path.parent == REPO_ROOT or "build-logic" in path.parts:
+            continue
+        for number, line in enumerate(path.read_text().split("\n"), start=1):
+            code = line.split("//", 1)[0]
+            if LIBRARY_REFERENCE.search(code):
+                problems.append(
+                    problem(path, number, "names a library — that belongs to the convention plugin this module applies")
+                )
+            elif TEST_FIXTURES_BLOCK.match(code):
+                problems.append(
+                    problem(path, number, "enables test fixtures by hand — apply convention.android.library.testfixtures")
                 )
     return problems
 

@@ -971,6 +971,27 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("sign-in.yaml", result.stdout)
         self.assertIn("login_emailBox", result.stdout)
 
+    def test_doctor_catches_a_library_in_a_module_build_file(self) -> None:
+        """D64: a module build file is plugins, project dependencies and resourcePrefix. A library
+        line belongs to the convention plugin the module applies."""
+        build_file = self.repo / "feature/cart/domain/build.gradle.kts"
+        build_file.write_text(build_file.read_text() + "\ndependencies {\n    implementation(libs.junit)\n}\n")
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("feature/cart/domain/build.gradle.kts", result.stdout)
+        self.assertIn("names a library", result.stdout)
+
+    def test_doctor_catches_a_hand_written_test_fixtures_block(self) -> None:
+        """The other half of D64: `convention.android.library.testfixtures` exists for this."""
+        build_file = self.repo / "feature/cart/data/build.gradle.kts"
+        build_file.write_text(build_file.read_text() + "\nandroid {\n    testFixtures {\n        enable = true\n    }\n}\n")
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("feature/cart/data/build.gradle.kts", result.stdout)
+        self.assertIn("enables test fixtures by hand", result.stdout)
+
     def test_doctor_catches_a_test_id_named_after_a_component(self) -> None:
         """D60: the vocabulary stays closed. A stepper in a form is a `Field`, never a `Stepper`."""
         screen = self.screen("home", "Home") / "HomeScreen.kt"
