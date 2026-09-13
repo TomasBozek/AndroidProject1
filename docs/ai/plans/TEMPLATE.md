@@ -1,24 +1,28 @@
 # Release <letter> · <one-line goal>
 
 Status: draft
-Agents: <N> · lane 1 <pts> (~<h> h) · lane 2 <pts> (~<h> h) · lane 0 open
+Agents: 1 · lane 1 <what it holds> <pts> · lane 2 <what it holds> <pts> · lane 0 open
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D<n>–D<n>
+
+<Three to eight lines: what is wrong today, what this release does about it, and what it leaves
+alone. Written for the agent who opens it cold.>
 
 Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act`, or
 `· blocked: <≤5 words>`), a `[-]` by the owner, a lane-0 task appended by the owner. Nothing else.
 
 ## Shared files
 
+What each lane writes. With one agent nothing is arbitrated; with two, a lane owns its rows.
+
 | File group | Owner lane | Tasks |
 |---|---|---|
 | `settings.gradle.kts`, `core/di/**`, `app/**/AppNavHost.kt`, `app/**/KoinGraphTest.kt` | | |
-| `gradle/libs.versions.toml` | | |
-| `CLAUDE.md`, `docs/ai/CODEBASE.md`, `docs/README.md` | | |
-| `.github/workflows/build.yml` | | |
+| `gradle/libs.versions.toml`, `build-logic/**`, `.github/workflows/build.yml` | | |
+| `scripts/**`, `CLAUDE.md`, `docs/ai/CODEBASE.md` | | |
 
 ## Board
 
-### Lane 0 · priority
+### Lane 0 · chores
 
 - [ ] <id> <title> · <pts>
 

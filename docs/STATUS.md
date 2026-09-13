@@ -1,89 +1,60 @@
 # Status
 
-**Release D is open.** This file is its board: every task, its points, its state. Why each task is
-there and what finishes it is [ai/plans/D.md](ai/plans/D.md); the rules the board runs by are
-[ai/PROCESS.md](ai/PROCESS.md). Release B is **paused** below with its merged tasks intact, and
-release C is a draft behind it: D, then B's last task, then C.
+**Release E is open.** This file is its board: every task, its points, its state. Why each task is
+there and what finishes it is [ai/plans/E.md](ai/plans/E.md); the rules the board runs by are
+[ai/PROCESS.md](ai/PROCESS.md). Nothing is paused and nothing is drafted behind it — what E did not
+take is [BACKLOG.md](BACKLOG.md) § Next, in order.
 
-## Release D · the patch-up: what B3S1 left unreachable, and the rules that boxed it in
+## Release E · the fixes the backlog was carrying, and a showcase that gives every component a home
 
-Opened 2026-09-11. 10 tasks, 66 points, one agent. B3S1 shipped the Trips feature and nothing
-constructs `TripsDestination`, so five screens are in the APK and unreachable. That is the headline;
-the rest are fixes that are broken now and silent. A task's state is `[ ]` open, `[x]` merged with
-its actual, `[-]` dropped.
+Opened 2026-09-13. 18 tasks, 236 points, **one agent** working the lanes in order — 1, then 2, then
+3. Lane 1 is a morning and touches files the other two read, so it merges first; if the owner adds
+a second agent it takes lane 3 once lane 1 has merged. A task's state is `[ ]` open, `[x]` done
+with its actual, `[-]` dropped.
 
-### Lane 0 · priority · 6
+### Lane 0 · chores · 12
 
-- [x] D0X1 The Trips tab crashes on open · 6 → 6
+- [x] E0P1 Two releases close, one opens, and the process learns one agent · 12 → 12 · decides D61, D62
 
-### Lane 1 · reachability, then the patch-ups · 60
+### Lane 1 · Kotlin and core fixes · 30
 
-- [x] D1P1 One plan open, a queue behind it, and room to write · 6 → 6 · decides D58
-- [x] D1X1 Trips takes the fifth tab · 6 → 6 · decides D59 · after D1P1
-- [ ] D1X2 The dev menu jumps straight to a screen · 12 · after D1X1 · blocked: no JDK 25 toolchain
-- [x] D1X3 `export_service.py` parses on the Python the README promises · 3 → 3
-- [x] D1P2 The generators stop recommending the build that is forbidden · 6 → 6
-- [x] D1X5 `init_project.py` rewrites the LICENSE it leaves behind · 3 → 3
-- [x] D1P3 The reference docs catch up with B3S1 · 6 → 6 · after D1X1
-- [x] D1P4 Two `doctor.py` checks that keep the reference docs honest · 6 → 12 · after D1P3
-- [ ] D1X4 The test ids rejoin the closed vocabulary · 12 · decides D60 · after D1P4 · blocked: no JDK 25 toolchain
+- [ ] E1X1 The test ids rejoin the closed vocabulary (was D1X4) · 12
+- [ ] E1X2 A toast wears the theme · 6 · decides D63
+- [ ] E1H1 A stored trip the code no longer understands does not crash the read · 6
+- [ ] E1X3 The section header's action carries a test id · 3
+- [ ] E1T1 Three small things the review found · 3
 
-## Paused · release B · the refactors v1.0 skipped, and the two features that use them
+### Lane 2 · build and platform · 46
 
-Opened 2026-09-10, paused 2026-09-11 with one task left. 18 tasks, 383 points, four agents.
-**Lane 0 ran first and alone** — one of its tasks renumbers the module graph the other three lanes
-write against — and merged before lanes 1–3 started. It resumes at B3S2 when D closes.
+- [ ] E2P1 Every library dependency moves into a convention plugin · 25 · decides D64
+- [ ] E2H1 The release build is launched, not just assembled · 12
+- [ ] E2H2 A network security config and StrictMode for the debug build · 6
+- [ ] E2P2 The dependency graph is submitted · 3
 
-### Lane 0 · repo-wide, before the lanes start · 106
+### Lane 3 · the design system and its showcase · 148
 
-- [x] B0P1 The module topology, decided once (was F5 + F11) · 50 → 25 · decides D49
-- [x] B0P2 The module tree moves, CLAUDE.md goes on a diet · 25 → 12 · after B0P1
-- [x] B0X1 BaseViewModel's defaults, and its nullable state · 25 → 25 · decides D44
-- [x] B0U1 The tabs have test ids (was qa.16) · 6 → 6
-
-### Lane 1 · the design system · 87
-
-- [x] B1U1 The screen shell joins the design system (was F13) · 25 → 25 · decides D50
-- [x] B1U2 AppTextField rebuilt, the size enums folded (was F23 + M1) · 25 → 12 · decides D51
-- [x] B1U3 The gallery is checked against the components (was F7) · 25 → 12 · decides D52
-- [x] B1U4 Predictive back on dirty forms, auto-sizing numerics (was M3 + M4) · 12 → 12
-
-### Lane 2 · build, release and the data layer · 90
-
-- [x] B2P1 Two flavors (was F18) · 12 · decides D43 · 12 → 6
-- [x] B2H1 The release ships an AAB with a tag-derived versionCode (was rest of F17c) · 12 → 12
-- [x] B2H2 The baseline profile reaches the shipping build (was F17d) · 12 · decides D45 · 12 → 25
-- [x] B2T1 Coil moves to the module that imports it (was half of F24) · 6 → 12
-- [x] B2P2 Where the data-source interface lives (was F15) · 12 · decides D53 · 12 → 25
-- [x] B2X1 A deep link to an uncached product opens it (was shell.7) · 12 → 25
-- [x] B2H3 The HTTP cache, and state that survives process death (was half of F16) · 12 → 25
-- [x] B2P3 Hooks become a committed .githooks (was F10) · 12 → 12
-
-### Lane 3 · the showcase · 100
-
-- [x] B3S1 Trips, a showcase feature (was S1) · 50 → 50
-- [ ] B3S2 Field report, a showcase feature (was S2) · 50
-
-## Next · release C
-
-[ai/plans/C.md](ai/plans/C.md) — the arcade: nine small games that are each an excuse to drive one
-group of components properly, and the release that finally answers D38. 24 tasks, 380 points, four
-agents. It is a **draft**; the owner opens it when B closes. C0P1 plans a fifth bottom-bar tab for
-the arcade hub — D1X1 spends that slot on Trips (D59), so C0P1 picks another entry point when C is
-drafted for real.
+- [ ] E3U1 The design system stops speaking POS · 12
+- [ ] E3S1 Inventory: the feature, its table and the list · 25 · after E1H1, E3U1
+- [ ] E3S2 Inventory: the four-step editor · 25 · after E3S1
+- [ ] E3S3 Inventory: the detail, its sections and delete · 25 · after E3S1
+- [ ] E3S4 Inventory: editing an item reuses the editor · 12 · after E3S2, E3S3
+- [ ] E3S5 Inventory: filter sheet, sort, and a selection toolbar · 25 · after E3S1
+- [ ] E3S6 Home opens Inventory, and a flow drives the whole loop · 12 · after E3S4, E3S5
+- [ ] E3T1 Unused components earn their place (was F6, C0T1) · 12 · decides D65 · after E3S6
 
 ## Shipped
 
-Release A · what a v1.0 tag must not carry. Closed 2026-09-10, all 19 tasks landed: estimate 136,
-actual 108, ratio 0.79 — which is why release B's lane budget is 100. What shipped, in user words,
-is the `v1.0.0` block in [CHANGELOG.md](CHANGELOG.md); the plan is [ai/plans/A.md](ai/plans/A.md).
-
-**It becomes a release when the tag is pushed**, which is the owner's:
+**v1.1.0 · releases B and D**, closed together on 2026-09-13: seventeen of B's eighteen tasks and
+eight of D's ten, estimate 375, actual 369, ratio 0.98 — which is why E's bands are unchanged. What
+shipped, in user words, is the `v1.1.0` block in [CHANGELOG.md](CHANGELOG.md); the plans are
+[ai/plans/B.md](ai/plans/B.md) and [ai/plans/D.md](ai/plans/D.md). **It becomes a release when the
+tag is pushed**, which is the owner's:
 
 ```bash
-git tag v1.0.0 && git push origin v1.0.0
+git tag v1.1.0 && git push origin v1.1.0
 ```
 
-[RELEASING.md](RELEASING.md) says what CI then does, and what it refuses.
+**v1.0.0 · release A** — tagged and published. The plan is [ai/plans/A.md](ai/plans/A.md).
 
-Ideas that are in neither plan are [BACKLOG.md](BACKLOG.md).
+[RELEASING.md](RELEASING.md) says what CI does with a tag, and what it refuses. Ideas that are in
+no plan are [BACKLOG.md](BACKLOG.md).
