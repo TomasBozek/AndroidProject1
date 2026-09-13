@@ -23,7 +23,8 @@ Refuse unless every board line in the open plan is `[x]` or `[-]`. Then, in one 
    board is written among its briefs and is not a board until `/release draft` has cut it. If it is
    `Status: paused`, its board is already in `docs/STATUS.md` under a `Paused` heading — flip its
    header to `open` and lift the board into place, keeping every `[x]` it earned before it paused.
-4. The plan file stays where it is, briefs intact, board gone. There is no archive (D48).
+4. The plan file stays where it is, briefs intact, board gone. There is no archive (D48). A draft
+   the owner abandons is deleted, and a decision row says why.
 5. Run `/check pr`, then open the pull request.
 
 The tag comes after the merge, and the owner pushes it — `docs/RELEASING.md` § Releasing.
@@ -32,19 +33,19 @@ The tag comes after the merge, and the owner pushes it — `docs/RELEASING.md` �
 
 Write `docs/ai/plans/<letter>.md` from `docs/ai/plans/TEMPLATE.md`. Nothing else changes.
 
-1. Recalibrate first: `gh pr list --state merged --search '<previous letter>' --json title,body`,
-   read the `Points:` lines, and compute the ratio. If a band was off by more than 30 % on three or
-   more tasks, rewrite that band's description in `docs/ai/PROCESS.md`. The numbers never change.
+1. Recalibrate first: read the shipped blocks' `Estimate · Actual · Ratio` in `docs/CHANGELOG.md`.
+   If a band was off by more than 30 % on three or more tasks, rewrite that band's description in
+   `docs/ai/PROCESS.md`. The numbers never change.
 2. Take the candidates from `docs/BACKLOG.md` § Next, in order.
 3. Write one task section per candidate — Why, Decide first, Done when, Touches, Read, Steps,
    Checks, Depends. **Done when** is commands and greps, never a sentence. **Steps** name real
    paths, the generator to call and the doc row to update. A section a cold agent cannot start from
    alone is not finished.
-4. Estimate each with the calibrated bands. Anything over 50 is split before it gets an id.
-5. Cut lanes of 90–100 points that touch disjoint paths, using the `Touches` sets. A task that would
-   straddle two lanes moves, or the work is deferred — never padded. Something repo-wide runs alone
-   in lane 0 before the lanes start.
-6. Write the Shared files table and the `Agents:` header line. The plan says how many agents; you do
-   not decide the number first and cut lanes to fit it.
+4. Estimate each with the bands. Anything over 50 is split before it gets an id.
+5. Cut lanes by what the work touches — the Kotlin fixes, the build, a feature — so their file sets
+   are disjoint. A lane is as long as its work; nothing is padded or trimmed to a number. Something
+   repo-wide that every lane depends on runs first, in lane 0.
+6. Write the `Agents:` line — `1` unless the owner has said otherwise, never more than 3 — and the
+   Shared files table, which says which lane owns which contested file.
 7. Assign ids **last**, once the lanes are settled, so nothing is renumbered.
 8. Leave it `Status: draft`. The owner flips it to `open`.

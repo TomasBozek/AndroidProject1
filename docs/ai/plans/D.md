@@ -1,7 +1,7 @@
 # Release D · the patch-up: what B3S1 left unreachable, and the rules that boxed it in
 
-Status: open · 2026-09-11
-Agents: 1 · lane 0 6 · lane 1 60 (~5.5 h)
+Status: closed 2026-09-13 · shipped as v1.1.0, with release B
+Agents: 1 · 10 tasks · 8 shipped, estimate 42, actual 48 · D1X2 to the backlog, D1X4 into E1X1 (D62)
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D58–D60
 
 B3S1 landed fifty points of Trips — five screens, thirty source files, ten tests and a Room
@@ -48,13 +48,12 @@ is what a lane-0 task is for: it may touch anything, and the table records it af
 
 ## Board
 
-The board is [../../STATUS.md](../../STATUS.md) — one place to look, and no second copy to drift. It
-sits above release B's, which is `Status: paused` with its seventeen `[x]` intact: work already done
-is not cut to make room for work that is not.
-
-Shared-file tasks first, then dependencies, then the largest — `../PROCESS.md` § Points and lanes.
-`D1P1` leads because it is what makes the other eight legal; `D1X1` follows because everything the
-release is named for depends on it.
+The board this file was worked from is gone: it closed into the `v1.1.0` block in
+[../../CHANGELOG.md](../../CHANGELOG.md), together with release B's. What is left here is why each
+task was there and what finished it. Two tasks did not finish here: `D1X2` is a line in
+[../../BACKLOG.md](../../BACKLOG.md) § Next, and `D1X4` is release E's `E1X1`. Both were marked
+`blocked: no JDK 25 toolchain`, which was true of the sandbox they were attempted in and not of the
+repository (D62).
 
 ## Tasks
 

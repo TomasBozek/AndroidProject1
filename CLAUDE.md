@@ -6,9 +6,9 @@ Guidance for Claude Code (claude.ai/code) in this repository.
 read when a task names it. A fact lives in exactly one file — write it twice and one copy is already
 wrong.
 
-**Work** is [docs/ai/PROCESS.md](docs/ai/PROCESS.md) — ids, points, lanes, the task loop — and
-the plan under `docs/ai/plans/` whose header says `Status: open`. Take a task with `/task <id>`,
-never by picking something that looks useful. Work you find on the way is one line in
+**Work** is [docs/ai/PROCESS.md](docs/ai/PROCESS.md) — one agent, ids, points, lanes, the task
+loop — and the plan under `docs/ai/plans/` whose header says `Status: open`. Take a task with
+`/task <id>`, never by picking something that looks useful. Work you find on the way is one line in
 [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Project
@@ -249,16 +249,20 @@ tasks.
 
 ## Working a task
 
-- `/task <id>` takes the first `[ ]` line in your lane; the branch is `<id>-<slug>`, unless the open
-  plan ships as one pull request (D47) — then it is the release's branch and there is one of them.
+- **One agent works a release**, lane by lane. A second or third only when the plan's `Agents:`
+  line says so, and no subagents or workflow scripts inside a session unless the owner asks (D61).
+- `/task <id>` takes the first `[ ]` line in your lane; the branch is the lane's,
+  `<letter><lane>-<slug>`, and every task of the lane is one commit on it.
 - A `Decide first` line is settled before the code, as a row in `docs/DECISIONS.md`.
-- Touch only the shared files your lane owns. Otherwise stop and take the next task.
+- With more than one agent, touch only the files your lane owns. Alone, there is nothing to
+  arbitrate.
 - A fact you changed moves to its one doc in the same commit — `docs/ai/PROCESS.md` § Which doc
   changes when.
 - **One commit** per task, titled `<id> <title>`, carrying the code, the docs and the board line
   flipped to `[x]` with `· est → act`.
-- Open the pull request with the template; `gh pr merge --rebase --delete-branch` once it is green.
-  Under D47 that happens once for the release, not once per task.
+- One pull request per lane, opened with the template on its first task;
+  `gh pr merge --rebase --delete-branch` once the lane is done and green, so `main` stays one
+  commit per task (D17).
 
 ## Commands
 

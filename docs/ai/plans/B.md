@@ -1,7 +1,7 @@
 # Release B · the refactors v1.0 skipped, and the two features that use them
 
-Status: paused · 2026-09-10, paused 2026-09-11 with B3S2 open
-Agents: 4 · lane 0 106 (~8.5 h, runs first and alone) · lane 1 87 (~7 h) · lane 2 90 (~7.2 h) · lane 3 100 (~8 h)
+Status: closed 2026-09-13 · shipped as v1.1.0, with release D
+Agents: 4 · 18 tasks · 17 shipped, estimate 333, actual 321 · B3S2 dropped at close (D62)
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D43–D45, D49–D53
 
 Release A shipped what a v1.0 tag must not carry. Everything here was dropped from it for one
@@ -35,8 +35,10 @@ and takes the next task — `../PROCESS.md` § Task loop 7.
 
 ## Board
 
-The board is [../../STATUS.md](../../STATUS.md) — one place to look, and no second copy to drift.
-What is left here is why each task is there and what finishes it.
+The board this file was worked from is gone: it closed into the `v1.1.0` block in
+[../../CHANGELOG.md](../../CHANGELOG.md), together with release D's. What is left here is why each
+task was there and what finished it. B3S2, Field report, was dropped at close rather than paused —
+new development that waited on purpose (D62) — and is a line in [../../BACKLOG.md](../../BACKLOG.md).
 
 ## Tasks
 
