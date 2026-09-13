@@ -53,7 +53,7 @@ through its constructor.
 | `TripDetail` | trips | `tripId` | TripsList, Trips' next-trip card |
 | `DestinationPicker` | trips | `resultKey` | TripWizard; returns its choice through the result store |
 | `Inventory` | inventory | — | the list: search by name, a row per item with the owner's avatar and the condition tag, a FAB to a new item. Reached from Home once E3S6 lands; a row opens the detail |
-| `InventoryEditor` | inventory | `itemId` | Inventory (a new id, minted by the list, or an existing item's). Create and edit are one screen: four steps behind `AppStepProgress` — basics, quantity and price, tags and owner, review — every kind of control the design system has, `DiscardBackHandler` on a dirty first step, save through `saveItem` and pop |
+| `InventoryEditor` | inventory | `itemId` | Inventory (a new id, minted by the list, or an existing item's). Create and edit are one screen — a loaded item fills the form and `isDirty` compares against it, so opening and leaving asks nothing; save keeps the id: four steps behind `AppStepProgress` — basics, quantity and price, tags and owner, review — every kind of control the design system has, `DiscardBackHandler` on a dirty first step, save through `saveItem` and pop |
 | `InventoryDetail` | inventory | `itemId` | Inventory, a row. Observes the item, so an edit shows up without a reload; picture, owner with a condition-toned status dot, tags, and three sections — Overview, Notes, History (derived) — switched by `AppBottomNav` on a compact width and `AppNavRail` otherwise, from `SizeClass`. A top-bar menu offers Edit (the editor on this id) and Delete, confirmed through an `AlertPayload` |
 <!-- create_screen.py appends a starter row here -->
 

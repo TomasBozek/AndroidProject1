@@ -47,6 +47,28 @@ class InventoryEditorViewModelTest {
     }
 
     @Test
+    fun `a loaded form that nobody touched is not dirty, and a changed one is`() = runTest {
+        val viewModel = viewModel(itemId = "item-drill")
+        assertFalse("opening and leaving must ask nothing", viewModel.data.isDirty)
+
+        viewModel.onUiEvent(InventoryEditorEvent.NotesChanged("Returned."))
+        assertTrue(viewModel.data.isDirty)
+
+        viewModel.onUiEvent(InventoryEditorEvent.NotesChanged(FakeInventoryRepository.DRILL.notes))
+        assertFalse("back to what was loaded is clean again", viewModel.data.isDirty)
+    }
+
+    @Test
+    fun `the price survives the slider's round trip, and a moved slider lands on whole units`() = runTest {
+        val viewModel = viewModel(itemId = "item-drill")
+        assertEquals(FakeInventoryRepository.DRILL.priceMinor, viewModel.data.priceMinor)
+
+        viewModel.onUiEvent(InventoryEditorEvent.PriceChanged(0.33333f))
+
+        assertEquals(0L, viewModel.data.priceMinor % 100)
+    }
+
+    @Test
     fun `an id that names nothing starts blank, and is not an error`() = runTest {
         val viewModel = viewModel(itemId = "item-new")
 

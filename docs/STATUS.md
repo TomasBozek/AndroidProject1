@@ -38,7 +38,7 @@ with its actual, `[-]` dropped.
 - [x] E3S1 Inventory: the feature, its table and the list · 25 → 12 · after E1H1, E3U1
 - [x] E3S2 Inventory: the four-step editor · 25 → 12 · after E3S1
 - [x] E3S3 Inventory: the detail, its sections and delete · 25 → 12 · after E3S1
-- [ ] E3S4 Inventory: editing an item reuses the editor · 12 · after E3S2, E3S3
+- [x] E3S4 Inventory: editing an item reuses the editor · 12 → 3 · after E3S2, E3S3
 - [ ] E3S5 Inventory: filter sheet, sort, and a selection toolbar · 25 · after E3S1
 - [ ] E3S6 Home opens Inventory, and a flow drives the whole loop · 12 · after E3S4, E3S5
 - [ ] E3T1 Unused components earn their place (was F6, C0T1) · 12 · decides D65 · after E3S6

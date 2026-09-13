@@ -1,14 +1,11 @@
 package com.example.androidproject1.feature.inventory.presentation.inventoryeditor
 
 import com.example.androidproject1.feature.inventory.domain.InventoryRepository
-import com.example.androidproject1.feature.inventory.domain.Item
 import com.example.androidproject1.feature.inventory.domain.ItemTag
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.form.ALERT_ID_DISCARD
-import com.example.androidproject1.service.core.ui.form.FieldState
 import com.example.androidproject1.service.core.ui.form.discardAlert
-import com.example.androidproject1.service.core.ui.form.required
 import com.example.androidproject1.service.core.ui.state.clearAlert
 import com.example.androidproject1.service.core.ui.state.setAlert
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
@@ -46,7 +43,9 @@ class InventoryEditorViewModel(
             is InventoryEditorEvent.ConditionSelected -> updateData { copy(condition = event.condition) }
             is InventoryEditorEvent.AcquiredOnChanged -> updateData { copy(acquiredOn = event.date) }
             is InventoryEditorEvent.QuantityChanged -> updateData { copy(quantity = event.quantity) }
-            is InventoryEditorEvent.PriceChanged -> updateData { copy(priceFraction = event.fraction) }
+            is InventoryEditorEvent.PriceChanged -> updateData {
+                copy(priceMinor = InventoryEditorState.priceMinorFor(event.fraction))
+            }
             is InventoryEditorEvent.InsuredChanged -> updateData { copy(insured = event.insured) }
             is InventoryEditorEvent.TagChanged -> updateData {
                 copy(tags = if (event.checked) tags + event.tag else tags - event.tag)
@@ -69,24 +68,10 @@ class InventoryEditorViewModel(
         errorDisplay = ErrorDisplay.Silent,
         action = { inventoryRepository.getItem(args.itemId) },
         onData = { item ->
-            updateData { if (item == null) copy(loading = false) else fromItem(item) }
+            updateData {
+                if (item == null) copy(loading = false) else InventoryEditorState.forItem(item, step = step)
+            }
         },
-    )
-
-    private fun InventoryEditorState.fromItem(item: Item) = copy(
-        loading = false,
-        editing = true,
-        name = FieldState.of(required(), value = item.name),
-        category = item.category,
-        condition = item.condition,
-        acquiredOn = item.acquiredOn,
-        quantity = item.quantity,
-        priceFraction = InventoryEditorState.fractionFor(item.priceMinor),
-        insured = item.insured,
-        tags = item.tags,
-        owner = item.owner,
-        imageUrl = item.imageUrl.orEmpty(),
-        notes = item.notes,
     )
 
     private fun next() {
@@ -112,26 +97,10 @@ class InventoryEditorViewModel(
         }
     }
 
+    // The id is the one the route carried, so an edit replaces the row rather than adding one.
     private fun save(state: InventoryEditorState) = execute(
         loading = overlay(),
-        action = {
-            inventoryRepository.saveItem(
-                Item(
-                    id = state.itemId,
-                    name = state.name.value.trim(),
-                    category = state.category,
-                    condition = state.condition,
-                    quantity = state.quantity,
-                    priceMinor = state.priceMinor,
-                    acquiredOn = state.acquiredOn,
-                    insured = state.insured,
-                    tags = state.tags,
-                    owner = state.owner,
-                    imageUrl = state.imageUrl.trim().ifBlank { null },
-                    notes = state.notes.trim(),
-                ),
-            )
-        },
+        action = { inventoryRepository.saveItem(state.toItem()) },
         onData = { navigate(InventoryEditorNavigation.Saved) },
     )
 }
