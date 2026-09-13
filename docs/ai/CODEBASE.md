@@ -113,7 +113,7 @@ Read this before writing something that exists. A plan holds only open work, so 
 | `updateData { copy(…) }` | same | The protected member, not the state extension: it logs an update that lands before the first state rather than dropping it |
 | `ErrorDisplay.{Alert,Inline,Silent}` | same | `Inline` remembers the failed call per content id; the retry re-runs that one and forgets it on success |
 | `ContentState.{Error,Empty}` | `service/core/ui/.../state/ContentState.kt` | Rendered by `Screen()` instead of content; a screen with two of them gives each its own `id` |
-| `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act. `SettingsViewModel` shows the confirm-then-act pattern but carries no payload; nothing does yet |
+| `AlertPayload`, `SystemEvent.AlertResult` | `state/AlertState.kt`, `event/SystemEvent.kt` | Typed confirm-then-act. `SettingsViewModel` shows the pattern with the alert id alone; `InventoryDetailViewModel` carries a `DeleteItem(itemId)` payload and reads it back off `Confirmed` — the shape a screen confirming one of several rows needs |
 | `UiCommand` | `event/UiCommand.kt` | Snackbar (action comes back as `SystemEvent.SnackbarAction(id)`; a toast is one with no action, D63), back, close, browser, app settings |
 | `Formats` / `LocalFormats` | `service/core/ui/.../format/` | `money`, `moneyShort`, `weight`, `quantity`, `percent`, `time`, `date`, `duration`, all from one `Locale`. A screen never formats a number itself; `doctor.py` fails on a `NumberFormat` in a feature. Tabular figures stay `TextRole.Numeric` |
 | `DispatcherProvider` / `DefaultDispatcherProvider` | `service/core/domain/coroutines/` | Switch at the data source, not the repository |

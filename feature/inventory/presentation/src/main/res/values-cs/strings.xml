@@ -42,4 +42,19 @@
     <string name="inventory_tag_lent">Půjčeno</string>
     <string name="inventory_tag_for_sale">Na prodej</string>
     <string name="inventory_tag_favourite">Oblíbené</string>
+    <string name="inventory_detail_title">Položka</string>
+    <string name="inventory_detail_menu">Více</string>
+    <string name="inventory_detail_edit">Upravit</string>
+    <string name="inventory_detail_delete_title">Smazat tuto položku?</string>
+    <string name="inventory_detail_delete_message">Obrázek, štítky i poznámky zmizí s ní. Nelze vrátit zpět.</string>
+    <string name="inventory_detail_delete_confirm">Smazat</string>
+    <string name="inventory_detail_delete_cancel">Zrušit</string>
+    <string name="inventory_detail_owner_label">Vlastník</string>
+    <string name="inventory_detail_section_overview">Přehled</string>
+    <string name="inventory_detail_section_notes">Poznámky</string>
+    <string name="inventory_detail_section_history">Historie</string>
+    <string name="inventory_detail_notes_empty">Zatím žádné poznámky.</string>
+    <string name="inventory_detail_history_acquired">Pořízeno</string>
+    <string name="inventory_detail_history_insured">Pojištěno</string>
+    <string name="inventory_detail_history_insured_supporting">Kryto pojistkou.</string>
 </resources>

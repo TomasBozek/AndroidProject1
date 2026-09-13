@@ -42,4 +42,19 @@
     <string name="inventory_tag_lent">Lent out</string>
     <string name="inventory_tag_for_sale">For sale</string>
     <string name="inventory_tag_favourite">Favourite</string>
+    <string name="inventory_detail_title">Item</string>
+    <string name="inventory_detail_menu">More</string>
+    <string name="inventory_detail_edit">Edit</string>
+    <string name="inventory_detail_delete_title">Delete this item?</string>
+    <string name="inventory_detail_delete_message">Its picture, tags and notes go with it. This cannot be undone.</string>
+    <string name="inventory_detail_delete_confirm">Delete</string>
+    <string name="inventory_detail_delete_cancel">Cancel</string>
+    <string name="inventory_detail_owner_label">Owner</string>
+    <string name="inventory_detail_section_overview">Overview</string>
+    <string name="inventory_detail_section_notes">Notes</string>
+    <string name="inventory_detail_section_history">History</string>
+    <string name="inventory_detail_notes_empty">No notes yet.</string>
+    <string name="inventory_detail_history_acquired">Acquired</string>
+    <string name="inventory_detail_history_insured">Insured</string>
+    <string name="inventory_detail_history_insured_supporting">Covered by a policy.</string>
 </resources>

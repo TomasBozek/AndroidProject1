@@ -13,6 +13,8 @@ import com.example.androidproject1.feature.catalog.presentation.products.Product
 import com.example.androidproject1.feature.catalog.presentation.products.ProductsViewModel
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailViewModel
+import com.example.androidproject1.feature.inventory.presentation.inventorydetail.InventoryDetailDestination
+import com.example.androidproject1.feature.inventory.presentation.inventorydetail.InventoryDetailViewModel
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorViewModel
 import com.example.androidproject1.feature.trips.presentation.destinationpicker.DestinationPickerDestination
@@ -59,6 +61,7 @@ class KoinGraphTest {
             // screen; `doctor.py` fails if one is missing, and `create_screen.py --with-args`
             // writes it.
             injections = injectedParameters(
+                definition<InventoryDetailViewModel>(InventoryDetailDestination::class),
                 definition<InventoryEditorViewModel>(InventoryEditorDestination::class),
                 definition<DestinationPickerViewModel>(DestinationPickerDestination::class),
                 definition<TripDetailViewModel>(TripDetailDestination::class),
