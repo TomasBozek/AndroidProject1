@@ -50,6 +50,7 @@ import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryD
 import com.example.androidproject1.feature.gallery.presentation.gallery.galleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.galleryDetailDestination
 import com.example.androidproject1.feature.home.presentation.home.homeDestination
+import com.example.androidproject1.feature.inventory.presentation.inventory.InventoryDestination
 import com.example.androidproject1.feature.inventory.presentation.inventory.inventoryDestination
 import com.example.androidproject1.feature.inventory.presentation.inventorydetail.inventoryDetailDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.inventoryEditorDestination
@@ -270,13 +271,16 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     )
     productPickerDestination(backStack = backStack)
     tripsEntries(backStack)
-    inventoryDestination(backStack = backStack)
-    inventoryEditorDestination(backStack = backStack)
-    inventoryDetailDestination(backStack = backStack)
+    inventoryEntries(backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {
-    homeDestination(backStack = backStack)
+    homeDestination(
+        backStack = backStack,
+        // Inventory has no tab (D59); the card on Home is its door, and this is the one place that
+        // knows both features.
+        navigateToInventory = { backStack.add(InventoryDestination) },
+    )
 }
 
 private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<NavKey>) {
@@ -284,6 +288,13 @@ private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<Na
     productsDestination(backStack = backStack)
     productDetailDestination(backStack = backStack)
     productSearchDestination(backStack = backStack)
+}
+
+/** Not a tab: Inventory's door is the card on Home (D59), so its entries sit beside the tabs'. */
+private fun EntryProviderScope<NavKey>.inventoryEntries(backStack: NavBackStack<NavKey>) {
+    inventoryDestination(backStack = backStack)
+    inventoryEditorDestination(backStack = backStack)
+    inventoryDetailDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.tripsEntries(backStack: NavBackStack<NavKey>) {

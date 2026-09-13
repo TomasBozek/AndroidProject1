@@ -13,6 +13,8 @@ import com.example.androidproject1.feature.catalog.domain.test.FakeCatalogReposi
 import com.example.androidproject1.feature.catalog.domain.test.FakeFavouritesRepository
 import com.example.androidproject1.feature.home.presentation.home.HomeDestination
 import com.example.androidproject1.feature.home.presentation.home.HomeViewModel
+import com.example.androidproject1.feature.inventory.domain.InventoryRepository
+import com.example.androidproject1.feature.inventory.domain.test.FakeInventoryRepository
 import com.example.androidproject1.service.core.domain.Analytics
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.domain.test.FakeLogger
@@ -68,6 +70,7 @@ class AppNavHostAnalyticsTest {
         single<CatalogRepository> { FakeCatalogRepository() }
         single<CartRepository> { FakeCartRepository() }
         single<FavouritesRepository> { FakeFavouritesRepository() }
+        single<InventoryRepository> { FakeInventoryRepository() }
         viewModelOf(::HomeViewModel)
     }
 

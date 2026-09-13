@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -52,7 +54,11 @@ fun AppMenu(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = onDismiss,
+            // A menu is a window of its own and inherits nothing from the scaffold: without this
+            // a row's `testTag` exists in Compose's tree and is invisible to anything driving the
+            // device — the same rule the alert dialog and the sheet follow.
             modifier = Modifier
+                .semantics { testTagsAsResourceId = true }
                 .clip(AppTheme.shapes.lg)
                 .background(AppTheme.colors.surfaceRaised),
         ) {

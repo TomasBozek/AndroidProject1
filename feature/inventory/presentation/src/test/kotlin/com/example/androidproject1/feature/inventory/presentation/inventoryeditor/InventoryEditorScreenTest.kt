@@ -28,8 +28,10 @@ class InventoryEditorScreenTest {
         }
     }
 
+    /** The step's fields scroll; the button beneath them does not, so it is asserted as it is. */
     private fun assertOnScreen(vararg tags: String) {
         tags.forEach { compose.onNodeWithTag(it).performScrollTo().assertIsDisplayed() }
+        compose.onNodeWithTag("inventoryEditor_nextButton").assertIsDisplayed()
     }
 
     @Test
@@ -42,7 +44,6 @@ class InventoryEditorScreenTest {
             "inventoryEditor_categoryField",
             "inventoryEditor_conditionField",
             "inventoryEditor_acquiredField",
-            "inventoryEditor_nextButton",
         )
         compose.onNodeWithTag("inventoryEditor_upButton").assertIsDisplayed()
     }
@@ -78,7 +79,7 @@ class InventoryEditorScreenTest {
     fun `next reports its event`() {
         render(InventoryEditorState.PREVIEW)
 
-        compose.onNodeWithTag("inventoryEditor_nextButton").performScrollTo().performClick()
+        compose.onNodeWithTag("inventoryEditor_nextButton").performClick()
 
         assertEquals(listOf(InventoryEditorEvent.NextClicked), events)
     }

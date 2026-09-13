@@ -3,6 +3,8 @@ package com.example.androidproject1.feature.home.presentation.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -10,15 +12,19 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
+import com.example.androidproject1.core.ui.component.AppButton
+import com.example.androidproject1.core.ui.component.AppCard
 import com.example.androidproject1.core.ui.component.AppEmptyState
 import com.example.androidproject1.core.ui.component.AppIconButton
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppSectionHeader
 import com.example.androidproject1.core.ui.component.AppText
+import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.home.presentation.R
@@ -35,6 +41,31 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.md),
         ) {
             AppText(text = state.greeting.resolve(), role = TextRole.Display)
+
+            // The way into Inventory: it has no tab of its own (D59), so the count is the door.
+            AppCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("home_inventoryCard"),
+            ) {
+                AppText(text = stringResource(R.string.home_inventory_title), role = TextRole.Title)
+                AppText(
+                    text = pluralStringResource(
+                        R.plurals.home_inventory_count,
+                        state.inventoryCount,
+                        state.inventoryCount,
+                    ),
+                    role = TextRole.Secondary,
+                )
+                AppButton(
+                    label = stringResource(R.string.home_inventory_open),
+                    onClick = { onEvent(HomeEvent.InventoryClicked) },
+                    kind = ButtonKind.Outline,
+                    modifier = Modifier
+                        .padding(top = AppTheme.spacing.stack.sm)
+                        .testTag("home_inventoryButton"),
+                )
+            }
 
             AppSectionHeader(title = stringResource(R.string.home_favourites_title))
 

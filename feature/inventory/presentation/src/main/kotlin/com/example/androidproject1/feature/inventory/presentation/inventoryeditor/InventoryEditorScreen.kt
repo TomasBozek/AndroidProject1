@@ -47,28 +47,36 @@ fun InventoryEditorScreen(
             onEvent(InventoryEditorEvent.BackRequested)
         }
 
+        // The step scrolls; the button does not. A form longer than the screen — the first step is,
+        // on a phone — must not hide the one control that moves it on below the fold.
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.lg),
         ) {
-            AppStepProgress(
-                steps = InventoryEditorState.STEP_COUNT,
-                currentStep = state.step,
-                label = stringResource(
-                    R.string.inventory_editor_step_label,
-                    state.step + 1,
-                    InventoryEditorState.STEP_COUNT,
-                ),
-                modifier = Modifier.testTag("inventoryEditor_stepProgress"),
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.lg),
+            ) {
+                AppStepProgress(
+                    steps = InventoryEditorState.STEP_COUNT,
+                    currentStep = state.step,
+                    label = stringResource(
+                        R.string.inventory_editor_step_label,
+                        state.step + 1,
+                        InventoryEditorState.STEP_COUNT,
+                    ),
+                    modifier = Modifier.testTag("inventoryEditor_stepProgress"),
+                )
 
-            when (state.step) {
-                InventoryEditorState.STEP_QUANTITY -> ItemQuantityStep(state = state, onEvent = onEvent)
-                InventoryEditorState.STEP_TAGS -> ItemTagsStep(state = state, onEvent = onEvent)
-                InventoryEditorState.STEP_REVIEW -> ItemReviewStep(state = state)
-                else -> ItemBasicsStep(state = state, onEvent = onEvent)
+                when (state.step) {
+                    InventoryEditorState.STEP_QUANTITY -> ItemQuantityStep(state = state, onEvent = onEvent)
+                    InventoryEditorState.STEP_TAGS -> ItemTagsStep(state = state, onEvent = onEvent)
+                    InventoryEditorState.STEP_REVIEW -> ItemReviewStep(state = state)
+                    else -> ItemBasicsStep(state = state, onEvent = onEvent)
+                }
             }
 
             AppButton(

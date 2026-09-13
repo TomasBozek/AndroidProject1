@@ -1,0 +1,88 @@
+# The whole loop: create through all four steps, open, edit, delete, and the list still stands.
+# Inventory has no tab of its own (D59), so this also proves the card on Home is a way in — which
+# is what stopped Trips shipping unreachable.
+appId: ${APP_ID}
+env:
+  # The dev build unless the run says otherwise — see config.yaml.
+  APP_ID: ${APP_ID || "com.example.androidproject1.dev"}
+name: Keeping an inventory
+---
+- runFlow: sign-in.yaml
+
+- tapOn:
+    id: "home_inventoryButton"
+- assertVisible:
+    id: "InventoryScreen"
+
+# Create. Every step by id; the fields that take text get it, the rest keep their defaults.
+- tapOn:
+    id: "inventory_newButton"
+- assertVisible:
+    id: "InventoryEditorScreen"
+- tapOn:
+    id: "inventoryEditor_nameField"
+- inputText: "Maestro lamp"
+- hideKeyboard
+- tapOn:
+    id: "inventoryEditor_nextButton"
+- assertVisible:
+    id: "inventoryEditor_quantityField"
+- tapOn:
+    id: "inventoryEditor_nextButton"
+- assertVisible:
+    id: "inventoryEditor_tagsGroup"
+- tapOn:
+    id: "inventoryEditor_allTagsCheckbox"
+- tapOn:
+    id: "inventoryEditor_nextButton"
+- assertVisible:
+    id: "inventoryEditor_reviewTile"
+- tapOn:
+    id: "inventoryEditor_nextButton"
+- assertVisible:
+    id: "InventoryScreen"
+
+# Open it: the list is by name, and "Maestro lamp" sorts after every fixture item.
+- tapOn:
+    id: "inventory_searchField"
+- inputText: "Maestro"
+- hideKeyboard
+- tapOn:
+    id: "inventory_item"
+- assertVisible:
+    id: "InventoryDetailScreen"
+
+# Edit it, and the detail shows the change without a reload.
+- tapOn:
+    id: "inventoryDetail_menuButton"
+- tapOn:
+    id: "inventoryDetail_editItem"
+- assertVisible:
+    id: "InventoryEditorScreen"
+- tapOn:
+    id: "inventoryEditor_nameField"
+- eraseText
+- inputText: "Maestro lamp, edited"
+- hideKeyboard
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: "inventoryEditor_nextButton"
+- tapOn:
+    id: "inventoryEditor_nextButton"
+- assertVisible:
+    id: "InventoryDetailScreen"
+- assertVisible: "Maestro lamp, edited"
+
+# Delete it, confirm, and land back on the list.
+- tapOn:
+    id: "inventoryDetail_menuButton"
+- tapOn:
+    id: "inventoryDetail_deleteItem"
+- tapOn:
+    id: "alert_confirmButton"
+- assertVisible:
+    id: "InventoryScreen"
+- assertVisible:
+    id: "inventory_empty"

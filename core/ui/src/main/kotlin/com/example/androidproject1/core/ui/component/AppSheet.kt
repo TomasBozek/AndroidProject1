@@ -18,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
@@ -44,6 +46,9 @@ fun AppSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        // A window of its own, so the scaffold's `testTagsAsResourceId` does not reach it — see
+        // AppMenu for the same line and why.
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
         sheetState = rememberModalBottomSheetState(),
         containerColor = AppTheme.colors.surfaceRaised,
         scrimColor = AppTheme.colors.scrim.copy(alpha = AppTheme.colors.scrimAlpha),
