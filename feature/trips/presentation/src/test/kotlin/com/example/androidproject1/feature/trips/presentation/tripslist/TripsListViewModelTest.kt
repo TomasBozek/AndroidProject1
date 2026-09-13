@@ -2,12 +2,12 @@ package com.example.androidproject1.feature.trips.presentation.tripslist
 
 import com.example.androidproject1.feature.trips.domain.test.FakeTripsRepository
 import com.example.androidproject1.service.core.domain.test.FakeLogger
-import com.example.androidproject1.service.core.ui.state.ContentState
 import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import java.time.Clock
@@ -33,11 +33,12 @@ class TripsListViewModelTest {
     }
 
     @Test
-    fun `an empty table shows the empty content state`() = runTest {
+    fun `an empty table is an empty list, not a content state that hides the screen`() = runTest {
         val state = viewModel(FakeTripsRepository(initial = emptyList())).state.value
 
-        assertTrue(state.content is ContentState.Empty)
+        assertNull(state.content)
         assertEquals(emptyList<Any>(), state.data?.trips)
+        assertFalse(state.data!!.loading)
     }
 
     @Test

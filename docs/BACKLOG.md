@@ -33,6 +33,12 @@ In order. What the release after E takes first.
   Storage Access Framework — the showcase for the platform seams nothing drives yet: location, the
   photo picker, a document contract. New development; it waited on purpose (D62). The brief is in
   the closed B plan.
+- `ContentState` stands in for the whole screen · 6 · `Screen()` draws a `ContentMessage` instead
+  of the content, scaffold included, so a non-root screen showing `Empty` loses its up arrow and
+  its screen id — E0X1 found `TripsListScreen` unreachable to a flow on a cleared app and moved
+  it to an in-screen `AppEmptyState`. Decide whether the chrome's message should render inside
+  the screen's shell (a slot the scaffold fills) or whether `showContent(Empty)` is for root
+  screens only, and say so in `CLAUDE.md` § MVI.
 
 ## Someday
 

@@ -19,7 +19,8 @@
     <!-- TripsList -->
     <string name="trips_list_title">Všechny výlety</string>
     <string name="trips_list_new_trip">Nový výlet</string>
-    <string name="trips_list_empty">Zatím žádné výlety. Začněte tlačítkem níže.</string>
+    <string name="trips_list_empty_title">Zatím žádné výlety</string>
+    <string name="trips_list_empty">Výlety, které naplánujete, se zobrazí zde. Začněte tlačítkem níže.</string>
 
     <!-- TripWizard -->
     <string name="trip_wizard_title">Naplánovat výlet</string>

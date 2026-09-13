@@ -7,14 +7,15 @@ take is [BACKLOG.md](BACKLOG.md) § Next, in order.
 
 ## Release E · the fixes the backlog was carrying, and a showcase that gives every component a home
 
-Opened 2026-09-13. 18 tasks, 236 points, **one agent** working the lanes in order — 1, then 2, then
+Opened 2026-09-13. 19 tasks, 239 points, **one agent** working the lanes in order — 1, then 2, then
 3. Lane 1 is a morning and touches files the other two read, so it merges first; if the owner adds
 a second agent it takes lane 3 once lane 1 has merged. A task's state is `[ ]` open, `[x]` done
 with its actual, `[-]` dropped.
 
-### Lane 0 · chores · 12
+### Lane 0 · chores · 15
 
 - [x] E0P1 Two releases close, one opens, and the process learns one agent · 12 → 12 · decides D61, D62
+- [x] E0X1 The emulator runner runs out of disk before it boots · 3 → 12
 
 ### Lane 1 · Kotlin and core fixes · 30
 

@@ -1,10 +1,7 @@
 package com.example.androidproject1.feature.trips.presentation.tripslist
 
 import com.example.androidproject1.feature.trips.domain.TripsRepository
-import com.example.androidproject1.feature.trips.presentation.R
 import com.example.androidproject1.service.core.domain.Logger
-import com.example.androidproject1.service.core.ui.state.ContentState
-import com.example.androidproject1.service.core.ui.text.toUiText
 import com.example.androidproject1.service.core.ui.viewmodel.BaseViewModel
 import com.example.androidproject1.service.core.ui.viewmodel.ErrorDisplay
 import java.time.Clock
@@ -37,13 +34,11 @@ class TripsListViewModel(
     private fun observeTrips() = observe(
         flow = { tripsRepository.observeTrips() },
         errorDisplay = ErrorDisplay.Inline,
+        // An empty table is drawn by the screen, inside its scaffold, rather than as a ContentState:
+        // the chrome's content message stands in for the whole screen, up arrow and screen id
+        // included, which is what stranded a cleared app on this screen (E0X1).
         onData = { trips ->
             updateData { copy(trips = trips, today = LocalDate.now(clock), loading = false) }
-            if (trips.isEmpty()) {
-                showContent(ContentState.Empty(message = R.string.trips_list_empty.toUiText()))
-            } else {
-                clearContent()
-            }
         },
     )
 }

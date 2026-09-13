@@ -23,7 +23,9 @@ local.properties
 bin/
 gen/
 out/
-release/
+# Android Studio's signed-build output (`app/release/`), never a `release` source set:
+# `app/src/release/` is the build type's own code and is committed.
+/app/release/
 /captures
 output.json
 output-metadata.json

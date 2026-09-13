@@ -1,7 +1,7 @@
 # Release E · the fixes the backlog was carrying, and a showcase that gives every component a home
 
 Status: open · 2026-09-13
-Agents: 1 · lane 0 12 · lane 1 Kotlin and core fixes 30 · lane 2 build and platform 46 · lane 3 the design system and its showcase 148
+Agents: 1 · lane 0 15 · lane 1 Kotlin and core fixes 30 · lane 2 build and platform 46 · lane 3 the design system and its showcase 148
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D63–D65
 
 Three plans were in flight on 2026-09-13 — D open with two tasks "blocked", B paused at its last
@@ -57,6 +57,38 @@ gone; `docs/CHANGELOG.md` holds `## v1.1.0 ·`; `docs/STATUS.md` holds this boar
 `docs/BACKLOG.md` is ranked; D61 and D62 are rows; `python3 scripts/doctor.py` passes.
 **Touches** `docs/**`, `CLAUDE.md`, `.claude/commands/{task,release}.md`, `scripts/README.md`.
 **Checks** T0. **Depends** —
+
+### E0X1 The emulator runner runs out of disk before it boots · 3
+
+**Why** E2H1's proof run — the first maestro run this repository has on record — died before the
+emulator existed: `sdkmanager` installing the API 35 system image hit *No space left on device*.
+The job now assembles `devDebug` and `prodRelease` (R8) before the emulator, and the hosted runner
+ships with several GB of tooling the job never touches — .NET, CodeQL, the Android NDK. Nothing
+in E2H1's diff is wrong; the runner is full. Appended by the owner on 2026-09-13. The second run,
+with the disk freed, found the next thing: `.gitignore`'s `release/` — meant for Android Studio's
+signed-build output — had swallowed E2H2's `app/src/release/` source set, so `main` had a
+`prodRelease` that compiled on the machine that wrote it and nowhere else.
+The third run booted and ran 5 of 7 flows: `trips.yaml` could not see `TripsListScreen` on a
+cleared app, because `TripsListViewModel` showed its empty table as a `ContentState`, which the
+chrome draws *instead of* the screen — scaffold, up arrow and screen id included. The list now
+draws `AppEmptyState` inside its shell, as `TripsScreen` does; whether the chrome should ever
+replace a shell is a backlog line. The seventh flow died in 115 ms with the emulator, and
+`--debug-output` was writing where the upload step did not look, so the next run keeps
+Maestro's output and logcat.
+The fourth found that the emulator action runs each `script:` line in a shell of its own, so
+the debug path had been `/dev/.maestro`; the flow commands are one script file now. The fifth
+run passed: 7/7 on `devDebug`, then `prodRelease` installed and signed in.
+**Done when** the maestro job frees the unused tooling before the emulator step, in one plain
+`rm -rf` step (no third-party action: D27 needs a first-party alternative tried first, and `rm`
+is it); `.gitignore` ignores `/app/release/` and nothing named `release` elsewhere, and
+`app/src/release/**` is tracked; `TripsListScreen` keeps its scaffold when the table is empty
+and `tripsList_empty` is its id; the job uploads `maestro-debug/**` on failure with logcat beside
+it; `gh workflow run build.yml` followed by `gh run watch` is green with both Maestro passes in
+the log — the proof E2H1 still owes.
+**Touches** `.github/workflows/build.yml` (the maestro job), `.gitignore`, `app/src/release/**`,
+`feature/trips/presentation/**` (`TripsList*`, its strings and goldens), `docs/BACKLOG.md`.
+**Read** the failed run `34764746105` · `.github/workflows/build.yml` § maestro.
+**Checks** T0 — YAML only; the proof is the dispatched run. **Depends** —
 
 ### E1X1 The test ids rejoin the closed vocabulary (was D1X4) · 12
 
