@@ -8,11 +8,18 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import com.example.androidproject1.core.ui.component.AppButton
+import com.example.androidproject1.core.ui.component.AppCheckbox
 import com.example.androidproject1.core.ui.component.AppDateField
 import com.example.androidproject1.core.ui.component.AppDialog
+import com.example.androidproject1.core.ui.component.AppFormField
 import com.example.androidproject1.core.ui.component.AppScreenChrome
+import com.example.androidproject1.core.ui.component.AppSelect
+import com.example.androidproject1.core.ui.component.AppSheet
+import com.example.androidproject1.core.ui.component.AppSlider
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTimeField
+import com.example.androidproject1.core.ui.component.ButtonKind
+import com.example.androidproject1.core.ui.component.CheckState
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.service.core.ui.state.AlertState
@@ -114,6 +121,33 @@ class OverlayScreenshotTest {
      * (D50). It is `Screen()`'s chrome, so nothing composes it directly and no preview can see it —
      * this is the only place it is looked at.
      */
+    /**
+     * A sheet holding a form — the shape Inventory's filter has (E3S5): a select, checkboxes under
+     * a tri-state master, a slider and a button. On the narrowest phone the question is whether the
+     * button is still reachable under the sheet's own handle and title.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h640dp-xhdpi")
+    fun `a sheet holding a filter form on the narrowest phone`() {
+        compose.setContent {
+            AppTheme {
+                AppSheet(onDismiss = {}, title = "Filter") {
+                    AppFormField(label = "Category") {
+                        AppSelect(options = listOf("Any category", "Tools", "Books"), selectedIndex = 0, onSelect = {})
+                    }
+                    AppFormField(label = "Tags") {
+                        AppCheckbox(checked = CheckState.Indeterminate, onCheckedChange = {}, label = "All tags")
+                        AppCheckbox(checked = CheckState.On, onCheckedChange = {}, label = "Fragile")
+                        AppCheckbox(checked = CheckState.Off, onCheckedChange = {}, label = "Lent out")
+                    }
+                    AppSlider(value = 0.4f, onValueChange = {}, label = "Up to", valueLabel = "$8,000.00")
+                    AppButton(label = "Clear filters", onClick = {}, kind = ButtonKind.Outline)
+                }
+            }
+        }
+        capture("overlay_sheet_filterForm_narrowPhone")
+    }
+
     @Test
     @Config(qualifiers = "w360dp-h640dp-xhdpi")
     fun `the alert dialog on the narrowest phone`() {

@@ -41,6 +41,9 @@ enum class CheckState { Off, On, Indeterminate }
  * reason: a box outlined in red says something is wrong but not what, and to anyone who cannot
  * separate the hues it says nothing at all. The message goes under the row, where the next thing
  * read after the label is why it is refusing.
+ *
+ * [inverse] is for the one place a checkbox sits on a dark wash — the master on an [AppToolbar] —
+ * and only moves the label onto [AppColors.textOnInverse]; the box carries its own colours.
  */
 @Composable
 fun AppCheckbox(
@@ -51,6 +54,7 @@ fun AppCheckbox(
     enabled: Boolean = true,
     errorText: String? = null,
     size: ControlSize = ControlSize.Medium,
+    inverse: Boolean = false,
 ) {
     val colors = AppTheme.colors
     val on = checked != CheckState.Off
@@ -115,7 +119,11 @@ fun AppCheckbox(
             Text(
                 text = label,
                 style = AppTheme.typography.bodyMd,
-                color = if (enabled) colors.textPrimary else colors.textDisabled,
+                color = when {
+                    !enabled -> colors.textDisabled
+                    inverse -> colors.textOnInverse
+                    else -> colors.textPrimary
+                },
             )
         }
         if (errorText != null) {

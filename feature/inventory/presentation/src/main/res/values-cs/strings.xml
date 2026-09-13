@@ -57,4 +57,29 @@
     <string name="inventory_detail_history_acquired">Pořízeno</string>
     <string name="inventory_detail_history_insured">Pojištěno</string>
     <string name="inventory_detail_history_insured_supporting">Kryto pojistkou.</string>
+    <string name="inventory_filter_title">Filtr</string>
+    <string name="inventory_filter_any_category">Libovolná kategorie</string>
+    <string name="inventory_filter_max_price_label">Nejvýše</string>
+    <string name="inventory_filter_no_cap">Libovolná cena</string>
+    <string name="inventory_filter_none_active">Nic nefiltrováno — zobrazují se všechny položky.</string>
+    <string name="inventory_filter_clear">Zrušit filtry</string>
+    <string name="inventory_empty_filter_message">Filtru nic neodpovídá.</string>
+    <string name="inventory_sort_title">Řazení</string>
+    <string name="inventory_sort_name">Podle názvu</string>
+    <string name="inventory_sort_price">Podle hodnoty</string>
+    <string name="inventory_sort_acquired">Podle data pořízení</string>
+    <string name="inventory_selected_count">Vybráno: %1$d</string>
+    <string name="inventory_selection_clear">Opustit výběr</string>
+    <string name="inventory_select_all">Vše</string>
+    <string name="inventory_favourite_selected">Označit jako oblíbené</string>
+    <string name="inventory_delete_selected">Smazat</string>
+    <string name="inventory_delete_message">Obrázky, štítky i poznámky zmizí s nimi. Nelze vrátit zpět.</string>
+    <string name="inventory_delete_confirm">Smazat</string>
+    <string name="inventory_delete_cancel">Zrušit</string>
+    <plurals name="inventory_delete_title">
+        <item quantity="one">Smazat %d položku?</item>
+        <item quantity="few">Smazat %d položky?</item>
+        <item quantity="many">Smazat %d položky?</item>
+        <item quantity="other">Smazat %d položek?</item>
+    </plurals>
 </resources>

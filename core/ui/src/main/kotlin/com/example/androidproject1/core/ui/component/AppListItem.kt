@@ -1,7 +1,9 @@
 package com.example.androidproject1.core.ui.component
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,13 +31,19 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * pair on a wide screen. It is not the same as checked, which is [AppCheckbox]'s job and is state
  * the user set; a selected row is where the app is, and it says so to a screen reader through
  * `Role.Tab`'s selected state rather than by colour alone.
+ *
+ * [onLongClick] is how a list enters selection mode. It needs [onClick] too: a row that can only
+ * be long-pressed is a row a screen reader cannot reach, so the long press is an addition to a
+ * tap, never a replacement.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppListItem(
     headline: String,
     modifier: Modifier = Modifier,
     supporting: String? = null,
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     selected: Boolean = false,
     leading: @Composable (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
@@ -52,6 +60,11 @@ fun AppListItem(
                         selected = true,
                         role = Role.Tab,
                         onClick = onClick,
+                    )
+                    onLongClick != null -> Modifier.combinedClickable(
+                        role = Role.Button,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
                     )
                     else -> Modifier.clickable(role = Role.Button, onClick = onClick)
                 },
