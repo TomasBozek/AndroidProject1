@@ -94,13 +94,15 @@ Choose and the confirm dialog's default Cancel live in `:core:ui`'s `strings.xml
 in both locales, beside the back arrow and the stepper's keys — a component's own control carries
 the same name everywhere it appears, and `doctor.py`'s translation check does not read Kotlin.
 
-Sixteen of the components are composed by nothing outside `:core:ui` and the gallery — down from
-twenty-seven before the Trips showcase landed. The scan behind that number is literal, which is the
-only way it stays reproducible: for each `App*.kt`, whether any file outside `core/ui/` and
-`feature/gallery/` names it. Read it with one caveat — it counts `AppScreenChrome`, which `AppTheme`
-installs behind every screen and which no feature names on purpose (D50), so fifteen is the figure
-if you are asking which components nothing has found a use for. None is deleted until the showcase
-features have had a chance to give them a home (D38).
+Three of the components are composed by nothing outside `:core:ui` and the gallery — down from
+sixteen before Inventory landed and twenty-seven before Trips. The scan behind that number is
+literal, which is the only way it stays reproducible: for each `App*.kt`, whether any file outside
+`core/ui/` and `feature/gallery/` names it. The three are the chrome's own, and each stays for one
+reason: `AppScreenChrome`, which `AppTheme` installs behind every screen and no feature names on
+purpose (D50); `AppDialog`, which the chrome draws for every alert; and `AppToast`, which it draws
+for every snackbar. Nothing is homeless, so nothing was deleted — D38's promise came due in E3T1
+and D65 records the outcome per component. Re-run the scan when a component is added; one that
+is still homeless after the next showcase is deleted, not deprecated.
 
 ## Previews and goldens
 
