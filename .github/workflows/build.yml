@@ -332,10 +332,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       # Built before the emulator starts, so a compile failure does not pay for a boot first.
-      # `dev` serves the catalog from JSON fixtures (D20), which is what .maestro/config.yaml
-      # names as its appId — a flow asserts the app, never the weather at a server.
-      - name: Assemble the dev debug build
-        run: ./gradlew :app:assembleDevDebug
+      # `dev` serves the catalog from JSON fixtures (D20), which is what every flow's `APP_ID`
+      # defaults to — a flow asserts the app, never the weather at a server. `prodRelease` is the
+      # one build R8 runs on, and until this job installed it nothing ever started it: a keep rule
+      # a library's consumer rules miss — a `@Serializable` route key, a Koin `*Of` constructor —
+      # fails at first launch, not at compile time. The CI debug key signs it, which is fine here:
+      # this run proves the app starts, not who signed it.
+      - name: Assemble the dev debug and prod release builds
+        run: ./gradlew :app:assembleDevDebug :app:assembleProdRelease
 
       # The vendor's install script. `brew install maestro` gives the desktop app with no
       # `maestro test`, and there is no first-party action.
@@ -364,9 +368,14 @@ jobs:
           # An emulator that draws nothing is faster and boots more reliably on a CI runner;
           # Maestro drives it over adb and needs no window.
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # One variable, two passes: every flow on the dev build, then the sign-in flow on the
+          # release one — auth is in memory (`DefaultAuthService`), so it runs against `prod`
+          # without a backend, and reaching Home is what proves R8 kept enough.
           script: |
             adb install -r app/build/outputs/apk/dev/debug/app-dev-debug.apk
-            maestro test .maestro --debug-output maestro-debug
+            maestro test -e APP_ID=com.example.androidproject1.dev .maestro --debug-output maestro-debug
+            adb install -r app/build/outputs/apk/prod/release/app-prod-release.apk
+            maestro test -e APP_ID=com.example.androidproject1 .maestro/sign-in.yaml --debug-output maestro-debug
 
       # The recordings and the view hierarchy Maestro dumps on a failed assertion — which is the
       # only thing that says *why* an id was not found on a machine nobody can look at.

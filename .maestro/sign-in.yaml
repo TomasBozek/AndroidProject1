@@ -1,5 +1,8 @@
 # Signing in and landing on Home. The one flow every other flow depends on.
-appId: com.example.androidproject1.dev
+appId: ${APP_ID}
+env:
+  # The dev build unless the run says otherwise — see config.yaml.
+  APP_ID: ${APP_ID || "com.example.androidproject1.dev"}
 name: Sign in reaches Home
 ---
 - clearState

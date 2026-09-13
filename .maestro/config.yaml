@@ -1,3 +1,10 @@
-# Every flow in this directory runs against the dev build, which serves the catalog from JSON
-# fixtures (D20) — so a flow asserts the app, never the weather at a server.
-appId: com.example.androidproject1.dev
+# The workspace: every flow at this level, which is Maestro's own default. The app under test is
+# not fixed here, because `config.yaml` has no `env` of its own: every flow's `appId` is `${APP_ID}`,
+# defaulted in the flow's header to the dev build — `dev` serves the catalog from JSON fixtures
+# (D20), so a flow asserts the app, never the weather at a server — and the weekly run passes
+# `-e APP_ID=com.example.androidproject1` to launch the release build with the same sign-in flow.
+#
+#   maestro test .maestro                                                       # dev, every flow
+#   maestro test -e APP_ID=com.example.androidproject1 .maestro/sign-in.yaml    # prodRelease
+flows:
+  - "*"

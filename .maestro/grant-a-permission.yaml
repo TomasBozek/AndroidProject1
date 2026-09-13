@@ -1,5 +1,8 @@
 # The permission screen and the system dialog it raises — the one flow that leaves the app's own UI.
-appId: com.example.androidproject1.dev
+appId: ${APP_ID}
+env:
+  # The dev build unless the run says otherwise — see config.yaml.
+  APP_ID: ${APP_ID || "com.example.androidproject1.dev"}
 name: Grant a permission
 ---
 - runFlow: sign-in.yaml
