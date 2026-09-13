@@ -69,6 +69,18 @@ gradlePlugin {
             id = "convention.service.network"
             implementationClass = "ServiceNetworkConventionPlugin"
         }
+        register("serviceCoreDomain") {
+            id = "convention.service.core.domain"
+            implementationClass = "ServiceCoreDomainConventionPlugin"
+        }
+        register("serviceCoreData") {
+            id = "convention.service.core.data"
+            implementationClass = "ServiceCoreDataConventionPlugin"
+        }
+        register("serviceCoreUi") {
+            id = "convention.service.core.ui"
+            implementationClass = "ServiceCoreUiConventionPlugin"
+        }
         register("featureData") {
             id = "convention.feature.data"
             implementationClass = "FeatureDataConventionPlugin"

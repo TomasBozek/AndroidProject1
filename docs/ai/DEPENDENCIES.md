@@ -16,16 +16,16 @@ kept for symmetry.
 | Library | Job | Applied by |
 |---|---|---|
 | Compose BOM, runtime, UI, foundation, Material 3, icons | the whole UI | `convention.android.library.compose` |
-| Material 3 adaptive navigation suite | bar on a phone, rail on a tablet | `:core:ui` |
-| Navigation 3 runtime and UI, the lifecycle ViewModel decorator | the back stack and its entries | `:service:core:ui` |
-| Lifecycle runtime, ViewModel, saved state, runtime-compose | view models and lifecycle-aware collection | `:service:core:ui`, `convention.feature.presentation` |
+| Material 3 adaptive navigation suite | bar on a phone, rail on a tablet | `convention.android.application` |
+| Navigation 3 runtime and UI, the lifecycle ViewModel decorator | the back stack and its entries | `convention.service.core.ui`; the adaptive scenes by `convention.core.ui` |
+| Lifecycle runtime, ViewModel, saved state, runtime-compose | view models and lifecycle-aware collection | `convention.service.core.ui`, `convention.feature.presentation` |
 | Activity Compose, core-ktx, splashscreen | the single activity and its splash | `convention.android.application` |
 | Koin (BOM, core, android, androidx-compose) | the object graph | `convention.feature.di`, `convention.feature.presentation` |
 | Coroutines core | everything asynchronous | `convention.kotlin.jvm`, `convention.feature.data` |
 | kotlinx.serialization JSON | route keys and network payloads | `convention.feature.presentation`, `convention.service.network` |
-| DataStore preferences | key-value storage | `:service:core:data` |
+| DataStore preferences | key-value storage | `convention.service.core.data` |
 | Room (runtime, ktx, compiler via KSP) | the three databases | `convention.android.room` |
-| Ktor client (core, auth, logging, content negotiation, JSON, OkHttp) | HTTP | `convention.service.network` |
+| Ktor client (core, auth, logging, content negotiation, JSON) | HTTP | `convention.service.network`; the OkHttp engine by `convention.android.application` |
 | Coil (compose, okhttp) | remote images | `convention.core.ui`, `:core:ui`'s only consumer |
 | LeakCanary | leak reports, debug build only | `convention.android.application` |
 
@@ -37,11 +37,11 @@ kept for symmetry.
 | ktlint Gradle plugin | formatting; the rule set is `.editorconfig` | the root build file, on every module |
 | Kover | coverage, a signal and never a gate | the root build file |
 | JUnit, coroutines-test, Turbine | unit tests | `convention.kotlin.jvm`, the `testing` bundle |
-| Robolectric | screen tests as ordinary unit tests | `AndroidConventions`, `convention.feature.data` |
-| Roborazzi and its preview-scanner support | screenshot goldens | `convention.android.library.compose` |
+| Robolectric | screen tests as ordinary unit tests | `AndroidConventions`, `convention.feature.data`, `convention.service.core.ui`'s fixtures |
+| Roborazzi and its preview-scanner support | screenshot goldens | `convention.android.library.compose`; `convention.service.core.ui` re-exports them from the fixtures |
 | ComposablePreviewScanner | finds the `@Preview` functions the goldens are recorded from | `convention.android.library.compose` |
-| Ktor MockEngine | the `dev` flavor's fixtures, and data-layer tests | `convention.feature.data`, `convention.service.network` |
-| OkHttp MockWebServer | tests the real engine's on-disk HTTP cache against a real request/response cycle, rather than reimplementing OkHttp's cache logic with a fake | `:app`'s own test source set |
+| Ktor MockEngine | the `dev` flavor's fixtures, and data-layer tests | `convention.android.application` on `dev`, `convention.feature.data`, `convention.service.network` |
+| OkHttp MockWebServer | tests the real engine's on-disk HTTP cache against a real request/response cycle, rather than reimplementing OkHttp's cache logic with a fake | `convention.android.application` |
 | Koin test | `KoinGraphTest` | `convention.android.application` |
 | androidx test core | Robolectric's `ApplicationScenario`/`ApplicationProvider` | `convention.feature.data` |
 | gitleaks, Maestro | secret scanning and end-to-end flows, in CI only | `.github/workflows/build.yml` |

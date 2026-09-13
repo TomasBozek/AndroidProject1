@@ -20,10 +20,9 @@ dependencies {
     // The stored `seen` flag decides whether the app opens on the tour.
     implementation(projects.feature.onboarding.domain)
 
-    // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere.
+    // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere —
+    // both engines come from `convention.android.application`, which owns the flavors.
     implementation(projects.service.network)
-    implementation(libs.ktor.client.okhttp)
-    devImplementation(libs.ktor.client.mock)
 
     // MainDispatcherRule + FakeLogger, and FakeAuthService, for MainViewModelTest. Every other
     // module gets the first line from `convention.feature.presentation`; :app is not one.
@@ -33,7 +32,4 @@ dependencies {
     testImplementation(testFixtures(projects.feature.onboarding.domain))
     testImplementation(testFixtures(projects.feature.catalog.domain))
     testImplementation(testFixtures(projects.feature.cart.domain))
-    // Tests the real OkHttp engine's on-disk cache against a real request/response cycle rather
-    // than reimplementing OkHttp's cache logic with a fake.
-    testImplementation(libs.okhttp.mockwebserver)
 }

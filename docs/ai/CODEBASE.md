@@ -25,12 +25,19 @@ lines.
 | `convention.feature.di` | android library plus the Koin BOM and bundle |
 | `convention.feature.presentation` | the compose library plus serialization, Koin, Navigation 3's ViewModel decorator, lifecycle, the `testing` bundle and `testFixtures(:service:core:ui)` |
 | `convention.android.library.testfixtures` | turns on AGP's `src/testFixtures/` for the module — stacked on top, for the rare module that ships a `Fake*` for another module's tests |
-| `convention.android.application` | `:app`: app identity, R8 on release, `lint.checkDependencies` |
+| `convention.service.core.domain` | Kotlin/JVM plus `java-test-fixtures` and coroutines-test for the fixtures. `:service:core:domain`'s own |
+| `convention.service.core.data` | `convention.feature.data` plus DataStore. `:service:core:data`'s own |
+| `convention.service.core.ui` | the compose library plus test fixtures, Activity Compose, ViewModel and saved state, Navigation 3 re-exported, and the fixtures' own libraries — JUnit, coroutines-test, Roborazzi, the preview scanner, Robolectric. `:service:core:ui`'s own |
+| `convention.service.network` | Kotlin/JVM plus serialization, the `ktor-client` bundle and MockEngine for tests. `:service:network`'s own |
+| `convention.android.application` | `:app`: app identity, R8 on release, `lint.checkDependencies`, the OkHttp engine and `dev`'s MockEngine, LeakCanary, Koin test and MockWebServer |
 
 The **namespace is derived** from the project path and `basePackage` in `gradle.properties`, so
 `init_project.py` rewrites one property rather than one line per module; `applicationId` comes from
 the same property. `doctor.py` fails if a module build file sets `compileSdk`, `minSdk`,
-`targetSdk`, `compileOptions` or a `lint` block.
+`targetSdk`, `compileOptions` or a `lint` block — and, since D64, if it names a library or enables
+test fixtures by hand: a module build file is a `plugins` block, its project dependencies and
+`resourcePrefix`, nothing else. A service module's plugin is named for the module, so a copied
+`service/` brings its build with it.
 
 ## Module structure
 

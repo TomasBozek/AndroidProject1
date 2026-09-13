@@ -169,5 +169,8 @@ convention-kotlin-jvm = { id = "convention.kotlin.jvm", version = "unspecified" 
 convention-feature-data = { id = "convention.feature.data", version = "unspecified" }
 convention-android-room = { id = "convention.android.room", version = "unspecified" }
 convention-service-network = { id = "convention.service.network", version = "unspecified" }
+convention-service-core-domain = { id = "convention.service.core.domain", version = "unspecified" }
+convention-service-core-data = { id = "convention.service.core.data", version = "unspecified" }
+convention-service-core-ui = { id = "convention.service.core.ui", version = "unspecified" }
 convention-feature-di = { id = "convention.feature.di", version = "unspecified" }
 convention-feature-presentation = { id = "convention.feature.presentation", version = "unspecified" }
