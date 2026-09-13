@@ -48,10 +48,17 @@ kept for symmetry.
 
 ## Updating
 
-Renovate watches the catalog and opens one pull request per group — androidx, Kotlin, Koin and the
-Android Gradle Plugin are grouped, and pre-releases are skipped. That pull request runs T2 like any
-other. A bump that fails is not pinned back silently: it gets a line in
+Renovate is configured in the repository and parked (D26): the app is not installed, so nothing
+opens a bump. When it is, it opens one pull request per group — androidx, Kotlin, Koin and the
+Android Gradle Plugin are grouped, and pre-releases are skipped — and that pull request runs T2
+like any other. A bump that fails is not pinned back silently: it gets a line in
 [../BACKLOG.md](../BACKLOG.md) saying what broke, and the pull request is closed.
+
+**A vulnerability alert comes from the dependency graph, not from Renovate.** Every push to
+`main` submits the resolved graph from the build job (`gradle/actions/setup-gradle` with
+`dependency-graph: generate-and-submit`), and GitHub's Dependabot alerts read it — Insights →
+Dependency graph lists the Gradle manifests, and Security → Dependabot lists what is known to be
+wrong with them. An alert is a line in [../BACKLOG.md](../BACKLOG.md) with the advisory's id.
 
 Two version facts are load-bearing and live outside the catalog: the Gradle daemon's JDK, pinned in
 `gradle/gradle-daemon-jvm.properties` and provisioned through foojay, and the SDK levels in

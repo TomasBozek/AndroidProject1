@@ -109,6 +109,10 @@ jobs:
       needs.changes.outputs.code == 'true' &&
       (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
+    permissions:
+      # The dependency-graph submission below writes to the repository's graph; everything else
+      # this job does is a read. Stated so the job does not depend on the repository default.
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -132,7 +136,14 @@ jobs:
           distribution: temurin
           java-version: '25'
 
+      # `dependency-graph` submits every configuration this job resolves to GitHub's dependency
+      # graph, which is what Dependabot *alerts* read — for a Gradle project, the only way to get
+      # them at all, and independent of Renovate, which stays parked (D26). Pushes to `main` only:
+      # the submission needs `contents: write`, which a pull request from a fork does not have, and
+      # one graph per merge is the graph anyway.
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          dependency-graph: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'generate-and-submit' || 'disabled' }}
 
       # Before the build: it is fast, and a style failure should not wait on R8.
       - name: Check formatting
