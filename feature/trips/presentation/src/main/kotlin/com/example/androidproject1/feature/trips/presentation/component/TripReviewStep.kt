@@ -42,7 +42,7 @@ fun TripReviewStep(
                     formats.moneyShort(TripWizardState.budgetMinorFor(state.budgetRange.endInclusive)),
                 modifier = Modifier
                     .weight(1f)
-                    .testTag("tripWizard_budgetSlider"),
+                    .testTag("tripWizard_budgetField"),
             )
         }
         AppTooltip(text = stringResource(R.string.trip_wizard_budget_tooltip))
@@ -64,7 +64,7 @@ fun TripReviewStep(
                     numeric = true,
                 ),
             ),
-            modifier = Modifier.testTag("tripWizard_reviewSummary"),
+            modifier = Modifier.testTag("tripWizard_reviewTile"),
         )
     }
 }

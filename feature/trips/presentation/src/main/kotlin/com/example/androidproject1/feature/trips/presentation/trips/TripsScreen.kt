@@ -122,7 +122,7 @@ fun TripsScreen(
                         onAction = { onEvent(TripsEvent.NewTripClicked) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .testTag("trips_emptyState"),
+                            .testTag("trips_empty"),
                     )
                 }
             }

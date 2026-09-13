@@ -111,7 +111,9 @@ rather than three:
   universal check that a flow is where it meant to be.
 - **An element** is `<screenStem>_<element>`: the screen's name in camelCase without `Screen`, then
   the element from a closed vocabulary — `Button`, `Field`, `Switch`, `Checkbox`, `List`, `Item`,
-  `Tile`, `Key`, `Dialog`, `Sheet`, `Tab`, `Badge`, `Value`. So `"settings_permissionsButton"`.
+  `Tile`, `Key`, `Dialog`, `Sheet`, `Tab`, `Badge`, `Value`, `Card`, `Empty`, `Skeleton`,
+  `Progress`, `Group` — eighteen words, a kind of element and never the component that draws it
+  (D60). So `"settings_permissionsButton"`; a stepper in a form is `"cart_quantityField"`.
 - **Find by id, never by text.** Copy changes and gets translated; a test that finds a button by its
   label fails on a wording fix. An icon with no visible label carries the same string as its
   `contentDescription`, which is why accessibility here is a by-product of being testable.

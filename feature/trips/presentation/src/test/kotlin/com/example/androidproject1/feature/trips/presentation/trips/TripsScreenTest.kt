@@ -46,7 +46,7 @@ class TripsScreenTest {
     fun `no trips shows the empty state instead of a card`() {
         render(TripsState.PREVIEW.copy(nextTrip = null))
 
-        compose.onNodeWithTag("trips_emptyState").assertIsDisplayed()
+        compose.onNodeWithTag("trips_empty").assertIsDisplayed()
     }
 
     @Test

@@ -50,7 +50,7 @@ fun CartScreen(
                     message = stringResource(R.string.cart_empty_message),
                     actionLabel = stringResource(R.string.cart_add_item),
                     onAction = { onEvent(CartEvent.AddItemClicked) },
-                    modifier = Modifier.testTag("cart_emptyState"),
+                    modifier = Modifier.testTag("cart_empty"),
                 )
                 return@Column
             }
@@ -81,7 +81,7 @@ fun CartScreen(
                         value = item.quantity,
                         onValueChange = { onEvent(CartEvent.QuantityChanged(item.productId, it)) },
                         min = 0,
-                        modifier = Modifier.testTag("cart_quantityStepper"),
+                        modifier = Modifier.testTag("cart_quantityField"),
                     )
                 }
             }

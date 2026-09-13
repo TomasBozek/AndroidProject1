@@ -83,7 +83,7 @@ class TripWizardScreenTest {
             ),
         )
 
-        compose.onNodeWithTag("tripWizard_budgetSlider").assertIsDisplayed()
+        compose.onNodeWithTag("tripWizard_budgetField").assertIsDisplayed()
     }
 
     @Test

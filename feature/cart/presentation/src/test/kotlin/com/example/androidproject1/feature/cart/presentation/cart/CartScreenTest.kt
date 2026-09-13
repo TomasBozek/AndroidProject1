@@ -42,7 +42,7 @@ class CartScreenTest {
     fun `an empty cart shows the empty state instead of the list`() {
         render(CartState.EMPTY)
 
-        compose.onNodeWithTag("cart_emptyState").assertIsDisplayed()
+        compose.onNodeWithTag("cart_empty").assertIsDisplayed()
         // The checkout bar must not be reachable with nothing to check out.
         compose.onAllNodesWithTag("cart_checkoutButton").assertCountEquals(0)
     }
@@ -70,7 +70,7 @@ class CartScreenTest {
     fun `the empty state offers a way to add something`() {
         render(CartState.EMPTY)
 
-        compose.onNodeWithTag("cart_emptyState").assertIsDisplayed()
+        compose.onNodeWithTag("cart_empty").assertIsDisplayed()
 
         assertEquals(emptyList<CartEvent>(), events)
     }
