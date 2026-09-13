@@ -21,8 +21,8 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * The colour is derived from [id] rather than stored, so the same person is the same colour on
  * every device without a field to keep in sync.
  *
- * [status] adds the dot the document calls the "with status" variant — whether that person is on
- * shift. It carries [statusDescription] for the screen reader, because a dot in a corner is the
+ * [status] adds the dot the document calls the "with status" variant — whether that person is
+ * online. It carries [statusDescription] for the screen reader, because a dot in a corner is the
  * one part of an avatar that says something a name does not.
  */
 @Composable
@@ -54,9 +54,9 @@ fun AppAvatar(
         if (status != null) {
             val tone = when (status) {
                 TagTone.Neutral -> colors.neutral
-                TagTone.Paid -> colors.statusPaid
-                TagTone.Open -> colors.statusOpen
-                TagTone.Void -> colors.statusVoid
+                TagTone.Positive -> colors.statusPositive
+                TagTone.Warning -> colors.statusWarning
+                TagTone.Negative -> colors.statusNegative
                 TagTone.Info -> colors.info
             }
             Box(
@@ -91,13 +91,13 @@ private fun Preview() = ThemedComponentPreview {
     AppAvatar(name = "Root", size = 56.dp)
     AppAvatar(
         name = "Jana Nováková",
-        status = TagTone.Paid,
-        statusDescription = "On shift",
+        status = TagTone.Positive,
+        statusDescription = "Online",
     )
     AppAvatar(
         name = "Petr Svoboda",
         size = 56.dp,
-        status = TagTone.Void,
-        statusDescription = "Off shift",
+        status = TagTone.Negative,
+        statusDescription = "Away",
     )
 }

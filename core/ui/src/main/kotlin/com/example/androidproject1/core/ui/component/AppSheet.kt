@@ -79,7 +79,7 @@ fun AppSheet(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     // A sheet draws in its own window; this shows the content it would carry.
-    AppText(text = "Payment method", role = TextRole.TitleLarge)
-    AppRadio(selected = true, onSelect = {}, label = "Cash")
-    AppRadio(selected = false, onSelect = {}, label = "Card")
+    AppText(text = "Appearance", role = TextRole.TitleLarge)
+    AppRadio(selected = true, onSelect = {}, label = "Light")
+    AppRadio(selected = false, onSelect = {}, label = "Dark")
 }

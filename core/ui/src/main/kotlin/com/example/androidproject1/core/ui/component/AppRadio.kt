@@ -93,8 +93,8 @@ fun AppRadioGroup(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppRadioGroup {
-        AppRadio(selected = true, onSelect = {}, label = "Cash")
-        AppRadio(selected = false, onSelect = {}, label = "Card")
-        AppRadio(selected = false, onSelect = {}, label = "Voucher", enabled = false)
+        AppRadio(selected = true, onSelect = {}, label = "Light")
+        AppRadio(selected = false, onSelect = {}, label = "Dark")
+        AppRadio(selected = false, onSelect = {}, label = "System", enabled = false)
     }
 }

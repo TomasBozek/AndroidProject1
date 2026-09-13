@@ -54,8 +54,8 @@ fun AppFormField(
 @ComponentPreview
 @Composable
 private fun Preview() = ThemedComponentPreview {
-    AppFormField(label = "Payment method", required = true) {
-        AppSegmented(options = listOf("Cash", "Card"), selectedIndex = 0, onSelect = {})
+    AppFormField(label = "Appearance", required = true) {
+        AppSegmented(options = listOf("Light", "Dark"), selectedIndex = 0, onSelect = {})
     }
     AppFormField(label = "Discount", errorText = "Above the limit for this role") {
         AppSegmented(options = listOf("10 %", "20 %", "50 %"), selectedIndex = 2, onSelect = {})

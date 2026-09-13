@@ -41,7 +41,7 @@ internal object Ramp {
     val Green800 = Color(0xFF0E4E2F)
     val Green900 = Color(0xFF0B3721)
 
-    // Red — void, delete, error.
+    // Red — delete, error.
     val Red50 = Color(0xFFFFF1EF)
     val Red100 = Color(0xFFFFDCD7)
     val Red200 = Color(0xFFFFB9B0)

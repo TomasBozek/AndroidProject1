@@ -84,7 +84,7 @@ fun AppTabs(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppTabs(
-        tabs = listOf(TabItem("Open", badge = 4), TabItem("Paid"), TabItem("Void")),
+        tabs = listOf(TabItem("All", badge = 4), TabItem("Unread"), TabItem("Archived")),
         selectedIndex = 0,
         onSelect = {},
     )

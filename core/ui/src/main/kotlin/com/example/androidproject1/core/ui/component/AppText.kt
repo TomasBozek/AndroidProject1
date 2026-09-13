@@ -131,10 +131,10 @@ private val NUMERIC_PREVIEW_WIDTH = 120.dp
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppText(text = "1 248,00", role = TextRole.DisplayLarge)
-    AppText(text = "Order 12 — Terrace", role = TextRole.Display)
+    AppText(text = "Order 12 — On its way", role = TextRole.Display)
     AppText(text = "Drinks · Hot drinks", role = TextRole.Title)
     AppText(text = "The default size for list rows and dialog copy.", role = TextRole.Body)
-    AppText(text = "Payment method", role = TextRole.Label)
+    AppText(text = "Appearance", role = TextRole.Label)
     AppText(text = "OPEN ORDERS", role = TextRole.LabelSmall)
     AppText(text = "118,00", role = TextRole.Numeric)
     // The reason Numeric shrinks: a Czech total in a narrow column. In English the same row reads

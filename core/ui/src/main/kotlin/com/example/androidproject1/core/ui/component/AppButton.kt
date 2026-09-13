@@ -177,8 +177,8 @@ private const val LOADING_LABEL_ALPHA = 0.35f
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppButton(label = "Pay", onClick = {})
-    AppButton(label = "Void", onClick = {}, kind = ButtonKind.Destructive)
-    AppButton(label = "Card", onClick = {}, kind = ButtonKind.Info)
+    AppButton(label = "Delete", onClick = {}, kind = ButtonKind.Destructive)
+    AppButton(label = "Learn more", onClick = {}, kind = ButtonKind.Info)
     AppButton(label = "Back", onClick = {}, kind = ButtonKind.Outline)
     AppButton(label = "More options", onClick = {}, kind = ButtonKind.Ghost)
     AppButton(label = "Unavailable", onClick = {}, enabled = false)

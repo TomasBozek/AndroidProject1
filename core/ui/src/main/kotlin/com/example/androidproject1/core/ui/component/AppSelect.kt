@@ -90,7 +90,7 @@ fun AppSelect(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppSelect(
-        options = listOf("Cash", "Card", "Voucher", "Invoice", "Split"),
+        options = listOf("Daily", "Weekly", "Monthly", "Quarterly", "Yearly"),
         selectedIndex = 1,
         onSelect = {},
     )

@@ -59,7 +59,7 @@ data class AppColors(
     val textDisabled: Color,
     /** Pay, confirm, OK. */
     val confirm: ActionColors,
-    /** Void, delete, refund. */
+    /** Delete, remove, discard. */
     val destructive: ActionColors,
     /** Card, selection, information. */
     val info: ActionColors,
@@ -75,7 +75,7 @@ data class AppColors(
      * on, and the one a border a step away from the surface loses. `ContrastTest` asserts it.
      */
     val borderStrong: Color,
-    /** Keyboard focus, on every platform. Never removed — a till is driven by keyboard too. */
+    /** Keyboard focus, on every platform. Never removed — a desktop is driven by keyboard too. */
     val focusRing: Color,
     val scrim: Color,
     /** How far the scrim dims what is under an overlay. */
@@ -91,10 +91,10 @@ data class AppColors(
     val textOnScrim: Color,
     val isLight: Boolean,
 ) {
-    /** Account state. The three are aliases, so a status row and a button cannot drift apart. */
-    val statusPaid: ActionColors get() = confirm
-    val statusOpen: ActionColors get() = warning
-    val statusVoid: ActionColors get() = destructive
+    /** Status. The three are aliases, so a status row and a button cannot drift apart. */
+    val statusPositive: ActionColors get() = confirm
+    val statusWarning: ActionColors get() = warning
+    val statusNegative: ActionColors get() = destructive
 }
 
 /**

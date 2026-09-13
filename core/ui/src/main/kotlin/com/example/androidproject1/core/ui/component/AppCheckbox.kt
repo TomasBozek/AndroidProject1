@@ -131,8 +131,8 @@ fun AppCheckbox(
 @ComponentPreview
 @Composable
 private fun Preview() = ThemedComponentPreview {
-    AppCheckbox(checked = CheckState.On, onCheckedChange = {}, label = "Print receipt")
-    AppCheckbox(checked = CheckState.Off, onCheckedChange = {}, label = "Email receipt")
+    AppCheckbox(checked = CheckState.On, onCheckedChange = {}, label = "Email me a summary")
+    AppCheckbox(checked = CheckState.Off, onCheckedChange = {}, label = "Send a weekly digest")
     AppCheckbox(checked = CheckState.Indeterminate, onCheckedChange = {}, label = "All items")
     AppCheckbox(
         checked = CheckState.Off,

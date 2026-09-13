@@ -29,9 +29,9 @@ fun AppStatusDot(
     val colors = AppTheme.colors
     val family = when (tone) {
         TagTone.Neutral -> colors.neutral
-        TagTone.Paid -> colors.statusPaid
-        TagTone.Open -> colors.statusOpen
-        TagTone.Void -> colors.statusVoid
+        TagTone.Positive -> colors.statusPositive
+        TagTone.Warning -> colors.statusWarning
+        TagTone.Negative -> colors.statusNegative
         TagTone.Info -> colors.info
     }
     Row(
@@ -52,8 +52,8 @@ fun AppStatusDot(
 @ComponentPreview
 @Composable
 private fun Preview() = ThemedComponentPreview {
-    AppStatusDot(label = "Paid", tone = TagTone.Paid)
-    AppStatusDot(label = "Open", tone = TagTone.Open)
-    AppStatusDot(label = "Void", tone = TagTone.Void)
+    AppStatusDot(label = "Active", tone = TagTone.Positive)
+    AppStatusDot(label = "Pending", tone = TagTone.Warning)
+    AppStatusDot(label = "Failed", tone = TagTone.Negative)
     AppStatusDot(label = "Offline")
 }

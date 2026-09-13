@@ -163,6 +163,6 @@ fun AppStepProgress(
 private fun Preview() = ThemedComponentPreview {
     AppProgress(fraction = 0.35f)
     AppProgress(fraction = 0.8f, label = "Uploading receipts")
-    AppIndeterminateProgress(label = "Talking to the till")
+    AppIndeterminateProgress(label = "Checking for updates")
     AppStepProgress(steps = 4, currentStep = 1, label = "Step 2 of 4")
 }

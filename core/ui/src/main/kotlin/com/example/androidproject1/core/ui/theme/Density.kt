@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
  *
  * The class follows width, but density follows *what drives the thing*: a large tablet on a wall
  * with a mouse is still denser than a handheld. Moving between classes never changes the order of
- * content, only its arrangement — someone who goes from phone to till finds things in the same
+ * content, only its arrangement — someone who goes from phone to tablet finds things in the same
  * place in the flow.
  */
 enum class SizeClass {
@@ -36,7 +36,7 @@ enum class SizeClass {
  *
  * The fourth density is [pointer], and it is not a width. A mouse or a trackpad hits a 40 dp target
  * as reliably as a finger hits 48, so a pointer-driven device of any size gets the dense set — a
- * phone with a mouse plugged into it as much as a till with one. It wins over the size class,
+ * phone with a mouse plugged into it as much as a desktop with one. It wins over the size class,
  * because what is doing the pointing is the stronger fact.
  */
 @Immutable
@@ -44,7 +44,7 @@ data class AppDensity(
     val sizeClass: SizeClass,
     /** True when a mouse or a trackpad is attached; see [pointerPresent]. */
     val pointer: Boolean,
-    /** 48 dp on touch, 56 dp on a till, 40 dp where there is a mouse. */
+    /** 48 dp on touch, 56 dp on a tablet, 40 dp where there is a mouse. */
     val minTouchTarget: Dp,
     val listRowHeight: Dp,
 )

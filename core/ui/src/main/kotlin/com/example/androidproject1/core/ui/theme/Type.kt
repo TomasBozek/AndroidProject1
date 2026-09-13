@@ -108,7 +108,7 @@ fun compactTypography(): AppTypography = AppTypography(
     numericMd = style(17.sp, 22.sp, FontWeight.Bold, tabular = true),
 )
 
-/** Tablet, till, monitor. The compact scale × 1.15. */
+/** Tablet, desktop, monitor. The compact scale × 1.15. */
 fun regularTypography(): AppTypography = AppTypography(
     displayXl = style(46.sp, 48.sp, FontWeight.ExtraBold, tabular = true),
     displayLg = style(37.sp, 41.sp, FontWeight.ExtraBold),
