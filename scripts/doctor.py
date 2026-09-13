@@ -1001,6 +1001,64 @@ def check_maestro_ids_exist() -> list[str]:
     return problems
 
 
+# `CLAUDE.md` § Test identifiers: the closed vocabulary an element id ends in (D60). Kinds of
+# element, never the name of the component that draws one — a stepper, a slider, a segmented
+# control and an accordion are all `Field` when a form holds them.
+TEST_ID_VOCABULARY = {
+    "Button", "Field", "Switch", "Checkbox", "List", "Item", "Tile", "Key", "Dialog", "Sheet",
+    "Tab", "Badge", "Value", "Card", "Empty", "Skeleton", "Progress", "Group",
+}
+
+# The last camelCase word of an element: `Button` in `addToCartButton`, `item` in `item`.
+LAST_CAMEL_WORD = re.compile(r"(?:^|[A-Z])[a-z0-9]*$")
+
+
+def element_kind_is_in_vocabulary(element: str) -> bool:
+    """
+    Folds case and plural before judging: a single-word element is lowercase (`cart_item`, not
+    `cart_Item`), and a set of tabs is `tripDetail_tabs`. D60 counted fourteen tags as violations
+    that were nothing of the kind, because the reading forgot both.
+    """
+    match = LAST_CAMEL_WORD.search(element)
+    if match is None:
+        return False
+    word = match.group(0).lower()
+    vocabulary = {entry.lower() for entry in TEST_ID_VOCABULARY}
+    return word in vocabulary or (word.endswith("s") and word[:-1] in vocabulary)
+
+
+@check("every element test id ends in a vocabulary word")
+def check_test_id_vocabulary() -> list[str]:
+    """
+    An element id is `<screenStem>_<element>`, and the element ends in one of the eighteen words
+    `CLAUDE.md` § Test identifiers lists. The vocabulary is worth having only while it stays
+    closed — the property being that `settings_permissionsButton` can be guessed without opening
+    the file — and it was being widened one component at a time until D60 settled it.
+
+    Reads what ships: every `testTag` literal and tag constant in `src/main`. A screen id has no
+    underscore and is checked by `check_screens_pass_screen_id`, so it is not looked at here.
+    """
+    problems = []
+    for path in main_source_kotlin_files():
+        for line_number, line in enumerate(path.read_text().split("\n"), start=1):
+            for identifier in TEST_TAG_LITERAL.findall(line) + TAG_CONSTANT.findall(line):
+                stem, separator, element = identifier.partition("_")
+                if not separator or not stem or not element:
+                    problems.append(
+                        problem(path, line_number, f"test id '{identifier}' is not <screenStem>_<element>")
+                    )
+                elif not element_kind_is_in_vocabulary(element):
+                    problems.append(
+                        problem(
+                            path,
+                            line_number,
+                            f"test id '{identifier}' ends in no vocabulary word; "
+                            f"one of {', '.join(sorted(TEST_ID_VOCABULARY))}",
+                        )
+                    )
+    return problems
+
+
 
 # --------------------------------------------------------------------------------------------
 # Resource prefixes

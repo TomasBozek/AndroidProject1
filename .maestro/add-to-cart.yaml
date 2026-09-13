@@ -26,4 +26,4 @@ name: Add a product to the cart and check out
 - assertVisible: "Place this order?"
 - tapOn: "Order"
 - assertVisible:
-    id: "cart_emptyState"
+    id: "cart_empty"

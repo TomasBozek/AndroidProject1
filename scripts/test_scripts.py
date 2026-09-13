@@ -971,6 +971,18 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("sign-in.yaml", result.stdout)
         self.assertIn("login_emailBox", result.stdout)
 
+    def test_doctor_catches_a_test_id_named_after_a_component(self) -> None:
+        """D60: the vocabulary stays closed. A stepper in a form is a `Field`, never a `Stepper`."""
+        screen = self.screen("home", "Home") / "HomeScreen.kt"
+        original = screen.read_text()
+        screen.write_text(original.replace(
+            'testTag("home_favouritesList")', 'testTag("foo_barStepper")', 1,
+        ))
+
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("test id 'foo_barStepper' ends in no vocabulary word", result.stdout)
+
     @unittest.skipUnless(
         WITH_GRADLE,
         "compiles a generated feature; pass --with-gradle (minutes, not seconds)",

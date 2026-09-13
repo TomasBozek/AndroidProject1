@@ -49,7 +49,7 @@ fun TripDetailsStep(
             options = types.map { stringResource(it.labelRes()) },
             selectedIndex = types.indexOf(state.type),
             onSelect = { onEvent(TripWizardEvent.TypeSelected(types[it])) },
-            modifier = Modifier.testTag("tripWizard_typeSegmented"),
+            modifier = Modifier.testTag("tripWizard_typeField"),
         )
 
         AppDateField(
@@ -70,14 +70,14 @@ fun TripDetailsStep(
             value = state.travelers,
             onValueChange = { onEvent(TripWizardEvent.TravelersChanged(it)) },
             min = 1,
-            modifier = Modifier.testTag("tripWizard_travelersStepper"),
+            modifier = Modifier.testTag("tripWizard_travelersField"),
         )
 
         AppAccordion(
             title = stringResource(R.string.trip_wizard_advanced_label),
             expanded = state.advancedExpanded,
             onToggle = { onEvent(TripWizardEvent.AdvancedToggled) },
-            modifier = Modifier.testTag("tripWizard_advancedAccordion"),
+            modifier = Modifier.testTag("tripWizard_advancedField"),
         ) {
             AppTextField(
                 value = state.notes,
