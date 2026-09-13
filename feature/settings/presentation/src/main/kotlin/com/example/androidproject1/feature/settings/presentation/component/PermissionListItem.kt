@@ -26,7 +26,7 @@ fun PermissionListItem(row: PermissionRow, modifier: Modifier = Modifier) {
                 } else {
                     stringResource(R.string.settings_permissions_denied)
                 },
-                tone = if (row.isGranted) TagTone.Paid else TagTone.Void,
+                tone = if (row.isGranted) TagTone.Positive else TagTone.Negative,
             )
         },
     )

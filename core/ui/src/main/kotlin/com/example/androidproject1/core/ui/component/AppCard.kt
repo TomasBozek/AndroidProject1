@@ -58,8 +58,8 @@ private fun Preview() = ThemedComponentPreview {
         AppText(text = "Turn these on to hear about orders while the app is closed.", role = TextRole.Secondary)
     }
     AppCard(level = SurfaceLevel.Sunken) {
-        AppText(text = "Closed till", role = TextRole.Title)
-        AppText(text = "Read only until the shift is reopened.", role = TextRole.Secondary)
+        AppText(text = "Archived trip", role = TextRole.Title)
+        AppText(text = "Read only until it is restored.", role = TextRole.Secondary)
     }
     AppCard(level = SurfaceLevel.Base) {
         AppText(text = "Grouped, on the ground it is already on", role = TextRole.Secondary)

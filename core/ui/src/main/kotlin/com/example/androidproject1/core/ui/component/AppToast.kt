@@ -83,7 +83,7 @@ fun AppToast(
 @ComponentPreview
 @Composable
 private fun Preview() = ThemedComponentPreview {
-    AppToast(message = "Order sent to the kitchen", tone = ToastTone.Success)
-    AppToast(message = "Item moved to order 14", actionLabel = "Undo", onAction = {})
+    AppToast(message = "Order placed", tone = ToastTone.Success)
+    AppToast(message = "Item moved to your wishlist", actionLabel = "Undo", onAction = {})
     AppToast(message = "Printer not responding", tone = ToastTone.Error)
 }

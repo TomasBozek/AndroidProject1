@@ -103,7 +103,7 @@ fun AppSwitch(
 @ComponentPreview
 @Composable
 private fun Preview() = ThemedComponentPreview {
-    AppSwitch(checked = true, onCheckedChange = {}, label = "Print receipt automatically")
+    AppSwitch(checked = true, onCheckedChange = {}, label = "Notify me about price drops")
     AppSwitch(
         checked = false,
         onCheckedChange = {},

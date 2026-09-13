@@ -29,7 +29,7 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * The same destinations as [AppBottomNav], down the side, for the regular and expanded classes.
  *
  * Moving between size classes changes where navigation sits, never what is in it — someone who
- * learns the order on a phone finds the same order on a till.
+ * learns the order on a phone finds the same order on a tablet.
  */
 @Composable
 fun AppNavRail(

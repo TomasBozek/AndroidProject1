@@ -18,7 +18,7 @@ data class DescriptionRow(val label: String, val value: String?, val numeric: Bo
 /**
  * Label on the left, value on the right, one rhythm everywhere.
  *
- * A receipt detail, a device, an employee — they all read the same way, which is what makes a new
+ * An order's detail, a device, a profile — they all read the same way, which is what makes a new
  * detail screen take minutes.
  */
 @Composable

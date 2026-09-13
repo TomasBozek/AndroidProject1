@@ -31,7 +31,7 @@ private val MAX_DIALOG_HEIGHT = 568.dp
  * A dialog: the top layer, and the only one allowed over a sheet.
  *
  * [title] is a sentence about what is going to happen, never a single noun, and the confirming
- * button carries a verb — "Void order", not "OK". That is the difference between a dialog someone
+ * button carries a verb — "Delete trip", not "OK". That is the difference between a dialog someone
  * reads and one they dismiss.
  *
  * Three things here are about the window rather than the content, and each one was a way for a
@@ -131,8 +131,8 @@ fun AppConfirmDialog(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     // A dialog draws in its own window, so the preview shows the buttons it would carry.
-    AppText(text = "Void this order?", role = TextRole.TitleLarge)
-    AppText(text = "The items go back to stock and the order is closed.", role = TextRole.Body)
+    AppText(text = "Delete this trip?", role = TextRole.TitleLarge)
+    AppText(text = "Its itinerary and notes go with it. This cannot be undone.", role = TextRole.Body)
     AppButton(label = stringResource(R.string.app_dialog_cancel), onClick = {}, kind = ButtonKind.Ghost)
-    AppButton(label = "Void order", onClick = {}, kind = ButtonKind.Destructive)
+    AppButton(label = "Delete trip", onClick = {}, kind = ButtonKind.Destructive)
 }

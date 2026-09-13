@@ -89,6 +89,6 @@ private fun Preview() = ThemedComponentPreview {
     AppListItem(
         headline = "Camera",
         supporting = "android.permission.CAMERA",
-        trailing = { AppTag(label = "Granted", tone = TagTone.Paid) },
+        trailing = { AppTag(label = "Granted", tone = TagTone.Positive) },
     )
 }

@@ -26,7 +26,7 @@ enum class ControlSize { Small, Medium, Large }
 /**
  * The height a control of this size gets.
  *
- * [ControlSize.Medium] is the density's own minimum rather than a fixed 48 dp, so a till still
+ * [ControlSize.Medium] is the density's own minimum rather than a fixed 48 dp, so a tablet on a stand still
  * gets its 56 and a device with a mouse its 40 without any screen having to ask for a different
  * size. The other two are fixed: asking for [ControlSize.Small] is asking for the dense one on
  * purpose, and it is the one case where a control may be smaller than the density's floor.
@@ -48,7 +48,7 @@ private fun Preview() = ThemedComponentPreview {
     AppTextField(value = "56", onValueChange = {}, size = ControlSize.Large, numeric = true)
     Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.inline.sm)) {
         AppSegmented(
-            options = listOf("Cash", "Card"),
+            options = listOf("Light", "Dark"),
             selectedIndex = 0,
             onSelect = {},
             size = ControlSize.Small,

@@ -45,7 +45,7 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * signal that it takes input.
  *
  * The four states are rest, focus, error and disabled. Focus is a ring in `colors.focusRing` and is
- * never suppressed — a till is driven from a keyboard as much as from the glass. **An error always
+ * never suppressed — a tablet with a keyboard is driven from it as much as from the glass. **An error always
  * carries [errorText]**, never colour alone: red on its own is invisible to a good share of the
  * people using it.
  *
@@ -233,7 +233,7 @@ private fun Preview() = ThemedComponentPreview {
         label = "Code",
         errorText = "No product with this code",
     )
-    AppTextField(value = "Locked", onValueChange = {}, label = "Till", enabled = false)
+    AppTextField(value = "Locked", onValueChange = {}, label = "Username", enabled = false)
     AppTextField(value = "hunter2", onValueChange = {}, label = "Password", password = true)
     AppTextField(
         value = "0,420",

@@ -24,7 +24,7 @@ fun TripStatusDot(
 ) {
     val (label, tone) = when (status) {
         TripStatus.Upcoming -> stringResource(R.string.trips_status_upcoming) to TagTone.Info
-        TripStatus.Active -> stringResource(R.string.trips_status_active) to TagTone.Paid
+        TripStatus.Active -> stringResource(R.string.trips_status_active) to TagTone.Positive
         TripStatus.Completed -> stringResource(R.string.trips_status_completed) to TagTone.Neutral
     }
     AppStatusDot(label = label, tone = tone, modifier = modifier)

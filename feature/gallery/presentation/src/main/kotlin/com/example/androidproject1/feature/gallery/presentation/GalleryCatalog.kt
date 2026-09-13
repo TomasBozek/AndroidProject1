@@ -153,10 +153,10 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "text", "AppText", "Content",
         "Text asked for by role — the role decides both size and colour.",
         "Display large" to { AppText("1 248,00", role = TextRole.DisplayLarge) },
-        "Display" to { AppText("Order 12 — Terrace", role = TextRole.Display) },
+        "Display" to { AppText("Order 12 — On its way", role = TextRole.Display) },
         "Title" to { AppText("Drinks · Hot drinks", role = TextRole.Title) },
         "Body" to { AppText("The default size for list rows and dialog copy.") },
-        "Label" to { AppText("Payment method", role = TextRole.Label) },
+        "Label" to { AppText("Appearance", role = TextRole.Label) },
         "Label small" to { AppText("OPEN ORDERS", role = TextRole.LabelSmall) },
         "Numeric (tabular)" to { AppText("118,00", role = TextRole.Numeric) },
         "Numeric — shrinks rather than wraps" to {
@@ -171,9 +171,9 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "button", "AppButton", "Action",
         "Six kinds, three sizes. The press shortens the key's edge so it travels 3 dp.",
         "Confirm" to { AppButton("Pay", {}) },
-        "Destructive" to { AppButton("Void", {}, kind = ButtonKind.Destructive) },
-        "Info" to { AppButton("Card", {}, kind = ButtonKind.Info) },
-        "Neutral" to { AppButton("Cash", {}, kind = ButtonKind.Neutral) },
+        "Destructive" to { AppButton("Delete", {}, kind = ButtonKind.Destructive) },
+        "Info" to { AppButton("Learn more", {}, kind = ButtonKind.Info) },
+        "Neutral" to { AppButton("Later", {}, kind = ButtonKind.Neutral) },
         "Outline" to { AppButton("Back", {}, kind = ButtonKind.Outline) },
         "Ghost" to { AppButton("More options", {}, kind = ButtonKind.Ghost) },
         "Disabled — loses the body" to { AppButton("Unavailable", {}, enabled = false) },
@@ -245,7 +245,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Large" to {
             Demo("56") { value, onChange -> AppTextField(value, onChange, size = ControlSize.Large) }
         },
-        "Disabled" to { AppTextField("Locked", {}, label = "Till", enabled = false) },
+        "Disabled" to { AppTextField("Locked", {}, label = "Username", enabled = false) },
         "In a form — Next, and offered to a password manager" to {
             Demo("ada@example.com") { value, onChange ->
                 AppTextField(
@@ -291,7 +291,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "One choice from more than a handful. Below five, prefer radio or segmented.",
         "Selected" to {
             Demo(1) { selected, onSelect ->
-                AppSelect(listOf("Cash", "Card", "Voucher", "Invoice", "Split"), selected, onSelect)
+                AppSelect(listOf("Daily", "Weekly", "Monthly", "Quarterly", "Yearly"), selected, onSelect)
             }
         },
         "Nothing chosen" to {
@@ -305,8 +305,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppCheckbox",
         "Form",
         "The whole row is the target. Indeterminate belongs to a group toggle and nowhere else.",
-        "On" to { CheckboxDemo(CheckState.On, "Print receipt") },
-        "Off" to { CheckboxDemo(CheckState.Off, "Email receipt") },
+        "On" to { CheckboxDemo(CheckState.On, "Email me a summary") },
+        "Off" to { CheckboxDemo(CheckState.Off, "Send a weekly digest") },
         // Tapping resolves it: a group toggle that is partly on becomes fully on.
         "Indeterminate" to { CheckboxDemo(CheckState.Indeterminate, "All items") },
         "Error — never colour alone" to {
@@ -337,9 +337,9 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "A group" to {
             Demo(0) { selected, onSelect ->
                 AppRadioGroup {
-                    AppRadio(selected == 0, { onSelect(0) }, "Cash")
-                    AppRadio(selected == 1, { onSelect(1) }, "Card")
-                    AppRadio(false, {}, "Voucher", enabled = false)
+                    AppRadio(selected == 0, { onSelect(0) }, "Light")
+                    AppRadio(selected == 1, { onSelect(1) }, "Dark")
+                    AppRadio(false, {}, "System", enabled = false)
                 }
             }
         },
@@ -350,7 +350,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Form",
         "An immediate change with no confirmation — so never for a destructive choice.",
         "On" to {
-            Demo(true) { checked, onChange -> AppSwitch(checked, onChange, "Print receipt automatically") }
+            Demo(true) { checked, onChange -> AppSwitch(checked, onChange, "Notify me about price drops") }
         },
         "With supporting text" to {
             Demo(false) { checked, onChange ->
@@ -422,8 +422,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Form",
         "Label above, help or error below. A required field says the word.",
         "Required" to {
-            AppFormField("Payment method", required = true) {
-                Demo(0) { selected, onSelect -> AppSegmented(listOf("Cash", "Card"), selected, onSelect) }
+            AppFormField("Appearance", required = true) {
+                Demo(0) { selected, onSelect -> AppSegmented(listOf("Light", "Dark"), selected, onSelect) }
             }
         },
         "Error" to {
@@ -437,20 +437,20 @@ val galleryCatalog: List<GalleryEntry> = listOf(
     entry(
         "tag", "AppTag", "Status",
         "A state you cannot press. The label always carries the meaning, not just the colour.",
-        "Paid" to { AppTag("Paid", tone = TagTone.Paid) },
-        "Open" to { AppTag("Open", tone = TagTone.Open) },
-        "Void" to { AppTag("Void", tone = TagTone.Void) },
-        "Info" to { AppTag("Card", tone = TagTone.Info) },
-        "Neutral" to { AppTag("No VAT") },
+        "Positive" to { AppTag("Active", tone = TagTone.Positive) },
+        "Warning" to { AppTag("Pending", tone = TagTone.Warning) },
+        "Negative" to { AppTag("Failed", tone = TagTone.Negative) },
+        "Info" to { AppTag("New", tone = TagTone.Info) },
+        "Neutral" to { AppTag("Draft") },
     ),
     entry(
         "statusdot",
         "AppStatusDot",
         "Status",
         "A dot and a word. The dot never stands alone.",
-        "Paid" to { AppStatusDot("Paid", tone = TagTone.Paid) },
-        "Open" to { AppStatusDot("Open", tone = TagTone.Open) },
-        "Void" to { AppStatusDot("Void", tone = TagTone.Void) },
+        "Positive" to { AppStatusDot("Active", tone = TagTone.Positive) },
+        "Warning" to { AppStatusDot("Pending", tone = TagTone.Warning) },
+        "Negative" to { AppStatusDot("Failed", tone = TagTone.Negative) },
     ),
     entry(
         "badge",
@@ -469,15 +469,15 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Two names" to { AppAvatar("Jana Nováková") },
         "Another person" to { AppAvatar("Petr Svoboda") },
         "One name" to { AppAvatar("Root") },
-        "With status — on shift" to {
-            AppAvatar("Jana Nováková", status = TagTone.Paid, statusDescription = "On shift")
+        "With status — online" to {
+            AppAvatar("Jana Nováková", status = TagTone.Positive, statusDescription = "Online")
         },
-        "With status — off shift" to {
+        "With status — away" to {
             AppAvatar(
                 "Petr Svoboda",
                 size = AppTheme.density.listRowHeight,
-                status = TagTone.Void,
-                statusDescription = "Off shift",
+                status = TagTone.Negative,
+                statusDescription = "Away",
             )
         },
     ),
@@ -506,7 +506,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Bare" to { AppProgress(0.35f) },
         "Labelled" to { AppProgress(0.8f, label = "Uploading receipts") },
         "Indeterminate — no share to report" to {
-            AppIndeterminateProgress(label = "Talking to the till")
+            AppIndeterminateProgress(label = "Checking for updates")
         },
         "Steps — a place in a process" to {
             AppStepProgress(steps = 4, currentStep = 1, label = "Step 2 of 4")
@@ -547,8 +547,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         },
         "Sunken — an inert panel" to {
             AppCard(level = SurfaceLevel.Sunken) {
-                AppText("Closed till", role = TextRole.Title)
-                AppText("Read only until the shift is reopened.", role = TextRole.Secondary)
+                AppText("Archived trip", role = TextRole.Title)
+                AppText("Read only until it is restored.", role = TextRole.Secondary)
             }
         },
         "Base — grouping only" to {
@@ -599,7 +599,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             AppListItem(
                 "Camera",
                 supporting = "android.permission.CAMERA",
-                trailing = { AppTag("Granted", tone = TagTone.Paid) },
+                trailing = { AppTag("Granted", tone = TagTone.Positive) },
             )
         },
     ),
@@ -608,7 +608,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppDescriptionList",
         "Content",
         "Label left, value right. A missing value is a dash, never a blank or a zero.",
-        "A receipt detail" to {
+        "An order's detail" to {
             AppDescriptionList(
                 listOf(
                     DescriptionRow("Opened", "19:24"),
@@ -666,8 +666,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "AppToast",
         "Overlay",
         "Something that already happened. Above every layer; only an error waits to be read.",
-        "Success" to { AppToast("Order sent to the kitchen", tone = ToastTone.Success) },
-        "With an action" to { AppToast("Item moved to order 14", actionLabel = "Undo", onAction = {}) },
+        "Success" to { AppToast("Order placed", tone = ToastTone.Success) },
+        "With an action" to { AppToast("Item moved to your wishlist", actionLabel = "Undo", onAction = {}) },
         "Error" to { AppToast("Printer not responding", tone = ToastTone.Error) },
     ),
     entry(
@@ -692,7 +692,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Switching content inside a screen. Takes a longer label and a count than segmented.",
         "With a badge" to {
             Demo(0) { selected, onSelect ->
-                AppTabs(listOf(TabItem("Open", badge = 4), TabItem("Paid"), TabItem("Void")), selected, onSelect)
+                AppTabs(listOf(TabItem("All", badge = 4), TabItem("Unread"), TabItem("Archived")), selected, onSelect)
             }
         },
     ),
@@ -864,7 +864,7 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             var open by remember { mutableStateOf(false) }
             AppButton("Open the sheet", { open = true })
             if (open) {
-                AppSheet(onDismiss = { open = false }, title = "Payment method") {
+                AppSheet(onDismiss = { open = false }, title = "Appearance") {
                     AppText("Everything inside a sheet is in a window of its own.", role = TextRole.Secondary)
                     AppButton("Close", { open = false }, kind = ButtonKind.Neutral)
                 }
@@ -875,18 +875,18 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "dialog",
         "AppDialog",
         "Overlay",
-        "The top layer. The confirming button carries a verb — \"Void order\", never \"OK\".",
+        "The top layer. The confirming button carries a verb — \"Delete trip\", never \"OK\".",
         "Dialog with actions" to {
             var open by remember { mutableStateOf(false) }
             AppButton("Open the dialog", { open = true })
             if (open) {
                 AppDialog(
-                    title = "Void this order?",
-                    message = "The items go back to stock.",
+                    title = "Delete this trip?",
+                    message = "Its itinerary and notes go with it.",
                     onDismiss = { open = false },
                     actions = {
                         AppButton("Cancel", { open = false }, kind = ButtonKind.Ghost)
-                        AppButton("Void order", { open = false }, kind = ButtonKind.Destructive)
+                        AppButton("Delete trip", { open = false }, kind = ButtonKind.Destructive)
                     },
                 )
             }
@@ -896,9 +896,9 @@ val galleryCatalog: List<GalleryEntry> = listOf(
             AppButton("Open the confirm dialog", { open = true }, kind = ButtonKind.Destructive)
             if (open) {
                 AppConfirmDialog(
-                    title = "Void this order?",
-                    message = "The items go back to stock and the order is closed.",
-                    confirmLabel = "Void order",
+                    title = "Delete this trip?",
+                    message = "Its itinerary and notes go with it. This cannot be undone.",
+                    confirmLabel = "Delete trip",
                     onConfirm = { open = false },
                     onDismiss = { open = false },
                 )

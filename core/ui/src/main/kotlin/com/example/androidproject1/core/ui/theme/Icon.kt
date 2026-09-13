@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
  * between a tidy screen and an untidy one.
  *
  * These are not touch targets. A tappable icon is wrapped by `AppIconButton`, whose box is
- * `AppTheme.density.minTouchTarget` — the icon inside it stays [md] on a phone and on a till.
+ * `AppTheme.density.minTouchTarget` — the icon inside it stays [md] on a phone and on a tablet.
  */
 @Immutable
 data class AppIcons(

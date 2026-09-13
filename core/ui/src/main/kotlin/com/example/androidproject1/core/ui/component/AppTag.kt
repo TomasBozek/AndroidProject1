@@ -12,7 +12,7 @@ import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
 
 /** What a tag is saying. Colour never carries this on its own — the text always does too. */
-enum class TagTone { Neutral, Paid, Open, Void, Info }
+enum class TagTone { Neutral, Positive, Warning, Negative, Info }
 
 /**
  * A state or a property that cannot be pressed.
@@ -30,9 +30,9 @@ fun AppTag(
     val colors = AppTheme.colors
     val family = when (tone) {
         TagTone.Neutral -> colors.neutral
-        TagTone.Paid -> colors.statusPaid
-        TagTone.Open -> colors.statusOpen
-        TagTone.Void -> colors.statusVoid
+        TagTone.Positive -> colors.statusPositive
+        TagTone.Warning -> colors.statusWarning
+        TagTone.Negative -> colors.statusNegative
         TagTone.Info -> colors.info
     }
     Box(
@@ -48,9 +48,9 @@ fun AppTag(
 @ComponentPreview
 @Composable
 private fun Preview() = ThemedComponentPreview {
-    AppTag(label = "Paid", tone = TagTone.Paid)
-    AppTag(label = "Open", tone = TagTone.Open)
-    AppTag(label = "Void", tone = TagTone.Void)
-    AppTag(label = "Card", tone = TagTone.Info)
-    AppTag(label = "No VAT")
+    AppTag(label = "Active", tone = TagTone.Positive)
+    AppTag(label = "Pending", tone = TagTone.Warning)
+    AppTag(label = "Failed", tone = TagTone.Negative)
+    AppTag(label = "New", tone = TagTone.Info)
+    AppTag(label = "Draft")
 }
