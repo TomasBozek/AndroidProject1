@@ -18,6 +18,7 @@ sealed interface InventoryEditorEvent : UiEvent {
 
     data class QuantityChanged(val quantity: Int) : InventoryEditorEvent
 
+    /** The slider's position; the state turns it into a price. */
     data class PriceChanged(val fraction: Float) : InventoryEditorEvent
 
     data class InsuredChanged(val insured: Boolean) : InventoryEditorEvent
