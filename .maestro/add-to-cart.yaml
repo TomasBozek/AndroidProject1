@@ -1,5 +1,8 @@
 # The cart round trip: add from a product, see the badge, check out behind a confirmation.
-appId: com.example.androidproject1.dev
+appId: ${APP_ID}
+env:
+  # The dev build unless the run says otherwise — see config.yaml.
+  APP_ID: ${APP_ID || "com.example.androidproject1.dev"}
 name: Add a product to the cart and check out
 ---
 - runFlow: sign-in.yaml

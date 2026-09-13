@@ -1,5 +1,8 @@
 # The catalog reaches a product, and the product can be favourited.
-appId: com.example.androidproject1.dev
+appId: ${APP_ID}
+env:
+  # The dev build unless the run says otherwise — see config.yaml.
+  APP_ID: ${APP_ID || "com.example.androidproject1.dev"}
 name: Browse the catalog to a product
 ---
 - runFlow: sign-in.yaml

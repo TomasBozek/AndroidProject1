@@ -10,7 +10,9 @@ tag is 1 / `"1.0"`.
 1. The release's last task closes the plan: every board line `[x]` or `[-]`, the block written into
    [CHANGELOG.md](CHANGELOG.md), and the plan's board cut out of it into [STATUS.md](STATUS.md).
 2. Run the end-to-end flows first — they are weekly by default, and `gh workflow run build.yml`
-   starts them on demand. An emulator boot plus the flows is fifteen minutes or more.
+   starts them on demand. An emulator boot plus the flows is fifteen minutes or more. The same run
+   assembles `prodRelease`, installs it and signs in on it: R8 runs on no other build, and a keep
+   rule that is missing fails at first launch, so the release build is started before a tag is.
 3. Tag and push:
 
    ```bash

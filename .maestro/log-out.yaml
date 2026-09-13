@@ -1,5 +1,8 @@
 # Signing out returns to the auth flow, which has no tabs.
-appId: com.example.androidproject1.dev
+appId: ${APP_ID}
+env:
+  # The dev build unless the run says otherwise — see config.yaml.
+  APP_ID: ${APP_ID || "com.example.androidproject1.dev"}
 name: Log out returns to Login
 ---
 - runFlow: sign-in.yaml
