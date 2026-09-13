@@ -22,7 +22,8 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * The base of every list in the app.
  *
  * Its height is the density's row height — 56 dp on touch — so a row is a comfortable target
- * without anything inside it having to grow. [trailing] is where a tag or a value goes.
+ * without anything inside it having to grow. [leading] is where an avatar or an icon goes, and
+ * [trailing] a tag or a value.
  *
  * [selected] is for a row that is currently *shown elsewhere* — the chosen item of a list–detail
  * pair on a wide screen. It is not the same as checked, which is [AppCheckbox]'s job and is state
@@ -36,6 +37,7 @@ fun AppListItem(
     supporting: String? = null,
     onClick: (() -> Unit)? = null,
     selected: Boolean = false,
+    leading: @Composable (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
     Row(
@@ -63,6 +65,7 @@ fun AppListItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.inline.md),
     ) {
+        leading?.invoke()
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.xs),
@@ -90,5 +93,12 @@ private fun Preview() = ThemedComponentPreview {
         headline = "Camera",
         supporting = "android.permission.CAMERA",
         trailing = { AppTag(label = "Granted", tone = TagTone.Positive) },
+    )
+    AppListItem(
+        headline = "Cordless drill",
+        supporting = "Jana Nováková",
+        onClick = {},
+        leading = { AppAvatar(name = "Jana Nováková") },
+        trailing = { AppTag(label = "Good") },
     )
 }

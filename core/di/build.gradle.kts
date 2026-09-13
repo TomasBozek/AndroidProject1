@@ -18,6 +18,7 @@ dependencies {
     api(projects.feature.devmenu.di)
     api(projects.feature.onboarding.di)
     api(projects.feature.trips.di)
+    api(projects.feature.inventory.di)
 
     implementation(projects.service.core.data)
     implementation(projects.service.core.domain)

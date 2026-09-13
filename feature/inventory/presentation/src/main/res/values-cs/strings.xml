@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inventory_title">Inventář</string>
+    <string name="inventory_search_placeholder">Hledat podle názvu</string>
+    <string name="inventory_empty_title">Nic tu není</string>
+    <string name="inventory_empty_message">Položky, které přidáte, se zobrazí zde.</string>
+    <string name="inventory_empty_filtered_message">Nic neodpovídá „%1$s“.</string>
+    <string name="inventory_new_item">Nová položka</string>
+    <string name="inventory_condition_new">Nové</string>
+    <string name="inventory_condition_good">Dobré</string>
+    <string name="inventory_condition_worn">Opotřebené</string>
+</resources>

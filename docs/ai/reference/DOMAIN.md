@@ -74,6 +74,7 @@ erDiagram
 | `ThemePreference` | `feature/settings/domain` | `System`, `Light`, `Dark` |
 | `Destination` | `feature/trips/domain` | `id`, `name`, `country`, `description`; fixture data, seeded once |
 | `Trip` | `feature/trips/domain` | `destinationId`/`destinationName` denormalized so a renamed destination cannot orphan a trip; `budgetMinMinor`/`budgetMaxMinor` follow `Product.price`'s convention; `status(today)` is derived, never stored |
+| `Item` | `feature/inventory/domain` | something the user owns — `category`, `condition`, `quantity`, `priceMinor` (minor units, like `Product.price`), a nullable `acquiredOn`, `insured`, a `tags` set, `owner` (a name `AppAvatar` draws from), a nullable `imageUrl` the offline `dev` build never loads, `notes`. `ItemCategory`, `ItemCondition` and `ItemTag` are the closed sets a picker offers |
 
 ## Results and failures
 
@@ -100,6 +101,7 @@ Every method returns `Outcome`, and every observation is a `Flow<Outcome<T>>`.
 | `ThemeRepository` | `feature/settings/domain` | `observeTheme`, `setTheme` |
 | `TripsRepository` | `feature/trips/domain` | `observeTrips`, `getTrip`, `saveTrip`, `deleteTrip` |
 | `DestinationsRepository` | `feature/trips/domain` | `observeDestinations`, `getDestination` |
+| `InventoryRepository` | `feature/inventory/domain` | `observeItems`, `observeItem(id)`, `getItem`, `saveItem`, `deleteItems(ids)` |
 
 ## Use cases
 
@@ -131,6 +133,7 @@ store below swappable.
 | `LocalThemeDataSource` | DataStore |
 | `LocalTripsDataSource` | Room · `TripsDatabase` · `trips`; `type` and the dates are `TEXT` through `Converters`, and an unknown type reads as `Leisure` rather than failing the list |
 | `LocalDestinationsDataSource` | Room · `TripsDatabase` · `destinations`; seeded from a fixture list on first read, not a network fetch — no new dependency, D20 still stands |
+| `LocalInventoryDataSource` | Room · `InventoryDatabase` · `items`; twelve fixture items seeded on first read, the way destinations are; the three enum columns, the date and the tag set are `TEXT` through `Converters`, an unknown name reading as a fallback |
 
 Every database exports its schema under the module's `schemas/`, and a `version` bump ships its
 migration and its migration test in the same commit. `fallbackToDestructiveMigration` is never used:
