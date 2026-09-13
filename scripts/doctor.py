@@ -940,8 +940,10 @@ MAESTRO_DIR = REPO_ROOT / ".maestro"
 MAESTRO_ID = re.compile(r'^\s*-?\s*id:\s*"?([^"\n]+?)"?\s*$')
 
 # The three ways an id reaches the device: a literal tag, the screen's own name, and the tag
-# constants the shared components expose (`ALERT_DIALOG_TAG` and friends).
-TEST_TAG_LITERAL = re.compile(r'testTag\s*[(=]\s*"([^"]+)"')
+# constants the shared components expose (`ALERT_DIALOG_TAG` and friends). A literal is
+# `testTag("x")` at a call site or `<something>TestTag = "x"` handed to a component that puts it on
+# an element the caller's modifier cannot reach — `navigateUpTestTag`, `actionTestTag`.
+TEST_TAG_LITERAL = re.compile(r'[tT]estTag\s*[(=]\s*"([^"]+)"')
 SCREEN_ID_LITERAL = re.compile(r'screenId\s*=\s*"([^"]+)"')
 TAG_CONSTANT = re.compile(r'const\s+val\s+[A-Z0-9_]*_TAG\s*(?::\s*String\s*)?=\s*"([^"]+)"')
 

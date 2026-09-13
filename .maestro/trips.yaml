@@ -10,10 +10,19 @@ name: Open Trips from the bottom bar
 - assertVisible:
     id: "TripsScreen"
 
-# Nothing deeper is asserted here on purpose: every screen past this one needs a trip in the
-# database, and a cleared app has none. What the tab has to prove is that the root is reachable at
-# all — TripsScreen is the only trips screen with no up arrow, so it is the only one a tab can
-# reach and the only one that was stranded.
+# "View all" is the only route to the list, and it needs no trip in the database: the list has an
+# empty state of its own. The screens past it do, so the flow stops there.
+- tapOn:
+    id: "trips_viewAllButton"
+- assertVisible:
+    id: "TripsListScreen"
+- tapOn:
+    id: "tripsList_upButton"
+- assertVisible:
+    id: "TripsScreen"
+
+# TripsScreen is the only trips screen with no up arrow, so it is the only one a tab can reach and
+# the only one that was stranded — which is what leaving and coming back proves.
 - tapOn:
     id: "tabs_homeTab"
 - assertVisible:

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
@@ -15,6 +16,10 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * A heading inside a screen: label on the left, at most one action on the right.
  *
  * At most one — a section with two actions is a section that wants to be a screen.
+ *
+ * @param actionTestTag what a flow and a test find the action by — `<stem>_<name>Button`. It needs
+ * a tag of its own for the reason `AppTopBar`'s arrow does: the caller's [modifier] goes to the
+ * row, and the label is translated.
  */
 @Composable
 fun AppSectionHeader(
@@ -22,6 +27,7 @@ fun AppSectionHeader(
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
+    actionTestTag: String? = null,
 ) {
     Row(
         modifier = modifier
@@ -37,6 +43,7 @@ fun AppSectionHeader(
                 onClick = onAction,
                 kind = ButtonKind.Ghost,
                 size = ControlSize.Small,
+                modifier = if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier,
             )
         }
     }

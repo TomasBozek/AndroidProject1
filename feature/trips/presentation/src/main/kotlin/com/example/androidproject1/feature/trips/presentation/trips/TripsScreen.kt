@@ -61,6 +61,7 @@ fun TripsScreen(
                     title = stringResource(R.string.trips_section_header),
                     actionLabel = stringResource(R.string.trips_view_all),
                     onAction = { onEvent(TripsEvent.ViewAllClicked) },
+                    actionTestTag = "trips_viewAllButton",
                 )
 
                 AppText(
