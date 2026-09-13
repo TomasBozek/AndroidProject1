@@ -7,6 +7,7 @@ import com.example.androidproject1.feature.inventory.data.source.DefaultLocalInv
 import com.example.androidproject1.feature.inventory.data.source.LocalInventoryDataSource
 import com.example.androidproject1.feature.inventory.domain.InventoryRepository
 import com.example.androidproject1.feature.inventory.presentation.inventory.InventoryViewModel
+import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -18,6 +19,7 @@ object InventoryModule {
 
     val module: Module = module {
         viewModelOf(::InventoryViewModel)
+        viewModelOf(::InventoryEditorViewModel)
 
         single {
             Room.databaseBuilder(
