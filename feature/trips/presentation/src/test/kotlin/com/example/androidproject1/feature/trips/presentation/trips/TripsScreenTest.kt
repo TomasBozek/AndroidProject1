@@ -59,6 +59,15 @@ class TripsScreenTest {
     }
 
     @Test
+    fun `view all reports its event`() {
+        render(TripsState.PREVIEW)
+
+        compose.onNodeWithTag("trips_viewAllButton").performClick()
+
+        assertEquals(listOf(TripsEvent.ViewAllClicked), events)
+    }
+
+    @Test
     fun `opening the next trip reports its event`() {
         render(TripsState.PREVIEW)
 

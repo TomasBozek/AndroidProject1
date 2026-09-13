@@ -54,6 +54,8 @@ not apply insets itself; a screen without one does, because the activity is edge
 **Every non-root screen passes `onNavigateUp`, and with it `navigateUpTestTag = "<stem>_upButton"`.**
 A tab root passes neither — the bottom bar is what leaves it. The arrow needs a tag of its own
 because the caller's `modifier` goes to the bar, and the label beside it is translated.
+`AppSectionHeader`'s action is the same case, so it takes `actionTestTag = "<stem>_<name>Button"`
+for the same reason.
 
 **A field's label is a property of the input, not a `Text` beside it.** `AppTextField` puts it on
 the input's own semantics node and clears the visible label's, so a screen reader announces the name
