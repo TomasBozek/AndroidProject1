@@ -3,9 +3,11 @@ package com.example.androidproject1.feature.inventory.presentation.inventory
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorDestination
 import com.example.androidproject1.service.core.ui.component.Screen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
+import java.util.UUID
 
 @Serializable
 data object InventoryDestination : NavKey
@@ -16,12 +18,15 @@ fun EntryProviderScope<NavKey>.inventoryDestination(backStack: NavBackStack<NavK
 
         Screen(
             viewModel = viewModel,
-            // The detail and the editor arrive with E3S2 and E3S3; until then a tap has nowhere to
-            // go, and saying so here is better than a branch that pushes a key that does not exist.
             onNavigation = { navigation ->
                 when (navigation) {
-                    is InventoryNavigation.OpenItem -> Unit
-                    InventoryNavigation.NewItem -> Unit
+                    // The detail arrives with E3S3; until then a tap opens the editor on the item.
+                    is InventoryNavigation.OpenItem -> backStack.add(InventoryEditorDestination(navigation.itemId))
+                    // A new item is a new id, minted here: the editor edits whatever id it is given
+                    // and starts blank when nothing has that id.
+                    InventoryNavigation.NewItem -> backStack.add(
+                        InventoryEditorDestination(UUID.randomUUID().toString()),
+                    )
                 }
             },
         ) { state, onEvent ->

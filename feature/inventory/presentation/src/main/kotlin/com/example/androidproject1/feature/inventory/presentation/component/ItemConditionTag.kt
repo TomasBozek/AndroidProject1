@@ -8,7 +8,6 @@ import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.component.AppTag
 import com.example.androidproject1.core.ui.component.TagTone
 import com.example.androidproject1.feature.inventory.domain.ItemCondition
-import com.example.androidproject1.feature.inventory.presentation.R
 
 /**
  * An item's condition as a tag — the list's trailing slot and the detail's header both show it,
@@ -20,12 +19,12 @@ fun ItemConditionTag(
     condition: ItemCondition,
     modifier: Modifier = Modifier,
 ) {
-    val (label, tone) = when (condition) {
-        ItemCondition.New -> stringResource(R.string.inventory_condition_new) to TagTone.Positive
-        ItemCondition.Good -> stringResource(R.string.inventory_condition_good) to TagTone.Neutral
-        ItemCondition.Worn -> stringResource(R.string.inventory_condition_worn) to TagTone.Warning
+    val tone = when (condition) {
+        ItemCondition.New -> TagTone.Positive
+        ItemCondition.Good -> TagTone.Neutral
+        ItemCondition.Worn -> TagTone.Warning
     }
-    AppTag(label = label, tone = tone, modifier = modifier)
+    AppTag(label = stringResource(condition.labelRes()), tone = tone, modifier = modifier)
 }
 
 @ComponentPreview

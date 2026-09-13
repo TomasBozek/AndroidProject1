@@ -52,7 +52,8 @@ through its constructor.
 | `TripWizard` | trips | — | Trips, TripsList |
 | `TripDetail` | trips | `tripId` | TripsList, Trips' next-trip card |
 | `DestinationPicker` | trips | `resultKey` | TripWizard; returns its choice through the result store |
-| `Inventory` | inventory | — | the list: search by name, a row per item with the owner's avatar and the condition tag, a FAB to a new item. Reached from Home once E3S6 lands; the detail and the editor arrive with E3S2 and E3S3 |
+| `Inventory` | inventory | — | the list: search by name, a row per item with the owner's avatar and the condition tag, a FAB to a new item. Reached from Home once E3S6 lands; a row opens the editor until the detail arrives with E3S3 |
+| `InventoryEditor` | inventory | `itemId` | Inventory (a new id, minted by the list, or an existing item's). Create and edit are one screen: four steps behind `AppStepProgress` — basics, quantity and price, tags and owner, review — every kind of control the design system has, `DiscardBackHandler` on a dirty first step, save through `saveItem` and pop |
 <!-- create_screen.py appends a starter row here -->
 
 ## Tabs
