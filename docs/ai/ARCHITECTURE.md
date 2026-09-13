@@ -114,6 +114,12 @@ variant is named `devDebug` or `prodRelease` and `assembleDebug` alone names not
 side. `BuildConfig.BASE_URL` differs per flavor and no screen ever writes a URL. `dev` serves the
 catalog from Ktor `MockEngine` fixtures, which is what the end-to-end flows run against.
 
+The `debug` build type adds two things from `app/src/debug/`, and `release` neither: a network
+security config that trusts user certificates, so a debug build can be proxied through Charles or
+mitmproxy; and `installDebugTooling()`, StrictMode thread and VM policies on `penaltyLog()`, so a
+main-thread disk read is logged the first time it happens. The release source set's
+`installDebugTooling()` is a no-op, the way `DebugMenu` is per flavor.
+
 A release is a tag: `versionName` is the tag without its `v`, `versionCode` is the commit count, and
 any build not on a `v*` tag is 1 / `"1.0"`. The flavors, the SDK levels and the Java target are
 defined once, in `build-logic`'s `ProjectConfig`.

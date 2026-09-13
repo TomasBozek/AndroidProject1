@@ -42,6 +42,7 @@ Logging is WARN and above in a release build.
 | `TopLevelDestination` | the five tabs — Home, Catalog, Cart, Trips, Settings: route key, label, icon and test id each. The id is `tabs_<name>Tab`, carried on the entry so a tab cannot be added without one. Five is Material's ceiling for a bottom bar, so a sixth is a decision, not an entry (D59) |
 | `App` | the `Application`: `initKoin`, the notification channel |
 | `DebugMenu` | the flag that decides whether the debug entries are registered at all |
+| `debug/installDebugTooling` | per build type: `src/debug` installs StrictMode on `penaltyLog()` and a manifest overlay that names `res/xml/network_security_config.xml`, trusting user certificates; `src/release` is a no-op and carries no config |
 | `network/CachedOkHttpEngine` | the real engine's on-disk HTTP cache, sized from `NetworkConfig`. In `src/main`, not `src/prod`/`src/staging` where the engine itself lives, because `:app`'s unit tests run for `devDebug` only and this is the one part of the real engine worth a JVM test |
 
 `:app` is also where a vendor is swapped in. Add the dependency here and override the one binding in

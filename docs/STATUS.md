@@ -28,7 +28,7 @@ with its actual, `[-]` dropped.
 
 - [x] E2P1 Every library dependency moves into a convention plugin · 25 → 3 · decides D64
 - [x] E2H1 The release build is launched, not just assembled · 12 → 3
-- [ ] E2H2 A network security config and StrictMode for the debug build · 6
+- [x] E2H2 A network security config and StrictMode for the debug build · 6 → 3
 - [ ] E2P2 The dependency graph is submitted · 3
 
 ### Lane 3 · the design system and its showcase · 148

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds trust the certificates the user installs, so a build can be proxied through
+     Charles or mitmproxy. `debug-overrides` applies only while `android:debuggable` is true, and
+     this file exists only in `src/debug`, so `prodRelease` carries no network security config at
+     all and keeps the platform default: system anchors, nothing the user added. -->
+<network-security-config>
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
