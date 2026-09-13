@@ -89,6 +89,27 @@ class TripsDatabaseTest {
     }
 
     @Test
+    fun `a stored type the code no longer has reads as a trip, not a crash`() = runTest {
+        // A row written by a later version that renamed a constant, or edited by hand. No
+        // migration could fix it, because the schema did not change; before Converters the parse
+        // threw inside the Room flow and every trip read as an error because of this one.
+        database.openHelper.writableDatabase.execSQL(
+            """
+            INSERT INTO trips (id, name, destinationId, destinationName, type, startDate, endDate,
+                travelers, budgetMinMinor, budgetMaxMinor, notes)
+            VALUES ('trip-cruise', 'Fjords', 'bergen', 'Bergen', 'Cruise', '2026-08-01',
+                '2026-08-08', 2, 100000, 200000, '')
+            """.trimIndent(),
+        )
+
+        val trip = trips.getTrip("trip-cruise")
+
+        assertEquals(TripType.Leisure, trip?.type)
+        assertEquals(LocalDate.of(2026, 8, 1), trip?.startDate)
+        assertEquals(1, trips.observeTrips().first().size)
+    }
+
+    @Test
     fun `destinations seed once, on first read`() = runTest {
         val first = destinations.observeDestinations().first()
 

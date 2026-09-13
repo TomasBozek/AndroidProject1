@@ -92,6 +92,14 @@ version up to the compiled one, so it fails on the bump alone and passes once th
 Never reach for `fallbackToDestructiveMigration`. It compiles, the tests go quiet, and what it
 means is that the next update empties the user's cart.
 
+**A non-primitive column is a `@TypeConverter`, not a `String` the mapper parses.** The entity
+carries the domain type — `LocalDate`, an enum — and a `Converters` class on the database
+(`@TypeConverters(Converters::class)`) stores it as `TEXT`, so the exported schema does not move.
+An enum's reader returns a fallback for a name the code no longer has rather than throwing: a
+parse inside the `map` of a Room `Flow` fails the whole list for one bad row, and no migration
+can fix a row the schema never changed. `feature/trips/data/.../database/Converters.kt` is the
+pattern, and `TripsDatabaseTest` inserts the raw row that proves it.
+
 ## Navigating to another feature
 
 Not scripted, and deliberately: a `presentation` module must never depend on another feature's

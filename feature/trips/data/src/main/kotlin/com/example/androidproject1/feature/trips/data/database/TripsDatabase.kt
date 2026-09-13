@@ -2,6 +2,7 @@ package com.example.androidproject1.feature.trips.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 
 @Database(
@@ -9,6 +10,7 @@ import androidx.room.migration.Migration
     version = 1,
     exportSchema = true,
 )
+@TypeConverters(Converters::class)
 abstract class TripsDatabase : RoomDatabase() {
 
     abstract fun tripDao(): TripDao

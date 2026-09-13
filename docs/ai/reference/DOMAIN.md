@@ -129,7 +129,7 @@ store below swappable.
 | `LocalProfileDataSource` | DataStore |
 | `AvatarDataSource` | the content resolver for reading, `filesDir` for the copy the app keeps |
 | `LocalThemeDataSource` | DataStore |
-| `LocalTripsDataSource` | Room · `TripsDatabase` · `trips` |
+| `LocalTripsDataSource` | Room · `TripsDatabase` · `trips`; `type` and the dates are `TEXT` through `Converters`, and an unknown type reads as `Leisure` rather than failing the list |
 | `LocalDestinationsDataSource` | Room · `TripsDatabase` · `destinations`; seeded from a fixture list on first read, not a network fetch — no new dependency, D20 still stands |
 
 Every database exports its schema under the module's `schemas/`, and a `version` bump ships its

@@ -2,17 +2,15 @@ package com.example.androidproject1.feature.trips.data.database
 
 import com.example.androidproject1.feature.trips.domain.Destination
 import com.example.androidproject1.feature.trips.domain.Trip
-import com.example.androidproject1.feature.trips.domain.TripType
-import java.time.LocalDate
 
 internal fun TripEntity.toDomain() = Trip(
     id = id,
     name = name,
     destinationId = destinationId,
     destinationName = destinationName,
-    type = TripType.valueOf(type),
-    startDate = LocalDate.parse(startDate),
-    endDate = LocalDate.parse(endDate),
+    type = type,
+    startDate = startDate,
+    endDate = endDate,
     travelers = travelers,
     budgetMinMinor = budgetMinMinor,
     budgetMaxMinor = budgetMaxMinor,
@@ -24,9 +22,9 @@ internal fun Trip.toEntity() = TripEntity(
     name = name,
     destinationId = destinationId,
     destinationName = destinationName,
-    type = type.name,
-    startDate = startDate.toString(),
-    endDate = endDate.toString(),
+    type = type,
+    startDate = startDate,
+    endDate = endDate,
     travelers = travelers,
     budgetMinMinor = budgetMinMinor,
     budgetMaxMinor = budgetMaxMinor,
