@@ -1,5 +1,6 @@
 package com.example.androidproject1
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
@@ -26,7 +27,7 @@ import com.example.androidproject1.feature.trips.presentation.trips.TripsDestina
  */
 enum class TopLevelDestination(
     val key: NavKey,
-    val label: Int,
+    @StringRes val label: Int,
     val icon: ImageVector,
     /**
      * What a flow and a test find this tab by — `CLAUDE.md` § Test identifiers, "find by id, never

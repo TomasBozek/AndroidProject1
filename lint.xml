@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Shared lint configuration. Applied by every module through the `lint { }` block in its build
-    file, so a rule is raised or lowered in one place rather than 27.
+    Shared lint configuration. Applied to every module by `build-logic`'s `configureAndroid`
+    (`extension.lint.lintConfig`), so a rule is raised or lowered in one place rather than 27.
 -->
 <lint>
     <!-- Correctness issues worth failing a build over. -->
