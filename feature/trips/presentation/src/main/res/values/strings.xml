@@ -19,7 +19,8 @@
     <!-- TripsList -->
     <string name="trips_list_title">All trips</string>
     <string name="trips_list_new_trip">New trip</string>
-    <string name="trips_list_empty">No trips yet. Start one with the button below.</string>
+    <string name="trips_list_empty_title">No trips yet</string>
+    <string name="trips_list_empty">Trips you plan will show up here. Start one with the button below.</string>
 
     <!-- TripWizard -->
     <string name="trip_wizard_title">Plan a trip</string>

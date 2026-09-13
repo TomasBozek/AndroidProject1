@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
+import com.example.androidproject1.core.ui.component.AppEmptyState
 import com.example.androidproject1.core.ui.component.AppFab
 import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppScaffold
@@ -57,6 +58,17 @@ fun TripsListScreen(
                 ) {
                     repeat(SKELETON_ROWS) { AppSkeleton(height = AppTheme.density.listRowHeight) }
                 }
+            } else if (state.trips.isEmpty()) {
+                // Inside the scaffold, so the up arrow and the screen id stay: a ContentState would
+                // stand in for the whole screen (E0X1).
+                AppEmptyState(
+                    title = stringResource(R.string.trips_list_empty_title),
+                    message = stringResource(R.string.trips_list_empty),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(AppTheme.spacing.inset.xl)
+                        .testTag("tripsList_empty"),
+                )
             } else {
                 val formats = LocalFormats.current
                 val scroll = rememberLazyListState()

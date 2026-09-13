@@ -342,6 +342,18 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # The hosted runner ships with tooling this job never touches — .NET, CodeQL, the Android
+      # NDK, Haskell — and with two builds plus a system image to download, the first run this
+      # repository had on record died with "No space left on device" before the emulator existed
+      # (E0X1). A plain `rm` rather than a marketplace action: D27 wants the first-party route
+      # tried first, and this is it. `df` before and after, so the next time it is tight the
+      # number is in the log.
+      - name: Free the runner's disk
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk /opt/hostedtoolcache/CodeQL /opt/ghc /usr/local/.ghcup
+          df -h /
+
       # Built before the emulator starts, so a compile failure does not pay for a boot first.
       # `dev` serves the catalog from JSON fixtures (D20), which is what every flow's `APP_ID`
       # defaults to — a flow asserts the app, never the weather at a server. `prodRelease` is the
@@ -367,6 +379,26 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # One script rather than lines in the action's `script:`: the action runs each line in a
+      # shell of its own, so a variable set on one line is gone on the next — which is how a
+      # first attempt wrote its debug output to `/dev/.maestro`. Environment variables survive,
+      # so `$RUNNER_TEMP` and `$GITHUB_WORKSPACE` do. Both passes run even when the first fails,
+      # and logcat is kept beside Maestro's own output — a failed assertion says what was not on
+      # screen; logcat says why.
+      - name: Write the flow script
+        run: |
+          cat > "$RUNNER_TEMP/flows.sh" <<'EOF'
+          set -u
+          debug="$GITHUB_WORKSPACE/maestro-debug"
+          status=0
+          adb install -r app/build/outputs/apk/dev/debug/app-dev-debug.apk
+          maestro test -e APP_ID=com.example.androidproject1.dev .maestro --debug-output "$debug/dev" || status=$?
+          adb install -r app/build/outputs/apk/prod/release/app-prod-release.apk
+          maestro test -e APP_ID=com.example.androidproject1 .maestro/sign-in.yaml --debug-output "$debug/release" || status=$?
+          adb logcat -d > "$debug/logcat.txt" || true
+          exit "$status"
+          EOF
+
       # Third-party and build-only, so D27 lets it in: it never reaches the release artifact, and
       # there is no first-party action that boots an emulator.
       - name: Run the flows
@@ -382,11 +414,7 @@ jobs:
           # One variable, two passes: every flow on the dev build, then the sign-in flow on the
           # release one — auth is in memory (`DefaultAuthService`), so it runs against `prod`
           # without a backend, and reaching Home is what proves R8 kept enough.
-          script: |
-            adb install -r app/build/outputs/apk/dev/debug/app-dev-debug.apk
-            maestro test -e APP_ID=com.example.androidproject1.dev .maestro --debug-output maestro-debug
-            adb install -r app/build/outputs/apk/prod/release/app-prod-release.apk
-            maestro test -e APP_ID=com.example.androidproject1 .maestro/sign-in.yaml --debug-output maestro-debug
+          script: bash "$RUNNER_TEMP/flows.sh"
 
       # The recordings and the view hierarchy Maestro dumps on a failed assertion — which is the
       # only thing that says *why* an id was not found on a machine nobody can look at.

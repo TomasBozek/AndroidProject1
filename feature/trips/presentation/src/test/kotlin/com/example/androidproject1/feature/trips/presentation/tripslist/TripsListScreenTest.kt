@@ -37,6 +37,14 @@ class TripsListScreenTest {
     }
 
     @Test
+    fun `no trips shows the empty state inside the shell, so the up arrow stays`() {
+        render(TripsListState.PREVIEW.copy(trips = emptyList()))
+
+        compose.onNodeWithTag("tripsList_empty").assertIsDisplayed()
+        compose.onNodeWithTag("tripsList_upButton").assertIsDisplayed()
+    }
+
+    @Test
     fun `tapping a trip reports it as an event`() {
         render(TripsListState.PREVIEW)
 
