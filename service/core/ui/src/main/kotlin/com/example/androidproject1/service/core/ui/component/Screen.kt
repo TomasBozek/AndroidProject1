@@ -1,6 +1,5 @@
 package com.example.androidproject1.service.core.ui.component
 
-import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.fillMaxSize
@@ -100,9 +99,6 @@ fun <State, Event : UiEvent, Navigation : Any> Screen(
 
     CollectEffect(flow = viewModel.command) { command ->
         when (command) {
-            is UiCommand.ShowToast ->
-                Toast.makeText(context, command.message.resolve(context), Toast.LENGTH_SHORT).show()
-
             is UiCommand.ShowSnackbar -> snackbarScope.launch {
                 val result = snackbarHostState.showSnackbar(
                     message = command.message.resolve(context),

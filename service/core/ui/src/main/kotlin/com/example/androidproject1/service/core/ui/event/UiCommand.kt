@@ -12,11 +12,10 @@ sealed interface UiCommand {
 
     data object CloseApp : UiCommand
 
-    data class ShowToast(val message: UiText) : UiCommand
-
     /**
-     * Material 3's preferred way to acknowledge something, and the only one that can carry an
-     * action. Rendered by `Screen()`'s own SnackbarHost, so a feature needs no Scaffold of its own.
+     * The one way to acknowledge something in passing — a toast is this with no action (D63).
+     * Rendered by `Screen()`'s own SnackbarHost through the chrome, so it wears the theme, sits
+     * inside the screen test and needs no Scaffold of its own.
      *
      * @param id identifies this snackbar when its action comes back as
      * [SystemEvent.SnackbarAction]. Every command is plain data — pressing the action raises an

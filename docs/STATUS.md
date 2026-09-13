@@ -19,7 +19,7 @@ with its actual, `[-]` dropped.
 ### Lane 1 · Kotlin and core fixes · 30
 
 - [x] E1X1 The test ids rejoin the closed vocabulary (was D1X4) · 12 → 3
-- [ ] E1X2 A toast wears the theme · 6 · decides D63
+- [x] E1X2 A toast wears the theme · 6 → 3 · decides D63
 - [ ] E1H1 A stored trip the code no longer understands does not crash the read · 6
 - [ ] E1X3 The section header's action carries a test id · 3
 - [ ] E1T1 Three small things the review found · 3

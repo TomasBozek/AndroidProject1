@@ -2,6 +2,7 @@ package com.example.androidproject1.service.core.ui.viewmodel
 
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.domain.error.NotFoundError
+import com.example.androidproject1.service.core.domain.error.ServerError
 import com.example.androidproject1.service.core.domain.result.Outcome
 import com.example.androidproject1.service.core.domain.test.FakeLogger
 import com.example.androidproject1.service.core.ui.event.SystemEvent
@@ -241,6 +242,19 @@ class BaseViewModelTest {
         assertNotNull(alert)
         assertEquals(BaseViewModel.ALERT_ID_ERROR, alert!!.id)
         assertNotNull("the error path supplies the error title", alert.title)
+    }
+
+    @Test
+    fun `a server error in alert mode is a snackbar with no action, not a dialog`() = runTest {
+        val viewModel = TestViewModel(TestState("ready"))
+
+        viewModel.oneShot { Outcome.Failure(ServerError()) }
+
+        // D63: the toast is a snackbar with no action, so it wears the theme and a test can see it.
+        val command = viewModel.command.first()
+        assertTrue(command is UiCommand.ShowSnackbar)
+        assertNull((command as UiCommand.ShowSnackbar).actionLabel)
+        assertNull("an outage is not the user's problem to solve", viewModel.state.value.alert)
     }
 
     /**
