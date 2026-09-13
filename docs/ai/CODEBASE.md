@@ -63,6 +63,7 @@ Modules are registered in `settings.gradle.kts` through `includeServiceModule` /
 :feature:devmenu:{presentation,di}                screen only; dev and staging only (D16)
 :feature:gallery:{presentation,di}                screen only; reached from the debug menu
 :feature:home:{presentation,di}                   screen only; a tab
+:feature:inventory:{domain,data,presentation,di}  full stack
 :feature:onboarding:{domain,data,presentation,di} full stack; the first-run flow, behind a stored flag
 :feature:profile:{domain,data,presentation,di}    full stack
 :feature:settings:{domain,data,presentation,di}   full stack; a tab; reads :feature:auth:domain

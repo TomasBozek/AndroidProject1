@@ -602,6 +602,15 @@ val galleryCatalog: List<GalleryEntry> = listOf(
                 trailing = { AppTag("Granted", tone = TagTone.Positive) },
             )
         },
+        "With a leading avatar" to {
+            AppListItem(
+                "Cordless drill",
+                supporting = "Jana Nováková",
+                onClick = {},
+                leading = { AppAvatar("Jana Nováková") },
+                trailing = { AppTag("Good") },
+            )
+        },
     ),
     entry(
         "descriptionlist",

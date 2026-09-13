@@ -35,7 +35,7 @@ with its actual, `[-]` dropped.
 ### Lane 3 · the design system and its showcase · 148
 
 - [x] E3U1 The design system stops speaking POS · 12 → 6
-- [ ] E3S1 Inventory: the feature, its table and the list · 25 · after E1H1, E3U1
+- [x] E3S1 Inventory: the feature, its table and the list · 25 → 12 · after E1H1, E3U1
 - [ ] E3S2 Inventory: the four-step editor · 25 · after E3S1
 - [ ] E3S3 Inventory: the detail, its sections and delete · 25 · after E3S1
 - [ ] E3S4 Inventory: editing an item reuses the editor · 12 · after E3S2, E3S3
