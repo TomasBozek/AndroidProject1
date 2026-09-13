@@ -7,6 +7,7 @@ import androidx.core.content.getSystemService
 import com.example.androidproject1.core.di.debugMenuModules
 import com.example.androidproject1.core.di.initKoin
 import com.example.androidproject1.debug.DebugMenu
+import com.example.androidproject1.debug.installDebugTooling
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.logger.Level
@@ -15,6 +16,9 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // First, so StrictMode sees the graph being built — a disk read behind a Koin single is
+        // exactly what it is here to catch. A no-op in a release build.
+        installDebugTooling()
 
         initKoin(
             ApplicationModule.module,
