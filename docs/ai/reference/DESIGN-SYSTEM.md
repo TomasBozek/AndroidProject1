@@ -58,6 +58,12 @@ because the caller's `modifier` goes to the bar, and the label beside it is tran
 for the same reason, and a `MenuItem` carries `testTag = "<stem>_<name>Item"` because a menu row is
 a value with no modifier and draws in a window of its own.
 
+**A selection toolbar's actions wear the inverse kind.** `AppToolbar` is a dark wash, so what sits
+on it asks for it: `AppIconButton(kind = IconButtonKind.Inverse)` and `AppCheckbox(inverse = true)`
+— the tri-state master over the rows. `AppListItem` takes `leading` (an avatar, or the row's
+checkbox in selection mode) and `onLongClick` beside `onClick`, which is how a list enters that
+mode; `AppSheet`'s content scrolls, because a form is taller than the narrowest phone.
+
 **A field's label is a property of the input, not a `Text` beside it.** `AppTextField` puts it on
 the input's own semantics node and clears the visible label's, so a screen reader announces the name
 once and a test finds it with `hasText` on the node that `hasSetTextAction`.

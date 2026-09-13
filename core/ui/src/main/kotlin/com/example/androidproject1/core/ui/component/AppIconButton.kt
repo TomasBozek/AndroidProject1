@@ -26,7 +26,8 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * filled circle would compete with the title. The other two are for an icon that is the action
  * itself, with no label beside it to say which.
  */
-enum class IconButtonKind { Plain, Confirm, Destructive }
+/** [Inverse] is [Plain] on a dark wash — the actions on an [AppToolbar]. */
+enum class IconButtonKind { Plain, Confirm, Destructive, Inverse }
 
 /**
  * An icon that does something.
@@ -51,7 +52,7 @@ fun AppIconButton(
 ) {
     val colors = AppTheme.colors
     val family = when (kind) {
-        IconButtonKind.Plain -> null
+        IconButtonKind.Plain, IconButtonKind.Inverse -> null
         IconButtonKind.Confirm -> colors.confirm
         IconButtonKind.Destructive -> colors.destructive
     }
@@ -59,6 +60,7 @@ fun AppIconButton(
     val tint = when {
         !enabled -> colors.textDisabled
         family != null -> family.label
+        kind == IconButtonKind.Inverse -> colors.textOnInverse
         else -> colors.textPrimary
     }
     Box(

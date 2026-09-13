@@ -1,5 +1,6 @@
 package com.example.androidproject1.feature.inventory.presentation.inventoryeditor
 
+import com.example.androidproject1.core.ui.component.CheckState
 import com.example.androidproject1.feature.inventory.domain.InventoryRepository
 import com.example.androidproject1.feature.inventory.domain.ItemTag
 import com.example.androidproject1.service.core.domain.Logger
@@ -50,8 +51,10 @@ class InventoryEditorViewModel(
             is InventoryEditorEvent.TagChanged -> updateData {
                 copy(tags = if (event.checked) tags + event.tag else tags - event.tag)
             }
+            // From "some", a tap on the master selects the rest — never clears what was chosen.
             is InventoryEditorEvent.AllTagsChanged -> updateData {
-                copy(tags = if (event.checked) ItemTag.entries.toSet() else emptySet())
+                val all = event.checked || allTagsState == CheckState.Indeterminate
+                copy(tags = if (all) ItemTag.entries.toSet() else emptySet())
             }
             is InventoryEditorEvent.OwnerSelected -> updateData { copy(owner = event.owner) }
             is InventoryEditorEvent.ImageUrlChanged -> updateData { copy(imageUrl = event.imageUrl) }

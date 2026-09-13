@@ -765,7 +765,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Appears when something is selected. Inverted, because it is a different mode.",
         "Three selected" to {
             AppToolbar("3 selected") {
-                AppText("Move", role = TextRole.Label)
+                AppCheckbox(CheckState.Indeterminate, {}, "All", inverse = true)
+                AppIconButton(Icons.Filled.Delete, "Delete", {}, kind = IconButtonKind.Inverse)
             }
         },
     ),

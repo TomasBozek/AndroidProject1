@@ -57,4 +57,27 @@
     <string name="inventory_detail_history_acquired">Acquired</string>
     <string name="inventory_detail_history_insured">Insured</string>
     <string name="inventory_detail_history_insured_supporting">Covered by a policy.</string>
+    <string name="inventory_filter_title">Filter</string>
+    <string name="inventory_filter_any_category">Any category</string>
+    <string name="inventory_filter_max_price_label">Up to</string>
+    <string name="inventory_filter_no_cap">Any price</string>
+    <string name="inventory_filter_none_active">Nothing filtered — every item is shown.</string>
+    <string name="inventory_filter_clear">Clear filters</string>
+    <string name="inventory_empty_filter_message">Nothing matches the filter.</string>
+    <string name="inventory_sort_title">Sort</string>
+    <string name="inventory_sort_name">By name</string>
+    <string name="inventory_sort_price">By value</string>
+    <string name="inventory_sort_acquired">By date acquired</string>
+    <string name="inventory_selected_count">%1$d selected</string>
+    <string name="inventory_selection_clear">Leave selection</string>
+    <string name="inventory_select_all">All</string>
+    <string name="inventory_favourite_selected">Mark as favourite</string>
+    <string name="inventory_delete_selected">Delete</string>
+    <string name="inventory_delete_message">Pictures, tags and notes go with them. This cannot be undone.</string>
+    <string name="inventory_delete_confirm">Delete</string>
+    <string name="inventory_delete_cancel">Cancel</string>
+    <plurals name="inventory_delete_title">
+        <item quantity="one">Delete %d item?</item>
+        <item quantity="other">Delete %d items?</item>
+    </plurals>
 </resources>

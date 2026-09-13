@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -27,6 +29,10 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * The handle is always drawn, even when the sheet cannot be dragged — it is what says "this came
  * from below and goes back down". Only one overlay at a time: a sheet over a sheet replaces the
  * first rather than stacking, and back closes both.
+ *
+ * The content scrolls: a sheet holding a form is taller than the narrowest phone, and without
+ * this its last control was simply below the screen — which `OverlayScreenshotTest` records, and
+ * no preview could have seen (E3S5).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +68,7 @@ fun AppSheet(
         Column(
             modifier = modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(
                     start = AppTheme.spacing.inset.xl,
                     end = AppTheme.spacing.inset.xl,

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +54,12 @@ fun AppToolbar(
 @Composable
 private fun Preview() = ThemedComponentPreview {
     AppToolbar(title = "3 selected") {
-        AppText(text = "Move", role = TextRole.Label, color = AppTheme.colors.textOnInverse)
-        AppText(text = "Delete", role = TextRole.Label, color = AppTheme.colors.destructive.bg)
+        AppCheckbox(checked = CheckState.Indeterminate, onCheckedChange = {}, label = "All", inverse = true)
+        AppIconButton(
+            icon = Icons.Filled.Delete,
+            contentDescription = "Delete",
+            onClick = {},
+            kind = IconButtonKind.Inverse,
+        )
     }
 }
