@@ -19,14 +19,14 @@ person has no reason to open it — not because it says anything different (D48)
 
 | Doc | What you get |
 |---|---|
-| [ai/PROCESS.md](ai/PROCESS.md) | ids, points, lanes, the task loop, states, what to ship |
+| [ai/PROCESS.md](ai/PROCESS.md) | sprints and releases, ids, points, the task loop, states, the board |
 | [ai/ARCHITECTURE.md](ai/ARCHITECTURE.md) | layers, how a value moves through a screen, navigation, session, environments |
 | [ai/CODEBASE.md](ai/CODEBASE.md) | the module tree, the convention plugins, the API already built, and what the build refuses |
 | [ai/RECIPES.md](ai/RECIPES.md) | how to do a thing here for the first time |
 | [ai/TESTING.md](ai/TESTING.md) | the tests per screen, the goldens, what the build reports |
 | [ai/DEPENDENCIES.md](ai/DEPENDENCIES.md) | which library does which job, and how a version bump happens |
 | [ai/reference/](ai/reference/) | the inventory: `DOMAIN` `FEATURES` `DESIGN-SYSTEM` `SERVICES` `CORE` |
-| [ai/plans/](ai/plans/) | one file per release: why each task is there and what finishes it |
+| [ai/plans/](ai/plans/) | one file per release and one per sprint: why each task is there and what finishes it |
 
 The generators and the convention checks are [../scripts/README.md](../scripts/README.md); the slash
 commands that drive them are [../.claude/commands/](../.claude/commands/).
@@ -43,3 +43,10 @@ commands that drive them are [../.claude/commands/](../.claude/commands/).
   guide, around 120 for a reference. A number is a proxy for the thing that matters, which is that a
   doc over its budget has started explaining itself instead of saying what to do; raise one when the
   content earns it, and cut when it does not.
+
+## The board
+
+The open sprint, the drafts, the backlogs and what shipped, readable from a phone or a session
+with no checkout: <https://claude.ai/artifact/5Jyu1PrDAmkt3TmSTBDCsi>. It is a window on this
+tree, never the other way round — `/board` republishes it from `STATUS.md`, `BACKLOG.md`,
+`CHANGELOG.md` and `ai/plans/` after a board line changes (D67).

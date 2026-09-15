@@ -617,6 +617,35 @@ class ScaffoldingTest(unittest.TestCase):
             self.assertIn(script.name, readme, f"scripts/README.md does not mention {script.name}")
 
 
+    # -- board.py -----------------------------------------------------------------------------
+
+    def test_board_reads_the_open_sprint_and_refuses_a_second(self) -> None:
+        """One JSON document from docs/: the open sprint with its briefs joined onto the board lines,
+        the grouped backlog, what shipped — and a loud failure rather than half a board."""
+        import json
+        result = self.run_script("board.py")
+        board = json.loads(result.stdout)
+        self.assertIsNotNone(board["sprint"], "no sprint is Status: open")
+        sprint = board["sprint"]
+        self.assertRegex(sprint["id"], r"^[A-Z][0-9]$")
+        self.assertTrue(sprint["start"] and sprint["goal"] and sprint["tasks"])
+        first = sprint["tasks"][0]
+        for key in ("id", "state", "title", "est", "why", "doneWhen"):
+            self.assertTrue(first.get(key) not in (None, ""), f"task lacks {key}")
+        self.assertEqual(sprint["points"], sum(t["est"] for t in sprint["tasks"]))
+        self.assertIsNotNone(board["release"], "no release is Status: open")
+        for item in board["backlog"]["next"] + board["backlog"]["devops"]:
+            self.assertTrue(item["group"], f"backlog line without a group: {item['title']}")
+        self.assertTrue(board["shipped"] and board["shipped"][0]["version"].startswith("v"))
+
+        # A second open sprint is a half board, and the script says so instead of printing one.
+        plan = self.repo / "docs/ai/plans" / Path(sprint["file"]).name
+        second = plan.with_name("Z9-second.md")
+        second.write_text(plan.read_text().replace(f"# Sprint {sprint['id']}", "# Sprint Z9").replace(f"Sprint: {sprint['id']}", "Sprint: Z9"))
+        result = self.run_script("board.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("more than one sprint", result.stderr)
+
     # -- .githooks -----------------------------------------------------------------------------
 
     def test_pre_commit_hook_is_executable_and_runs_doctor(self) -> None:

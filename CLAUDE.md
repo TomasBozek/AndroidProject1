@@ -6,9 +6,9 @@ Guidance for Claude Code (claude.ai/code) in this repository.
 read when a task names it. A fact lives in exactly one file — write it twice and one copy is already
 wrong.
 
-**Work** is [docs/ai/PROCESS.md](docs/ai/PROCESS.md) — one agent, ids, points, lanes, the task
-loop — and the plan under `docs/ai/plans/` whose header says `Status: open`. Take a task with
-`/task <id>`, never by picking something that looks useful. Work you find on the way is one line in
+**Work** is [docs/ai/PROCESS.md](docs/ai/PROCESS.md) — sprints and releases, one agent, ids,
+points, the task loop — and the sprint under `docs/ai/plans/` whose header says `Status: open`.
+Take a task with `/task <id>`, never by picking something that looks useful. Work you find on the way is one line in
 [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Project
@@ -213,6 +213,7 @@ Extend a script rather than working around it.
 | a data source, optionally with its repository | `python3 scripts/create_datasource.py userprofile LocalUserProfile --repository` |
 | to undo a generated feature | `python3 scripts/delete_feature.py userProfile` |
 | to check the conventions still hold | `python3 scripts/doctor.py` |
+| the board as one JSON document, for the board artifact | `python3 scripts/board.py` |
 | to reuse `service/` in another project | `python3 scripts/export_service.py --to <dir> --package <pkg>` |
 
 Pass the name in any case; what comes out is fixed — directories and packages flat lowercase,
@@ -220,7 +221,7 @@ classes PascalCase, functions camelCase, resources snake_case. `--dry-run` shows
 follow-up steps are in [docs/ai/RECIPES.md](docs/ai/RECIPES.md), and the same workflows are
 slash commands in `.claude/commands/`.
 
-**Do not add a script.** The Kotlin is the work; the ten are the set. Change one when something else
+**Do not add a script.** The Kotlin is the work; the eleven are the set. Change one when something else
 forces you to and treat that as part of the change that caused it; anything that would be a new tool
 goes to [docs/BACKLOG.md](docs/BACKLOG.md).
 
@@ -251,20 +252,22 @@ tasks.
 
 ## Working a task
 
-- **One agent works a release**, lane by lane. A second or third only when the plan's `Agents:`
+- **One agent works a sprint**, top to bottom. A second or third only when the sprint's `Agents:`
   line says so, and no subagents or workflow scripts inside a session unless the owner asks (D61).
-- `/task <id>` takes the first `[ ]` line in your lane; the branch is the lane's,
-  `<letter><lane>-<slug>`, and every task of the lane is one commit on it.
+- `/task <id>` takes the first `[ ]` line on the board; the branch is the sprint's,
+  `<letter><n>-<slug>`, and every task of the sprint is one commit on it.
 - A `Decide first` line is settled before the code, as a row in `docs/DECISIONS.md`.
-- With more than one agent, touch only the files your lane owns. Alone, there is nothing to
-  arbitrate.
+- With more than one agent, touch only the files your task owns (the sprint's § Files). Alone,
+  there is nothing to arbitrate.
 - A fact you changed moves to its one doc in the same commit — `docs/ai/PROCESS.md` § Which doc
   changes when.
 - **One commit** per task, titled `<id> <title>`, carrying the code, the docs and the board line
   flipped to `[x]` with `· est → act`.
-- One pull request per lane, opened with the template on its first task;
-  `gh pr merge --rebase --delete-branch` once the lane is done and green, so `main` stays one
-  commit per task (D17).
+- One pull request per sprint, opened with the template on its first task;
+  `gh pr merge --rebase --delete-branch` once the sprint is done and green, so `main` stays one
+  commit per task (D17). Then `/sprint close`, and the owner ships or drafts the next sprint.
+- `/board` after a board line changes: the board artifact is how the sprint is read from a phone
+  or another machine (D67).
 
 ## Commands
 

@@ -1,4 +1,4 @@
-<!-- Title: `<id> <title>`, exactly as the plan spells it. -->
+<!-- Title: `Sprint <letter><n> · <name>` — one pull request per sprint; each task is one commit titled `<id> <title>`. -->
 
 Points: <est> → <act>
 
@@ -12,9 +12,9 @@ T1: pass · goldens: ran | skipped (why) · test_scripts: ran | skipped (why) ·
 
 <!-- Paste the tail of /check pr below. -->
 
-## Shared files
+## Files
 
-none | <files, all owned by this lane>
+none | <files, all in the sprint's § Files table>
 
 ## Docs
 
