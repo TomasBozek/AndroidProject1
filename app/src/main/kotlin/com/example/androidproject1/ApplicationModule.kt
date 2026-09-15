@@ -5,7 +5,9 @@ import com.example.androidproject1.debug.TestNotification
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
+import com.example.androidproject1.network.connectivityMonitor
 import com.example.androidproject1.network.networkEngine
+import com.example.androidproject1.service.network.ConnectivityMonitor
 import com.example.androidproject1.service.network.NetworkConfig
 import io.ktor.client.engine.HttpClientEngine
 import org.koin.android.ext.koin.androidContext
@@ -32,6 +34,11 @@ object ApplicationModule {
         // `dev` resolves this to the MockEngine over res/raw fixtures (D20); the other flavors to
         // OkHttp. Different source sets, so the wrong one is not in the build at all.
         single<HttpClientEngine> { networkEngine(androidContext(), get<NetworkConfig>().httpCacheSizeBytes) }
+
+        // Whether a request has a route at all is the platform's to say — and on `dev` the fixture
+        // switch's, since the engine is in-process and airplane mode means nothing to it. Per
+        // flavor source set, beside the engine (D68).
+        single<ConnectivityMonitor> { connectivityMonitor(androidContext(), get()) }
 
         // Only where there is a debug menu to show them. A binding is a reference, and a `prod`
         // build that named `BuildInfo` would keep it; `DebugMenu.ENABLED` is a const, so the

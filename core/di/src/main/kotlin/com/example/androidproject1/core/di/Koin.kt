@@ -81,6 +81,9 @@ fun coreModule(isDebug: Boolean): Module = module {
             engine = get(),
             config = get(),
             logger = if (isDebug) get<Logger>() else null,
+            // Whether there is a route at all is the platform's to say, so it comes from :app
+            // as well — per flavor, beside the engine (D68).
+            connectivity = get(),
         )
     }
 }

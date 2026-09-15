@@ -35,7 +35,9 @@ import io.ktor.client.plugins.logging.Logger as KtorLogger
  * [NetworkConfig.retries] more tries on a 5xx or a transport failure, with an exponential backoff.
  * **A POST is never retried** — a retried order is a double order, and the client cannot tell a
  * request that never arrived from one whose answer did not come back. Only the idempotent methods
- * are, which is what makes the policy safe to apply to every call in the app at once.
+ * are, which is what makes the policy safe to apply to every call in the app at once. And nothing
+ * is retried while [ConnectivityMonitor.online] is false: a device with no route gives every try
+ * the same answer, so the failure is reported at once instead of after the backoff (D68).
  */
 object HttpClientFactory {
 
@@ -52,6 +54,7 @@ object HttpClientFactory {
         logger: Logger? = null,
         tokenStore: TokenStore? = null,
         tokenRefresher: TokenRefresher? = null,
+        connectivity: ConnectivityMonitor = ConnectivityMonitor.AlwaysOnline,
         json: Json = DefaultJson,
     ): HttpClient = HttpClient(engine) {
         // A non-2xx becomes a ResponseException, which HttpErrorMapper turns into a DomainError.
@@ -74,11 +77,13 @@ object HttpClientFactory {
                 // whether the first one reached the server, only that the answer did not come
                 // back. A POST that is safe to repeat says so with an idempotency key and a
                 // `retry { }` block on the request itself, which is a decision per endpoint.
+                // Read at the moment of the decision, not at install: the device that was online
+                // when the client was built is the one in the tunnel now.
                 retryIf { request, response ->
-                    request.method.isIdempotent() && response.status.value in 500..599
+                    connectivity.online.value && request.method.isIdempotent() && response.status.value in 500..599
                 }
                 retryOnExceptionIf { request, cause ->
-                    request.method.isIdempotent() && cause.isTransport()
+                    connectivity.online.value && request.method.isIdempotent() && cause.isTransport()
                 }
 
                 // 500 ms, then 1 s, then 2 s, plus up to 250 ms of jitter so a fleet coming back

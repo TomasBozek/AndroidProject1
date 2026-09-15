@@ -11,6 +11,8 @@ import io.ktor.client.request.HttpResponseData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -40,13 +42,14 @@ class HttpClientRetryTest {
      */
     private fun clientFor(
         config: NetworkConfig = this.config,
+        connectivity: ConnectivityMonitor = ConnectivityMonitor.AlwaysOnline,
         answer: MockRequestHandleScope.(attempt: Int) -> HttpResponseData,
     ): HttpClient {
         val engine = MockEngine {
             requests += 1
             answer(requests)
         }
-        return HttpClientFactory.create(engine, config).config {
+        return HttpClientFactory.create(engine, config, connectivity = connectivity).config {
             install(HttpRequestRetry) { delay { delays += it } }
         }
     }
@@ -106,6 +109,18 @@ class HttpClientRetryTest {
     }
 
     @Test
+    fun `a transport failure while offline is not retried`() = runTest {
+        // Three tries on a device with no route are three identical failures and two seconds of
+        // backoff, in front of an answer — you are offline — that was known before the first.
+        val client = clientFor(connectivity = Offline) { throw IOException("no route to host") }
+
+        runCatching { client.get("/products") }
+
+        assertEquals(1, requests)
+        assertTrue(delays.isEmpty())
+    }
+
+    @Test
     fun `the backoff grows, and carries jitter`() = runTest {
         val client = clientFor { respondError(HttpStatusCode.ServiceUnavailable) }
 
@@ -131,4 +146,9 @@ class HttpClientRetryTest {
 
         assertEquals(1, requests)
     }
+}
+
+private object Offline : ConnectivityMonitor {
+
+    override val online: StateFlow<Boolean> = MutableStateFlow(false)
 }

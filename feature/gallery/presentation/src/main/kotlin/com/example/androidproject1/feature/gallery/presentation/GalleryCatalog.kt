@@ -31,6 +31,7 @@ import com.example.androidproject1.core.ui.component.AppAccordion
 import com.example.androidproject1.core.ui.component.AppAvatar
 import com.example.androidproject1.core.ui.component.AppAvatarPhoto
 import com.example.androidproject1.core.ui.component.AppBadge
+import com.example.androidproject1.core.ui.component.AppBanner
 import com.example.androidproject1.core.ui.component.AppBottomActionBar
 import com.example.androidproject1.core.ui.component.AppBottomNav
 import com.example.androidproject1.core.ui.component.AppButton
@@ -953,6 +954,14 @@ val galleryCatalog: List<GalleryEntry> = listOf(
                 )
             }
         },
+    ),
+    entry(
+        "banner",
+        "AppBanner",
+        "Status",
+        "One line above the screen, in the warning role, for a fact that stays true until it stops: " +
+            "the device is offline. Not a toast — nothing happened, something is so.",
+        "Offline" to { AppBanner(text = "You're offline") },
     ),
     // create_component.py appends a starter entry here; doctor.py fails on a component with none.
 )

@@ -14,6 +14,7 @@ import com.example.androidproject1.service.core.domain.error.UnexpectedError
 import com.example.androidproject1.service.core.domain.test.FakeErrorTracker
 import com.example.androidproject1.service.core.domain.test.FakeLogger
 import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
+import com.example.androidproject1.service.network.ConnectivityMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -45,6 +46,7 @@ class MainViewModelTest {
         onboardingRepository = onboardingRepository,
         themeRepository = themeRepository,
         errorTracker = errorTracker,
+        connectivity = ConnectivityMonitor.AlwaysOnline,
     )
 
     /**
