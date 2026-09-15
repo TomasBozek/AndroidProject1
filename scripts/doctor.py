@@ -1344,6 +1344,20 @@ BOARD_LINE_LOOSE = re.compile(r"^- \[[ x-]\] (\S+)", re.MULTILINE)
 # Platform, Showcase.
 TASK_ID = re.compile(r"^[A-Z][0-9][UXTHPS][1-9]$")
 
+# A backlog line — `docs/BACKLOG.md`'s header and D69: `- <title> · <pts> · <group> [· <kind>] · <why>`.
+# `pts` is a band or `?`, the group a module path at any depth or a process area, the kind one of
+# the six id letters. A one-character part after the group is read as a kind, right or wrong.
+BACKLOG_BANDS = ("3", "6", "12", "25", "50")
+BACKLOG_KINDS = "UXTHPS"
+BACKLOG_GROUP = re.compile(r"^[a-z][a-z0-9:-]*$")
+
+# The first segment of a group: a module tree root, or a process area. The rest of a module path
+# is not checked against disk, so a line may name a module that does not exist yet.
+BACKLOG_AREAS = {"app", "core", "feature", "service", "build", "ci", "release", "git", "process", "templates", "claude", "tests"}
+
+# Where a `?` is allowed instead of a band: the two sections that hold what is not sized yet.
+BACKLOG_UNSIZED_SECTIONS = {"Someday", "Behind a decision"}
+
 # docs/README.md § Rules for these docs, which is where the numbers are written and the only place.
 # A file over its budget has started explaining itself; the rest of the tree carries targets, which
 # are not checked.
@@ -1648,6 +1662,50 @@ def check_task_ids() -> list[str]:
                 problems.append(problem(path, number, f"{task_id} already has a board line in {relative_to_repo(seen[task_id])}"))
             else:
                 seen[task_id] = path
+    return problems
+
+
+@check("every backlog line is `title · pts · group [· kind] · why`")
+def check_backlog_grammar() -> list[str]:
+    """D69: one grammar in every section of `docs/BACKLOG.md`, so `board.py` can tag every line and
+    a bug has a shape to arrive in. A line with no group shows on the board as prose; a kind
+    outside the six letters would become an id `TASK_ID` refuses; a `pts` outside the bands is a
+    number the calibration cannot read; and a `?` under § Next or § DevOps is a line a draft cannot
+    take. The message quotes the line, because the fix is a word in it.
+    """
+    path = DOCS_DIR / "BACKLOG.md"
+    if not path.is_file():
+        return [problem(path, None, "not found")]
+    problems = []
+    section = ""
+    items: list[list] = []  # [line number, text with continuations folded in, section]
+    for number, line in enumerate(path.read_text().splitlines(), 1):
+        if line.startswith("## "):
+            section = line[3:].strip()
+        elif line.startswith("- "):
+            items.append([number, line[2:].strip(), section])
+        elif line.startswith("  ") and items:
+            items[-1][1] += " " + line.strip()
+    for number, text, in_section in items:
+        quoted = f"`- {text[:60]}…`" if len(text) > 60 else f"`- {text}`"
+        parts = [p.strip() for p in text.split(" · ")]
+        if len(parts) < 4:
+            problems.append(problem(path, number, f"{quoted} is not `title · pts · group [· kind] · why` — a part is missing"))
+            continue
+        pts, group = parts[1], parts[2]
+        if pts not in BACKLOG_BANDS and pts != "?":
+            problems.append(problem(path, number, f"{quoted}: `{pts}` is not a band (3, 6, 12, 25, 50) or `?`"))
+        elif pts == "?" and in_section not in BACKLOG_UNSIZED_SECTIONS:
+            problems.append(problem(path, number, f"{quoted}: `?` is allowed only under § Someday and § Behind a decision, not § {in_section}"))
+        if not BACKLOG_GROUP.match(group):
+            problems.append(problem(path, number, f"{quoted}: `{group}` is not a group — a module path or a process area"))
+        elif group.split(":")[0] not in BACKLOG_AREAS:
+            problems.append(problem(path, number, f"{quoted}: `{group}` starts with `{group.split(':')[0]}`, which is neither a module root nor a process area"))
+        if len(parts[3]) == 1:
+            if parts[3] not in BACKLOG_KINDS:
+                problems.append(problem(path, number, f"{quoted}: `{parts[3]}` is not a kind — one of {BACKLOG_KINDS}"))
+            elif len(parts) < 5:
+                problems.append(problem(path, number, f"{quoted} has a kind and no why"))
     return problems
 
 

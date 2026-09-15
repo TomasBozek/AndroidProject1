@@ -1,7 +1,7 @@
 # Sprint F1 · Dev menu and offline
 
 Sprint: F1 · Dev menu and offline
-Status: open
+Status: done 2026-09-15
 When: 2026-09-15 09:00 → 2026-09-15 18:00
 Goal: a tester reaches any screen in one tap, and an offline request stops looking like a failed one
 Release: F
@@ -150,3 +150,20 @@ affected. 6. Tests: the Robolectric flip, the retry case, the component's previe
 before it is committed. 7. The three reference rows.
 **Checks** T1 + `verifyRoborazziDebug` in the same invocation *(`core/ui` moved)* + the whole
 `./gradlew test` *(`service/` moved)*. **Depends** —
+
+## Retrospective
+
+- **What the briefs got wrong.** Two criteria could not be met as written: F1H1's id
+  `main_offlineBanner` fails the closed vocabulary D60 had already decided, and F1X1's
+  `grep -c 'navigateTo'` counted a parameter the task removes. Neither brief listed the file its
+  change forces — `KoinGraphTest` for a `parametersOf`, `Koin.kt` for a new client parameter — and
+  F1H1 pre-assigned D67, a number F1P1 had taken. A brief is written against `DECISIONS.md` and
+  `doctor.py --list`, not from memory of them.
+- **What the checks missed.** CI has refused every run since 2026-09-13 on account billing, and
+  `gh pr checks` printed the same `fail` a red build does, so both pull requests merged on a run
+  that never started. `create_component.py` wrote a gallery entry with no import and a call with no
+  argument, which only the module's compile caught; ktlint's argument-wrapping rule caught the
+  hand-written entry after it.
+- **One thing to change.** `/task` reads the check run's annotation and says *not started* out
+  loud — a line in § DevOps — and the generators are trusted to compile what they write only
+  once `test_scripts.py --with-gradle` says so.

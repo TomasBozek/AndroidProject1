@@ -9,7 +9,8 @@ wrong.
 **Work** is [docs/ai/PROCESS.md](docs/ai/PROCESS.md) — sprints and releases, one agent, ids,
 points, the task loop — and the sprint under `docs/ai/plans/` whose header says `Status: open`.
 Take a task with `/task <id>`, never by picking something that looks useful. Work you find on the way is one line in
-[docs/BACKLOG.md](docs/BACKLOG.md).
+[docs/BACKLOG.md](docs/BACKLOG.md), in the shape its header gives — and a bug is kind `X` with a
+`seen on … expected … steps …` clause.
 
 ## Project
 

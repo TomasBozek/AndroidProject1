@@ -1,7 +1,7 @@
 # Release F · Sprints
 
 Status: open
-Sprints: F1
+Sprints: F1, F2
 Decisions pre-assigned: D66–D68
 
 The release that introduces sprints (D66, D67), and whatever the sprints under it finish before the
