@@ -32,6 +32,8 @@ BOARD_LINE = re.compile(r"^- \[([ x-])\] ([A-Z][0-9][UXTHPS][1-9]) (.*)$")
 TASK_HEADING = re.compile(r"^### ([A-Z][0-9][UXTHPS][1-9]) (.*)$")
 HEADER_LINE = re.compile(r"^([A-Z][a-z]+): (.*)$")
 GROUP = re.compile(r"^[a-z][a-z0-9:-]*$")
+KIND = re.compile(r"^[UXTHPS]$")
+LAYERS = ("presentation", "domain", "data", "di")
 BLOCK_HEADING = re.compile(r"^## (v\d+\.\d+\.\d+) · releases? ([A-Z](?: and [A-Z])*) · (\d{4}-\d{2}-\d{2})$")
 
 
@@ -210,16 +212,34 @@ def parse_release(path: Path) -> dict:
 
 
 def parse_backlog_item(item: str) -> dict:
+    """`<title> · <pts> · <group> [· <kind>] · <why>` (D69). `pts` is a band or `?`, which is
+    `None`; the group is a module path at any depth or a process area, and `area`, `feature` and
+    `layer` are read off it rather than kept in a list of their own."""
     parts = [p.strip() for p in item.split(" · ")]
     title, rest = parts[0], parts[1:]
     pts = None
     group = None
-    if rest and re.fullmatch(r"\d+", rest[0]):
-        pts = int(rest.pop(0))
+    kind = None
+    if rest and (re.fullmatch(r"\d+", rest[0]) or rest[0] == "?"):
+        token = rest.pop(0)
+        pts = None if token == "?" else int(token)
     if rest and GROUP.match(rest[0]):
         group = rest.pop(0)
+    if rest and KIND.match(rest[0]):
+        kind = rest.pop(0)
     was = re.search(r"\(was ([A-Z][0-9][UXTHPS][1-9])\)", title)
-    return {"title": title, "pts": pts, "group": group, "why": " · ".join(rest), "was": was.group(1) if was else None}
+    path = group.split(":") if group else []
+    return {
+        "title": title,
+        "pts": pts,
+        "group": group,
+        "kind": kind,
+        "area": path[0] if path else None,
+        "feature": path[1] if len(path) > 1 and path[0] == "feature" else None,
+        "layer": path[-1] if len(path) > 1 and path[-1] in LAYERS else None,
+        "why": " · ".join(rest),
+        "was": was.group(1) if was else None,
+    }
 
 
 def parse_backlog() -> dict:
@@ -228,10 +248,9 @@ def parse_backlog() -> dict:
     out = {}
     for heading, key in keys.items():
         items = [parse_backlog_item(i) for i in joined_items(secs.get(heading, ""))]
-        if key in ("next", "devops"):
-            for item in items:
-                if item["group"] is None:
-                    raise BoardError(f"BACKLOG.md § {heading}: `{item['title'][:50]}` has no group")
+        for item in items:
+            if item["group"] is None:
+                raise BoardError(f"BACKLOG.md § {heading}: `{item['title'][:50]}` has no group")
         out[key] = items
     return out
 

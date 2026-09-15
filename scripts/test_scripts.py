@@ -634,8 +634,12 @@ class ScaffoldingTest(unittest.TestCase):
             self.assertTrue(first.get(key) not in (None, ""), f"task lacks {key}")
         self.assertEqual(sprint["points"], sum(t["est"] for t in sprint["tasks"]))
         self.assertIsNotNone(board["release"], "no release is Status: open")
-        for item in board["backlog"]["next"] + board["backlog"]["devops"]:
-            self.assertTrue(item["group"], f"backlog line without a group: {item['title']}")
+        for section, items in board["backlog"].items():
+            for item in items:
+                self.assertTrue(item["group"], f"§ {section} line without a group: {item['title']}")
+                for key in ("kind", "area", "feature", "layer"):
+                    self.assertIn(key, item, f"§ {section} line without `{key}`: {item['title']}")
+                self.assertEqual(item["area"], item["group"].split(":")[0])
         self.assertTrue(board["shipped"] and board["shipped"][0]["version"].startswith("v"))
 
         # A second open sprint is a half board, and the script says so instead of printing one.
@@ -645,6 +649,42 @@ class ScaffoldingTest(unittest.TestCase):
         result = self.run_script("board.py", expect_success=False)
         self.assertNotEqual(0, result.returncode)
         self.assertIn("more than one sprint", result.stderr)
+
+    def test_backlog_grammar_is_held_by_both_scripts(self) -> None:
+        """D69: `- <title> · <pts> · <group> [· <kind>] · <why>` in every section. board.py refuses a
+        line with no group; doctor.py names each broken part, and a `?` where a band is due."""
+        import json
+        backlog = self.repo / "docs/BACKLOG.md"
+        good = self.read("docs/BACKLOG.md")
+        self.assertGreaterEqual(good.count("\n- "), 40, "§ Someday is one idea per line")
+        derived = {(i["group"], i["kind"], i["area"], i["feature"], i["layer"])
+                   for items in json.loads(self.run_script("board.py").stdout)["backlog"].values() for i in items}
+        self.assertIn(("feature:auth:data", "H", "feature", "auth", "data"), derived)
+        self.assertIn(("core:ui", "X", "core", None, None), derived)
+        self.assertIn(("release", "P", "release", None, None), derived)
+
+        def with_next(line: str) -> None:
+            backlog.write_text(good.replace("## Next\n", f"## Next\n\n{line}\n", 1))
+
+        def doctor_says(line: str, *fragments: str) -> None:
+            with_next(line)
+            result = self.run_script("doctor.py", expect_success=False)
+            self.assertNotEqual(0, result.returncode, line)
+            self.assertIn("[FAIL] every backlog line is", result.stdout, line)
+            for fragment in fragments:
+                self.assertIn(fragment, result.stdout, line)
+
+        with_next("- A line with no group · 3 · nothing says what it touches")
+        result = self.run_script("board.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("has no group", result.stderr)
+        doctor_says("- A line with no group · 3 · nothing says what it touches", "a part is missing")
+        doctor_says("- A line with a bad kind · 3 · core:ui · Q · a letter outside the six", "`Q` is not a kind")
+        doctor_says("- A line with a bad band · 4 · core:ui · not a band", "`4` is not a band")
+        doctor_says("- A line under no root · 3 · kotlin:ui · a root the tree has not", "neither a module root nor a process area")
+        doctor_says("- An unsized line under Next · ? · core:ui · fine elsewhere", "`?` is allowed only under § Someday")
+        backlog.write_text(good)
+        self.assert_doctor_passes()
 
     # -- .githooks -----------------------------------------------------------------------------
 

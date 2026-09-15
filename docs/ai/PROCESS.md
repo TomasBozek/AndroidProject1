@@ -12,7 +12,7 @@ ships or adds another sprint to the same release, and adding is the default.
 
 | Term | Here |
 |---|---|
-| product backlog | [../BACKLOG.md](../BACKLOG.md) § Next, in order, each line grouped by what it touches; the owner is the product owner |
+| product backlog | [../BACKLOG.md](../BACKLOG.md) § Next, in order; every line in every section is `- <title> · <pts> · <group> [· <kind>] · <why>`, the group a module path or a process area and the kind the id letter it will get (D69), and `doctor.py` holds it; the owner is the product owner |
 | release | `plans/<letter>.md` — a name, `Status: open` or `shipped as v<x.y.z>`, the goal. `/release open <letter> <name>` |
 | sprint | `plans/<letter><n>-<slug>.md` — `Sprint: <letter><n> · <name>`, `Status: draft / open / done`, `When: <start> → <end>`, `Goal:`, then one section per task. `/sprint draft <name>` writes one from the top of § Next |
 | sprint backlog, board | the sprint's task sections; while it is open, its board lines live in [../STATUS.md](../STATUS.md) and nowhere else |
