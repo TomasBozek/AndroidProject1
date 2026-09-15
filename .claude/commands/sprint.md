@@ -45,10 +45,33 @@ Refuse unless every board line is `[x]` or `[-]` and the sprint's pull request i
 
 1. Flip the header to `Status: done <date>`. Append `## Retrospective` to the sprint file: three
    lines — what the briefs got wrong, what the checks missed, one thing to change next sprint.
-2. Move the board lines from `docs/STATUS.md` § Board to § Release `<letter>`, under a
+2. Audit the process against its own docs. The list is fixed; run every item, and every miss is
+   one line in `docs/BACKLOG.md` § DevOps (kind `P`, group `git`, `ci`, `release`, `claude` or
+   `process`) — never a fix made on the spot, and never an item skipped because it passed last
+   time:
+   - **the hook** — `git config core.hooksPath` prints `.githooks`. A miss is anything else; an
+     old `.git/hooks/pre-commit` that still runs is the same miss, only quieter.
+   - **every merge on a run that started and passed** — `gh run list --branch <branch> --json
+     databaseId,headSha,conclusion --limit 20`, then for the run behind each merged commit
+     `gh run view <id> --json jobs --jq '.jobs[] | "\(.name) \(.conclusion) \(.databaseId)"'`
+     and, for a failed job, `gh api repos/{owner}/{repo}/check-runs/<job id>/annotations --jq
+     '.[].message'`. A miss is a merge with no run, a run whose jobs were `skipped`, or an
+     annotation that says the job *was not started* — say `not started: <reason>`, never `fail`.
+   - **a tag for every shipped block** — `git tag -l 'v*'` against `grep '^## v[0-9]'
+     docs/CHANGELOG.md`. A miss is a heading with no tag of the same version.
+   - **the board republished after the last merge** — `/board read`, then `syncedAt` against
+     `git log -1 --format=%cI origin/main`. A miss is a `syncedAt` older than the merge.
+   - **`est → act`** — every pair on the board whose `act / est` is outside 0.7–1.3 is named in
+     the retrospective's first line; three such pairs in one band across the release is a miss:
+     `the <n> band is rewritten`, and `/sprint draft` does it.
+
+   End by printing § DevOps's point total —
+   `python3 scripts/board.py | python3 -c "import json,sys; print(sum(i['pts'] or 0 for i in json.load(sys.stdin)['backlog']['devops']))"`
+   — as `DevOps holds <n> points; an improvement sprint is due at 50`.
+3. Move the board lines from `docs/STATUS.md` § Board to § Release `<letter>`, under a
    `**<letter><n> · <name>** — done <date> · <est> → <act>` line. § Board says no sprint is open
    and names the first draft.
-3. Ask the owner, in one line: **ship now (`/release close`) or draft the next sprint into
+4. Ask the owner, in one line: **ship now (`/release close`) or draft the next sprint into
    release `<letter>` (`/sprint draft`)?** The default is the next sprint; do not ship unasked.
-4. `python3 scripts/doctor.py`; the edit rides the next commit on `main` — a ship, or the next
+5. `python3 scripts/doctor.py`; the edit rides the next commit on `main` — a ship, or the next
    sprint's first task. `/board`.

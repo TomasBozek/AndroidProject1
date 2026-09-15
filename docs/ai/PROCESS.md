@@ -18,9 +18,9 @@ ships or adds another sprint to the same release, and adding is the default.
 | sprint backlog, board | the sprint's task sections; while it is open, its board lines live in [../STATUS.md](../STATUS.md) and nowhere else |
 | drafts | the sprints still `Status: draft`, listed in `STATUS.md` § Drafts in order. **The first is the next sprint by default**; `/sprint open` takes it |
 | daily | the first message of a session: the board, what is next, what is blocked |
-| review | `/sprint close` — every line `[x]` or `[-]`, the file goes `done`, the lines move under `STATUS.md` § Release |
+| review | `/sprint close` — every line `[x]` or `[-]`, the file goes `done`, the retrospective and the audit are written, the lines move under `STATUS.md` § Release |
 | ship | `/release close` — every done sprint of the letter becomes one changelog block, then the tag |
-| retrospective | the `est → act` pairs, summed at ship; the band recalibration in `/sprint draft` |
+| retrospective | the `est → act` pairs, summed at ship and recalibrated in `/sprint draft`; three lines in the sprint file at close — what the briefs got wrong, what the checks missed, one thing to change — and an audit of the process against its own docs (hook, CI runs, tags, board, `est → act`), every miss a line in § DevOps and the section's total printed against the 50 at which an improvement sprint is due |
 | the board, anywhere | `/board` — `scripts/board.py` reads these files and the result is written to the board artifact (D67), so a phone or another session sees the same state without the repository |
 
 A sprint's timebox is one agent-day — 100 points — unless the `When:` line says otherwise. A task
