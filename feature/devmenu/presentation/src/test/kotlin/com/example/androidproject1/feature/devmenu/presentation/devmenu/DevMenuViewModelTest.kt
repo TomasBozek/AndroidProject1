@@ -48,6 +48,7 @@ class DevMenuViewModelTest {
         notificationTester = tester,
         authService = authService,
         errorTracker = errorTracker,
+        jumps = DevMenuState.PREVIEW.jumps,
     )
 
     @Test
@@ -55,7 +56,19 @@ class DevMenuViewModelTest {
         val state = viewModel().state.value
 
         assertEquals(BuildInfo.PREVIEW, state.data?.build)
+        assertEquals(DevMenuState.PREVIEW.jumps, state.data?.jumps)
         assertNull(state.loading)
+    }
+
+    @Test
+    fun `a jump navigates with the jump it was given`() = runTest {
+        // The jump carries its own back-stack call; the view model only hands it on.
+        val viewModel = viewModel()
+        val jump = DevMenuState.PREVIEW.jumps.single { it.id == "inventoryEditor" }
+
+        viewModel.onUiEvent(DevMenuEvent.JumpClicked(jump))
+
+        assertEquals(DevMenuNavigation.Jump(jump), viewModel.navigation.first())
     }
 
     @Test

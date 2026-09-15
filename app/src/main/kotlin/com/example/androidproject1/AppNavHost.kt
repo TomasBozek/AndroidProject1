@@ -43,30 +43,39 @@ import com.example.androidproject1.feature.catalog.presentation.productdetail.pr
 import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.productpicker.productPickerDestination
 import com.example.androidproject1.feature.catalog.presentation.products.productsDestination
+import com.example.androidproject1.feature.catalog.presentation.search.ProductSearchDestination
 import com.example.androidproject1.feature.catalog.presentation.search.productSearchDestination
+import com.example.androidproject1.feature.devmenu.presentation.DevMenuJump
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.DevMenuDestination
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.devMenuDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.galleryDestination
+import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.galleryDetailDestination
 import com.example.androidproject1.feature.home.presentation.home.homeDestination
 import com.example.androidproject1.feature.inventory.presentation.inventory.InventoryDestination
 import com.example.androidproject1.feature.inventory.presentation.inventory.inventoryDestination
+import com.example.androidproject1.feature.inventory.presentation.inventorydetail.InventoryDetailDestination
 import com.example.androidproject1.feature.inventory.presentation.inventorydetail.inventoryDetailDestination
+import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.inventoryEditorDestination
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileDestination
 import com.example.androidproject1.feature.profile.presentation.profile.profileDestination
+import com.example.androidproject1.feature.settings.presentation.permissions.SettingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.settingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.settings.settingsDestination
 import com.example.androidproject1.feature.trips.presentation.destinationpicker.destinationPickerDestination
 import com.example.androidproject1.feature.trips.presentation.tripdetail.tripDetailDestination
 import com.example.androidproject1.feature.trips.presentation.trips.tripsDestination
+import com.example.androidproject1.feature.trips.presentation.tripslist.TripsListDestination
 import com.example.androidproject1.feature.trips.presentation.tripslist.tripsListDestination
+import com.example.androidproject1.feature.trips.presentation.tripwizard.TripWizardDestination
 import com.example.androidproject1.feature.trips.presentation.tripwizard.tripWizardDestination
 import com.example.androidproject1.service.core.domain.result.Outcome
 import com.example.androidproject1.service.core.ui.analytics.ProvideAnalytics
 import com.example.androidproject1.service.core.ui.navigation.ProvideNavResultStore
+import com.example.androidproject1.service.core.ui.text.toUiText
 import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
 
@@ -333,8 +342,41 @@ private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<N
 private fun EntryProviderScope<NavKey>.debugEntries(backStack: NavBackStack<NavKey>) {
     devMenuDestination(
         backStack = backStack,
-        navigateToComponents = { backStack.add(GalleryDestination) },
+        jumps = devMenuJumps(backStack),
     )
     galleryDestination(backStack = backStack)
     galleryDetailDestination(backStack = backStack)
 }
+
+/**
+ * Where the debug menu jumps: the screens a tester otherwise reaches by signing in, tapping a
+ * tab, walking a list and entering a wizard. Built here because this is the only file that knows
+ * every destination, and pushed onto whatever stack the menu is on, so the up arrow comes back.
+ *
+ * The label is the screen's own id — the word a flow's `assertVisible` uses — so it is not copy.
+ * A route that takes an argument gets a value the fixtures serve on every flavor: the seeded
+ * inventory, the gallery catalogue. Never a blank one, which would open an empty screen and prove
+ * nothing. Tab roots are one tap away already and are left out.
+ */
+private fun devMenuJumps(backStack: NavBackStack<NavKey>): List<DevMenuJump> = listOf(
+    jump(backStack, "gallery", "GalleryScreen", GalleryDestination),
+    jump(backStack, "galleryDetail", "GalleryDetailScreen", GalleryDetailDestination(componentId = "button")),
+    jump(backStack, "tripsList", "TripsListScreen", TripsListDestination),
+    jump(backStack, "tripWizard", "TripWizardScreen", TripWizardDestination),
+    jump(backStack, "productSearch", "ProductSearchScreen", ProductSearchDestination),
+    jump(backStack, "profile", "ProfileScreen", ProfileDestination),
+    jump(backStack, "settingsPermissions", "SettingsPermissionsScreen", SettingsPermissionsDestination),
+    jump(backStack, "inventoryDetail", "InventoryDetailScreen", InventoryDetailDestination(itemId = "drill")),
+    jump(backStack, "inventoryEditor", "InventoryEditorScreen", InventoryEditorDestination(itemId = "drill")),
+)
+
+private fun jump(
+    backStack: NavBackStack<NavKey>,
+    id: String,
+    screenId: String,
+    destination: NavKey,
+) = DevMenuJump(
+    id = id,
+    label = screenId.toUiText(),
+    navigate = { backStack.add(destination) },
+)

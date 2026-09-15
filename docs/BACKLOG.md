@@ -17,6 +17,10 @@ default**: the next grooming does each line or deletes it.
 
 In order. What the sprint after F takes first.
 
+- The description list stacks its label a letter per line at large font · 6 · core:ui · seen on
+  `devDebug` 1.0 (1), the devmenu's `Large_font` golden: at 1.5× `AppDescriptionList` gives the
+  label column one character of width and "Application id" runs vertically; expected the value
+  to wrap first. Steps: open the debug menu with the font scale at 1.5.
 - The Maestro flows stop tapping fixture text · 12 · tests · `"Beverages"`, `"Coffee"` and `"Olive oil"` are
   tapped by label. List rows carry one constant tag today, so a per-row id means
   `categories_item_<id>`, and the vocabulary check E1X1 adds has to learn a suffix before anything

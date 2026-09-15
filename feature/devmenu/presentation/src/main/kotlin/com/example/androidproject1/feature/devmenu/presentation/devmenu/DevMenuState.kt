@@ -3,10 +3,13 @@ package com.example.androidproject1.feature.devmenu.presentation.devmenu
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
+import com.example.androidproject1.feature.devmenu.presentation.DevMenuJump
+import com.example.androidproject1.service.core.ui.text.toUiText
 
 /**
  * @property session the signed-in address, or `null` while signed out.
  * @property offlineSupported whether this flavor talks to fixtures and so has a switch to offer.
+ * @property jumps the screens the menu opens directly, in the order they are listed.
  */
 @Immutable
 data class DevMenuState(
@@ -14,6 +17,7 @@ data class DevMenuState(
     val session: String?,
     val offlineSupported: Boolean,
     val offline: Boolean,
+    val jumps: List<DevMenuJump>,
 ) {
 
     companion object {
@@ -23,6 +27,11 @@ data class DevMenuState(
             session = "ada@example.com",
             offlineSupported = true,
             offline = false,
+            jumps = listOf(
+                DevMenuJump(id = "gallery", label = "GalleryScreen".toUiText(), navigate = {}),
+                DevMenuJump(id = "tripWizard", label = "TripWizardScreen".toUiText(), navigate = {}),
+                DevMenuJump(id = "inventoryEditor", label = "InventoryEditorScreen".toUiText(), navigate = {}),
+            ),
         )
     }
 }
