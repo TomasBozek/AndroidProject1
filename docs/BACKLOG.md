@@ -56,8 +56,9 @@ honest: a line lands here whenever the process is caught not doing what its docs
   did. Either `/release close` ends with the push, or the release job tags `main` itself when a
   `## v<x.y.z>` block lands with no matching tag.
 - The pre-commit hook is installed by something · 3 · git · P · `git config core.hooksPath
-  .githooks` is a README sentence and unset on this clone, so `doctor.py` never ran before a commit
-  here. `/check` sets it when it is missing, or `init_project.py` does.
+  .githooks` is a README sentence and unset on this clone; what runs here is an old
+  `.git/hooks/pre-commit` a deleted `install_hooks.py` left behind, and a fresh clone has neither.
+  `/check` sets it when it is missing, or `init_project.py` does.
 - A launch config for the emulator · 6 · claude · P · there is no `.claude/launch.json`, so `/run`
   has nothing to start and a change is verified by tests and goldens only. One entry that boots
   the `devDebug` install and one that runs a Maestro flow, so a session can watch a screen it
