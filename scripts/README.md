@@ -38,6 +38,7 @@ it on a fresh clone before writing code of your own; it refuses a dirty working 
 | `create_datasource.py` | Data source across `data`, optionally its repository in `domain` | the Koin bindings |
 | `delete_feature.py` | The inverse of `create_feature.py` | undoes all five |
 | `doctor.py` | the checks a compiler cannot make; `--list` names them | — |
+| `board.py` | The sprint, drafts, releases and backlog as one JSON document, read from `docs/`; `/board` writes it to the board artifact | — |
 | `test_scripts.py` | Tests for everything above; `--with-gradle` also compiles a generated feature | — |
 | `export_service.py` | Copies `service/` and `build-logic/` into a *different* project | prints the `settings.gradle.kts` block |
 

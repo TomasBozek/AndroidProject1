@@ -1,0 +1,404 @@
+<title>AndroidProject1 Board</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Serif:wght@500&display=swap">
+<style>
+  :root {
+    --ground: #f5f4ef; --surface: #fbfaf7; --ink: #1b1d1a; --muted: #676b63; --line: #dddcd3;
+    --line-soft: #ebeae3; --accent: #2d6a4f; --accent-ink: #ffffff; --accent-soft: #e3efe8;
+    --warn: #b5651d; --warn-soft: #f6e7d8; --drop: #8c8f88; --drop-soft: #ecece7;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #151715; --surface: #1e211e; --ink: #e6e4dc; --muted: #9a9e94; --line: #2e332e;
+      --line-soft: #262a26; --accent: #6fbf8e; --accent-ink: #0f1a13; --accent-soft: #1f3328;
+      --warn: #e09a55; --warn-soft: #3a2a1a; --drop: #7d817a; --drop-soft: #262926;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #151715; --surface: #1e211e; --ink: #e6e4dc; --muted: #9a9e94; --line: #2e332e;
+    --line-soft: #262a26; --accent: #6fbf8e; --accent-ink: #0f1a13; --accent-soft: #1f3328;
+    --warn: #e09a55; --warn-soft: #3a2a1a; --drop: #7d817a; --drop-soft: #262926;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 15px/1.5 var(--sans); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 20px 56px; }
+  a { color: var(--accent); }
+  code, .mono { font-family: var(--mono); font-size: 0.92em; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  /* head */
+  .head { display: grid; gap: 6px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .head h1 { font: 500 30px/1.15 var(--serif); }
+  .head .goal { max-width: 65ch; color: var(--ink); }
+  .head .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: 13px; }
+  .head .meta .mono { color: var(--ink); }
+
+  /* points bar: one agent-day is 100 */
+  .bar { margin-top: 12px; }
+  .bar .track { position: relative; height: 10px; border-radius: 3px; background: var(--line-soft); overflow: hidden; }
+  .bar .est { position: absolute; inset: 0 auto 0 0; background: var(--accent-soft); }
+  .bar .act { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+  .bar .legend { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* tabs */
+  .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 20px 0 18px; border-bottom: 1px solid var(--line); }
+  .tabs button { appearance: none; border: 0; background: none; color: var(--muted); font: 500 14px/1 var(--sans);
+    padding: 10px 12px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 4px; }
+  .tabs .count { color: var(--muted); font-family: var(--mono); font-size: 12px; margin-left: 6px; }
+
+  /* task rows */
+  .rows { display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: 76px 1fr auto; gap: 8px 14px; align-items: start;
+    padding: 12px 4px; border-bottom: 1px solid var(--line-soft); }
+  .row.open-brief { background: var(--surface); }
+  .row .id { font: 500 13px/1.6 var(--mono); color: var(--muted); }
+  .row .title { font-weight: 500; cursor: pointer; }
+  .row .title:hover { color: var(--accent); }
+  .row .sub { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .row .pts { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; text-align: right; white-space: nowrap; }
+  .row .pts .act { color: var(--accent); }
+  .pill { display: inline-block; font: 500 11px/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 4px 7px; border-radius: 3px; background: var(--line-soft); color: var(--muted); }
+  .pill.done { background: var(--accent-soft); color: var(--accent); }
+  .pill.doing { background: var(--accent); color: var(--accent-ink); }
+  .pill.blocked { background: var(--warn-soft); color: var(--warn); }
+  .pill.dropped { background: var(--drop-soft); color: var(--drop); text-decoration: line-through; }
+  .brief { grid-column: 1 / -1; display: grid; gap: 10px; padding: 6px 0 4px 90px; max-width: 80ch; font-size: 14px; }
+  .brief p { margin: 0; }
+  .brief .eyebrow { margin-bottom: 2px; }
+  .brief[hidden] { display: none; }
+
+  /* generic section */
+  section.view[hidden] { display: none; }
+  .section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 22px 0 10px; }
+  .section-title h2 { font: 600 15px/1.3 var(--sans); }
+  .section-title .hint { color: var(--muted); font-size: 12.5px; }
+  .empty { color: var(--muted); padding: 18px 4px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-soft); }
+
+  /* backlog */
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+  .controls select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; }
+  .group-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 4px 6px; }
+  .group-head .name { font: 500 13px/1 var(--mono); color: var(--ink); }
+  .group-head .sum { font: 400 12px/1 var(--mono); color: var(--muted); }
+  .item { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 10px 4px; border-bottom: 1px solid var(--line-soft); }
+  .item .t { font-weight: 500; }
+  .item .why { grid-column: 1 / -1; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+  .item .tag { font: 400 12px/1 var(--mono); color: var(--muted); }
+  .item .pts { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
+
+  /* drafts & releases */
+  .card { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  .card h3 { font: 500 18px/1.25 var(--serif); }
+  .card .meta { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .card.next { border-color: var(--accent); }
+  .card.next .eyebrow { color: var(--accent); }
+  .stack { display: grid; gap: 12px; }
+  .ship { padding: 14px 4px; border-bottom: 1px solid var(--line-soft); }
+  .ship .v { font: 500 16px/1.3 var(--mono); }
+  .ship ul { margin: 6px 0 0; padding-left: 18px; }
+  .ship .meta { color: var(--muted); font-size: 12.5px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+  .foot { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px;
+    display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .notice { padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--muted); max-width: 65ch; }
+
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 1fr auto; }
+    .row .id { grid-column: 1 / -1; }
+    .brief { padding-left: 0; }
+    .head h1 { font-size: 24px; }
+  }
+  @media (prefers-reduced-motion: no-preference) { .bar .act, .bar .est { transition: width 300ms ease; } }
+</style>
+
+<div class="wrap">
+  <header class="head" id="head">
+    <div class="eyebrow" id="head-eyebrow">Sprint</div>
+    <h1 id="head-title">AndroidProject1 Board</h1>
+    <p class="goal" id="head-goal">Reading the board…</p>
+    <div class="meta" id="head-meta"></div>
+    <div class="bar" id="bar" hidden>
+      <div class="track"><div class="est" id="bar-est"></div><div class="act" id="bar-act"></div></div>
+      <div class="legend"><span id="bar-left"></span><span>100 pts = one agent-day</span></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-view="sprint" aria-selected="true">Sprint<span class="count" id="c-sprint"></span></button>
+    <button role="tab" data-view="drafts" aria-selected="false">Drafts<span class="count" id="c-drafts"></span></button>
+    <button role="tab" data-view="backlog" aria-selected="false">Backlog<span class="count" id="c-backlog"></span></button>
+    <button role="tab" data-view="devops" aria-selected="false">DevOps<span class="count" id="c-devops"></span></button>
+    <button role="tab" data-view="releases" aria-selected="false">Releases<span class="count" id="c-releases"></span></button>
+  </nav>
+
+  <section class="view" id="view-sprint"></section>
+  <section class="view" id="view-drafts" hidden></section>
+  <section class="view" id="view-backlog" hidden>
+    <div class="controls">
+      <label for="backlog-group">Group by</label>
+      <select id="backlog-group"><option value="group">what it touches</option><option value="pts">points</option><option value="none">nothing — backlog order</option></select>
+    </div>
+    <div id="backlog-body"></div>
+  </section>
+  <section class="view" id="view-devops" hidden>
+    <div class="controls">
+      <label for="devops-group">Group by</label>
+      <select id="devops-group"><option value="group">area</option><option value="pts">points</option><option value="none">nothing — backlog order</option></select>
+    </div>
+    <div id="devops-body"></div>
+  </section>
+  <section class="view" id="view-releases" hidden></section>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // Backtick spans in the docs become <code>; nothing else in the markdown is rendered.
+  const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  const pts = (n) => n == null ? "" : String(n);
+
+  let board = null;
+  let view = "sprint";
+  const openBriefs = new Set();
+  try { view = localStorage.getItem("board.view") || view; } catch (e) {}
+
+  // --- tabs
+  const tabs = $("tabs");
+  tabs.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-view]");
+    if (!b) return;
+    view = b.dataset.view;
+    try { localStorage.setItem("board.view", view); } catch (e2) {}
+    showView();
+  });
+  function showView() {
+    for (const b of tabs.querySelectorAll("button[data-view]")) b.setAttribute("aria-selected", String(b.dataset.view === view));
+    for (const s of document.querySelectorAll("section.view")) s.hidden = s.id !== "view-" + view;
+  }
+  showView();
+
+  // --- rendering
+  function stateOf(t, sprintOpen, firstOpenId) {
+    if (t.state === "done") return ["done", "done"];
+    if (t.state === "dropped") return ["dropped", "dropped"];
+    if (t.blocked) return ["blocked", "blocked"];
+    if (sprintOpen && t.id === firstOpenId) return ["doing", "in hand"];
+    return ["", "open"];
+  }
+
+  function taskRows(tasks, sprintOpen) {
+    const firstOpen = tasks.find((t) => t.state === "open" && !t.blocked);
+    return `<div class="rows">` + tasks.map((t) => {
+      const [cls, label] = stateOf(t, sprintOpen, firstOpen && firstOpen.id);
+      const sub = [];
+      if (t.decides && t.decides.length) sub.push("decides " + t.decides.join(", "));
+      if (t.after && t.after.length) sub.push("after " + t.after.join(", "));
+      if (t.blocked) sub.push("blocked: " + esc(t.blocked));
+      if (t.dropped) sub.push("dropped: " + esc(t.dropped));
+      if (t.depends && t.depends !== "—" && t.depends !== "") sub.push("depends " + md(t.depends));
+      const open = openBriefs.has(t.id);
+      const hasBrief = t.why || t.doneWhen;
+      return `<div class="row ${open ? "open-brief" : ""}" data-id="${t.id}">
+        <div class="id">${t.id}</div>
+        <div>
+          <div class="title" ${hasBrief ? 'role="button" tabindex="0"' : ""}>${esc(t.title)}</div>
+          <div class="sub"><span class="pill ${cls}">${label}</span>${sub.map((s) => `<span>${s}</span>`).join("")}</div>
+        </div>
+        <div class="pts">${pts(t.est)}${t.act != null ? ` → <span class="act">${t.act}</span>` : ""}</div>
+        <div class="brief" ${open ? "" : "hidden"}>
+          ${t.why ? `<div><div class="eyebrow">Why</div><p>${md(t.why)}</p></div>` : ""}
+          ${t.decideFirst ? `<div><div class="eyebrow">Decide first</div><p>${md(t.decideFirst)}</p></div>` : ""}
+          ${t.doneWhen ? `<div><div class="eyebrow">Done when</div><p>${md(t.doneWhen)}</p></div>` : ""}
+          ${t.touches ? `<div><div class="eyebrow">Touches</div><p>${md(t.touches)}</p></div>` : ""}
+          ${t.checks ? `<div><div class="eyebrow">Checks</div><p>${md(t.checks)}</p></div>` : ""}
+        </div>
+      </div>`;
+    }).join("") + `</div>`;
+  }
+
+  document.addEventListener("click", (e) => {
+    const title = e.target.closest(".title[role=button]");
+    if (!title) return;
+    toggleBrief(title.closest(".row").dataset.id);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const title = e.target.closest && e.target.closest(".title[role=button]");
+    if (!title) return;
+    e.preventDefault();
+    toggleBrief(title.closest(".row").dataset.id);
+  });
+  function toggleBrief(id) {
+    if (openBriefs.has(id)) openBriefs.delete(id); else openBriefs.add(id);
+    render();
+  }
+
+  function when(s) {
+    if (!s.start) return "";
+    const day = s.start.slice(0, 10);
+    const endDay = (s.end || "").slice(0, 10);
+    const t1 = s.start.slice(11), t2 = (s.end || "").slice(11);
+    if (endDay && endDay !== day) return `${s.start} → ${s.end}`;
+    return `${day}${t1 ? " · " + t1 : ""}${t2 ? " → " + t2 : ""}`;
+  }
+
+  function renderHead() {
+    const s = board.sprint;
+    if (!s) {
+      const next = board.drafts[0];
+      $("head-eyebrow").textContent = board.release ? `Release ${board.release.letter} · ${board.release.name}` : "No release open";
+      $("head-title").textContent = "No sprint is open";
+      $("head-goal").innerHTML = next ? `Next by default: <strong>${esc(next.id)} · ${esc(next.name)}</strong> — <code>/sprint open</code>.` : "Nothing drafted — <code>/sprint draft &lt;name&gt;</code> writes one from the backlog.";
+      $("head-meta").innerHTML = "";
+      $("bar").hidden = true;
+      return;
+    }
+    const done = s.tasks.filter((t) => t.state === "done").length;
+    $("head-eyebrow").textContent = `Sprint ${s.id} · release ${s.release}${board.release ? " · " + board.release.name : ""}`;
+    $("head-title").textContent = s.name;
+    $("head-goal").innerHTML = md(s.goal);
+    $("head-meta").innerHTML = [
+      `<span><span class="mono">${esc(when(s))}</span></span>`,
+      `<span>${done}/${s.tasks.length} tasks done</span>`,
+      `<span><span class="mono">${s.points}</span> pts planned · <span class="mono">${s.actual}</span> spent</span>`,
+      s.agents ? `<span>agents ${esc(s.agents)}</span>` : "",
+    ].join("");
+    $("bar").hidden = false;
+    $("bar-est").style.width = Math.min(100, s.points) + "%";
+    $("bar-act").style.width = Math.min(100, s.actual) + "%";
+    $("bar-left").innerHTML = `<span class="num">${s.actual}</span> spent of <span class="num">${s.points}</span> planned`;
+  }
+
+  function renderSprint() {
+    const s = board.sprint;
+    $("c-sprint").textContent = s ? s.tasks.length : "";
+    if (!s) { $("view-sprint").innerHTML = `<p class="empty">No sprint is open. The first draft is the next one by default.</p>`; return; }
+    $("view-sprint").innerHTML = `
+      <div class="section-title"><h2>Board</h2><span class="hint">worked top to bottom — the first open line is the one in hand · click a title for its brief</span></div>
+      ${taskRows(s.tasks, true)}
+      ${s.retrospective ? `<div class="section-title"><h2>Retrospective</h2></div><p>${md(s.retrospective)}</p>` : ""}`;
+  }
+
+  function renderDrafts() {
+    const d = board.drafts;
+    $("c-drafts").textContent = d.length || "";
+    if (!d.length) { $("view-drafts").innerHTML = `<p class="empty">No drafts. <code>/sprint draft &lt;name&gt;</code> writes the next sprint from the backlog; the first draft is the next sprint by default.</p>`; return; }
+    $("view-drafts").innerHTML = `<div class="section-title"><h2>Queue</h2><span class="hint">in order — the first opens next</span></div><div class="stack">` +
+      d.map((s, i) => `<div class="card ${i === 0 ? "next" : ""}">
+        <div class="eyebrow">${i === 0 ? "Next sprint" : "Draft"} · ${s.id} · release ${s.release}</div>
+        <h3>${esc(s.name)}</h3>
+        <p style="margin:0;max-width:65ch">${md(s.goal)}</p>
+        <div class="meta"><span class="mono">${esc(when(s))}</span><span>${s.tasks.length} tasks · <span class="mono">${s.points}</span> pts</span></div>
+        ${taskRows(s.tasks, false)}
+      </div>`).join("") + `</div>`;
+  }
+
+  function grouped(items, by) {
+    if (by === "none") return [["", items]];
+    const map = new Map();
+    for (const it of items) {
+      const key = by === "pts" ? (it.pts == null ? "unsized" : String(it.pts)) : (it.group || "ungrouped");
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(it);
+    }
+    const keys = [...map.keys()];
+    if (by === "pts") keys.sort((a, b) => (Number(b) || 0) - (Number(a) || 0));
+    else keys.sort();
+    return keys.map((k) => [k, map.get(k)]);
+  }
+
+  function itemList(items, by, emptyText) {
+    if (!items.length) return `<p class="empty">${emptyText}</p>`;
+    return grouped(items, by).map(([key, list]) => {
+      const sum = list.reduce((a, it) => a + (it.pts || 0), 0);
+      const head = key ? `<div class="group-head"><span class="name">${esc(key)}</span><span class="sum">${list.length} · ${sum} pts</span></div>` : "";
+      return head + list.map((it) => `<div class="item">
+        <div><span class="t">${md(it.title)}</span>${it.group && by !== "group" ? ` <span class="tag">${esc(it.group)}</span>` : ""}</div>
+        <div class="pts">${it.pts == null ? "" : it.pts}</div>
+        ${it.why ? `<div class="why">${md(it.why)}</div>` : ""}
+      </div>`).join("");
+    }).join("");
+  }
+
+  function renderBacklog() {
+    const b = board.backlog;
+    $("c-backlog").textContent = b.next.length || "";
+    $("c-devops").textContent = b.devops.length || "";
+    const by = $("backlog-group").value;
+    $("backlog-body").innerHTML =
+      `<div class="section-title"><h2>Next</h2><span class="hint">in order — what the next sprint takes first</span></div>` +
+      itemList(b.next, by, "Nothing ranked.") +
+      `<div class="section-title"><h2>Someday</h2></div>` + itemList(b.someday, "none", "—") +
+      `<div class="section-title"><h2>Behind a decision</h2></div>` + itemList(b.decision, "none", "—");
+    const byD = $("devops-group").value;
+    $("devops-body").innerHTML =
+      `<div class="section-title"><h2>How the project is built, checked, shipped and planned</h2><span class="hint">an improvement sprint drafts from here</span></div>` +
+      itemList(b.devops, byD, "Nothing here — the process is doing what its docs say.");
+  }
+  $("backlog-group").addEventListener("change", renderBacklog);
+  $("devops-group").addEventListener("change", renderBacklog);
+
+  function renderReleases() {
+    const r = board.release;
+    const shipped = board.shipped;
+    $("c-releases").textContent = shipped.length + (r ? 1 : 0);
+    let html = "";
+    if (r) {
+      html += `<div class="section-title"><h2>Open · release ${r.letter}</h2><span class="hint">collects sprints until <code>/release close</code></span></div>
+        <div class="card"><div class="eyebrow">Release ${r.letter}</div><h3>${esc(r.name)}</h3><p style="margin:0;max-width:65ch">${md(r.goal)}</p>
+        <div class="meta"><span>sprints: <span class="mono">${r.sprints.join(", ") || "none yet"}</span></span></div>
+        ${r.sprintsDone.length ? r.sprintsDone.map((s) => `<div class="section-title"><h2>${s.id} · ${esc(s.name)}</h2><span class="hint mono">${esc(s.status)} · ${s.points} → ${s.actual}</span></div>${taskRows(s.tasks, false)}`).join("") : `<p class="empty" style="border:0;padding:6px 0 0">No sprint done yet under this release.</p>`}
+        </div>`;
+    }
+    html += `<div class="section-title"><h2>Shipped</h2><span class="hint">from the changelog, in user words</span></div>` +
+      shipped.map((b) => `<div class="ship"><div class="v">${esc(b.version)} <span style="color:var(--muted);font-weight:400">· release ${esc(b.releases.join(" and "))} · ${esc(b.date)}</span></div>
+        <ul>${b.lines.map((l) => `<li>${md(l)}</li>`).join("")}</ul>
+        <div class="meta"><span>tasks ${esc(b.tasks)}</span>${b.estimate != null ? `<span class="mono">est ${b.estimate} · act ${b.actual} · ratio ${b.ratio}</span>` : ""}</div>
+      </div>`).join("");
+    $("view-releases").innerHTML = html;
+  }
+
+  function renderFoot() {
+    const t = board.syncedAt ? new Date(board.syncedAt) : null;
+    $("foot").innerHTML = [
+      `<span>read from the repository at <span class="mono">${esc(board.commit)}</span>${board.branch ? ` on <span class="mono">${esc(board.branch)}</span>` : ""}${board.dirty ? " (uncommitted edits)" : ""}</span>`,
+      t ? `<span>published ${esc(t.toLocaleString())}</span>` : "",
+      `<span>the repository is the truth — <code>/board</code> republishes this</span>`,
+    ].join("");
+  }
+
+  function render() {
+    if (!board) return;
+    renderHead(); renderSprint(); renderDrafts(); renderBacklog(); renderReleases(); renderFoot();
+  }
+
+  function offline(message) {
+    $("head-goal").innerHTML = message;
+    $("view-sprint").innerHTML = `<div class="notice">${message}</div>`;
+  }
+
+  // --- data: one document, board/state, written by /board from scripts/board.py
+  (async () => {
+    const db = await window.claude.use("db");
+    if (!db) { offline("This board reads its data inside claude.ai. Open it there, or read <code>docs/STATUS.md</code> in the repository."); return; }
+    db.doc("board/state").onSnapshot(
+      (snap) => {
+        if (!snap.exists) { offline("Nothing published yet — run <code>/board</code> in a session with the repository."); return; }
+        board = snap.data();
+        render();
+      },
+      (err) => offline("The board could not be read (" + esc(err.code) + "). Reload, or read <code>docs/STATUS.md</code>."),
+    );
+  })();
+})();
+</script>
