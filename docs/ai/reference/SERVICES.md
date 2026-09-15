@@ -67,6 +67,10 @@ and `:app` the OkHttp one without this module knowing either. Its retry policy m
 and jitter, **on idempotent methods only** — never a POST. Do not add a retry loop in a data source.
 `HttpErrorMapper` turns a status into a `DomainError`.
 
+`ConnectivityMonitor` is the port for whether there is a route at all. `:app` implements it over
+`ConnectivityManager`, `dev` answers from its offline switch, and the retry policy gives up at once
+while it says offline — three tries on a device with no route are three identical failures (D68).
+
 The on-disk HTTP cache is not here: it is a property of the engine, not of the client wrapping it,
 so `:app`'s `cachedOkHttpEngine` (`src/main`, shared by `prod` and `staging`) builds it from
 `NetworkConfig.httpCacheSizeBytes` and the platform's own cache directory. `dev`'s fixture engine

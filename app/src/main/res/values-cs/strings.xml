@@ -8,6 +8,8 @@
     <string name="tab_trips">Výlety</string>
     <string name="tab_settings">Nastavení</string>
 
+    <string name="main_offline">Jste offline</string>
+
     <string name="notification_channel_general">Obecné</string>
 
     <string name="debug_notification_title">Test přímého odkazu</string>

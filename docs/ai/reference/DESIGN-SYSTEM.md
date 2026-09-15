@@ -33,7 +33,7 @@ A touch target is `AppTheme.density.minTouchTarget` and a different question fro
 
 ## Components
 
-Forty-six in the gallery, in seven groups, plus `AppScaffold` (the screen shell, which every gallery
+Forty-seven in the gallery, in seven groups, plus `AppScaffold` (the screen shell, which every gallery
 page already is) and `ControlSize` (the shared sm/md/lg scale, which shows up as the size variants
 of the controls that read it).
 
@@ -45,7 +45,7 @@ of the controls that read it).
 | Navigation | `AppTopBar` `AppToolbar` `AppBottomNav` `AppNavRail` `AppTabs` `AppPager` `AppBottomActionBar` |
 | Overlay | `AppDialog` `AppSheet` `AppMenu` `AppTooltip` `AppToast` |
 | Shell | `AppScaffold` `AppScreenChrome` — the second is what `Screen()` draws around every feature (D50): the base surface, the loading overlay, the empty and error states, the alert and the snackbar host. A feature composes none of them; it puts a `ContentState` or a `LoadingState` in its `UiState` |
-| Status | `AppBadge` `AppTag` `AppAvatar` `AppAvatarPhoto` `AppProgress` `AppSpinner` `AppSkeleton` `AppStatusDot` |
+| Status | `AppBadge` `AppTag` `AppAvatar` `AppAvatarPhoto` `AppProgress` `AppSpinner` `AppSkeleton` `AppStatusDot` `AppBanner` |
 
 `AppScaffold` is the screen shell: base surface, system insets, an optional `AppTopBar`, and the
 screen id that becomes both the test id and the analytics screen view. A screen with a scaffold does

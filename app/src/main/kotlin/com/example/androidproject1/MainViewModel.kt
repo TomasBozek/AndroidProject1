@@ -15,6 +15,7 @@ import com.example.androidproject1.feature.settings.domain.ThemeRepository
 import com.example.androidproject1.service.core.domain.ErrorTracker
 import com.example.androidproject1.service.core.domain.Logger
 import com.example.androidproject1.service.core.domain.result.Outcome
+import com.example.androidproject1.service.network.ConnectivityMonitor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +41,7 @@ class MainViewModel(
     private val onboardingRepository: OnboardingRepository,
     private val themeRepository: ThemeRepository,
     private val errorTracker: ErrorTracker,
+    connectivity: ConnectivityMonitor,
 ) : ViewModel() {
 
     private val logger = logger.withTag(TAG)
@@ -77,6 +79,13 @@ class MainViewModel(
      * this is known, so nothing is drawn in the wrong palette and then swapped.
      */
     val theme: StateFlow<ThemePreference?> = mutableTheme.asStateFlow()
+
+    /**
+     * Whether the device has a route to the outside world, for the banner `MainActivity` draws
+     * above every screen (D68). The monitor `:app` binds per flavor owns it; it is exposed here so
+     * the activity has one view model to ask.
+     */
+    val online: StateFlow<Boolean> = connectivity.online
 
     init {
         observeSession()

@@ -6,14 +6,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
+import com.example.androidproject1.core.ui.component.AppBanner
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.auth.presentation.login.LoginDestination
 import com.example.androidproject1.feature.home.presentation.home.HomeDestination
@@ -89,9 +100,32 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Nothing to display until the session has named a flow, or a saved stack has
-                // come back. The splash screen is what the user sees until then.
-                if (backStack.isNotEmpty()) AppNavHost(backStack = backStack)
+                val online by viewModel.online.collectAsStateWithLifecycle()
+                // The banner sits above the display and inside the theme, so the splash is
+                // untouched and every screen keeps its own scaffold. It spends the status-bar
+                // inset itself and consumes it for what follows — otherwise the screen below
+                // would pad for a bar the banner already covers. Outside every AppScaffold, so
+                // `testTagsAsResourceId` is switched on here for a flow to find it.
+                Column(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
+                    if (!online) {
+                        AppBanner(
+                            text = stringResource(R.string.main_offline),
+                            modifier = Modifier
+                                .statusBarsPadding()
+                                .testTag("main_offlineBadge"),
+                        )
+                    }
+                    // Nothing to display until the session has named a flow, or a saved stack
+                    // has come back. The splash screen is what the user sees until then.
+                    if (backStack.isNotEmpty()) {
+                        AppNavHost(
+                            backStack = backStack,
+                            modifier = Modifier.consumeWindowInsets(
+                                if (online) WindowInsets(0, 0, 0, 0) else WindowInsets.statusBars,
+                            ),
+                        )
+                    }
+                }
             }
         }
     }

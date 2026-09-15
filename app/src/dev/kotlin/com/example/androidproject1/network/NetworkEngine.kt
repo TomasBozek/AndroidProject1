@@ -2,6 +2,8 @@ package com.example.androidproject1.network
 
 import android.content.Context
 import com.example.androidproject1.R
+import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
+import com.example.androidproject1.service.network.ConnectivityMonitor
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -9,6 +11,9 @@ import io.ktor.client.engine.mock.respondError
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonArray
@@ -56,6 +61,16 @@ fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine {
 }
 
 /**
+ * The fixture engine is in-process, so airplane mode means nothing to it and the one "offline"
+ * `dev` has is its own switch: the banner and the retry policy follow [FixtureNetwork] (D68).
+ *
+ * @param dispatchers unused — nothing here is observed from the platform; the parameter exists so
+ * the one call site in `ApplicationModule` compiles against every flavor's `connectivityMonitor`.
+ */
+@Suppress("UNUSED_PARAMETER")
+fun connectivityMonitor(context: Context, dispatchers: DispatcherProvider): ConnectivityMonitor = FixtureNetwork
+
+/**
  * Whether the fixture engine is pretending the server is down.
  *
  * Backed by the presence of a file, not just a flag, so it can be flipped from outside a running
@@ -67,9 +82,10 @@ fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine {
  * ```
  *
  * The debug menu's offline switch writes the same file, so flipping it there and touching it over
- * adb are the same thing.
+ * adb are the same thing — except to [online], which follows the switch and the launch: a marker
+ * touched over adb is seen by the engine at once and by the banner at the next flip or start.
  */
-object FixtureNetwork {
+object FixtureNetwork : ConnectivityMonitor {
 
     private const val MARKER = "fail_network"
 
@@ -78,12 +94,22 @@ object FixtureNetwork {
     /** Set from a var too, so a test can flip it without touching the filesystem. */
     @Volatile
     var failingOverride: Boolean = false
+        set(value) {
+            field = value
+            publish()
+        }
 
     val failing: Boolean
         get() = failingOverride || filesDir?.let { java.io.File(it, MARKER).exists() } == true
 
+    private val onlineState = MutableStateFlow(true)
+
+    /** The inverse of [failing], as the port the banner and the retry policy read. */
+    override val online: StateFlow<Boolean> = onlineState.asStateFlow()
+
     internal fun attach(context: Context) {
         filesDir = context.filesDir
+        publish()
     }
 
     /**
@@ -93,6 +119,11 @@ object FixtureNetwork {
     fun setFailing(context: Context, failing: Boolean) {
         val marker = java.io.File(context.filesDir, MARKER)
         if (failing) marker.createNewFile() else marker.delete()
+        publish()
+    }
+
+    private fun publish() {
+        onlineState.value = !failing
     }
 }
 
