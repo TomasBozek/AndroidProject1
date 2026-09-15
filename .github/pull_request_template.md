@@ -8,7 +8,7 @@ Points: <est> → <act>
 
 ## Checks
 
-T1: pass · goldens: ran | skipped (why) · test_scripts: ran | skipped (why) · full test: ran | skipped
+T1: pass · goldens: ran | skipped (why) · test_scripts: ran | skipped (why) · full test: ran | skipped · CI: green | not started (<why>)
 
 <!-- Paste the tail of /check pr below. -->
 

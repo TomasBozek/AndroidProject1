@@ -249,7 +249,8 @@ T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
 - a path under `build-logic/`, `gradle/`, `service/` or `core/` → the whole `./gradlew test`
 
 Do not wait for CI. Open the pull request, start the next task, and check `gh pr checks` between
-tasks.
+tasks and read why a job is red: a run GitHub refused before a job started prints the same `fail`
+as a broken build, and is reported as `not started: <reason>`, never merged on as green.
 
 ## Working a task
 

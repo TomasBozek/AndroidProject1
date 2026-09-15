@@ -45,4 +45,15 @@ Finish it:
   on every later one push onto the same pull request. Do not sit and wait for CI; check
   `gh pr checks` between tasks and, once the sprint is done and green, merge with
   `--rebase --delete-branch`, then `/sprint close`.
+- **Read why a job is red before calling it red.** `gh pr checks` prints the same `fail` for a
+  build that broke and for a run GitHub refused before a job started — four pull requests merged
+  on the second. One command prints, per job, its name, its conclusion and what GitHub said:
+
+  ```bash
+  run=$(gh pr checks --json link --jq '.[0].link' | sed -E 's#.*/runs/([0-9]+)/.*#\1#'); gh run view "$run" --json jobs --jq '.jobs[] | "\(.name) \(.conclusion) \(.databaseId)"'; for job in $(gh run view "$run" --json jobs --jq '.jobs[] | select(.conclusion=="failure") | .databaseId'); do gh api "repos/{owner}/{repo}/check-runs/$job/annotations" --jq '.[].message'; done
+  ```
+
+  An annotation that says *The job was not started* is not a failure: say `not started: <reason>`
+  in the pull request's Checks line and to the owner, and do not merge on it. A conclusion of
+  `failure` with a real annotation is red, and the fix is yours.
 - `/board`, so the artifact shows the line you flipped.
