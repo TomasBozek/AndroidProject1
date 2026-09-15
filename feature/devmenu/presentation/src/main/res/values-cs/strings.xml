@@ -15,7 +15,7 @@
     <string name="dev_menu_offline">Simulovat výpadek serveru</string>
     <string name="dev_menu_offline_supporting">Každý požadavek selže s 503, takže si lze projít uložené obrazovky ručně.</string>
     <string name="dev_menu_tools">Nástroje</string>
-    <string name="dev_menu_components">Komponenty</string>
+    <string name="dev_menu_jumps">Skok na obrazovku</string>
     <string name="dev_menu_notification">Odeslat testovací oznámení</string>
     <string name="dev_menu_notification_posted">Odesláno – klepnutím otevřete produkt</string>
     <string name="dev_menu_notification_blocked">Oznámení jsou pro tuto aplikaci vypnutá</string>

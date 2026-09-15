@@ -15,6 +15,7 @@ import com.example.androidproject1.core.ui.common.ScreenPreview
 import com.example.androidproject1.core.ui.common.ThemedScreenPreview
 import com.example.androidproject1.core.ui.component.AppButton
 import com.example.androidproject1.core.ui.component.AppDescriptionList
+import com.example.androidproject1.core.ui.component.AppListItem
 import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppSectionHeader
 import com.example.androidproject1.core.ui.component.AppSwitch
@@ -25,10 +26,12 @@ import com.example.androidproject1.core.ui.component.DescriptionRow
 import com.example.androidproject1.core.ui.component.TextRole
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.devmenu.presentation.R
+import com.example.androidproject1.service.core.ui.text.resolve
 
 /**
  * What a tester needs and nobody else should see: which build this is, what it talks to, who is
- * signed in, and the two switches that are otherwise a `touch` over adb.
+ * signed in, a jump to any screen worth reaching without walking the app to it, and the two
+ * switches that are otherwise a `touch` over adb.
  *
  * Only `dev` and `staging` reach it — see `DebugMenu.ENABLED` in `:app`'s flavor source sets (D16).
  */
@@ -95,6 +98,18 @@ fun DevMenuScreen(
                 modifier = Modifier.testTag("devMenu_sessionValue"),
             )
 
+            AppSectionHeader(title = stringResource(R.string.dev_menu_jumps))
+            // Its own column: the outer one spaces sections apart, and rows of a list sit flush.
+            Column {
+                state.jumps.forEach { jump ->
+                    AppListItem(
+                        headline = jump.label.resolve(),
+                        onClick = { onEvent(DevMenuEvent.JumpClicked(jump)) },
+                        modifier = Modifier.testTag("devMenu_${jump.id}Item"),
+                    )
+                }
+            }
+
             if (state.offlineSupported) {
                 AppSectionHeader(title = stringResource(R.string.dev_menu_network))
                 AppSwitch(
@@ -107,14 +122,6 @@ fun DevMenuScreen(
             }
 
             AppSectionHeader(title = stringResource(R.string.dev_menu_tools))
-            AppButton(
-                label = stringResource(R.string.dev_menu_components),
-                onClick = { onEvent(DevMenuEvent.ComponentsClicked) },
-                kind = ButtonKind.Outline,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("devMenu_componentsButton"),
-            )
             AppButton(
                 label = stringResource(R.string.dev_menu_notification),
                 onClick = { onEvent(DevMenuEvent.NotificationClicked) },

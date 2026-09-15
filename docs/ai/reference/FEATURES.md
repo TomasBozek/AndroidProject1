@@ -15,7 +15,7 @@ What the sample app contains. The layer rules and the module list are
 | `onboarding` | domain · data · presentation · di | The first-run flow, behind one stored flag |
 | `home` | presentation · di | The landing tab: favourites, and the card that opens Inventory. Reads `feature/inventory/domain` for the count |
 | `gallery` | presentation · di | Every component in `:core:ui`, with its states. Reached from the debug menu |
-| `devmenu` | presentation · di | Build information and the way into the gallery. Debug builds only |
+| `devmenu` | presentation · di | Build information, a jump straight to any deep screen with a fixture on its route, the gallery and the test tools. Debug builds only |
 | `template` | domain · data · presentation · di | What the generators clone. Compiled by the build so it cannot rot |
 | `trips` | domain · data · presentation · di | A trip list, a three-step wizard, a detail with tabs, a destination picker and a dashboard — the showcase for the components only the gallery reached before (B3S1) |
 | `inventory` | domain · data · presentation · di | Things you own: a searchable, filterable, sortable list with selection mode, a four-step editor and a detail whose sections switch by width. Reached from Home (D59); the showcase that homed the last thirteen components (E3S1–E3S6, D65) |

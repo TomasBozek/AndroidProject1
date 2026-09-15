@@ -11,6 +11,7 @@ import com.example.androidproject1.feature.catalog.presentation.productpicker.Pr
 import com.example.androidproject1.feature.catalog.presentation.productpicker.ProductPickerViewModel
 import com.example.androidproject1.feature.catalog.presentation.products.ProductsDestination
 import com.example.androidproject1.feature.catalog.presentation.products.ProductsViewModel
+import com.example.androidproject1.feature.devmenu.presentation.devmenu.DevMenuViewModel
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailViewModel
 import com.example.androidproject1.feature.inventory.presentation.inventorydetail.InventoryDetailDestination
@@ -69,6 +70,9 @@ class KoinGraphTest {
                 definition<GalleryDetailViewModel>(GalleryDetailDestination::class),
                 definition<ProductsViewModel>(ProductsDestination::class),
                 definition<ProductDetailViewModel>(ProductDetailDestination::class),
+                // Not a route key but the same road: the debug menu's jump list is built by
+                // AppNavHost and passed through `parametersOf`.
+                definition<DevMenuViewModel>(List::class),
             ),
         )
     }

@@ -38,7 +38,7 @@ class DevMenuScreenTest {
         compose.onNodeWithTag("devMenu_buildList").assertIsDisplayed()
         compose.onNodeWithTag("devMenu_sessionValue").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("devMenu_offlineSwitch").performScrollTo().assertIsOff()
-        compose.onNodeWithTag("devMenu_componentsButton").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("devMenu_galleryItem").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("devMenu_notificationButton").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("devMenu_crashButton").performScrollTo().assertIsDisplayed()
     }
@@ -69,11 +69,12 @@ class DevMenuScreenTest {
     }
 
     @Test
-    fun `tapping components reports it as an event`() {
+    fun `tapping a jump reports it with the jump itself`() {
         render(DevMenuState.PREVIEW)
 
-        compose.onNodeWithTag("devMenu_componentsButton").performScrollTo().performClick()
+        compose.onNodeWithTag("devMenu_tripWizardItem").performScrollTo().performClick()
 
-        assertEquals(listOf(DevMenuEvent.ComponentsClicked), events)
+        val jump = DevMenuState.PREVIEW.jumps.single { it.id == "tripWizard" }
+        assertEquals(listOf(DevMenuEvent.JumpClicked(jump)), events)
     }
 }

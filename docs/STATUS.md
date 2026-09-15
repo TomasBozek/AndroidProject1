@@ -9,7 +9,7 @@ this page to the board artifact.
 ## Board
 
 - [x] F1P1 Sprints, releases and the board · 12 → 12 · decides D66, D67
-- [ ] F1X1 The dev menu jumps straight to a screen (was D1X2) · 12
+- [x] F1X1 The dev menu jumps straight to a screen (was D1X2) · 12 → 6
 - [ ] F1H1 A connectivity banner (was a third of F16) · 12 · decides D68
 
 ## Drafts
