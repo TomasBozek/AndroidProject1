@@ -25,4 +25,6 @@ source; `Artifact` with that `file_path`, the same `url`, and `capabilities: {db
 
 `Artifact` with `action: "read_db"`, `db_op: "get"`, `collection: "board"`, `doc_id: "state"`.
 Use it from a session without the repository to answer "what is on the board"; with the
-repository, read `docs/STATUS.md` instead — it is the truth.
+repository, read `docs/STATUS.md` instead — it is the truth. Check `syncedAt`, `branch` and
+`commit` first: a weekday-morning routine republishes from the open sprint's branch (D70), so a
+document older than the last push is a session that flipped a line and skipped `/board`.
