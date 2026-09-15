@@ -49,4 +49,8 @@ commands that drive them are [../.claude/commands/](../.claude/commands/).
 The open sprint, the drafts, the backlogs and what shipped, readable from a phone or a session
 with no checkout: <https://claude.ai/artifact/5Jyu1PrDAmkt3TmSTBDCsi>. It is a window on this
 tree, never the other way round — `/board` republishes it from `STATUS.md`, `BACKLOG.md`,
-`CHANGELOG.md` and `ai/plans/` after a board line changes (D67).
+`CHANGELOG.md` and `ai/plans/` after a board line changes (D67), and a cloud routine —
+*AndroidProject1 · /board each weekday morning*, at <https://claude.ai/code/routines> — does the
+same at 07:00 Prague on weekdays from the open sprint's branch, or `main` when none is ahead of it
+(D70). The page's footer says when it was last synced and from which commit; between the two, a
+session that flipped a line and did not run `/board` is the only way it is stale.
