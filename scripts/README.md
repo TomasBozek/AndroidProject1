@@ -16,6 +16,8 @@ git config core.hooksPath .githooks
 
 Points Git at the committed `pre-commit` hook, which runs `doctor.py` — silent when it passes,
 loud when it does not — and `test_scripts.py` too, but only on a commit that touches `scripts/`.
+`doctor.py` prints a `[note]` until it is set, `init_project.py` sets it on the clone it rewrites,
+and `/check` runs it when the note appears.
 
 ## Once per project
 

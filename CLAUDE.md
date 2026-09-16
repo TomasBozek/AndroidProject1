@@ -233,7 +233,7 @@ every variant and runs R8 three times.
 
 | | When | Run |
 |---|---|---|
-| **T0** | once or twice while working — `/check` | `python3 scripts/doctor.py && ./gradlew ktlintCheck`, then the touched module's own `test` (~45 s) |
+| **T0** | once or twice while working — `/check` | `python3 scripts/doctor.py && ./gradlew ktlintCheck`, then the touched module's own `test` (~45 s). A `[note]` about the hook is fixed first: `git config core.hooksPath .githooks` |
 | **T1** | once, after `git rebase origin/main`, before the pull request — `/check pr` | doctor · `ktlintCheck` · `:app:assembleDevDebug` · `test` for every module whose `src/main` changed · plus the three conditionals below (2–6 min) |
 | **T2** | every non-draft pull request | conventions always; the build only when the diff is not documentation-only; goldens only when a UI path moved |
 | **T3** | every push to `main` | T2 with nothing skipped, plus coverage |
