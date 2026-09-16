@@ -10,7 +10,7 @@ board artifact.
 ## Board
 
 - [x] F3P1 CI is back: the repository is public · 6 → 3 · decides D71
-- [ ] F3P2 Main is protected · 3 · after F3P1
+- [x] F3P2 Main is protected · 3 → 3 · after F3P1
 - [ ] F3P3 The tag is pushed when the ship commit merges · 6 · decides D72
 - [ ] F3P4 The pre-commit hook is installed by something · 3
 - [ ] F3X1 `create_component.py` writes an entry that compiles · 3

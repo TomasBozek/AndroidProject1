@@ -41,5 +41,8 @@ what a store expects, rather than an APK — and the R8 mapping it was built wit
 A minified stack trace is unreadable without it, and the names are rewritten on every build — so
 the copy attached to a release is the only one that will ever fit that AAB.
 
-**A hotfix to a shipped release** keeps that release's letter — `A0X1` — goes through lane 0 with no
-open plan, ships as a patch tag and gets its own short block in the changelog.
+**A hotfix to a shipped release** keeps that release's letter — `A0X1` — is a sprint-0 task with no
+open sprint, goes through a pull request like everything else, ships as a patch tag and gets its
+own short block in the changelog. `main` is a ruleset (F3P2): a pull request, the `changes`,
+`conventions` and `build` checks green, a rebase merge, no force-push, no deletion, and nobody
+bypasses it — a red pull request does not merge, and neither does a run that never started.
