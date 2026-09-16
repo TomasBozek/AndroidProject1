@@ -5,6 +5,8 @@
     <!-- Asked for from the Permissions screen, not on first launch. The channel it posts to is
          created in App.onCreate. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- The connectivity banner: ConnectivityManager refuses the active network without it (F3X2). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".App"
