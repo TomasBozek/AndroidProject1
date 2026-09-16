@@ -44,6 +44,19 @@
   .bar .act { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
   .bar .legend { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
 
+  /* the state of the project: four cells under the head */
+  .strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+  .strip .cell { display: grid; gap: 3px; min-width: 0; }
+  .strip .v { font: 500 15px/1.3 var(--sans); overflow-wrap: anywhere; }
+  .strip .v .mono { font-size: 14px; }
+  .strip .s { color: var(--muted); font-size: 12.5px; }
+  .pill.untagged { background: var(--warn-soft); color: var(--warn); }
+  .pill.tagged { background: var(--accent-soft); color: var(--accent); }
+  .card.previous { margin-top: 18px; }
+  .card.previous details { font-size: 14px; }
+  .card.previous summary { cursor: pointer; color: var(--accent); font-weight: 500; }
+  .card.previous ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; max-width: 80ch; }
+
   /* tabs */
   .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 20px 0 18px; border-bottom: 1px solid var(--line); }
   .tabs button { appearance: none; border: 0; background: none; color: var(--muted); font: 500 14px/1 var(--sans);
@@ -81,17 +94,32 @@
   .section-title .hint { color: var(--muted); font-size: 12.5px; }
   .empty { color: var(--muted); padding: 18px 4px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-soft); }
 
-  /* backlog */
-  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 12px; font-size: 13px; color: var(--muted); }
-  .controls select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; }
-  .group-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 4px 6px; }
-  .group-head .name { font: 500 13px/1 var(--mono); color: var(--ink); }
-  .group-head .sum { font: 400 12px/1 var(--mono); color: var(--muted); }
+  /* backlog: one list behind filter chips */
+  .filters { display: grid; gap: 8px; margin: 0 0 14px; }
+  .filter { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .filter .k { font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); width: 64px; }
+  .chip { appearance: none; font: 400 12.5px/1 var(--mono); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+    border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+  .chip .n { color: var(--muted); margin-left: 5px; }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .chip[aria-pressed="true"] .n { color: var(--accent-ink); opacity: 0.8; }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .filter .clear { appearance: none; border: 0; background: none; color: var(--accent); font: 500 12.5px/1 var(--sans); cursor: pointer; padding: 5px 4px; }
   .item { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 10px 4px; border-bottom: 1px solid var(--line-soft); }
   .item .t { font-weight: 500; }
   .item .why { grid-column: 1 / -1; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+  .item .tags { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; }
   .item .tag { font: 400 12px/1 var(--mono); color: var(--muted); }
+  .item .tag.kind { color: var(--accent); }
   .item .pts { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
+  .item.bug .t::before { content: "bug"; font: 500 10px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--warn);
+    background: var(--warn-soft); padding: 3px 5px; border-radius: 3px; margin-right: 8px; vertical-align: 2px; }
+
+  /* decisions */
+  .decision { display: grid; grid-template-columns: 52px 1fr; gap: 4px 14px; padding: 12px 4px; border-bottom: 1px solid var(--line-soft); }
+  .decision .id { font: 500 13px/1.6 var(--mono); color: var(--muted); }
+  .decision .q { font-weight: 500; }
+  .decision .a { color: var(--muted); font-size: 13.5px; max-width: 80ch; }
 
   /* drafts & releases */
   .card { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
@@ -110,6 +138,8 @@
   .notice { padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--muted); max-width: 65ch; }
 
   @media (max-width: 560px) {
+    .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter .k { width: 100%; }
     .row { grid-template-columns: 1fr auto; }
     .row .id { grid-column: 1 / -1; }
     .brief { padding-left: 0; }
@@ -128,33 +158,26 @@
       <div class="track"><div class="est" id="bar-est"></div><div class="act" id="bar-act"></div></div>
       <div class="legend"><span id="bar-left"></span><span>100 pts = one agent-day</span></div>
     </div>
+    <div class="strip" id="strip"></div>
   </header>
+  <div id="previous"></div>
 
   <nav class="tabs" role="tablist" id="tabs">
     <button role="tab" data-view="sprint" aria-selected="true">Sprint<span class="count" id="c-sprint"></span></button>
     <button role="tab" data-view="drafts" aria-selected="false">Drafts<span class="count" id="c-drafts"></span></button>
     <button role="tab" data-view="backlog" aria-selected="false">Backlog<span class="count" id="c-backlog"></span></button>
-    <button role="tab" data-view="devops" aria-selected="false">DevOps<span class="count" id="c-devops"></span></button>
     <button role="tab" data-view="releases" aria-selected="false">Releases<span class="count" id="c-releases"></span></button>
+    <button role="tab" data-view="decisions" aria-selected="false">Decisions<span class="count" id="c-decisions"></span></button>
   </nav>
 
   <section class="view" id="view-sprint"></section>
   <section class="view" id="view-drafts" hidden></section>
   <section class="view" id="view-backlog" hidden>
-    <div class="controls">
-      <label for="backlog-group">Group by</label>
-      <select id="backlog-group"><option value="group">what it touches</option><option value="pts">points</option><option value="none">nothing — backlog order</option></select>
-    </div>
+    <div class="filters" id="filters"></div>
     <div id="backlog-body"></div>
   </section>
-  <section class="view" id="view-devops" hidden>
-    <div class="controls">
-      <label for="devops-group">Group by</label>
-      <select id="devops-group"><option value="group">area</option><option value="pts">points</option><option value="none">nothing — backlog order</option></select>
-    </div>
-    <div id="devops-body"></div>
-  </section>
   <section class="view" id="view-releases" hidden></section>
+  <section class="view" id="view-decisions" hidden></section>
 
   <footer class="foot" id="foot"></footer>
 </div>
@@ -170,7 +193,9 @@
   let board = null;
   let view = "sprint";
   const openBriefs = new Set();
+  const VIEWS = ["sprint", "drafts", "backlog", "releases", "decisions"];
   try { view = localStorage.getItem("board.view") || view; } catch (e) {}
+  if (!VIEWS.includes(view)) view = "sprint";
 
   // --- tabs
   const tabs = $("tabs");
@@ -252,13 +277,63 @@
     return `${day}${t1 ? " · " + t1 : ""}${t2 ? " → " + t2 : ""}`;
   }
 
+  function renderStrip() {
+    const shipped = board.shipped[0];
+    const tagged = shipped && (board.tags || []).includes(shipped.version);
+    const r = board.release;
+    const done = r ? r.sprintsDone : [];
+    const next = board.drafts[0];
+    const devops = board.devopsPoints ?? board.backlog.devops.reduce((a, it) => a + (it.pts || 0), 0);
+    $("strip").innerHTML = [
+      `<div class="cell"><div class="eyebrow">Last shipped</div>
+        <div class="v">${shipped ? `<span class="mono">${esc(shipped.version)}</span> <span class="pill ${tagged ? "tagged" : "untagged"}">${tagged ? "tagged" : "untagged"}</span>` : "nothing yet"}</div>
+        <div class="s">${shipped ? esc(shipped.date) + (tagged ? "" : " · a changelog block with no tag") : "no changelog block"}</div></div>`,
+      `<div class="cell"><div class="eyebrow">Open release</div>
+        <div class="v">${r ? `<span class="mono">${esc(r.letter)}</span> · ${esc(r.name)}` : "none"}</div>
+        <div class="s">${r ? (done.length ? done.map((s) => `<span class="mono">${s.id} ${s.points} → ${s.actual}</span>`).join(" · ") : "no sprint done yet") : "<code>/release open</code>"}</div></div>`,
+      `<div class="cell"><div class="eyebrow">Next draft</div>
+        <div class="v">${next ? `<span class="mono">${esc(next.id)}</span> · ${esc(next.name)}` : "none"}</div>
+        <div class="s">${next ? `${next.tasks.length} tasks · <span class="mono">${next.points}</span> pts` : "<code>/sprint draft</code> writes one"}</div></div>`,
+      `<div class="cell"><div class="eyebrow">DevOps backlog</div>
+        <div class="v"><span class="mono">${devops}</span> pts</div>
+        <div class="s">${devops >= 50 ? "an improvement sprint is due" : `an improvement sprint is due at 50`}</div></div>`,
+    ].join("");
+  }
+
+  function retrospectiveList(text) {
+    // Three `- **Heading.** body` lines, folded into one paragraph by the parser.
+    const parts = text.split(/\s*-\s+(?=\*\*)/).filter(Boolean);
+    return `<ul>${parts.map((p) => `<li>${md(p.trim())}</li>`).join("")}</ul>`;
+  }
+
+  function renderPrevious() {
+    const s = board.previous;
+    if (!s) { $("previous").innerHTML = ""; return; }
+    $("previous").innerHTML = `<div class="card previous">
+      <div class="eyebrow">Previous sprint · ${esc(s.id)} · ${esc(s.status)}</div>
+      <h3>${esc(s.name)}</h3>
+      <p style="margin:0;max-width:65ch">${md(s.goal)}</p>
+      <div class="meta"><span>${s.tasks.length} tasks</span><span class="mono">${s.points} → ${s.actual}</span><span><a href="#" data-view-link="releases">board under Releases</a></span></div>
+      ${s.retrospective ? `<details><summary>Retrospective</summary>${retrospectiveList(s.retrospective)}</details>` : ""}
+    </div>`;
+  }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a[data-view-link]");
+    if (!a) return;
+    e.preventDefault();
+    view = a.dataset.viewLink;
+    try { localStorage.setItem("board.view", view); } catch (e2) {}
+    showView();
+  });
+
   function renderHead() {
     const s = board.sprint;
+    renderStrip();
     if (!s) {
       const next = board.drafts[0];
       $("head-eyebrow").textContent = board.release ? `Release ${board.release.letter} · ${board.release.name}` : "No release open";
-      $("head-title").textContent = "No sprint is open";
-      $("head-goal").innerHTML = next ? `Next by default: <strong>${esc(next.id)} · ${esc(next.name)}</strong> — <code>/sprint open</code>.` : "Nothing drafted — <code>/sprint draft &lt;name&gt;</code> writes one from the backlog.";
+      $("head-title").textContent = next ? `No sprint is open — next: ${next.id} · ${next.name}` : "No sprint is open";
+      $("head-goal").innerHTML = next ? `${md(next.goal)} — <code>/sprint open</code> takes it.` : "Nothing drafted — <code>/sprint draft &lt;name&gt;</code> writes one from the backlog.";
       $("head-meta").innerHTML = "";
       $("bar").hidden = true;
       return;
@@ -282,7 +357,13 @@
   function renderSprint() {
     const s = board.sprint;
     $("c-sprint").textContent = s ? s.tasks.length : "";
-    if (!s) { $("view-sprint").innerHTML = `<p class="empty">No sprint is open. The first draft is the next one by default.</p>`; return; }
+    if (!s) {
+      const next = board.drafts[0];
+      $("view-sprint").innerHTML = next
+        ? `<div class="section-title"><h2>No sprint is open — next: ${esc(next.id)} · ${esc(next.name)}</h2><span class="hint">its board, as drafted · <code>/sprint open</code></span></div>${taskRows(next.tasks, false)}`
+        : `<p class="empty">No sprint is open — next: none. <code>/sprint draft &lt;name&gt;</code> writes one from the backlog.</p>`;
+      return;
+    }
     $("view-sprint").innerHTML = `
       <div class="section-title"><h2>Board</h2><span class="hint">worked top to bottom — the first open line is the one in hand · click a title for its brief</span></div>
       ${taskRows(s.tasks, true)}
@@ -303,50 +384,77 @@
       </div>`).join("") + `</div>`;
   }
 
-  function grouped(items, by) {
-    if (by === "none") return [["", items]];
-    const map = new Map();
-    for (const it of items) {
-      const key = by === "pts" ? (it.pts == null ? "unsized" : String(it.pts)) : (it.group || "ungrouped");
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(it);
-    }
-    const keys = [...map.keys()];
-    if (by === "pts") keys.sort((a, b) => (Number(b) || 0) - (Number(a) || 0));
-    else keys.sort();
-    return keys.map((k) => [k, map.get(k)]);
-  }
+  // --- backlog: one list, five chip groups, AND across groups and OR inside one
+  const FILTERS = [["section", "section"], ["area", "area"], ["feature", "feature"], ["layer", "layer"], ["kind", "kind"]];
+  const KIND_NAMES = { U: "U · ui", X: "X · fix", T: "T · trim", H: "H · harden", P: "P · platform", S: "S · showcase" };
+  let filters = {};
+  try { filters = JSON.parse(localStorage.getItem("board.filters") || "{}") || {}; } catch (e) { filters = {}; }
+  for (const [key] of FILTERS) if (!Array.isArray(filters[key])) filters[key] = [];
 
-  function itemList(items, by, emptyText) {
-    if (!items.length) return `<p class="empty">${emptyText}</p>`;
-    return grouped(items, by).map(([key, list]) => {
-      const sum = list.reduce((a, it) => a + (it.pts || 0), 0);
-      const head = key ? `<div class="group-head"><span class="name">${esc(key)}</span><span class="sum">${list.length} · ${sum} pts</span></div>` : "";
-      return head + list.map((it) => `<div class="item">
-        <div><span class="t">${md(it.title)}</span>${it.group && by !== "group" ? ` <span class="tag">${esc(it.group)}</span>` : ""}</div>
-        <div class="pts">${it.pts == null ? "" : it.pts}</div>
-        ${it.why ? `<div class="why">${md(it.why)}</div>` : ""}
-      </div>`).join("");
+  function allItems() {
+    const b = board.backlog;
+    return [
+      ...b.next.map((it) => ({ ...it, section: "next" })),
+      ...b.devops.map((it) => ({ ...it, section: "devops" })),
+      ...b.someday.map((it) => ({ ...it, section: "someday" })),
+      ...b.decision.map((it) => ({ ...it, section: "behind a decision" })),
+    ];
+  }
+  function matches(it, except) {
+    return FILTERS.every(([key]) => key === except || !filters[key].length || filters[key].includes(it[key] ?? ""));
+  }
+  function chipLabel(key, value) {
+    return key === "kind" ? (KIND_NAMES[value] || value) : value;
+  }
+  function renderFilters(items) {
+    const order = { next: 0, devops: 1, someday: 2, "behind a decision": 3 };
+    $("filters").innerHTML = FILTERS.map(([key, label]) => {
+      const counts = new Map();
+      // A line with no value for this key — no feature, no layer, no kind — gets no chip.
+      for (const it of items) if (matches(it, key) && it[key]) counts.set(it[key], (counts.get(it[key]) || 0) + 1);
+      for (const v of filters[key]) if (!counts.has(v)) counts.set(v, 0);
+      const values = [...counts.keys()].sort((a, b) => key === "section" ? (order[a] ?? 9) - (order[b] ?? 9) : String(a).localeCompare(String(b)));
+      if (values.length < 2 && !filters[key].length) return "";
+      return `<div class="filter"><span class="k">${label}</span>` +
+        values.map((v) => `<button type="button" class="chip" data-key="${key}" data-value="${esc(v)}" aria-pressed="${filters[key].includes(v)}">${esc(chipLabel(key, v))}<span class="n">${counts.get(v)}</span></button>`).join("") +
+        (filters[key].length ? `<button type="button" class="clear" data-clear="${key}">clear</button>` : "") + `</div>`;
     }).join("");
+  }
+  $("filters").addEventListener("click", (e) => {
+    const chip = e.target.closest("button.chip");
+    const clear = e.target.closest("button.clear");
+    if (chip) {
+      const list = filters[chip.dataset.key];
+      const i = list.indexOf(chip.dataset.value);
+      if (i >= 0) list.splice(i, 1); else list.push(chip.dataset.value);
+    } else if (clear) {
+      filters[clear.dataset.clear] = [];
+    } else return;
+    try { localStorage.setItem("board.filters", JSON.stringify(filters)); } catch (e2) {}
+    renderBacklog();
+  });
+
+  function itemList(items) {
+    if (!items.length) return `<p class="empty">Nothing matches these chips.</p>`;
+    return items.map((it) => `<div class="item ${it.kind === "X" ? "bug" : ""}">
+      <div><span class="t">${md(it.title)}</span>
+        <div class="tags"><span class="tag">${esc(it.section)}</span><span class="tag">${esc(it.group || "")}</span>${it.kind ? `<span class="tag kind">${esc(KIND_NAMES[it.kind] || it.kind)}</span>` : ""}${it.was ? `<span class="tag">was ${esc(it.was)}</span>` : ""}</div></div>
+      <div class="pts">${it.pts == null ? "?" : it.pts}</div>
+      ${it.why ? `<div class="why">${md(it.why)}</div>` : ""}
+    </div>`).join("");
   }
 
   function renderBacklog() {
-    const b = board.backlog;
-    $("c-backlog").textContent = b.next.length || "";
-    $("c-devops").textContent = b.devops.length || "";
-    const by = $("backlog-group").value;
+    const items = allItems();
+    const shown = items.filter((it) => matches(it, null));
+    const sum = shown.reduce((a, it) => a + (it.pts || 0), 0);
+    const active = FILTERS.some(([key]) => filters[key].length);
+    $("c-backlog").textContent = items.length || "";
+    renderFilters(items);
     $("backlog-body").innerHTML =
-      `<div class="section-title"><h2>Next</h2><span class="hint">in order — what the next sprint takes first</span></div>` +
-      itemList(b.next, by, "Nothing ranked.") +
-      `<div class="section-title"><h2>Someday</h2></div>` + itemList(b.someday, "none", "—") +
-      `<div class="section-title"><h2>Behind a decision</h2></div>` + itemList(b.decision, "none", "—");
-    const byD = $("devops-group").value;
-    $("devops-body").innerHTML =
-      `<div class="section-title"><h2>How the project is built, checked, shipped and planned</h2><span class="hint">an improvement sprint drafts from here</span></div>` +
-      itemList(b.devops, byD, "Nothing here — the process is doing what its docs say.");
+      `<div class="section-title"><h2>${active ? `${shown.length} of ${items.length}` : `${items.length} lines`}</h2><span class="hint"><span class="mono">${sum}</span> pts sized · in backlog order — § Next first, and a draft takes it from the top</span></div>` +
+      itemList(shown);
   }
-  $("backlog-group").addEventListener("change", renderBacklog);
-  $("devops-group").addEventListener("change", renderBacklog);
 
   function renderReleases() {
     const r = board.release;
@@ -368,19 +476,38 @@
     $("view-releases").innerHTML = html;
   }
 
+  function renderDecisions() {
+    const d = board.decisions || [];
+    $("c-decisions").textContent = d.length || "";
+    $("view-decisions").innerHTML = `<div class="section-title"><h2>The last ${d.length} decisions</h2><span class="hint">newest first · outcome only — the reasoning is <code>docs/DECISIONS.md</code></span></div>` +
+      (d.length ? d.map((r) => `<div class="decision"><div class="id">${esc(r.id)}</div><div><div class="q">${md(r.title)}</div><div class="a">${md(r.outcome)}</div></div></div>`).join("") : `<p class="empty">No decisions parsed.</p>`);
+  }
+
+  function age(iso) {
+    const t = iso ? new Date(iso) : null;
+    if (!t || isNaN(t)) return "";
+    const min = Math.round((Date.now() - t.getTime()) / 60000);
+    if (min < 1) return "just now";
+    if (min < 60) return `${min} min ago`;
+    const h = Math.round(min / 60);
+    if (h < 48) return `${h} h ago`;
+    return `${Math.round(h / 24)} days ago`;
+  }
+
   function renderFoot() {
     const t = board.syncedAt ? new Date(board.syncedAt) : null;
     $("foot").innerHTML = [
       `<span>read from the repository at <span class="mono">${esc(board.commit)}</span>${board.branch ? ` on <span class="mono">${esc(board.branch)}</span>` : ""}${board.dirty ? " (uncommitted edits)" : ""}</span>`,
-      t ? `<span>published ${esc(t.toLocaleString())}</span>` : "",
-      `<span>the repository is the truth — <code>/board</code> republishes this</span>`,
+      t ? `<span>published <strong>${esc(age(board.syncedAt))}</strong> · ${esc(t.toLocaleString())}</span>` : "",
+      `<span>the repository is the truth — <code>/board</code> republishes this, and a routine does each weekday morning</span>`,
     ].join("");
   }
 
   function render() {
     if (!board) return;
-    renderHead(); renderSprint(); renderDrafts(); renderBacklog(); renderReleases(); renderFoot();
+    renderHead(); renderPrevious(); renderSprint(); renderDrafts(); renderBacklog(); renderReleases(); renderDecisions(); renderFoot();
   }
+  setInterval(() => { if (board) renderFoot(); }, 60000);
 
   function offline(message) {
     $("head-goal").innerHTML = message;

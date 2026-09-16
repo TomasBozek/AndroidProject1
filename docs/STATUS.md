@@ -12,7 +12,7 @@ this page to the board artifact.
 - [x] F2P2 The sprint close audits the process · 3 → 3
 - [x] F2P3 A run that never started reads as a failure · 3 → 3
 - [x] F2P4 The board publishes from a cloud routine · 3 → 3 · decides D70
-- [ ] F2P5 The board opens on the state of the project · 12 · after F2P1
+- [x] F2P5 The board opens on the state of the project · 12 → 3 · after F2P1
 
 ## Drafts
 

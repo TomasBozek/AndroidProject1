@@ -641,6 +641,19 @@ class ScaffoldingTest(unittest.TestCase):
                     self.assertIn(key, item, f"§ {section} line without `{key}`: {item['title']}")
                 self.assertEqual(item["area"], item["group"].split(":")[0])
         self.assertTrue(board["shipped"] and board["shipped"][0]["version"].startswith("v"))
+        # F2P5: what the head strip, the previous-sprint card and the Decisions tab read.
+        self.assertIsInstance(board["tags"], list)
+        for tag in board["tags"]:
+            self.assertRegex(tag, r"^v\d+\.\d+\.\d+$")
+        self.assertEqual(board["devopsPoints"], sum(i["pts"] or 0 for i in board["backlog"]["devops"]))
+        previous = board["previous"]
+        self.assertIsNotNone(previous, "no sprint is Status: done")
+        self.assertTrue(previous["status"].startswith("done") and previous["tasks"] and previous["retrospective"])
+        self.assertEqual(10, len(board["decisions"]))
+        for row in board["decisions"]:
+            self.assertRegex(row["id"], r"^D\d+$")
+            self.assertTrue(row["title"] and row["outcome"].endswith("."), row)
+        self.assertGreater(int(board["decisions"][0]["id"][1:]), int(board["decisions"][-1]["id"][1:]), "newest first")
 
         # A second open sprint is a half board, and the script says so instead of printing one.
         plan = self.repo / "docs/ai/plans" / Path(sprint["file"]).name
