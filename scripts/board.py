@@ -3,7 +3,8 @@
 
 Reads docs/STATUS.md, docs/BACKLOG.md, docs/CHANGELOG.md and docs/ai/plans/*.md — the files that
 are the truth — and prints one object: the open sprint and its board, the drafts in queue order,
-the open release with its done sprints, the product and DevOps backlogs grouped, and what shipped.
+the open release with its done sprints, the product and DevOps backlogs tagged by group and kind,
+what shipped and which of it is tagged, the previous sprint, and the last ten decisions.
 A parser and nothing else: no network, no writes. `/board` hands the output to the artifact
 (docs/ai/PROCESS.md § Sprints and releases, D67).
 
@@ -255,6 +256,30 @@ def parse_backlog() -> dict:
     return out
 
 
+def first_sentence(text: str) -> str:
+    """The text up to the first `.` outside a code span that ends a sentence — `v1.2.0` and
+    `doctor.py` inside backticks do not count — with the bold markers dropped."""
+    text = text.replace("**", "")
+    in_code = False
+    for i, ch in enumerate(text):
+        if ch == "`":
+            in_code = not in_code
+        elif ch == "." and not in_code and (i + 1 == len(text) or text[i + 1] == " "):
+            return text[: i + 1]
+    return text
+
+
+def parse_decisions(last: int = 10) -> list[dict]:
+    """The last `last` rows of DECISIONS.md — `| D<n> | title | text |` — newest first, the text
+    cut at its first sentence: the outcome, which is what a row leads with."""
+    rows = []
+    for line in read(DOCS / "DECISIONS.md").splitlines():
+        m = re.match(r"^\| (D\d+) \| (.*?) \| (.*) \|\s*$", line)
+        if m:
+            rows.append({"id": m.group(1), "title": m.group(2).strip(), "outcome": first_sentence(m.group(3).strip())})
+    return rows[-last:][::-1]
+
+
 def parse_changelog() -> list[dict]:
     blocks = []
     for heading, body in sections(read(DOCS / "CHANGELOG.md")).items():
@@ -338,6 +363,12 @@ def build() -> dict:
 
     headline = status_text.split("\n\n", 1)[1].split("\n\n", 1)[0].replace("\n", " ") if "\n\n" in status_text else ""
 
+    # The done sprint with the latest close date — `Status: done 2026-09-15` — and, on a tie, the
+    # highest id. What the board shows as "previous sprint".
+    done = [s for s in sprints.values() if s["status"].startswith("done")]
+    previous = max(done, key=lambda s: (s["status"][len("done"):].strip(), s["id"]), default=None)
+    backlog = parse_backlog()
+
     return {
         "syncedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "commit": git("rev-parse", "--short", "HEAD"),
@@ -348,8 +379,12 @@ def build() -> dict:
         "drafts": drafts,
         "release": open_releases[0] if open_releases else None,
         "releases": sorted(releases.values(), key=lambda r: r["letter"]),
-        "backlog": parse_backlog(),
+        "backlog": backlog,
+        "devopsPoints": sum(i["pts"] or 0 for i in backlog["devops"]),
         "shipped": parse_changelog(),
+        "tags": [t for t in git("tag", "-l", "v*", "--sort=-v:refname").splitlines() if t],
+        "previous": previous,
+        "decisions": parse_decisions(),
     }
 
 
@@ -366,7 +401,9 @@ def main() -> int:
         sprint = board["sprint"]
         print(f"sprint: {sprint['id'] + ' · ' + sprint['name'] if sprint else 'none open'}")
         print(f"drafts: {len(board['drafts'])} · releases: {len(board['releases'])} · shipped: {len(board['shipped'])}")
-        print("backlog: " + " · ".join(f"{k} {len(v)}" for k, v in board["backlog"].items()))
+        print("backlog: " + " · ".join(f"{k} {len(v)}" for k, v in board["backlog"].items()) + f" · devops {board['devopsPoints']} pts")
+        previous = board["previous"]
+        print(f"previous: {previous['id'] + ' · ' + previous['name'] if previous else 'none'} · tags: {', '.join(board['tags']) or 'none'} · decisions: {len(board['decisions'])}")
         return 0
     json.dump(board, sys.stdout, indent=1, ensure_ascii=False)
     print()
