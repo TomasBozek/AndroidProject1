@@ -1,7 +1,7 @@
 # Sprint F2 · One backlog, one board
 
 Sprint: F2 · One backlog, one board
-Status: open
+Status: done 2026-09-16
 When: 2026-09-15 15:35 → 2026-09-16 18:00
 Goal: every idea is one line of one shape, and the board opens on the state of the project
 Release: F
@@ -172,3 +172,22 @@ sentence; `devopsPoints` = the sum of § DevOps. 2. The strip in `renderHead` an
 4. The Decisions tab. 5. Publish the page, run `/board`, open the artifact at phone width and
 desktop, and put the screenshots in the pull request.
 **Checks** T0 + `python3 scripts/test_scripts.py`. **Depends** F2P1.
+
+## Retrospective
+
+- **What the briefs got wrong.** Two pairs sit outside 0.7–1.3: F2P1 `6 → 3` and F2P5 `12 → 3`.
+  F2P1 was sized as "a new check and the code it forces" and was a grammar the backlog already
+  half followed; F2P5 was sized as a screen with its tests and was one page's `render*` functions
+  and a parser's four fields — a page with no compile step and no golden is a 6 at most. Across
+  release F the 12 band has missed twice in four (F1X1 `12 → 6`, F2P5 `12 → 3`); one more and
+  `/sprint draft` rewrites it.
+- **What the checks missed.** Nothing new — everything it could not see. All five F2 runs and the
+  `main` push behind #28 were `not started: billing`; #29 merged on the local gate (doctor 41/41,
+  `test_scripts.py` 67/67), which is what F2P3 made sayable. The audit: the hook is still unset
+  (`core.hooksPath` empty, the old `.git/hooks/pre-commit` runs), `v1.2.0` is still untagged, the
+  board was 16 minutes older than the merge — D70's routine is a morning one, and the close
+  republishes. All three already have their § DevOps line.
+- **One thing to change.** The owner has said GitHub will not be paid, so "CI runs T2–T4" has been
+  false for three days and is now a decision, not an outage — § DevOps, `CI without paid Actions`,
+  and the next improvement sprint takes it first. DevOps holds 42 points; an improvement sprint is
+  due at 50.

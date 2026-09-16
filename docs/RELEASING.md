@@ -25,6 +25,12 @@ tag is 1 / `"1.0"`.
    first tag of a repository has no previous tag to diff against, and the block is already written
    in the words someone using the app would recognise.
 
+   A job that shows `fail` after two seconds with no steps was never started — a billing or a
+   runner stop, not a result. Read the annotation before reading anything else:
+   `gh api repos/{owner}/{repo}/check-runs/<job id>/annotations --jq '.[].message'` — and report
+   it as `not started: <reason>`. The repository is public so that Actions costs nothing (D71);
+   a run that never started is not green, and nothing is merged or tagged on one.
+
 The four secrets are `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
 **A tag without them is refused**, before anything is built: an AAB signed with the CI debug key
 looks exactly like a real one on the release page. The weekly run and a fork have no secrets and
