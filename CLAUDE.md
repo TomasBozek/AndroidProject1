@@ -250,7 +250,8 @@ T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
 
 Do not wait for CI. Open the pull request, start the next task, and check `gh pr checks` between
 tasks and read why a job is red: a run GitHub refused before a job started prints the same `fail`
-as a broken build, and is reported as `not started: <reason>`, never merged on as green.
+as a broken build, and is reported as `not started: <reason>`, never merged on as green. The
+repository is public so that CI is free (D71); it is the gate, not the owner's card.
 
 ## Working a task
 

@@ -1,18 +1,23 @@
 # Status
 
-**Sprint F2 · One backlog, one board** — open · 2026-09-15 15:35 → 2026-09-16 18:00 · release F.
-Goal: every idea is one line of one shape, and the board opens on the state of the project. Five
-tasks, 27 points; the briefs are [ai/plans/F2-one-backlog-one-board.md](ai/plans/F2-one-backlog-one-board.md)
-and the rules are [ai/PROCESS.md](ai/PROCESS.md). Take one with `/task <id>`; `/board` publishes
-this page to the board artifact.
+**Sprint F3 · Green again** — open · 2026-09-16 15:30 → 2026-09-17 18:00 · release F. Goal: CI
+runs again and every miss the last two audits found is fixed, so the process does what its docs
+say. The improvement sprint: nine tasks, 42 points, every line § DevOps held; the briefs are
+[ai/plans/F3-green-again.md](ai/plans/F3-green-again.md) and the rules are
+[ai/PROCESS.md](ai/PROCESS.md). Take one with `/task <id>`; `/board` publishes this page to the
+board artifact.
 
 ## Board
 
-- [x] F2P1 One backlog grammar in every section · 6 → 3 · decides D69
-- [x] F2P2 The sprint close audits the process · 3 → 3
-- [x] F2P3 A run that never started reads as a failure · 3 → 3
-- [x] F2P4 The board publishes from a cloud routine · 3 → 3 · decides D70
-- [x] F2P5 The board opens on the state of the project · 12 → 3 · after F2P1
+- [x] F3P1 CI is back: the repository is public · 6 → 3 · decides D71
+- [ ] F3P2 Main is protected · 3 · after F3P1
+- [ ] F3P3 The tag is pushed when the ship commit merges · 6 · decides D72
+- [ ] F3P4 The pre-commit hook is installed by something · 3
+- [ ] F3X1 `create_component.py` writes an entry that compiles · 3
+- [ ] F3P5 A brief is written against the checks, and the release line follows its sprints · 6
+- [ ] F3P6 Coverage goes somewhere · 3 · after F3P1
+- [ ] F3P7 A launch config for the emulator · 6
+- [ ] F3P8 A design change starts in Claude Design · 6
 
 ## Drafts
 
@@ -23,6 +28,15 @@ None. The first draft is the next sprint by default; `/sprint draft <name>` writ
 
 Open — [ai/plans/F.md](ai/plans/F.md). Collects sprints until `/release close` ships them as
 `v1.3.0`; a done sprint's lines move here from § Board.
+
+**F2 · One backlog, one board** — done 2026-09-16 · 27 → 15 ·
+[ai/plans/F2-one-backlog-one-board.md](ai/plans/F2-one-backlog-one-board.md)
+
+- [x] F2P1 One backlog grammar in every section · 6 → 3 · decides D69
+- [x] F2P2 The sprint close audits the process · 3 → 3
+- [x] F2P3 A run that never started reads as a failure · 3 → 3
+- [x] F2P4 The board publishes from a cloud routine · 3 → 3 · decides D70
+- [x] F2P5 The board opens on the state of the project · 12 → 3 · after F2P1
 
 **F1 · Dev menu and offline** — done 2026-09-15 · 36 → 30 ·
 [ai/plans/F1-dev-menu-and-offline.md](ai/plans/F1-dev-menu-and-offline.md)

@@ -51,40 +51,7 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
-- The tag is pushed when the ship commit merges · 6 · release · P · `v1.2.0` has had a changelog
-  block since 2026-09-13 and no tag: the ship task ends at "the owner pushes the tag" and nobody
-  did. Either `/release close` ends with the push, or the release job tags `main` itself when a
-  `## v<x.y.z>` block lands with no matching tag.
-- The pre-commit hook is installed by something · 3 · git · P · `git config core.hooksPath
-  .githooks` is a README sentence and unset on this clone; what runs here is an old
-  `.git/hooks/pre-commit` a deleted `install_hooks.py` left behind, and a fresh clone has neither.
-  `/check` sets it when it is missing, or `init_project.py` does.
-- A launch config for the emulator · 6 · claude · P · there is no `.claude/launch.json`, so `/run`
-  has nothing to start and a change is verified by tests and goldens only. One entry that boots
-  the `devDebug` install and one that runs a Maestro flow, so a session can watch a screen it
-  changed.
-- Main is protected · 3 · git · P · branch protection needs a public repository or GitHub Pro;
-  until then the only gate is the discipline in `/task`, and a rebase-merge from a red pull request
-  goes through. Decide: public, Pro, or a `gh pr merge` alias that refuses while `gh pr checks`
-  fails.
-- `create_component.py` writes an entry that compiles · 3 · templates · X · the starter gallery
-  entry calls the component with no argument and adds no import to the gallery catalogue, so the
-  gallery module fails to compile until both are fixed by hand (F1H1). The generator knows the name
-  and the signature it just wrote; `test_scripts.py --with-gradle` is where that is proved.
-- Coverage goes somewhere · 3 · ci · P · `koverHtmlReport` runs on `main` and the report is an
-  artifact nobody opens. A one-line total in the job summary, and a threshold that warns and never
-  fails (`CLAUDE.md`: a signal, never a gate).
-- A design change starts in Claude Design · 6 · claude · P · the KSD system is imported once and
-  edited in Kotlin since; drift goes unnoticed until a re-brand. The `/design` canvas for a new
-  screen before its `create_screen.py`, and a note in `RECIPES.md` on when that pays and when it
-  does not.
-- A brief is written against the checks, not from memory of them · 3 · process · P · F1's two
-  briefs named a test id the vocabulary refuses and a decision number already taken (F1's
-  retrospective). `/sprint draft` reads `doctor.py --list` and the last row of `DECISIONS.md`
-  before it writes a Done when.
-- The release file's pre-assigned decisions follow its sprints · 3 · process · P · `F.md` says
-  `D66–D68` while F2 pre-assigns D69–D70: `/sprint draft` takes numbers and nothing extends the
-  release's line. The draft step extends it, or the line moves to the sprint files only.
+Empty on 2026-09-16: everything here became sprint F3.
 
 ## Someday
 
