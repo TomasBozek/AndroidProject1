@@ -669,7 +669,10 @@ class ScaffoldingTest(unittest.TestCase):
         import json
         backlog = self.repo / "docs/BACKLOG.md"
         good = self.read("docs/BACKLOG.md")
-        self.assertGreaterEqual(good.count("\n- "), 40, "§ Someday is one idea per line")
+        # The count of a section that a draft empties is not a fact; that § Someday was split from
+        # one line into one idea per line is.
+        someday = good.split("## Someday", 1)[1].split("## ", 1)[0]
+        self.assertGreaterEqual(someday.count("\n- "), 5, "§ Someday is one idea per line")
         derived = {(i["group"], i["kind"], i["area"], i["feature"], i["layer"])
                    for items in json.loads(self.run_script("board.py").stdout)["backlog"].values() for i in items}
         self.assertIn(("feature:auth:data", "H", "feature", "auth", "data"), derived)
@@ -773,6 +776,24 @@ class ScaffoldingTest(unittest.TestCase):
         )
         self.assertNotEqual(0, result.returncode)
 
+
+    # -- the pre-commit hook -------------------------------------------------------------------
+
+    def test_doctor_notes_a_missing_hook_and_init_project_installs_it(self) -> None:
+        """A note, never a failure: CI has no hooks and stays green; a clone without the config
+        line is told the one command, and init_project.py runs it on the clone it rewrites."""
+        import subprocess
+        git = lambda *a: subprocess.run(["git", *a], cwd=self.repo, capture_output=True, text=True, env=hermetic_env(), check=True)
+        git("init", "-q")
+        note = "the pre-commit hook is not installed on this clone: git config core.hooksPath .githooks"
+
+        result = self.run_script("doctor.py")
+        self.assertIn(f"[note] {note}", result.stdout)
+
+        self.run_script("init_project.py", "--package", "com.acme.tracker", "--name", "Field Tracker", "--force")
+        self.assertEqual(".githooks", git("config", "core.hooksPath").stdout.strip())
+        result = self.run_script("doctor.py")
+        self.assertNotIn(note, result.stdout)
 
     # -- init_project.py ----------------------------------------------------------------------
 

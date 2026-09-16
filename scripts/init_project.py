@@ -284,6 +284,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def install_hook(dry_run: bool) -> None:
+    """`git config core.hooksPath .githooks` — the whole install, on the clone this runs in. The
+    hook is committed; what a fresh clone lacks is the one config line, and `doctor.py` reminds
+    until it is there."""
+    if dry_run:
+        print("  would set core.hooksPath = .githooks")
+        return
+    try:
+        subprocess.run(
+            ["git", "config", "core.hooksPath", ".githooks"], cwd=REPO_ROOT, check=True,
+            capture_output=True,
+        )
+        print("  core.hooksPath = .githooks")
+    except (OSError, subprocess.CalledProcessError):
+        print("  not a git repository — skipping")
+
+
 def main() -> None:
     args = parse_args()
 
@@ -309,6 +326,9 @@ def main() -> None:
 
     print("\nMoving package directories")
     move_packages(args.package, args.dry_run)
+
+    print("\nInstalling the pre-commit hook")
+    install_hook(args.dry_run)
 
     if args.dry_run:
         print("\nDry run complete. Re-run without --dry-run to apply.")

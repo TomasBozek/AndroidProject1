@@ -17,6 +17,7 @@ import argparse
 import fnmatch
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -1729,6 +1730,24 @@ def check_doc_budgets() -> list[str]:
 # --------------------------------------------------------------------------------------------
 
 
+def hooks_path_note() -> str | None:
+    """A note, never a failure: CI's checkout has no hooks and must stay green. On a clone whose
+    `core.hooksPath` is not `.githooks`, the committed pre-commit hook never runs and a commit
+    that fails these checks goes through — which is how two audits in a row found it unset.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "config", "core.hooksPath"], cwd=REPO_ROOT, capture_output=True, text=True
+        )
+    except (OSError, FileNotFoundError):
+        return None
+    if not (REPO_ROOT / ".git").exists():
+        return None
+    if result.stdout.strip() == ".githooks":
+        return None
+    return "the pre-commit hook is not installed on this clone: git config core.hooksPath .githooks"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Check this project's architectural conventions.",
@@ -1761,6 +1780,9 @@ def main() -> None:
         else:
             print(f"[ ok ] {name}")
 
+    hook_note = hooks_path_note()
+    if hook_note:
+        NOTES.append(hook_note)
     for note in NOTES:
         print(f"[note] {note}")
 

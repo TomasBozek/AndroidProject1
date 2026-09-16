@@ -13,6 +13,10 @@ them, and it never runs `./gradlew build`.
 python3 scripts/doctor.py && ./gradlew ktlintCheck
 ```
 
+If `doctor.py` prints `[note] the pre-commit hook is not installed on this clone`, run the command
+it names first — `git config core.hooksPath .githooks` — and delete a stale `.git/hooks/pre-commit`
+if one is there; the committed hook is the one that runs `doctor.py` before every commit.
+
 Then the touched module's own tests, e.g. `./gradlew :feature:cart:presentation:test`.
 
 **`pr` — T1, once, after rebasing on `origin/main`.** Derive what to run from the diff:
