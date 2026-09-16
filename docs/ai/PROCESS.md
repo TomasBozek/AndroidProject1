@@ -96,7 +96,8 @@ description rewritten; the numbers never change.
    task onto it. Do not wait for CI: check `gh pr checks` between tasks and read why a job is red
    — a run GitHub never started prints the same `fail` as a broken build, and is `not started:
    <reason>`, not green — keep it green, and never weaken a check. `gh pr merge --rebase
-   --delete-branch` once the sprint is done and green — `main` stays one commit per task (D17).
+   --delete-branch` once the sprint is done and green — the ruleset on `main` lets nothing else
+   through, and `main` stays one commit per task (D17).
 10. With more than one agent, touch only the files your tasks own (§ Files); one that needs
     another's file finishes what it can, says so on the pull request and takes the next task.
     Alone, there is nothing to arbitrate.
