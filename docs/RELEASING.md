@@ -13,11 +13,15 @@ tag is 1 / `"1.0"`.
    starts them on demand. An emulator boot plus the flows is fifteen minutes or more. The same run
    assembles `prodRelease`, installs it and signs in on it: R8 runs on no other build, and a keep
    rule that is missing fails at first launch, so the release build is started before a tag is.
-3. Tag and push:
+3. Tag and push — `/release close` does this itself, in the session that merged the ship pull
+   request, on the owner's word (D72); by hand it is:
 
    ```bash
-   git tag v1.0.0 && git push origin v1.0.0
+   git fetch origin && git tag v1.0.0 origin/main && git push origin v1.0.0
    ```
+
+   The tag is pushed by a person's `git`, never by a workflow: a tag a workflow pushes with
+   `GITHUB_TOKEN` starts no other workflow, so the release job would never run for it.
 
 4. CI takes over: the release job refuses the tag unless [CHANGELOG.md](CHANGELOG.md) holds a
    `## <tag> ·` heading, then builds the signed release artifact and publishes a GitHub release

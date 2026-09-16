@@ -29,7 +29,11 @@ Then, in one commit titled `<letter>0P1 Ship <letter>`:
    of `docs/STATUS.md` and write the release into § Shipped: the version, the sprints, the ratio.
    The sprint files stay where they are, briefs and retrospectives intact, boards gone. There is no
    archive (D48).
-4. Run `/check pr`, open the pull request, and once it is merged push the tag —
-   `git tag v<x.y.z> && git push origin v<x.y.z>` — on the owner's word. A block with no tag is
-   the state `v1.2.0` was left in; do not leave another.
+4. Run `/check pr`, open the pull request, and once it is merged **push the tag yourself** (D72):
+   `git fetch origin && git tag v<x.y.z> origin/main && git push origin v<x.y.z>`, on the
+   owner's word — the ship is the word; ask again only if the merge changed something. Then
+   watch that the tag's run started: `gh run list --event push --branch v<x.y.z> --limit 1` shows
+   a run whose `release` job is running, and `gh api …/annotations` says nothing about *not
+   started*. A block with no tag was the state `v1.2.0` sat in for three days; the close is not
+   done until the release page exists — `gh release view v<x.y.z>`.
 5. `/board`. The next `/release open` starts the next letter.
