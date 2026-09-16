@@ -5,7 +5,7 @@ Status: open
 When: 2026-09-16 15:30 → 2026-09-17 18:00
 Goal: CI runs again and every miss the last two audits found is fixed, so the process does what its docs say
 Release: F
-Agents: 1 · 42 points
+Agents: 1 · 45 points
 Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D71–D72
 
 The second improvement sprint, drafted from [../../BACKLOG.md](../../BACKLOG.md) § DevOps, which
@@ -38,6 +38,7 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 | `scripts/_common.py`, `scripts/test_scripts.py` | F3X1 |
 | `.claude/launch.json`, `docs/ai/RECIPES.md`, `docs/ai/TESTING.md` | F3P7, F3P8 |
 | `CLAUDE.md` | F3P1 (§ Checks, one sentence), F3P4 |
+| `app/src/main/AndroidManifest.xml`, `docs/ai/reference/CORE.md` | F3X2 *(appended 2026-09-16: the first green `main` run found it)* |
 
 `build-logic/**`, `gradle/**`, `settings.gradle.kts` and every Kotlin module are untouched; T1's
 "whole `./gradlew test`" conditional does not fire, `test_scripts.py` does.
@@ -246,3 +247,19 @@ the `design` skill (load it before drawing) · `core/ui/**/AppBanner.kt`.
 **Steps** 1. The canvas, one artboard, the banner in both themes. 2. The recipe step. 3. The
 reference sentence.
 **Checks** T0. **Depends** —
+
+### F3X2 The connectivity monitor declares its permission · 3
+
+**Why** Appended after F3P1, because the first `main` run CI actually ran since 2026-09-13 found
+it: `:app:lintDevDebug` fails on `AndroidConnectivityMonitor.kt:39` — *Missing permissions
+required by ConnectivityManager.getActiveNetwork: ACCESS_NETWORK_STATE*. F1H1 shipped the
+banner while Actions was refusing every job, so nothing ran lint on it, and the ruleset F3P2
+made now refuses every pull request until `build` is green on `main`.
+**Done when** `app/src/main/AndroidManifest.xml` declares
+`android.permission.ACCESS_NETWORK_STATE`; `./gradlew :app:lintDevDebug` passes; the `build` job
+on the next `main` run is green; `docs/ai/reference/CORE.md`'s `network/AndroidConnectivityMonitor`
+row names the permission.
+**Touches** `app/src/main/AndroidManifest.xml`, `docs/ai/reference/CORE.md`.
+**Read** `app/**/network/AndroidConnectivityMonitor.kt:30-45` · `app/src/main/AndroidManifest.xml:1-12`.
+**Steps** 1. The `uses-permission` line, with a comment naming the reader. 2. Lint. 3. The row.
+**Checks** T0 + `./gradlew :app:lintDevDebug`. **Depends** —

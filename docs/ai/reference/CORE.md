@@ -44,7 +44,7 @@ Logging is WARN and above in a release build.
 | `DebugMenu` | the flag that decides whether the debug entries are registered at all |
 | `debug/installDebugTooling` | per build type: `src/debug` installs StrictMode on `penaltyLog()` and a manifest overlay that names `res/xml/network_security_config.xml`, trusting user certificates; `src/release` is a no-op and carries no config |
 | `network/CachedOkHttpEngine` | the real engine's on-disk HTTP cache, sized from `NetworkConfig`. In `src/main`, not `src/prod`/`src/staging` where the engine itself lives, because `:app`'s unit tests run for `devDebug` only and this is the one part of the real engine worth a JVM test |
-| `network/AndroidConnectivityMonitor` | `ConnectivityMonitor` over the platform's default-network callback, registered only while collected. In `src/main` for the same reason; `connectivityMonitor()` in each flavor source set picks it, and `dev`'s returns `FixtureNetwork`, so the banner there follows the offline switch (D68) |
+| `network/AndroidConnectivityMonitor` | `ConnectivityMonitor` over the platform's default-network callback, registered only while collected. In `src/main` for the same reason; `connectivityMonitor()` in each flavor source set picks it, and `dev`'s returns `FixtureNetwork`, so the banner there follows the offline switch (D68). Needs `ACCESS_NETWORK_STATE`, declared in the manifest; lint fails without it |
 
 `:app` is also where a vendor is swapped in. Add the dependency here and override the one binding in
 `:app`'s own Koin module, which is loaded after `coreModule` and therefore wins — that is the whole

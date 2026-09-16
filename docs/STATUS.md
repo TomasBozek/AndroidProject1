@@ -2,7 +2,7 @@
 
 **Sprint F3 · Green again** — open · 2026-09-16 15:30 → 2026-09-17 18:00 · release F. Goal: CI
 runs again and every miss the last two audits found is fixed, so the process does what its docs
-say. The improvement sprint: nine tasks, 42 points, every line § DevOps held; the briefs are
+say. The improvement sprint: ten tasks, 45 points, every line § DevOps held; the briefs are
 [ai/plans/F3-green-again.md](ai/plans/F3-green-again.md) and the rules are
 [ai/PROCESS.md](ai/PROCESS.md). Take one with `/task <id>`; `/board` publishes this page to the
 board artifact.
@@ -13,6 +13,7 @@ board artifact.
 - [x] F3P2 Main is protected · 3 → 3 · after F3P1
 - [x] F3P3 The tag is pushed when the ship commit merges · 6 → 3 · decides D72
 - [x] F3P4 The pre-commit hook is installed by something · 3 → 3
+- [x] F3X2 The connectivity monitor declares its permission · 3 → 3
 - [ ] F3X1 `create_component.py` writes an entry that compiles · 3
 - [ ] F3P5 A brief is written against the checks, and the release line follows its sprints · 6
 - [ ] F3P6 Coverage goes somewhere · 3 · after F3P1
