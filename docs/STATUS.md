@@ -1,13 +1,28 @@
 # Status
 
-**Sprint F3 · Green again** — open · 2026-09-16 15:30 → 2026-09-17 18:00 · release F. Goal: CI
-runs again and every miss the last two audits found is fixed, so the process does what its docs
-say. The improvement sprint: eleven tasks, 48 points, every line § DevOps held; the briefs are
-[ai/plans/F3-green-again.md](ai/plans/F3-green-again.md) and the rules are
-[ai/PROCESS.md](ai/PROCESS.md). Take one with `/task <id>`; `/board` publishes this page to the
-board artifact.
+**No sprint is open.** F3 · Green again closed on 2026-09-17 (`48 → 33`); release F is open with
+three done sprints and nothing drafted. CI is off (D73), so the gate is `/check pr` on the machine
+that merges. Next is the owner's word: `/release close` ships F as `v1.3.0`, or `/sprint draft
+<name>` writes F4 from [BACKLOG.md](BACKLOG.md) § Next — § DevOps holds 9 of the 50 points at
+which an improvement sprint is due. The rules are [ai/PROCESS.md](ai/PROCESS.md); `/board`
+publishes this page to the board artifact.
 
 ## Board
+
+No sprint is open. The first draft is the next sprint by default — there is none.
+
+## Drafts
+
+None. The first draft is the next sprint by default; `/sprint draft <name>` writes one from
+[BACKLOG.md](BACKLOG.md) § Next, or § DevOps for an improvement sprint.
+
+## Release F · Sprints
+
+Open — [ai/plans/F.md](ai/plans/F.md). Collects sprints until `/release close` ships them as
+`v1.3.0`; a done sprint's lines move here from § Board.
+
+**F3 · Green again** — done 2026-09-17 · 48 → 33 ·
+[ai/plans/F3-green-again.md](ai/plans/F3-green-again.md)
 
 - [x] F3P1 CI is back: the repository is public · 6 → 3 · decides D71
 - [x] F3P2 Main is protected · 3 → 3 · after F3P1
@@ -20,16 +35,6 @@ board artifact.
 - [x] F3P7 A launch config for the emulator · 6 → 3
 - [x] F3P8 A design change starts in Claude Design · 6 → 3
 - [x] F3P9 CI is switched off · 3 → 3 · decides D73
-
-## Drafts
-
-None. The first draft is the next sprint by default; `/sprint draft <name>` writes one from
-[BACKLOG.md](BACKLOG.md) § Next, or § DevOps for an improvement sprint.
-
-## Release F · Sprints
-
-Open — [ai/plans/F.md](ai/plans/F.md). Collects sprints until `/release close` ships them as
-`v1.3.0`; a done sprint's lines move here from § Board.
 
 **F2 · One backlog, one board** — done 2026-09-16 · 27 → 15 ·
 [ai/plans/F2-one-backlog-one-board.md](ai/plans/F2-one-backlog-one-board.md)

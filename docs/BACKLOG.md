@@ -51,6 +51,10 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
+- `/check pr` runs lint · 3 · process · P · with CI off (D73) the local gate is the only gate,
+  and it does not run `:app:lintDevDebug` — the check that failed on F1H1's missing permission
+  the first time CI ran (F3X2). Add it to T1's "always" line in `CLAUDE.md` § Checks and
+  `.claude/commands/check.md`; ~1 minute on a warm daemon.
 - CI comes back · 3 · ci · P · `build.yml` is disabled (D73) because Actions is paid for this
   account. When the owner wants it: `gh workflow enable build.yml`, put `required_status_checks`
   (`changes`, `conventions`, `build`) back into the `main` ruleset, flip `CLAUDE.md` § Checks and
