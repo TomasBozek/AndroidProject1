@@ -15,9 +15,22 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="${appLabel}"
+        android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidProject1">
+        <!-- Per-app language below API 33 (D75): AppCompat stores the chosen locale itself and
+             reads it back before the first frame. On 33+ the platform does both, and the
+             `localeConfig` above is what lists the app in the system's language settings. -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
         <!-- `singleTop` because the app is one activity and a deep link that arrives while it is
              already running must reach `onNewIntent`, not a second copy of it. Without this, the
              default `standard` mode stacks another MainActivity: the link's whole path is

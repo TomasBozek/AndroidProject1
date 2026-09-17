@@ -11,7 +11,7 @@ What the sample app contains. The layer rules and the module list are
 | `catalog` | domain · data · presentation · di | Categories, products, product detail, search, a product picker. Holds the Catalog tab |
 | `cart` | domain · data · presentation · di | The cart and its badge count. Holds the Cart tab |
 | `profile` | domain · data · presentation · di | Name, email and an avatar taken from the photo picker |
-| `settings` | domain · data · presentation · di | Theme, permissions, the way into profile and the debug menu. Holds the Settings tab. Reads `feature/auth/domain` to sign out |
+| `settings` | domain · data · presentation · di | Theme, language, permissions, the way into profile and the debug menu. Holds the Settings tab. Reads `feature/auth/domain` to sign out; `LanguageRepository` is declared here and implemented in `:app` (D75) |
 | `onboarding` | domain · data · presentation · di | The first-run flow, behind one stored flag |
 | `home` | presentation · di | The landing tab: favourites, and the card that opens Inventory. Reads `feature/inventory/domain` for the count |
 | `gallery` | presentation · di | Every component in `:core:ui`, with its states. Reached from the debug menu |
@@ -42,6 +42,7 @@ through its constructor.
 | `Cart` | cart | — | the Cart tab |
 | `Settings` | settings | — | the Settings tab |
 | `SettingsPermissions` | settings | — | Settings |
+| `SettingsLanguage` | settings | — | Settings. The per-app language: one radio per `AppLanguage` — the device's own, English, Čeština — stored through `LanguageRepository` and applied by the platform at once (D75); the ring follows the store, never the tap |
 | `Profile` | profile | — | Settings |
 | `DevMenu` | devmenu | — | Settings, when the debug menu is enabled |
 | `Gallery` | gallery | — | DevMenu |

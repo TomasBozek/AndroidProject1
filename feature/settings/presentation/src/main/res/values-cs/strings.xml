@@ -11,6 +11,7 @@
     <string name="settings_profile">Profil</string>
     <string name="settings_permissions">Oprávnění</string>
     <string name="settings_debug_menu">Nabídka ladění</string>
+    <string name="settings_language">Jazyk</string>
     <string name="settings_theme">Motiv</string>
     <string name="settings_theme_system">Systémový</string>
     <string name="settings_theme_light">Světlý</string>
@@ -24,4 +25,11 @@
     <string name="settings_permissions_notifications_message">Povolte oznámení, aby vás aplikace mohla upozornit, když se něco stane.</string>
     <string name="settings_permissions_allow">Povolit</string>
     <string name="settings_permissions_open_settings">Otevřít nastavení systému</string>
+
+    <string name="settings_language_title">Jazyk</string>
+    <string name="settings_language_intro">Zvolte jazyk této aplikace. Ostatní aplikace v zařízení to neovlivní.</string>
+    <string name="settings_language_system">Podle zařízení</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_czech">Čeština</string>
+    <string name="settings_language_note">Projeví se okamžitě.</string>
 </resources>

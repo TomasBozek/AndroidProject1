@@ -43,6 +43,10 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
+- The hook note reads only the literal `.githooks` · 3 · templates · P · `doctor.py` prints
+  "the pre-commit hook is not installed" on a clone whose `core.hooksPath` is the same directory
+  as an absolute path — which is what a worktree sees — while the hook runs on every commit there.
+  Compare resolved paths, or check `git rev-parse --git-path hooks`. Seen in F4U1.
 - CI comes back · 3 · ci · P · `build.yml` is disabled (D73) because Actions is paid for this
   account. When the owner wants it: `gh workflow enable build.yml`, put `required_status_checks`
   (`changes`, `conventions`, `build`) back into the `main` ruleset, flip `CLAUDE.md` § Checks and
