@@ -18,7 +18,7 @@ board artifact.
 - [x] F3P5 A brief is written against the checks, and the release line follows its sprints · 6 → 3
 - [x] F3P6 Coverage goes somewhere · 3 → 3 · after F3P1
 - [x] F3P7 A launch config for the emulator · 6 → 3
-- [ ] F3P8 A design change starts in Claude Design · 6
+- [x] F3P8 A design change starts in Claude Design · 6 → 3
 
 ## Drafts
 
