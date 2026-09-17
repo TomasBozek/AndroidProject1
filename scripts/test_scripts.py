@@ -1114,6 +1114,16 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn("feature/cart/data/build.gradle.kts", result.stdout)
         self.assertIn("enables test fixtures by hand", result.stdout)
 
+    def test_doctor_catches_a_sprint_whose_decisions_lie_outside_its_release(self) -> None:
+        """F3P5: a draft takes decision numbers and extends the release line to match; the check is
+        what makes forgetting the second half a failure rather than a stale header."""
+        self.assert_doctor_passes()
+        release = self.repo / "docs/ai/plans/F.md"
+        release.write_text(re.sub(r"Decisions pre-assigned: D\d+–D\d+", "Decisions pre-assigned: D66–D68", release.read_text()))
+        result = self.run_script("doctor.py", expect_success=False)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("outside plans/F.md's D66–D68 — extend the release line", result.stdout)
+
     def test_doctor_catches_a_test_id_named_after_a_component(self) -> None:
         """D60: the vocabulary stays closed. A stepper in a form is a `Field`, never a `Stepper`."""
         screen = self.screen("home", "Home") / "HomeScreen.kt"

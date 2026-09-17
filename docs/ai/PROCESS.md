@@ -147,8 +147,11 @@ Every doc carries a length target, and they are written once, in
 
 `/sprint draft <name>`: recalibrate from the shipped `Estimate · Actual · Ratio` first; take
 [../BACKLOG.md](../BACKLOG.md) § Next in order until the timebox is full, or the lines the owner
-named; write one task section per item — Why, Decide first, Done when, Touches, Read, Steps, Checks,
+named; read `doctor.py --list`, `CLAUDE.md` § Test identifiers and the last row of `DECISIONS.md`
+before writing, so a *Done when* names ids the vocabulary allows and a decision number nobody
+holds; write one task section per item — Why, Decide first, Done when, Touches, Read, Steps, Checks,
 Depends, a section a cold agent can start from alone; estimate with the bands, split anything over
-50; write the `When:`, `Goal:`, `Agents:` lines and the § Files table; assign ids last. The board
-lines stay in the draft until `/sprint open` lifts them into `STATUS.md`. A draft the owner
-abandons is deleted, and a decision row says why.
+50; write the `When:`, `Goal:`, `Agents:` lines, the pre-assigned decisions — extending the
+release file's line to the same `D<b>` — and the § Files table; assign ids last. The board lines
+stay in the draft until `/sprint open` lifts them into `STATUS.md`. A draft the owner abandons is
+deleted, and a decision row says why.

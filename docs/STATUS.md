@@ -15,7 +15,7 @@ board artifact.
 - [x] F3P4 The pre-commit hook is installed by something · 3 → 3
 - [x] F3X2 The connectivity monitor declares its permission · 3 → 3
 - [x] F3X1 `create_component.py` writes an entry that compiles · 3 → 6
-- [ ] F3P5 A brief is written against the checks, and the release line follows its sprints · 6
+- [x] F3P5 A brief is written against the checks, and the release line follows its sprints · 6 → 3
 - [ ] F3P6 Coverage goes somewhere · 3 · after F3P1
 - [ ] F3P7 A launch config for the emulator · 6
 - [ ] F3P8 A design change starts in Claude Design · 6
