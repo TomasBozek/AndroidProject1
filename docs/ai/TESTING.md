@@ -126,7 +126,11 @@ not task inputs, so a report needs `--rerun-tasks` (or a clean) to be regenerate
 
 `./gradlew koverHtmlReport` is coverage, and deliberately not a gate: there is no threshold, because
 a number that has to be met gets met by tests written for the number. It is a signal — which module
-the tests avoid. CI uploads it as an artifact. Previews and generated classes are filtered out.
+the tests avoid. On every push to `main` the build job writes one line to the run's summary —
+`Coverage: 73.3% (4867/6638 lines) · floor 73` — and prints a `::warning::` when the number is more
+than two points under `COVERAGE_FLOOR` at the top of `build.yml`; the floor is set by hand to the
+number rounded down when it moves, and nothing ever fails on it. The HTML report is still uploaded.
+Previews and generated classes are filtered out.
 
 ktlint's rule set lives in `.editorconfig`, not a second config file: `intellij_idea` style rather
 than `ktlint_official`, with `class-signature`, `function-signature` and `parameter-list-spacing`

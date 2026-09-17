@@ -22,6 +22,12 @@ concurrency:
   # the runs whose result is the record, and a cancelled one leaves no record at all.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  # Line coverage on `main` when this was last set, rounded down. The coverage step warns — never
+  # fails — when a `main` run lands more than two points under it, and prints the number to set
+  # it to. A signal, not a gate (docs/ai/TESTING.md § Coverage).
+  COVERAGE_FLOOR: 73
+
 jobs:
   changes:
     # What the diff touches, so a pull request pays only for the checks it can actually fail.
@@ -180,6 +186,26 @@ jobs:
       - name: Coverage report
         if: always() && github.event_name == 'push'
         run: ./gradlew koverHtmlReport koverXmlReport
+
+      # One line in the job summary, so the number is read where the run is: the report has been
+      # an upload artifact since B, and nobody opened one. Ten lines of Python over Kover's XML
+      # rather than an action, which this does not earn (docs/DECISIONS.md).
+      - name: Coverage in the summary
+        if: always() && github.event_name == 'push'
+        run: |
+          python3 - <<'PY'
+          import os, xml.etree.ElementTree as ET
+          root = ET.parse("build/reports/kover/report.xml").getroot()
+          line = next(c for c in root.findall("counter") if c.get("type") == "LINE")
+          covered, missed = int(line.get("covered")), int(line.get("missed"))
+          pct = 100 * covered / (covered + missed)
+          floor = int(os.environ["COVERAGE_FLOOR"])
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write(f"Coverage: {pct:.1f}% ({covered}/{missed + covered} lines) · floor {floor}\n")
+          if pct < floor - 2:
+              print(f"::warning::Coverage {pct:.1f}% is more than two points under COVERAGE_FLOOR={floor}; set the floor to {int(pct)} or find out which module the tests stopped reaching")
+          print(f"Coverage: {pct:.1f}% — set COVERAGE_FLOOR to {int(pct)} when it moves")
+          PY
 
       - name: Upload reports
         if: always()
