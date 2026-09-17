@@ -60,6 +60,23 @@ in `presentation/component/`. Adds `user_profile_detail_*` strings to the featur
 `AppNavHost.kt`. Then follow steps 1–3 above. `--sub` names that directory instead of deriving
 it, which is what a long screen name wants: `--sub search` rather than `catalogsearch`.
 
+## Seeing it on a device
+
+Tests and goldens say what a screen draws; they do not say what it is like to reach it. When a
+screen moved, look at it once on the emulator and put the screenshot in the pull request.
+
+```bash
+"$ANDROID_HOME/emulator/emulator" -list-avds        # pick the first; `-avd <name>` boots it
+```
+
+`.claude/launch.json` has two entries, so `/run` does the rest: **`devDebug`** installs the `dev`
+flavor and starts `MainActivity` on the booted emulator — `ANDROID_HOME`, or `sdk.dir` from
+`local.properties`, says where `adb` is; **`maestro`** runs `.maestro` against it, or the one flow
+in `MAESTRO_FLOW`, with `APP_ID` set to the `dev` build. Maestro is not on a fresh machine:
+`curl -Ls "https://get.maestro.mobile.dev" | bash` puts it under `~/.maestro/bin`, which is where
+the entry looks unless `MAESTRO` says otherwise. A screenshot is
+`adb exec-out screencap -p > shot.png`.
+
 ## A new data source
 
 ```bash
