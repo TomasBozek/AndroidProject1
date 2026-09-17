@@ -128,7 +128,10 @@ by hand, which is the one place in the design system with no check that it match
 
 ## Adding one
 
-`python3 scripts/create_component.py PrimaryButton` puts it in `:core:ui` with a preview;
+The KSD project in Claude Design is the source the three layers were imported from; a change to
+the system is proposed there, or on a `/design` canvas drawn from these tokens, before
+`create_component.py` writes Kotlin — [../RECIPES.md](../RECIPES.md) § A new screen says when
+that pays. `python3 scripts/create_component.py PrimaryButton` puts it in `:core:ui` with a preview;
 `--feature catalog` puts it in that feature's `component/` instead. A component a second feature
 wants moves to `:core:ui` rather than being copied. Either way it is added to the gallery catalog
 and to the group table above in the same change.

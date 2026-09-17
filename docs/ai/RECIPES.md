@@ -31,6 +31,14 @@ the dependencies on layers you skipped. You can add a layer later with
 
 ## A new screen in an existing feature
 
+**Draw it first, when drawing pays.** A screen whose layout nobody has seen, or a component new to
+the system, starts as a `/design` canvas: one artboard named after the screen — `<Domain><Purpose>Screen`,
+the id the scaffold will carry — drawn from `:core:ui`'s own tokens, in both themes, and its link
+goes on the sprint brief's *Read* line so the task starts from a picture someone agreed to. A form
+of existing components, a fix, a screen the feature's siblings already show the shape of: skip it
+and generate. The worked example is the offline banner, drawn after the fact:
+<https://claude.ai/artifact/E4hpGi4G6Wh5DGKqP7DLM7>. Then:
+
 ```bash
 python3 scripts/create_screen.py userprofile UserProfileDetail
 python3 scripts/create_screen.py userprofile UserProfileDetail --sub detail
