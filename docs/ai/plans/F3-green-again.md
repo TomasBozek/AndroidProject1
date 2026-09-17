@@ -1,7 +1,7 @@
 # Sprint F3 · Green again
 
 Sprint: F3 · Green again
-Status: open
+Status: done 2026-09-17
 When: 2026-09-16 15:30 → 2026-09-17 18:00
 Goal: CI runs again and every miss the last two audits found is fixed, so the process does what its docs say
 Release: F
@@ -286,3 +286,25 @@ repos/{owner}/{repo}/rulesets/23545217 --jq '[.rules[].type]'`; `CLAUDE.md` § C
 `required_status_checks`. 3. The doc edits, naming what is lost rather than hiding it. 4. D73 and
 the backlog line.
 **Checks** T0. **Depends** —
+
+## Retrospective
+
+- **What the briefs got wrong.** Six pairs sit outside 0.7–1.3 and five of them are the 6 band
+  at `6 → 3` — F3P1, F3P3, F3P5, F3P7, F3P8 — the sixth is F3X1 at `3 → 6`, a generator fix that
+  needed a Gradle-backed test and a proof that the test could fail. Across release F the 6 band
+  has now missed on six tasks: **the band is rewritten**, and `/sprint draft` does it — "one
+  module changed with its test" is a 6; a command or a doc rewritten with a decision row is a 3.
+  F3P2 wanted an owner bypass on the ruleset that would have let a direct push through; the task
+  built it without one and said so. F3P3's *Done when* asked for a green release job on a tag
+  the repository could not sign.
+- **What the checks missed.** The first `main` run CI ever ran on F1H1 failed lint on a missing
+  permission (F3X2, appended) — three days of merges on a local gate that does not run
+  `lintDevDebug`, and `/check pr` still does not. The tag run for `v1.2.0` published a
+  debug-signed AAB because the guard reads an env only the other job sets and the repository has
+  no secrets — a § DevOps line, the owner's. F2P1's backlog test asserted a line count a draft
+  changes; F3P4 fixed it in passing.
+- **One thing to change.** CI is off on the owner's word (D73), so the local gate is the only
+  gate: `/check pr` gains `:app:lintDevDebug` — the one check that would have caught F3X2 — as a
+  § DevOps line for the next draft. The audit: the hook is set, every merged pull request carries
+  a tail, every block has a tag, the board is republished by this close. DevOps holds 9 points; an
+  improvement sprint is due at 50.
