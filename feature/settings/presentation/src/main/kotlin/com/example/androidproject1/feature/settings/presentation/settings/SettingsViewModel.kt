@@ -40,6 +40,7 @@ class SettingsViewModel(
         when (event) {
             SettingsEvent.ProfileClicked -> navigate(SettingsNavigation.Profile)
             SettingsEvent.PermissionsClicked -> navigate(SettingsNavigation.Permissions)
+            SettingsEvent.LanguageClicked -> navigate(SettingsNavigation.Language)
             SettingsEvent.DebugMenuClicked -> navigate(SettingsNavigation.DebugMenu)
 
             is SettingsEvent.DebugMenuAvailable ->

@@ -62,6 +62,7 @@ import com.example.androidproject1.feature.inventory.presentation.inventoryedito
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileDestination
 import com.example.androidproject1.feature.profile.presentation.profile.profileDestination
+import com.example.androidproject1.feature.settings.presentation.language.settingsLanguageDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.SettingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.settingsPermissionsDestination
 import com.example.androidproject1.feature.settings.presentation.settings.settingsDestination
@@ -330,6 +331,7 @@ private fun EntryProviderScope<NavKey>.settingsEntries(backStack: NavBackStack<N
     settingsPermissionsDestination(backStack = backStack)
     profileDestination(backStack = backStack)
     if (DebugMenu.ENABLED) debugEntries(backStack)
+    settingsLanguageDestination(backStack = backStack)
 }
 
 /**

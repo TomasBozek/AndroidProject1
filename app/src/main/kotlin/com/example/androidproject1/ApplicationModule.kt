@@ -5,6 +5,8 @@ import com.example.androidproject1.debug.TestNotification
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
+import com.example.androidproject1.feature.settings.domain.LanguageRepository
+import com.example.androidproject1.locale.AppCompatLanguageRepository
 import com.example.androidproject1.network.connectivityMonitor
 import com.example.androidproject1.network.networkEngine
 import com.example.androidproject1.service.network.ConnectivityMonitor
@@ -12,7 +14,9 @@ import com.example.androidproject1.service.network.NetworkConfig
 import io.ktor.client.engine.HttpClientEngine
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /** Bindings only the application module can provide. */
@@ -39,6 +43,10 @@ object ApplicationModule {
         // switch's, since the engine is in-process and airplane mode means nothing to it. Per
         // flavor source set, beside the engine (D68).
         single<ConnectivityMonitor> { connectivityMonitor(androidContext(), get()) }
+
+        // The per-app language, stored by AppCompat and read by the Settings feature (D75). Here
+        // for the same reason as the monitor: the class it wraps belongs to the activity stack.
+        singleOf(::AppCompatLanguageRepository) bind LanguageRepository::class
 
         // Only where there is a debug menu to show them. A binding is a reference, and a `prod`
         // build that named `BuildInfo` would keep it; `DebugMenu.ENABLED` is a const, so the

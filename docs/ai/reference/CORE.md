@@ -35,7 +35,7 @@ Logging is WARN and above in a release build.
 
 | Holds | What it is |
 |---|---|
-| `MainActivity` | the single activity, edge to edge, with the splash screen. Remembers the back stack unconditionally on the first frame and gates the display instead. Draws `AppBanner` above the display while `MainViewModel.online` is false, spending the status-bar inset there and consuming it for the screens |
+| `MainActivity` | the single activity — an `AppCompatActivity`, for the one thing AppCompat does here: apply the stored per-app language before the first frame on API 29–32 (D75) — edge to edge, with the splash screen. Remembers the back stack unconditionally on the first frame and gates the display instead. Draws `AppBanner` above the display while `MainViewModel.online` is false, spending the status-bar inset there and consuming it for the screens |
 | `AppNavHost` | every destination, in three groups: onboarding, auth and main. The only place a cross-feature navigation lambda is wired, and the place `ProvideNavResultStore` and `ProvideAnalytics` wrap everything below |
 | `MainViewModel` | a plain `ViewModel`, the owner of `SessionState` and the only thing that switches flows; exposes `online` for the banner |
 | `SessionState` | `Unknown`, `Onboarding`, `SignedIn`, `SignedOut` |
@@ -45,6 +45,7 @@ Logging is WARN and above in a release build.
 | `debug/installDebugTooling` | per build type: `src/debug` installs StrictMode on `penaltyLog()` and a manifest overlay that names `res/xml/network_security_config.xml`, trusting user certificates; `src/release` is a no-op and carries no config |
 | `network/CachedOkHttpEngine` | the real engine's on-disk HTTP cache, sized from `NetworkConfig`. In `src/main`, not `src/prod`/`src/staging` where the engine itself lives, because `:app`'s unit tests run for `devDebug` only and this is the one part of the real engine worth a JVM test |
 | `network/AndroidConnectivityMonitor` | `ConnectivityMonitor` over the platform's default-network callback, registered only while collected. In `src/main` for the same reason; `connectivityMonitor()` in each flavor source set picks it, and `dev`'s returns `FixtureNetwork`, so the banner there follows the offline switch (D68). Needs `ACCESS_NETWORK_STATE`, declared in the manifest; lint fails without it |
+| `locale/AppCompatLanguageRepository` | `LanguageRepository` over `AppCompatDelegate.getApplicationLocales()` / `setApplicationLocales()` — AppCompat is the store (`AppLocalesMetadataHolderService`, `autoStoreLocales` in the manifest), so nothing is written to DataStore; a `StateFlow` re-read after every set. In `src/main` beside the monitor for the same reason (D75). `res/xml/locales_config.xml` lists the shipped locales for the API 33+ system settings |
 
 `:app` is also where a vendor is swapped in. Add the dependency here and override the one binding in
 `:app`'s own Koin module, which is loaded after `coreModule` and therefore wins — that is the whole

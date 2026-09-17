@@ -2,9 +2,9 @@ package com.example.androidproject1
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -32,8 +32,15 @@ import com.example.androidproject1.feature.onboarding.presentation.onboarding.On
 import com.example.androidproject1.feature.settings.domain.ThemePreference
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-/** The app's only Activity; everything else is a composable destination. */
-class MainActivity : ComponentActivity() {
+/**
+ * The app's only Activity; everything else is a composable destination.
+ *
+ * An `AppCompatActivity` for one reason (D75): below API 33 it is what applies the stored per-app
+ * language in `attachBaseContext`, before the first frame. Nothing else of AppCompat is used — the
+ * theme's parent is the AppCompat one because the base class insists, and the window is all it
+ * styles.
+ */
+class MainActivity : AppCompatActivity() {
 
     // internal rather than private: `MainActivityDeepLinkTest` recreates this activity and asserts
     // that the launch intent was not read a second time, which is only visible on the ViewModel

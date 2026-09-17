@@ -8,6 +8,7 @@ import com.example.androidproject1.service.core.domain.error.UnexpectedError
 import com.example.androidproject1.service.core.domain.test.FakeLogger
 import com.example.androidproject1.service.core.ui.event.SystemEvent
 import com.example.androidproject1.service.core.ui.test.MainDispatcherRule
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -86,6 +87,15 @@ class SettingsViewModelTest {
         viewModel.onUiEvent(SettingsEvent.ThemeSelected(ThemePreference.Dark))
 
         assertEquals(ThemePreference.System, viewModel.state.value.data?.theme)
+    }
+
+    @Test
+    fun `the language entry is a navigation intent`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onUiEvent(SettingsEvent.LanguageClicked)
+
+        assertEquals(SettingsNavigation.Language, viewModel.navigation.first())
     }
 
     @Test

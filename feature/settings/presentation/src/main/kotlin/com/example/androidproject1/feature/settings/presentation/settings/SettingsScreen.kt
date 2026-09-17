@@ -66,6 +66,17 @@ fun SettingsScreen(
                     .testTag("settings_themeTab"),
             )
 
+            // Its own screen rather than a control here: a language name is long in every language
+            // and the list grows with each `values-xx` (F4U1).
+            AppButton(
+                label = stringResource(R.string.settings_language),
+                onClick = { onEvent(SettingsEvent.LanguageClicked) },
+                kind = ButtonKind.Outline,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("settings_languageButton"),
+            )
+
             AppButton(
                 label = stringResource(R.string.settings_profile),
                 onClick = { onEvent(SettingsEvent.ProfileClicked) },

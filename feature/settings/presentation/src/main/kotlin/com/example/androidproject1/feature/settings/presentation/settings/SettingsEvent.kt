@@ -20,6 +20,9 @@ sealed interface SettingsEvent : UiEvent {
 
     data object DebugMenuClicked : SettingsEvent
 
+    /** The language picker, a screen of this feature. */
+    data object LanguageClicked : SettingsEvent
+
     /** A palette picked on the segmented control; stored, and applied at the root. */
     data class ThemeSelected(val theme: ThemePreference) : SettingsEvent
 
