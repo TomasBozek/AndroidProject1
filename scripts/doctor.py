@@ -1636,6 +1636,43 @@ def check_design_system_lists_every_component() -> list[str]:
     return problems
 
 
+PRE_ASSIGNED = re.compile(r"^.*Decisions pre-assigned: D(\d+)–D(\d+)\s*$", re.MULTILINE)
+
+
+@check("a sprint's pre-assigned decisions lie inside its release's")
+def check_decisions_pre_assigned() -> list[str]:
+    """`../PROCESS.md` § Drafting a sprint: a draft takes its decision numbers from the last row of
+    `DECISIONS.md` and extends the release file's line to the same end. F2 pre-assigned D69–D70
+    while `F.md` still said D66–D68 (F3P5): the line nobody extended is the one that says which
+    numbers a release holds, and a release that does not hold its sprints' numbers is a table of
+    contents with pages missing.
+    """
+    problems = []
+    plans = DOCS_DIR / "ai/plans"
+    releases: dict[str, tuple[int, int]] = {}
+    for path in sorted(walk(plans, "?.md")):
+        match = PRE_ASSIGNED.search(path.read_text())
+        if match:
+            releases[path.stem] = (int(match.group(1)), int(match.group(2)))
+    for path in sorted(walk(plans, "??-*.md")):
+        text = path.read_text()
+        match = PRE_ASSIGNED.search(text)
+        if not match:
+            continue
+        low, high = int(match.group(1)), int(match.group(2))
+        letter = path.stem[0]
+        if letter not in releases:
+            problems.append(problem(path, None, f"pre-assigns D{low}–D{high} and plans/{letter}.md has no `Decisions pre-assigned:` line"))
+            continue
+        release_low, release_high = releases[letter]
+        if low < release_low or high > release_high:
+            problems.append(problem(
+                path, None,
+                f"pre-assigns D{low}–D{high}, outside plans/{letter}.md's D{release_low}–D{release_high} — extend the release line",
+            ))
+    return problems
+
+
 @check("every task id on a board is well formed and used once")
 def check_task_ids() -> list[str]:
     """`../PROCESS.md` § Ids: an id appears in the board line, the section, the branch, the commit

@@ -19,15 +19,21 @@ Refuse if no release is `Status: open` — `/release open <letter> <name>` first
 2. Take the candidates: the lines the owner named, else `docs/BACKLOG.md` § Next in order until
    the timebox is full — 100 points unless the owner said otherwise. An improvement sprint takes
    § DevOps instead. Remove each line from the backlog in the same edit.
-3. One task section per candidate — Why, Decide first, Done when, Touches, Read, Steps, Checks,
+3. Read before writing: `python3 scripts/doctor.py --list` (the checks a *Done when* has to pass),
+   `CLAUDE.md` § Test identifiers (an id a brief names comes from that vocabulary — F1H1's
+   `main_offlineBanner` did not, and the task found out at T0), and the last row of
+   `docs/DECISIONS.md` (the next free `D<n>` — F1H1 pre-assigned one F1P1 had taken). Then one
+   task section per candidate — Why, Decide first, Done when, Touches, Read, Steps, Checks,
    Depends. **Done when** is commands and greps, never a sentence. **Steps** name real paths, the
    generator to call and the doc row to update. A section a cold agent cannot start from alone is
    not finished.
 4. Estimate with the bands; split anything over 50 before it gets an id.
 5. Order: tasks that write shared files first, then dependencies, then the largest. Fill § Files.
 6. Write `Sprint:`, `Status: draft`, `When:` (the owner's dates, else the next working day 09:00 →
-   18:00), `Goal:`, `Release:`, `Agents: 1 · <pts> points`, the decisions pre-assigned from the next
-   free `D<n>`. Assign task ids **last**.
+   18:00), `Goal:`, `Release:`, `Agents: 1 · <pts> points`, and `Decisions pre-assigned: D<a>–D<b>`
+   from the next free number after the last row — **and extend the release file's
+   `Decisions pre-assigned:` line to `D<b>` in the same edit**; `doctor.py` fails on a sprint whose
+   range lies outside its release's. Assign task ids **last**.
 7. The board lines go under the draft's `## Board`. Add the draft to `docs/STATUS.md` § Drafts, in
    queue order — the first is the next sprint. Run `python3 scripts/doctor.py`, then `/board`.
 
