@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "devDebug",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "sdk=\"${ANDROID_HOME:-$(sed -n 's/^sdk.dir=//p' local.properties)}\" && \"$sdk/platform-tools/adb\" wait-for-device && ./gradlew -q installDevDebug && \"$sdk/platform-tools/adb\" shell am start -n com.example.androidproject1.dev/com.example.androidproject1.MainActivity"
+      ]
+    },
+    {
+      "name": "maestro",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "flow=\"${MAESTRO_FLOW:-.maestro}\" && \"${MAESTRO:-$HOME/.maestro/bin/maestro}\" test -e APP_ID=com.example.androidproject1.dev \"$flow\""
+      ]
+    }
+  ]
+}
