@@ -51,6 +51,11 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
+- CI comes back · 3 · ci · P · `build.yml` is disabled (D73) because Actions is paid for this
+  account. When the owner wants it: `gh workflow enable build.yml`, put `required_status_checks`
+  (`changes`, `conventions`, `build`) back into the `main` ruleset, flip `CLAUDE.md` § Checks and
+  `docs/RELEASING.md` § 4 back to "CI runs T2–T4", and run one `main` build to read the coverage
+  line F3P6 wrote. Until then nothing watches `main` after a merge and a tag builds nothing.
 - Every release so far is signed with the debug key · 6 · release · H · the repository has
   **no secrets** (`gh api …/actions/secrets` → 0), and `v1.0.0`, `v1.1.0` and `v1.2.0` each have
   a release page with an AAB anyway: the step that refuses an unsigned tag lives in the `build`

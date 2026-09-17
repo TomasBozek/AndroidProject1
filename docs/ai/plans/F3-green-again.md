@@ -5,8 +5,8 @@ Status: open
 When: 2026-09-16 15:30 → 2026-09-17 18:00
 Goal: CI runs again and every miss the last two audits found is fixed, so the process does what its docs say
 Release: F
-Agents: 1 · 45 points
-Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D71–D72
+Agents: 1 · 48 points
+Rules: [../PROCESS.md](../PROCESS.md) · Checks: `CLAUDE.md` § Checks · Decisions pre-assigned: D71–D73
 
 The second improvement sprint, drafted from [../../BACKLOG.md](../../BACKLOG.md) § DevOps, which
 held 42 of the 50 points at which one is due. Every line here is something the process was caught
@@ -39,6 +39,7 @@ Edits after `Status: open`: your own board line (`[ ]`→`[x]` with `est → act
 | `.claude/launch.json`, `docs/ai/RECIPES.md`, `docs/ai/TESTING.md` | F3P7, F3P8 |
 | `CLAUDE.md` | F3P1 (§ Checks, one sentence), F3P4 |
 | `app/src/main/AndroidManifest.xml`, `docs/ai/reference/CORE.md` | F3X2 *(appended 2026-09-16: the first green `main` run found it)* |
+| the workflow's enabled state and the ruleset (GitHub settings), `CLAUDE.md` § Checks, `docs/RELEASING.md`, `docs/README.md`, `.claude/commands/{sprint,release}.md` | F3P9 *(appended 2026-09-17, the owner's word)* |
 
 `build-logic/**`, `gradle/**`, `settings.gradle.kts` and every Kotlin module are untouched; T1's
 "whole `./gradlew test`" conditional does not fire, `test_scripts.py` does.
@@ -263,3 +264,25 @@ row names the permission.
 **Read** `app/**/network/AndroidConnectivityMonitor.kt:30-45` · `app/src/main/AndroidManifest.xml:1-12`.
 **Steps** 1. The `uses-permission` line, with a comment naming the reader. 2. Lint. 3. The row.
 **Checks** T0 + `./gradlew :app:lintDevDebug`. **Depends** —
+
+### F3P9 CI is switched off · 3 · decides D73
+
+**Why** Appended on the owner's word, 2026-09-17: Actions is a paid feature for this account —
+a few builds a month, then every job refused on billing — and they will not pay for it. D71's
+public flip bought one afternoon of runs. A workflow that is enabled and refused shows every pull
+request a red or never-started check nobody may act on, and F3P2's ruleset would merge nothing.
+**Done when** `gh workflow list --all` shows `Build` as `disabled_manually`; the `main` ruleset's
+rules are `pull_request`, `non_fast_forward`, `deletion` and nothing else — `gh api
+repos/{owner}/{repo}/rulesets/23545217 --jq '[.rules[].type]'`; `CLAUDE.md` § Checks, `docs/ai/PROCESS.md`
+§ Task loop 9, `docs/RELEASING.md` § 4, `docs/README.md` and the audit item in
+`.claude/commands/sprint.md` say the local `/check pr` tail is the whole gate and what is lost;
+`.claude/commands/release.md` § close says a tag builds nothing while CI is off; D73 is a row;
+`docs/BACKLOG.md` § DevOps has *CI comes back*; `python3 scripts/doctor.py` passes.
+**Touches** GitHub settings (the workflow's state, the ruleset), `CLAUDE.md`, `docs/ai/PROCESS.md`,
+`docs/RELEASING.md`, `docs/README.md`, `.claude/commands/{sprint,release}.md`, `docs/DECISIONS.md`,
+`docs/BACKLOG.md`.
+**Read** `CLAUDE.md` § Checks · `.claude/commands/sprint.md` § close, the audit · `docs/RELEASING.md:22-40`.
+**Steps** 1. `gh workflow disable build.yml`; cancel the run in flight. 2. The ruleset without
+`required_status_checks`. 3. The doc edits, naming what is lost rather than hiding it. 4. D73 and
+the backlog line.
+**Checks** T0. **Depends** —

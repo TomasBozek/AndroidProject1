@@ -23,7 +23,12 @@ tag is 1 / `"1.0"`.
    The tag is pushed by a person's `git`, never by a workflow: a tag a workflow pushes with
    `GITHUB_TOKEN` starts no other workflow, so the release job would never run for it.
 
-4. CI takes over: the release job refuses the tag unless [CHANGELOG.md](CHANGELOG.md) holds a
+4. **CI is switched off (D73)** — `build.yml` is in the tree and disabled, so a tag builds nothing
+   and makes no release page for now; the four secrets below do not exist yet either, and every
+   release page made before the switch-off carries an AAB signed with the CI debug key. Until the
+   owner turns Actions back on, a release is the tag, and a build someone wants is
+   `./gradlew bundleProdRelease` on a machine with the keystore. What follows is what the job
+   does when it runs: the release job refuses the tag unless [CHANGELOG.md](CHANGELOG.md) holds a
    `## <tag> ·` heading, then builds the signed release artifact and publishes a GitHub release
    whose notes are that block, byte for byte. Notes are never generated from the commit log — the
    first tag of a repository has no previous tag to diff against, and the block is already written
@@ -32,8 +37,8 @@ tag is 1 / `"1.0"`.
    A job that shows `fail` after two seconds with no steps was never started — a billing or a
    runner stop, not a result. Read the annotation before reading anything else:
    `gh api repos/{owner}/{repo}/check-runs/<job id>/annotations --jq '.[].message'` — and report
-   it as `not started: <reason>`. The repository is public so that Actions costs nothing (D71);
-   a run that never started is not green, and nothing is merged or tagged on one.
+   it as `not started: <reason>`. A run that never started is not green, and nothing is merged or
+   tagged on one.
 
 The four secrets are `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
 **A tag without them is refused**, before anything is built: an AAB signed with the CI debug key
