@@ -13,7 +13,7 @@ of the 50 points at which an improvement sprint is due.
 [ai/plans/F4-things-you-can-see.md](ai/plans/F4-things-you-can-see.md)
 
 - [x] F4P1 `/check pr` runs lint · 3 → 3
-- [ ] F4X1 The description list wraps its value, not its label · 6
+- [x] F4X1 The description list wraps its value, not its label · 6 → 6
 - [ ] F4U1 A language picker in Settings · 12 · decides D75
 - [ ] F4S1 A shared-element transition from a product row to its detail · 12 · decides D76
 - [ ] F4U2 A component playground behind the dev menu (was C1U6) · 25 · decides D77

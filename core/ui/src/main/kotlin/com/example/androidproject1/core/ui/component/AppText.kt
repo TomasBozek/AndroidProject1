@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,6 +71,8 @@ fun AppText(
     color: Color? = null,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
+    /** Where the lines sit inside a box wider than the text; `null` is the locale's start. */
+    textAlign: TextAlign? = null,
 ) {
     val type = AppTheme.typography
     val colors = AppTheme.colors
@@ -98,7 +101,7 @@ fun AppText(
         BasicText(
             text = text,
             modifier = modifier,
-            style = style.copy(color = resolved),
+            style = style.copy(color = resolved, textAlign = textAlign ?: TextAlign.Unspecified),
             maxLines = 1,
             overflow = overflow,
             autoSize = TextAutoSize.StepBased(minFontSize = NUMERIC_MIN_SIZE, maxFontSize = style.fontSize),
@@ -113,6 +116,7 @@ fun AppText(
         color = resolved,
         maxLines = maxLines,
         overflow = overflow,
+        textAlign = textAlign ?: TextAlign.Unspecified,
     )
 }
 
