@@ -17,7 +17,8 @@ Refuse if a release is already `Status: open`. Write `docs/ai/plans/<letter>.md`
 ## `close`
 
 Refuse unless the open release has at least one `Status: done` sprint and no `Status: open` one.
-Then, in one commit titled `<letter>0P1 Ship <letter>`:
+Then, on `release/<x.y.z>` branched from a fresh `origin/develop` (gitflow, D74), in one commit
+titled `<letter>0P<n> Ship <letter>`:
 
 1. Sum the `est → act` pairs of every done sprint under § Release `<letter>` in `docs/STATUS.md`.
    Write the block into `docs/CHANGELOG.md`: the heading `## v<x.y.z> · release <letter> · <date>`,
@@ -29,9 +30,12 @@ Then, in one commit titled `<letter>0P1 Ship <letter>`:
    of `docs/STATUS.md` and write the release into § Shipped: the version, the sprints, the ratio.
    The sprint files stay where they are, briefs and retrospectives intact, boards gone. There is no
    archive (D48).
-4. Run `/check pr`, open the pull request, and once it is merged **push the tag yourself** (D72):
+4. Run `/check pr` (against `origin/main`), open the pull request **against `main`**, merge it
+   with `--merge` once the tail is green, and **push the tag yourself** (D72):
    `git fetch origin && git tag v<x.y.z> origin/main && git push origin v<x.y.z>`, on the
-   owner's word — the ship is the word; ask again only if the merge changed something. While CI
+   owner's word — the ship is the word; ask again only if the merge changed something. Then
+   merge `main` back: `gh pr create --base develop --head main --title "Merge v<x.y.z> back"`,
+   `gh pr merge --merge`. While CI
    is off (D73) a tag builds nothing: the close ends at the pushed tag, and a release page is the
    owner's to make by hand from a local `bundleProdRelease` if one is wanted. When CI is back,
    the close is not done until `gh release view v<x.y.z>` answers. A block with no tag was the

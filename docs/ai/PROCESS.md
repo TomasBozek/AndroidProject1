@@ -24,17 +24,19 @@ ships or adds another sprint to the same release, and adding is the default.
 | the board, anywhere | `/board` — `scripts/board.py` reads these files and the result is written to the board artifact (D67), so a phone or another session sees the same state without the repository |
 
 A sprint's timebox is one agent-day — 100 points — unless the `When:` line says otherwise. A task
-still open when it ends goes back to § Next with its `(was F1X1)`, and the next draft takes it or
-deletes it; nothing is carried forward by default (D62). A release with no open sprint and no draft
-is where "what can we do today" starts: `/sprint draft`.
+still open when it ends goes back to § Next with its `(was F1X1)`; the next draft takes it or
+deletes it, nothing is carried forward by default (D62). No open sprint and no draft: `/sprint draft`.
 
 ## One agent
 
 **One agent works a sprint, top to bottom.** A second is the owner's call, written in the sprint's
-`Agents:` line, and only for a sprint whose tasks touch disjoint files — the § Files table says
-which. Never more than three, and never one by reflex: every agent is a full context, roughly 100k
-tokens read before its first edit. The same holds inside a session — do the work in the session; no
-subagents and no workflow scripts unless the owner asks for them by name (D61).
+`Agents:` line, and only for a sprint whose tasks touch disjoint files — the sprint's § Files
+table says which, so a second agent could take a task without re-reading the code (the files two
+tasks most often want: `settings.gradle.kts` · `core/di/**` · `app/**/AppNavHost.kt` ·
+`gradle/libs.versions.toml` · `build-logic/**` · `scripts/doctor.py` · `CLAUDE.md`). Never more
+than three, and never one by reflex: every agent is a full context, roughly 100k tokens read before
+its first edit. The same holds inside a session — no subagents and no workflow scripts unless the
+owner asks for them by name (D61).
 
 ## Ids
 
@@ -48,16 +50,15 @@ subagents and no workflow scripts unless the owner asks for them by name (D61).
 | Kind letter | `U` UI and design system · `X` fix · `T` trim · `H` harden · `P` platform (build, CI, scripts, docs, process) · `S` showcase |
 | Seq digit | `1`–`9` within one (release, sprint, kind). A tenth means the sprint is too big |
 
-An id appears in the board line, the `### <id> <title>` section, the commit title, the changelog's
-`Tasks:` line and any decision that cites it. **Never in source.** A carried-over item keeps its
-old id once, as `(was D1X4)`. Find one: `grep -rn '\bA1U1\b' docs .github` ·
-`git log --oneline --grep='^A1U1 '`. Releases A–E predate sprints: their digit was a lane, a
-file-disjoint group of tasks, and their plan files hold the tasks directly.
+An id appears in the board line, the `### <id> <title>` section, the branch, the commit title, the
+changelog's `Tasks:` line and any decision that cites it. **Never in source.** A carried-over item
+keeps its old id once, as `(was D1X4)`. Find one: `grep -rn '\bA1U1\b' docs .github` ·
+`git log --oneline --grep='^A1U1 '`. In releases A–E the digit was a lane, not a sprint.
 
 ## Points
 
-**100 points = one agent-day = 8 hours**, from `/task` to the pull request being open. It covers
-T0, T1 and one round of CI fixes, but not waiting for CI. A point is five minutes.
+**100 points = one agent-day = 8 hours**, from `/task` to the pull request being open, T0 and T1
+included. A point is five minutes.
 
 | Band | Means |
 |---|---|
@@ -68,19 +69,16 @@ T0, T1 and one round of CI fixes, but not waiting for CI. A point is five minute
 | 50 | a feature slice. The ceiling — anything larger is split before it gets an id |
 
 A sprint is as big as its work and never padded to its timebox. Inside a sprint: tasks that write
-shared files first, then dependencies, then the largest. A hotfix to a shipped release keeps that
-release's letter — `A0X1` — ships as a patch tag and gets a patch block in the changelog.
-
-**Calibration.** The agent appends `· est → act` to its board line; the ship task writes
-`Estimate · Actual · Ratio` into the changelog block. A band off by 30 % on three tasks gets its
-description rewritten; the numbers never change.
+shared files first, then dependencies, then the largest. **Calibration.** The agent appends
+`· est → act` to its board line; the ship task writes `Estimate · Actual · Ratio` into the changelog
+block. A band off by 30 % on three tasks gets its description rewritten; the numbers never change.
 
 ## Task loop
 
 1. Read `CLAUDE.md` (already loaded), this file once per session, then the sprint's opening.
 2. `/task <id>` takes the first `[ ]` on the board whose `Depends` is settled. The branch is the
-   sprint's — `<letter><n>-<slug>`, made from a fresh `origin/main` on the sprint's first task —
-   and every task of the sprint is one commit on it.
+   task's — `feature/<id>-<slug>`, made from a fresh `origin/develop` — and the task is one commit
+   on it (§ Branches).
 3. A `Decide first` line is settled before the code, as a row in [../DECISIONS.md](../DECISIONS.md)
    under the pre-assigned number, in the same commit.
 4. Use the generators for any new module, screen, component or data source.
@@ -91,15 +89,29 @@ description rewritten; the numbers never change.
    owner amends the brief.
 8. Flip your board line to `[x]` with `est → act` in the task's own commit, titled `<id> <title>`,
    carrying the code, the docs and the board line together. Then `/board`.
-9. `/check pr` once per sprint, after `git rebase origin/main`; paste its tail into the pull-request
-   body — **it is the whole gate: CI is off (D73)**. Open the pull request with the template on the
-   sprint's first task and push every later task onto it. `gh pr merge --rebase --delete-branch`
-   once the sprint is done, the tail is green and the owner has said so — the ruleset on `main`
-   lets nothing but a rebase-merged pull request through, and `main` stays one commit per task
-   (D17). Never weaken a check to get there.
+9. `/check pr` once per task, after `git rebase origin/develop`; paste its tail into the
+   pull-request body — **it is the whole gate: CI is off (D73)**. Open the pull request against
+   `develop` with the template, and `gh pr merge --merge --delete-branch` when the tail is green:
+   a merge commit, never a rebase or a squash, so `develop` reads as one task commit and its merge
+   (D74). Never weaken a check to get there.
 10. With more than one agent, touch only the files your tasks own (§ Files); one that needs
     another's file finishes what it can, says so on the pull request and takes the next task.
     Alone, there is nothing to arbitrate.
+
+## Branches
+
+Gitflow (D74). `main` is shipped code — every commit on it a release or hotfix merge, every
+release a tag on it; `develop` is where sprints land. Three short-lived kinds, each merged
+`--no-ff` through a pull request and deleted after:
+
+| Branch | From → into | What |
+|---|---|---|
+| `feature/<id>-<slug>` | `develop` → `develop` | one task, one commit. A sprint-0 chore for `develop` is the same shape |
+| `release/<x.y.z>` | `develop` → `main`, then `main` → `develop` | `/release close`: the changelog block and the doc sweep, the tag on `main` after the merge, `main` merged back |
+| `hotfix/<id>-<slug>` | `main` → `main`, then `main` → `develop` | a sprint-0 fix to a shipped release, a patch tag |
+
+`/check pr` diffs a feature branch against `origin/develop`, a release or hotfix against
+`origin/main`. Rulesets on both long branches: a pull request, a merge commit, no force-push.
 
 ## States
 
@@ -114,14 +126,6 @@ There is no "doing" state: a board is worked top to bottom, so the first `[ ]` i
 A sprint is `Status: draft` → `Status: open` (`/sprint open`, the owner's word) → `Status: done`
 (`/sprint close`). **Exactly one sprint is open**, and one release: a release is `Status: open`
 from `/release open` until `/release close` writes `shipped as v<x.y.z>`.
-
-## Files
-
-Every sprint lists what each task writes, so a second agent could take a task without re-reading
-the code. The files two tasks most often want: `settings.gradle.kts` · `core/di/**` ·
-`app/**/AppNavHost.kt` · `app/**/KoinGraphTest.kt` · `gradle/libs.versions.toml` · `build-logic/**`
-· `scripts/doctor.py` · `CLAUDE.md` · `docs/ai/CODEBASE.md` · `.github/workflows/build.yml`. A
-generator edit counts: `create_feature.py` writes four of them.
 
 ## Which doc changes when
 

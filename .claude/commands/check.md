@@ -19,10 +19,10 @@ if one is there; the committed hook is the one that runs `doctor.py` before ever
 
 Then the touched module's own tests, e.g. `./gradlew :feature:cart:presentation:test`.
 
-**`pr` — T1, once, after rebasing on `origin/main`.** Derive what to run from the diff:
+**`pr` — T1, once, after rebasing on `origin/develop`** (`origin/main` for a `release/` or `hotfix/` branch). Derive what to run from the diff:
 
 ```bash
-git diff --name-only origin/main...HEAD
+git diff --name-only origin/develop...HEAD
 ```
 
 - Always: `python3 scripts/doctor.py`, `./gradlew ktlintCheck :app:assembleDevDebug`, and `test` for
