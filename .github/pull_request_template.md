@@ -1,4 +1,4 @@
-<!-- Title: `Sprint <letter><n> · <name>` — one pull request per sprint; each task is one commit titled `<id> <title>`. -->
+<!-- Title: `<id> <title>` — one pull request per task, `feature/<id>-<slug>` into `develop`, merged with a merge commit (D74). -->
 
 Points: <est> → <act>
 

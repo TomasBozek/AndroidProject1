@@ -50,8 +50,11 @@ what a store expects, rather than an APK — and the R8 mapping it was built wit
 A minified stack trace is unreadable without it, and the names are rewritten on every build — so
 the copy attached to a release is the only one that will ever fit that AAB.
 
-**A hotfix to a shipped release** keeps that release's letter — `A0X1` — is a sprint-0 task with no
-open sprint, goes through a pull request like everything else, ships as a patch tag and gets its
-own short block in the changelog. `main` is a ruleset (F3P2): a pull request, the `changes`,
-`conventions` and `build` checks green, a rebase merge, no force-push, no deletion, and nobody
-bypasses it — a red pull request does not merge, and neither does a run that never started.
+**Branches are gitflow (D74).** `main` is shipped code, one tag per release; `develop` is where
+sprints land; a task is `feature/<id>-<slug>` into `develop`, a ship is `release/<x.y.z>` into
+`main` and back into `develop`. **A hotfix to a shipped release** keeps that release's letter —
+`A0X1` — is a sprint-0 task on `hotfix/<id>-<slug>` from `main`, merged into `main` and back into
+`develop`, ships as a patch tag and gets its own short block in the changelog. `main` and
+`develop` are rulesets (F3P2, F0P2): a pull request, a merge commit, no force-push, no deletion,
+and nobody bypasses them; while CI is off (D73) the pull request's `/check pr` tail is what the
+merge stands on.

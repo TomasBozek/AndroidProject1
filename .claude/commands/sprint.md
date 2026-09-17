@@ -47,7 +47,7 @@ commit. `/board`.
 
 ## `close`
 
-Refuse unless every board line is `[x]` or `[-]` and the sprint's pull request is merged.
+Refuse unless every board line is `[x]` or `[-]` and every task's pull request is merged into `develop`.
 
 1. Flip the header to `Status: done <date>`. Append `## Retrospective` to the sprint file: three
    lines — what the briefs got wrong, what the checks missed, one thing to change next sprint.
@@ -66,7 +66,7 @@ Refuse unless every board line is `[x]` or `[-]` and the sprint's pull request i
    - **a tag for every shipped block** — `git tag -l 'v*'` against `grep '^## v[0-9]'
      docs/CHANGELOG.md`. A miss is a heading with no tag of the same version.
    - **the board republished after the last merge** — `/board read`, then `syncedAt` against
-     `git log -1 --format=%cI origin/main`. A miss is a `syncedAt` older than the merge.
+     `git log -1 --format=%cI origin/develop`. A miss is a `syncedAt` older than the merge.
    - **`est → act`** — every pair on the board whose `act / est` is outside 0.7–1.3 is named in
      the retrospective's first line; three such pairs in one band across the release is a miss:
      `the <n> band is rewritten`, and `/sprint draft` does it.
