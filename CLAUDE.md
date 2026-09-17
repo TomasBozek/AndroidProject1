@@ -228,8 +228,10 @@ goes to [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Checks
 
-Five tiers. **You run T0 and T1; CI runs T2, T3 and T4.** Never `./gradlew build` — it assembles
-every variant and runs R8 three times.
+Five tiers. **You run T0 and T1. CI is switched off (D73)** — `build.yml` stays in the tree,
+disabled, and T2–T4 are what `/check pr` runs on this machine before a merge: the gate is local,
+and a pull request merges on its pasted `/check pr` tail, never on a GitHub run. Never
+`./gradlew build` — it assembles every variant and runs R8 three times.
 
 | | When | Run |
 |---|---|---|
@@ -248,10 +250,11 @@ T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
 - a path under `scripts/`, `feature/template/` or `.claude/commands/` → `python3 scripts/test_scripts.py`
 - a path under `build-logic/`, `gradle/`, `service/` or `core/` → the whole `./gradlew test`
 
-Do not wait for CI. Open the pull request, start the next task, and check `gh pr checks` between
-tasks and read why a job is red: a run GitHub refused before a job started prints the same `fail`
-as a broken build, and is reported as `not started: <reason>`, never merged on as green. The
-repository is public so that CI is free (D71); it is the gate, not the owner's card.
+There is no CI to wait for. Open the pull request with the `/check pr` tail in its body, merge
+it yourself when the tail is green and the owner has said the sprint merges, and start the next
+task. While `build.yml` is off, `gh pr checks` reports nothing and is not consulted; when it comes
+back (a § DevOps line), a run GitHub refused before a job started is `not started: <reason>`,
+never `fail` and never green.
 
 ## Working a task
 

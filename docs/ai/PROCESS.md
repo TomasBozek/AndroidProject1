@@ -92,12 +92,11 @@ description rewritten; the numbers never change.
 8. Flip your board line to `[x]` with `est → act` in the task's own commit, titled `<id> <title>`,
    carrying the code, the docs and the board line together. Then `/board`.
 9. `/check pr` once per sprint, after `git rebase origin/main`; paste its tail into the pull-request
-   body. Open the pull request with the template on the sprint's first task and push every later
-   task onto it. Do not wait for CI: check `gh pr checks` between tasks and read why a job is red
-   — a run GitHub never started prints the same `fail` as a broken build, and is `not started:
-   <reason>`, not green — keep it green, and never weaken a check. `gh pr merge --rebase
-   --delete-branch` once the sprint is done and green — the ruleset on `main` lets nothing else
-   through, and `main` stays one commit per task (D17).
+   body — **it is the whole gate: CI is off (D73)**. Open the pull request with the template on the
+   sprint's first task and push every later task onto it. `gh pr merge --rebase --delete-branch`
+   once the sprint is done, the tail is green and the owner has said so — the ruleset on `main`
+   lets nothing but a rebase-merged pull request through, and `main` stays one commit per task
+   (D17). Never weaken a check to get there.
 10. With more than one agent, touch only the files your tasks own (§ Files); one that needs
     another's file finishes what it can, says so on the pull request and takes the next task.
     Alone, there is nothing to arbitrate.

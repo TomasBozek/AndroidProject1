@@ -57,12 +57,12 @@ Refuse unless every board line is `[x]` or `[-]` and the sprint's pull request i
    time:
    - **the hook** — `git config core.hooksPath` prints `.githooks`. A miss is anything else; an
      old `.git/hooks/pre-commit` that still runs is the same miss, only quieter.
-   - **every merge on a run that started and passed** — `gh run list --branch <branch> --json
-     databaseId,headSha,conclusion --limit 20`, then for the run behind each merged commit
-     `gh run view <id> --json jobs --jq '.jobs[] | "\(.name) \(.conclusion) \(.databaseId)"'`
-     and, for a failed job, `gh api repos/{owner}/{repo}/check-runs/<job id>/annotations --jq
-     '.[].message'`. A miss is a merge with no run, a run whose jobs were `skipped`, or an
-     annotation that says the job *was not started* — say `not started: <reason>`, never `fail`.
+   - **every merge on a green local gate** — CI is off (D73), so the record is the pull request:
+     `gh pr view <n> --json body --jq .body` holds a `/check pr` tail that says `pass` and names
+     doctor's count and the Gradle tasks that ran. A miss is a merged pull request whose body has
+     no tail, or a tail that names a check as skipped without a reason. While CI is off,
+     `gh run list` is not consulted; when it is back, a run whose annotation says the job *was
+     not started* is `not started: <reason>`, never `fail`.
    - **a tag for every shipped block** — `git tag -l 'v*'` against `grep '^## v[0-9]'
      docs/CHANGELOG.md`. A miss is a heading with no tag of the same version.
    - **the board republished after the last merge** — `/board read`, then `syncedAt` against

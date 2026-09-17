@@ -2,7 +2,7 @@
 
 **Sprint F3 · Green again** — open · 2026-09-16 15:30 → 2026-09-17 18:00 · release F. Goal: CI
 runs again and every miss the last two audits found is fixed, so the process does what its docs
-say. The improvement sprint: ten tasks, 45 points, every line § DevOps held; the briefs are
+say. The improvement sprint: eleven tasks, 48 points, every line § DevOps held; the briefs are
 [ai/plans/F3-green-again.md](ai/plans/F3-green-again.md) and the rules are
 [ai/PROCESS.md](ai/PROCESS.md). Take one with `/task <id>`; `/board` publishes this page to the
 board artifact.
@@ -19,6 +19,7 @@ board artifact.
 - [x] F3P6 Coverage goes somewhere · 3 → 3 · after F3P1
 - [x] F3P7 A launch config for the emulator · 6 → 3
 - [x] F3P8 A design change starts in Claude Design · 6 → 3
+- [x] F3P9 CI is switched off · 3 → 3 · decides D73
 
 ## Drafts
 

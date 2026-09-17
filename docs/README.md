@@ -2,7 +2,7 @@
 
 What to open for what. Six files here, for a person; everything an agent needs beyond
 [../CLAUDE.md](../CLAUDE.md) is under [ai/](ai/) and is read when a task names it, never by default.
-The repository is public — a template is read, and Actions is free on a public one (D71).
+The repository is public — a template is read (D71). CI is switched off for now (D73): the gate is `/check pr` on the machine that merges.
 
 | Doc | What you get |
 |---|---|
