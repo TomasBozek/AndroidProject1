@@ -132,6 +132,16 @@ than two points under `COVERAGE_FLOOR` at the top of `build.yml`; the floor is s
 number rounded down when it moves, and nothing ever fails on it. The HTML report is still uploaded.
 Previews and generated classes are filtered out.
 
+`./gradlew :app:lintDevDebug` is Android lint on one variant, and T1 runs it on every pull request
+(F4P1): a missing permission, a deprecated API, a resource with no translation — the checks a
+compiler cannot make and `doctor.py` does not. `checkDependencies = true` in
+`convention.android.application` is why `:app` alone is enough — it lints every module it depends
+on, which is all of them. One variant is enough because the three flavors share every source set
+lint reads except `network/` and `debug/`, and `dev` is the one with the most code in both; a
+`prodRelease` lint is T4's, the day CI is back. The full `./gradlew lint` runs every variant
+three times over and is not a gate. There is no lint baseline: a warning is fixed, or its check is
+disabled in the plugin's `lint {}` block with a comment saying why — never parked in a file.
+
 ktlint's rule set lives in `.editorconfig`, not a second config file: `intellij_idea` style rather
 than `ktlint_official`, with `class-signature`, `function-signature` and `parameter-list-spacing`
 off (all three read a multi-line parameter list as if it were on one line, so every constructor in

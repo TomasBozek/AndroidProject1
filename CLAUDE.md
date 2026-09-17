@@ -236,7 +236,7 @@ and a pull request merges on its pasted `/check pr` tail, never on a GitHub run.
 | | When | Run |
 |---|---|---|
 | **T0** | once or twice while working — `/check` | `python3 scripts/doctor.py && ./gradlew ktlintCheck`, then the touched module's own `test` (~45 s). A `[note]` about the hook is fixed first: `git config core.hooksPath .githooks` |
-| **T1** | once, after `git rebase origin/develop`, before the pull request — `/check pr` | doctor · `ktlintCheck` · `:app:assembleDevDebug` · `test` for every module whose `src/main` changed · plus the three conditionals below (2–6 min) |
+| **T1** | once, after `git rebase origin/develop`, before the pull request — `/check pr` | doctor · `ktlintCheck` · `:app:assembleDevDebug` · `:app:lintDevDebug` · `test` for every module whose `src/main` changed · plus the three conditionals below (3–7 min). Lint is always on: it is the one check CI ran that the local gate did not, and it caught F3X2 |
 | **T2** | every non-draft pull request | conventions always; the build only when the diff is not documentation-only; goldens only when a UI path moved |
 | **T3** | every push to `main` | T2 with nothing skipped, plus coverage |
 | **T4** | a `v*` tag, and weekly | the release build, the generator compile, the end-to-end flows on `devDebug` and a launch of `prodRelease` |
