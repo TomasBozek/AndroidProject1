@@ -537,23 +537,46 @@ def register_in_design_system(pascal: str, dry_run: bool) -> None:
     edit_file(DESIGN_SYSTEM_FILE, transform, dry_run, "list the component in the design-system reference")
 
 
-def register_in_gallery(pascal: str, dry_run: bool) -> None:
+def register_in_gallery(pascal: str, dry_run: bool, call: str | None = None, imports: tuple[str, ...] = ()) -> None:
     """Lists a new `:core:ui` component in the gallery, so `doctor.py` does not fail on it.
 
     A starter entry with one variant, not a finished one: what a component is worth showing is a
     judgement the person writing it makes. The point is that the entry exists and says which
     component it is — a gallery that silently omits a component is what `check_gallery_lists_every_component`
     was added for.
+
+    `call` is the expression the variant runs — written by the generator from the signature it
+    just emitted, so the entry compiles (F3X1: a bare `{pascal}()` against a required parameter
+    did not). `imports` are the fully qualified names the call needs; each is added in sorted
+    position among the catalogue's imports when it is missing.
     """
     identifier = pascal.removeprefix("App")
     identifier = identifier[0].lower() + identifier[1:] if identifier else pascal.lower()
+    call = call or f"{pascal}()"
     entry = (
         f'    entry(\n'
         f'        "{identifier}", "{pascal}", "Content",\n'
         f'        "TODO: one sentence on what this is for and when to reach for it.",\n'
-        f'        "Default" to {{ {pascal}() }},\n'
+        f'        "Default" to {{ {call} }},\n'
         f'    ),\n'
     )
+
+    def add_import(text: str, name: str) -> str:
+        line = f"import {name}"
+        if re.search(rf"^{re.escape(line)}$", text, re.MULTILINE):
+            return text
+        lines = text.split("\n")
+        import_indexes = [i for i, l in enumerate(lines) if l.startswith("import ")]
+        if not import_indexes:
+            return text
+        # Sorted position among the imports; after the last one that sorts before it.
+        at = import_indexes[-1] + 1
+        for i in import_indexes:
+            if lines[i] > line:
+                at = i
+                break
+        lines.insert(at, line)
+        return "\n".join(lines)
 
     def transform(text: str) -> str:
         if f'"{pascal}"' in text:
@@ -561,6 +584,8 @@ def register_in_gallery(pascal: str, dry_run: bool) -> None:
         if GALLERY_ANCHOR not in text:
             print("  GalleryCatalog.kt: no anchor found — add the entry by hand")
             return text
+        for name in imports:
+            text = add_import(text, name)
         return text.replace(GALLERY_ANCHOR, entry + GALLERY_ANCHOR, 1)
 
     edit_file(GALLERY_CATALOG_FILE, transform, dry_run, "list the component in the gallery")
