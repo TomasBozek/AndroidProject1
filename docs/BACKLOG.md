@@ -12,8 +12,8 @@ exist yet — or a process area: `build`, `ci`, `release`, `git`, `process`, `te
 what it touches. `doctor.py` holds the shape.
 
 **A bug is a line with a shape**: kind `X`, and a why that reads `seen on <flavor> <version>,
-expected <what>, steps <n>` before anything else — the first line under § Next is one. The sprint
-that takes it writes the `X` task from it.
+expected <what>, steps <n>` before anything else — F4X1 was written from one. The sprint that
+takes it writes the `X` task from it.
 
 Add a line here for anything you find while working on something else. Never edit the open sprint.
 
@@ -26,18 +26,10 @@ default**: the next grooming does each line or deletes it.
 
 In order. What the sprint after F takes first.
 
-- The description list stacks its label a letter per line at large font · 6 · core:ui · X · seen on
-  `devDebug` 1.0 (1), the devmenu's `Large_font` golden: at 1.5× `AppDescriptionList` gives the
-  label column one character of width and "Application id" runs vertically; expected the value
-  to wrap first. Steps: open the debug menu with the font scale at 1.5.
 - The Maestro flows stop tapping fixture text · 12 · tests · H · `"Beverages"`, `"Coffee"` and
   `"Olive oil"` are tapped by label. List rows carry one constant tag today, so a per-row id means
   `categories_item_<id>`, and the vocabulary check E1X1 adds has to learn a suffix before anything
   else does — which is why this follows it rather than sitting in E.
-- A component playground (was C1U6) · 25 · feature:devmenu · U · pick a component, drive its
-  properties from real controls, watch it change: the bench the gallery is not. A screen behind the
-  dev menu, built from the controls it shows; a component's knobs are data, not a `when` per
-  component.
 - `ContentState` stands in for the whole screen · 6 · service:core:ui · X · `Screen()` draws a
   `ContentMessage` instead of the content, scaffold included, so a non-root screen showing `Empty`
   loses its up arrow and its screen id — E0X1 found `TripsListScreen` unreachable to a flow on a
@@ -51,10 +43,6 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
-- `/check pr` runs lint · 3 · process · P · with CI off (D73) the local gate is the only gate,
-  and it does not run `:app:lintDevDebug` — the check that failed on F1H1's missing permission
-  the first time CI ran (F3X2). Add it to T1's "always" line in `CLAUDE.md` § Checks and
-  `.claude/commands/check.md`; ~1 minute on a warm daemon.
 - CI comes back · 3 · ci · P · `build.yml` is disabled (D73) because Actions is paid for this
   account. When the owner wants it: `gh workflow enable build.yml`, put `required_status_checks`
   (`changes`, `conventions`, `build`) back into the `main` ruleset, flip `CLAUDE.md` § Checks and
@@ -93,8 +81,6 @@ honest: a line lands here whenever the process is caught not doing what its docs
   with several screens could own its sub-graph.
 - A logger backend · ? · service:core:data · H · `AndroidLogger` writes to Logcat, so a release
   build logs nowhere.
-- A language picker · ? · feature:settings · U · two locales ship and the system setting chooses;
-  an in-app override is per-app language and a row in Settings.
 - `explicitApi()` on `service/` · ? · service · H · a public API by default is a reuse contract
   nobody wrote; explicit mode makes every export a decision.
 - Generated test ids · ? · templates · P · the `<screenStem>_<element>` ids are typed by hand and
@@ -103,8 +89,6 @@ honest: a line lands here whenever the process is caught not doing what its docs
   to.
 - Play upload · ? · release · P · the release job builds and signs `prodRelease` and stops; an
   internal-track upload needs a service account.
-- Feedback roles · ? · core:ui · U · the palette has action roles — confirm, destructive, info,
-  warning — and no feedback role, so a success or error message borrows one.
 - Keyboard shortcuts · ? · core:ui · U · nothing answers a hardware keyboard beyond focus traversal;
   a tablet with one could.
 - Z-order roles · ? · core:ui · U · elevation roles say height and nothing says stacking order, so
@@ -123,8 +107,6 @@ honest: a line lands here whenever the process is caught not doing what its docs
   the seam waits on an endpoint the fixtures do not answer (D20).
 - A real API behind `staging` and `prod` · ? · service:network · H · `BASE_URL` differs per flavor
   and nothing answers at either; everything that needs a real API waits on one.
-- A shared-element transition from a product row to its detail · ? · feature:catalog:presentation ·
-  S · a showcase, not a rule.
 - A lifecycle seam · ? · app · H · a real seam, no caller yet: nothing reacts to the app going to
   the background.
 - A feature-flag seam · ? · service:flags · H · a real seam, no caller yet: no behaviour is switched

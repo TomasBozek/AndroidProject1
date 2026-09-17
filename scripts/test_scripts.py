@@ -692,14 +692,21 @@ class ScaffoldingTest(unittest.TestCase):
         # one line into one idea per line is.
         someday = good.split("## Someday", 1)[1].split("## ", 1)[0]
         self.assertGreaterEqual(someday.count("\n- "), 5, "§ Someday is one idea per line")
+        def with_next(*lines: str) -> None:
+            backlog.write_text(good.replace("## Next\n", "## Next\n\n" + "\n".join(lines) + "\n", 1))
+
+        # Derivation is asserted on lines this test writes, never on a real one: a draft takes
+        # whichever real line it likes, and F4's took the `core:ui · X` this used to look for.
+        with_next(
+            "- A data-layer line · 6 · feature:auth:data · H · the layer is the last segment",
+            "- A fix in the design system · 3 · core:ui · X · seen on dev 1.0, expected nothing, steps 1",
+            "- A release chore · 3 · release · P · a process area has no feature and no layer",
+        )
         derived = {(i["group"], i["kind"], i["area"], i["feature"], i["layer"])
                    for items in json.loads(self.run_script("board.py").stdout)["backlog"].values() for i in items}
         self.assertIn(("feature:auth:data", "H", "feature", "auth", "data"), derived)
         self.assertIn(("core:ui", "X", "core", None, None), derived)
         self.assertIn(("release", "P", "release", None, None), derived)
-
-        def with_next(line: str) -> None:
-            backlog.write_text(good.replace("## Next\n", f"## Next\n\n{line}\n", 1))
 
         def doctor_says(line: str, *fragments: str) -> None:
             with_next(line)

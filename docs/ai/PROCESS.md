@@ -62,8 +62,8 @@ included. A point is five minutes.
 
 | Band | Means |
 |---|---|
-| 3 | one file, a flag, a documentation row |
-| 6 | one module changed **with its test**, or a new check and the code it forces. A fix across two or three files that adds no test is a 3 |
+| 3 | one file, a flag, a documentation row — or a command and its docs rewritten around one decision row, however many files that touches (F3P1, F3P3, F3P5, F3P7, F3P8 were all `6 → 3`) |
+| 6 | one module changed **with its test** — a generator fix whose proof is a Gradle-backed test is this too (F3X1 was `3 → 6`). A new check and the code it forces. A doc, a command or a decision row is never a 6 on its own: release F's 6 band missed on six tasks that way |
 | 12 | a screen with both its tests, a data layer with its store, or a refactor that rewrites every module's build. Two to four modules with no screen and no new test is a 6 |
 | 25 | three or more screens sharing a data layer, or a CI job with the code it exercises. A list, an editor and a detail were a 12 each in E |
 | 50 | a feature slice. The ceiling — anything larger is split before it gets an id |

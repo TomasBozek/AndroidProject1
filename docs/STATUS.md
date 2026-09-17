@@ -1,15 +1,23 @@
 # Status
 
-**No sprint is open.** F3 · Green again closed on 2026-09-17 (`48 → 33`); release F is open with
-three done sprints and nothing drafted. CI is off (D73), so the gate is `/check pr` on the machine
-that merges. Next is the owner's word: `/release close` ships F as `v1.3.0`, or `/sprint draft
-<name>` writes F4 from [BACKLOG.md](BACKLOG.md) § Next — § DevOps holds 9 of the 50 points at
-which an improvement sprint is due. The rules are [ai/PROCESS.md](ai/PROCESS.md); `/board`
-publishes this page to the board artifact.
+**F4 · Things you can see is open** — a UI sprint of 64 points, 2026-09-17 09:00 → 2026-09-18
+18:00: `/check pr` gains lint, then the description-list bug, a language picker, a shared-element
+showcase, the component playground and feedback roles. Release F is open with three done sprints
+under it. CI is off (D73), so the gate is `/check pr` on the machine that merges. The rules are
+[ai/PROCESS.md](ai/PROCESS.md); `/board` publishes this page to the board artifact. § DevOps holds 6
+of the 50 points at which an improvement sprint is due.
 
 ## Board
 
-No sprint is open. The first draft is the next sprint by default — there is none.
+**F4 · Things you can see** — open · 2026-09-17 09:00 → 2026-09-18 18:00 · 64 points ·
+[ai/plans/F4-things-you-can-see.md](ai/plans/F4-things-you-can-see.md)
+
+- [x] F4P1 `/check pr` runs lint · 3 → 3
+- [ ] F4X1 The description list wraps its value, not its label · 6
+- [ ] F4U1 A language picker in Settings · 12 · decides D75
+- [ ] F4S1 A shared-element transition from a product row to its detail · 12 · decides D76
+- [ ] F4U2 A component playground behind the dev menu (was C1U6) · 25 · decides D77
+- [ ] F4U3 Feedback roles in the palette · 6 · decides D78
 
 ## Drafts
 
