@@ -51,7 +51,14 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
-Empty on 2026-09-16: everything here became sprint F3.
+- Every release so far is signed with the debug key · 6 · release · H · the repository has
+  **no secrets** (`gh api …/actions/secrets` → 0), and `v1.0.0`, `v1.1.0` and `v1.2.0` each have
+  a release page with an AAB anyway: the step that refuses an unsigned tag lives in the `build`
+  job and reads `KEYSTORE_BASE64` from an env only the `release` job sets, so `build` fails on
+  every tag while `release` skips the keystore step and publishes the CI-debug AAB `RELEASING.md`
+  says it never will. Move the guard into the `release` job before the checkout, make the four
+  secrets exist (the owner's keystore), and delete the three release pages or mark them
+  pre-release. Found by F3P3's tag run.
 
 ## Someday
 

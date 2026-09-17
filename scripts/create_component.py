@@ -221,7 +221,11 @@ def main() -> None:
     # A feature's own component is not in the gallery: the gallery lists `:core:ui`, which is the
     # set every feature may compose from.
     if not args.feature:
-        register_in_gallery(pascal, args.dry_run)
+        # The call is the template's own preview call, so what the gallery runs is what the
+        # component's signature takes; a `--state` component also needs its state class imported.
+        call = f"{pascal}(state = {pascal}State.PREVIEW)" if args.state else f'{pascal}(label = "{pascal}")'
+        imports = (f"{package}.{pascal}",) + ((f"{package}.{pascal}State",) if args.state else ())
+        register_in_gallery(pascal, args.dry_run, call=call, imports=imports)
         register_in_design_system(pascal, args.dry_run)
 
     print(

@@ -200,6 +200,25 @@ class ScaffoldingTest(unittest.TestCase):
         self.assertIn('"priceTicker", "PriceTicker"', catalog)
         self.assert_doctor_passes()
 
+    def test_create_component_gallery_entry_names_the_import_and_the_required_parameter(self) -> None:
+        """F3X1: the starter entry is written from the signature the generator just emitted — a
+        bare `PriceTicker()` against a required `label` did not compile, and no import was added."""
+        catalog_path = (
+            "feature/gallery/presentation/src/main/kotlin/"
+            f"{BASE_PATH}/feature/gallery/presentation/GalleryCatalog.kt"
+        )
+        self.run_script("create_component.py", "PriceTicker")
+        catalog = self.read(catalog_path)
+        self.assertIn(f"import {BASE_PATH.replace('/', '.')}.core.ui.component.PriceTicker\n", catalog)
+        self.assertIn('"Default" to { PriceTicker(label = "PriceTicker") }', catalog)
+        imports = [l for l in catalog.splitlines() if l.startswith("import ")]
+        self.assertEqual(imports, sorted(imports), "the import is not in sorted position")
+
+        self.run_script("create_component.py", "StockRow", "--state")
+        catalog = self.read(catalog_path)
+        self.assertIn(f"import {BASE_PATH.replace('/', '.')}.core.ui.component.StockRowState\n", catalog)
+        self.assertIn('"Default" to { StockRow(state = StockRowState.PREVIEW) }', catalog)
+
     def test_create_component_for_a_feature_stays_out_of_the_gallery(self) -> None:
         """The gallery lists `:core:ui`, which is the set every feature may compose from."""
         self.run_script("create_feature.py", "userProfile")
@@ -1146,6 +1165,27 @@ class ScaffoldingTest(unittest.TestCase):
             # by re-running it locally.
             self.fail(
                 "a generated feature does not compile:\n"
+                f"{result.stdout[-6000:]}\n{result.stderr[-4000:]}"
+            )
+
+    @unittest.skipUnless(
+        WITH_GRADLE,
+        "compiles the gallery after a generated component; pass --with-gradle (minutes, not seconds)",
+    )
+    def test_generated_component_compiles_in_the_gallery(self) -> None:
+        """F3X1: the gallery entry a generator writes is the one line of it a compiler judges —
+        an import that is missing or a call that does not match the signature broke
+        `:feature:gallery:presentation` until someone fixed the entry by hand."""
+        self.run_script("create_component.py", "PriceTicker")
+        self.run_script("create_component.py", "StockRow", "--state")
+
+        result = subprocess.run(
+            ["./gradlew", ":feature:gallery:presentation:compileDebugKotlin", "--console=plain", "--no-configuration-cache"],
+            cwd=self.repo, capture_output=True, text=True, env=hermetic_env(),
+        )
+        if result.returncode != 0:
+            self.fail(
+                "the gallery does not compile after a generated component:\n"
                 f"{result.stdout[-6000:]}\n{result.stderr[-4000:]}"
             )
 
