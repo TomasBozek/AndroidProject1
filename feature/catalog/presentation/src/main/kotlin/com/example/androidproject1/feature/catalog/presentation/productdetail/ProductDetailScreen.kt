@@ -19,8 +19,11 @@ import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.TextRole
+import com.example.androidproject1.core.ui.layout.appSharedElement
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.catalog.presentation.R
+import com.example.androidproject1.feature.catalog.presentation.component.sharedNameKey
+import com.example.androidproject1.feature.catalog.presentation.component.sharedPriceKey
 import com.example.androidproject1.service.core.ui.format.LocalFormats
 
 @Composable
@@ -36,6 +39,8 @@ fun ProductDetailScreen(
                 title = product.name,
                 onNavigateUp = { onEvent(ProductDetailEvent.NavigateUpClicked) },
                 navigateUpTestTag = "productDetail_upButton",
+                // Arrives from the row that opened this screen (F4S1); see ProductsScreen.
+                titleModifier = Modifier.appSharedElement(product.sharedNameKey()),
                 actions = {
                     // The icon carries the same string as its contentDescription, so the screen
                     // reader and the test reach it the same way — and the label says what the tap
@@ -61,7 +66,11 @@ fun ProductDetailScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.sm),
         ) {
-            AppText(text = LocalFormats.current.money(product.price), role = TextRole.DisplayLarge)
+            AppText(
+                text = LocalFormats.current.money(product.price),
+                role = TextRole.DisplayLarge,
+                modifier = Modifier.appSharedElement(product.sharedPriceKey()),
+            )
             AppText(text = product.description, role = TextRole.BodyLarge)
             AppButton(
                 label = stringResource(R.string.product_detail_add_to_cart),

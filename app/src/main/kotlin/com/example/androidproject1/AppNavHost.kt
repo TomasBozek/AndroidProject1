@@ -1,6 +1,7 @@
 package com.example.androidproject1
 
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,6 +14,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,7 +31,13 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
+import com.example.androidproject1.core.ui.layout.LocalSharedElementVisibility
+import com.example.androidproject1.core.ui.layout.LocalSharedTransitionScope
+import com.example.androidproject1.core.ui.theme.AppTheme
+import com.example.androidproject1.core.ui.theme.SizeClass
 import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.feature.auth.presentation.login.loginDestination
 import com.example.androidproject1.feature.auth.presentation.signup.signUpDestination
@@ -181,9 +189,26 @@ private fun AppNavDisplay(
     // catalog destinations, and every other entry falls through to the single-pane default.
     val listDetail = rememberListDetailSceneStrategy<NavKey>()
 
+    // The product row's name and price travel to the detail (F4S1, D76): the scope is provided
+    // once here, and each entry re-provides its own visibility below, so a screen only ever
+    // asks `Modifier.appSharedElement(key)`. On a wider window the catalog's two panes are one
+    // scene with both elements visible at once, and nothing travels — so the scope is compact-only.
+    val compact = AppTheme.density.sizeClass == SizeClass.Compact
+    SharedTransitionLayout(modifier = modifier) {
+        CompositionLocalProvider(LocalSharedTransitionScope provides this.takeIf { compact }) {
+            AppNavDisplayContent(backStack = backStack, entries = entries, listDetail = listDetail)
+        }
+    }
+}
+
+@Composable
+private fun AppNavDisplayContent(
+    backStack: NavBackStack<NavKey>,
+    entries: (NavKey) -> NavEntry<NavKey>,
+    listDetail: SceneStrategy<NavKey>,
+) {
     NavDisplay(
         backStack = backStack,
-        modifier = modifier,
         onBack = { backStack.removeLastOrNull() },
         sceneStrategies = listOf(listDetail),
         // NavDisplay adds its own scene-setup decorator; these two are the ones a screen needs.
@@ -205,9 +230,25 @@ private fun AppNavDisplay(
         // predictivePopTransitionSpec is left at the library's default: it is the platform's own
         // back gesture, and a screen that scales away under the user's finger is what that looks
         // like everywhere else on the device.
-        entryProvider = { key -> entries(key).withTabRootTransitions(key) },
+        entryProvider = { key -> entries(key).withTabRootTransitions(key).withSharedElementVisibility(key) },
     )
 }
+
+/**
+ * Re-provides navigation3's entry scope as `:core:ui`'s nullable local, so a screen can read it
+ * without knowing navigation3 — and without the throw its own local raises outside an entry.
+ */
+private fun NavEntry<NavKey>.withSharedElementVisibility(key: NavKey): NavEntry<NavKey> =
+    NavEntry(
+        key = key,
+        contentKey = contentKey,
+        metadata = metadata,
+        content = {
+            CompositionLocalProvider(LocalSharedElementVisibility provides LocalNavAnimatedContentScope.current) {
+                Content()
+            }
+        },
+    )
 
 /**
  * Makes a tab root fade instead of slide.

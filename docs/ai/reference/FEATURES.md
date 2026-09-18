@@ -80,6 +80,12 @@ flows itself.
 result and pops, and the cart's registered callback fires once. The key travels as a route argument,
 so one picker can serve several callers and knows nothing about any of them.
 
+**Opening a product.** The row-to-detail push in the catalog is the shared-element showcase
+(F4S1, D76): the product's name and price carry `Modifier.appSharedElement` on both screens, keyed
+by the product id, so on a phone they travel from the row to the detail's title and figure and
+back. On a wide window the list and the detail are one scene and nothing travels — the modifier is
+a no-op there, as it is in every preview and test.
+
 **Keeping an inventory.** Inventory has no tab (D59); the card on Home is its door, wired as a
 lambda in `AppNavHost.homeEntries` the way Settings reaches Profile. From the list, the FAB mints
 a new id and opens the editor on it; the four steps end in `saveItem` and a pop; a row opens the

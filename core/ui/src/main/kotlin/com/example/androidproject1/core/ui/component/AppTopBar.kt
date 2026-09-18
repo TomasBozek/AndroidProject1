@@ -37,6 +37,8 @@ fun AppTopBar(
     modifier: Modifier = Modifier,
     onNavigateUp: (() -> Unit)? = null,
     navigateUpTestTag: String? = null,
+    /** Reaches the title's own text — for `Modifier.appSharedElement`, when a name arrives from a row (D76). */
+    titleModifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
@@ -62,7 +64,8 @@ fun AppTopBar(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = AppTheme.spacing.inline.sm),
+                .padding(horizontal = AppTheme.spacing.inline.sm)
+                .then(titleModifier),
         )
         actions()
     }
