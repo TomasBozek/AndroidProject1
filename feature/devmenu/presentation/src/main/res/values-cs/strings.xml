@@ -19,6 +19,10 @@
     <string name="dev_menu_notification">Odeslat testovací oznámení</string>
     <string name="dev_menu_notification_posted">Odesláno – klepnutím otevřete produkt</string>
     <string name="dev_menu_notification_blocked">Oznámení jsou pro tuto aplikaci vypnutá</string>
+    <string name="dev_menu_playground">Hřiště komponent</string>
     <string name="dev_menu_crash">Zaznamenat testovací hlášení</string>
     <string name="dev_menu_crash_recorded">Odesláno do hlášení chyb</string>
+    <string name="dev_menu_playground_title">Hřiště</string>
+    <string name="dev_menu_playground_component">Komponenta</string>
+    <string name="dev_menu_playground_knobs">Vlastnosti</string>
 </resources>

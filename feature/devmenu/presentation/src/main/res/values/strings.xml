@@ -19,6 +19,10 @@
     <string name="dev_menu_notification">Post a test notification</string>
     <string name="dev_menu_notification_posted">Posted — tap it to open a product</string>
     <string name="dev_menu_notification_blocked">Notifications are off for this app</string>
+    <string name="dev_menu_playground">Component playground</string>
     <string name="dev_menu_crash">Record a test report</string>
     <string name="dev_menu_crash_recorded">Sent to the error tracker</string>
+    <string name="dev_menu_playground_title">Playground</string>
+    <string name="dev_menu_playground_component">Component</string>
+    <string name="dev_menu_playground_knobs">Knobs</string>
 </resources>
