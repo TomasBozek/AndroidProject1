@@ -24,7 +24,7 @@ Read the semantic layer through `AppTheme`.
 | `AppTheme.typography` | text roles including `Numeric`, which is tabular and the one figures use |
 | `AppTheme.shapes` | corner roles |
 | `AppTheme.elevation` | elevation roles. A pressable surface uses `Modifier.keySurface(…)`, a hard bottom edge that shortens on press, not `Modifier.shadow` |
-| `AppTheme.motion` | durations and easings |
+| `AppTheme.motion` | durations and easings. `screenMillis` is also what a shared element travels in: `Modifier.appSharedElement(key)` in `core.ui.layout` marks the same thing on two screens, a no-op unless `AppNavHost` has provided the transition scope — so previews, tests and the gallery draw it as if it were not there (D76, the catalog's row-to-detail showcase) |
 | `AppTheme.density` | `minTouchTarget`, and the compactness the layout adapts to |
 | `AppTheme.spacing` | spacing roles, the only source of a gap |
 | `AppTheme.icons` | `sm` 18 in a row, `md` 24 for a control, `lg` 32 where the icon is the thing being looked at. Three sizes, and only three |
