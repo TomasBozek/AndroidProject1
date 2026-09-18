@@ -69,6 +69,15 @@ class DevMenuScreenTest {
     }
 
     @Test
+    fun `tapping the playground button reports it as an event`() {
+        render(DevMenuState.PREVIEW)
+
+        compose.onNodeWithTag("devMenu_playgroundButton").performScrollTo().performClick()
+
+        assertEquals(listOf(DevMenuEvent.PlaygroundClicked), events)
+    }
+
+    @Test
     fun `tapping a jump reports it with the jump itself`() {
         render(DevMenuState.PREVIEW)
 

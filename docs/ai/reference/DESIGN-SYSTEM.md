@@ -126,6 +126,12 @@ overlay means adding a case there.
 menu and present in debug builds only. Its catalog lists each entry's id, name, group and variants
 by hand, which is the one place in the design system with no check that it matches reality.
 
+The playground (`DevMenuPlaygroundScreen`, F4U2, D77) is the bench the gallery is not: pick a
+component, turn its knobs, watch the stage. It is not a second gallery — eight entries, the
+controls with the most states — and it knows no component by name: an entry is its knobs as data
+plus a `render` lambda, and the controls are generated from the knobs' shapes. Behind the debug
+menu, like the gallery.
+
 ## Adding one
 
 The KSD project in Claude Design is the source the three layers were imported from; a change to

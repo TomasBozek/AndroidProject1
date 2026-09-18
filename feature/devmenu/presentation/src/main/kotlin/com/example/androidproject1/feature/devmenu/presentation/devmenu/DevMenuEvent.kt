@@ -17,5 +17,8 @@ sealed interface DevMenuEvent : UiEvent {
     /** A row of the jump list. The jump carries its own back-stack call, wired in `AppNavHost`. */
     data class JumpClicked(val jump: DevMenuJump) : DevMenuEvent
 
+    /** The component playground, a screen of this feature. */
+    data object PlaygroundClicked : DevMenuEvent
+
     data object NavigateUpClicked : DevMenuEvent
 }

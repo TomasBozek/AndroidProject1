@@ -56,6 +56,7 @@ import com.example.androidproject1.feature.catalog.presentation.search.productSe
 import com.example.androidproject1.feature.devmenu.presentation.DevMenuJump
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.DevMenuDestination
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.devMenuDestination
+import com.example.androidproject1.feature.devmenu.presentation.playground.devMenuPlaygroundDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallery.galleryDestination
 import com.example.androidproject1.feature.gallery.presentation.gallerydetail.GalleryDetailDestination
@@ -389,6 +390,8 @@ private fun EntryProviderScope<NavKey>.debugEntries(backStack: NavBackStack<NavK
     )
     galleryDestination(backStack = backStack)
     galleryDetailDestination(backStack = backStack)
+    // The component playground (F4U2): dev and staging only, like the gallery.
+    devMenuPlaygroundDestination(backStack = backStack)
 }
 
 /**

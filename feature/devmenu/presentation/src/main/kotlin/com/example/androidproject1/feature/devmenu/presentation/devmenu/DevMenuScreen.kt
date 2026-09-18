@@ -122,6 +122,15 @@ fun DevMenuScreen(
             }
 
             AppSectionHeader(title = stringResource(R.string.dev_menu_tools))
+            // The component bench (F4U2): this feature's own screen, so a push rather than a jump.
+            AppButton(
+                label = stringResource(R.string.dev_menu_playground),
+                onClick = { onEvent(DevMenuEvent.PlaygroundClicked) },
+                kind = ButtonKind.Outline,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("devMenu_playgroundButton"),
+            )
             AppButton(
                 label = stringResource(R.string.dev_menu_notification),
                 onClick = { onEvent(DevMenuEvent.NotificationClicked) },
