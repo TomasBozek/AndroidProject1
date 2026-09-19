@@ -101,8 +101,8 @@ block. A band off by 30 % on three tasks gets its description rewritten; the num
 ## Branches
 
 Gitflow (D74). `main` is shipped code — every commit on it a release or hotfix merge, every
-release a tag on it; `develop` is where sprints land. Three short-lived kinds, each merged
-`--no-ff` through a pull request and deleted after:
+release a tag on it; `develop` is where sprints land. Three more kinds, each merged `--no-ff`
+through a pull request; feature and hotfix are deleted at the merge, release stays as the archive:
 
 | Branch | From → into | What |
 |---|---|---|
