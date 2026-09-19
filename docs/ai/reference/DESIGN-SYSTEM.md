@@ -39,7 +39,7 @@ of the controls that read it).
 
 | Group | Components |
 |---|---|
-| Content | `AppText` `AppCard` `AppListItem` `AppDescriptionList` `AppAccordion` `AppSectionHeader` `AppDivider` `AppImage` `AppEmptyState` `AppScrollShadow` |
+| Content | `AppText` `AppCard` `AppListItem` `AppDescriptionList` `AppAccordion` `AppSectionHeader` `AppDivider` `AppImage` `AppEmptyState` `AppScrollShadow` `AppPullToRefresh` |
 | Action | `AppButton` `AppIconButton` `AppFab` |
 | Form | `AppTextField` `AppSearchField` `AppSelect` `AppCheckbox` `AppRadio` `AppSwitch` `AppSegmented` `AppStepper` `AppSlider` `AppDateField` `AppFieldGroup` `AppFormField` |
 | Navigation | `AppTopBar` `AppToolbar` `AppBottomNav` `AppNavRail` `AppTabs` `AppPager` `AppBottomActionBar` |

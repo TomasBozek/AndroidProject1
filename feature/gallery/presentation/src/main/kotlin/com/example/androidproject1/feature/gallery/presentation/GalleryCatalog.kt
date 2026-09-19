@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,7 @@ import com.example.androidproject1.core.ui.component.AppMenu
 import com.example.androidproject1.core.ui.component.AppNavRail
 import com.example.androidproject1.core.ui.component.AppPager
 import com.example.androidproject1.core.ui.component.AppProgress
+import com.example.androidproject1.core.ui.component.AppPullToRefresh
 import com.example.androidproject1.core.ui.component.AppRadio
 import com.example.androidproject1.core.ui.component.AppRadioGroup
 import com.example.androidproject1.core.ui.component.AppRangeSlider
@@ -102,6 +104,7 @@ import com.example.androidproject1.feature.gallery.presentation.gallery.GalleryI
 import com.example.androidproject1.service.core.ui.state.ContentState
 import com.example.androidproject1.service.core.ui.state.LoadingState
 import com.example.androidproject1.service.core.ui.text.toUiText
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.math.roundToInt
@@ -969,6 +972,40 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Success" to { AppBanner(text = "All receipts printed", tone = BannerTone.Success) },
         "Error" to { AppBanner(text = "The printer is out of paper", tone = BannerTone.Error) },
     ),
+    entry(
+        "pulltorefresh",
+        "AppPullToRefresh",
+        "Content",
+        "A list that reloads when pulled. The screen says when the reload is done; the indicator follows.",
+        "Pull the list" to {
+            var refreshing by remember { mutableStateOf(false) }
+            // A demo has nothing to fetch, so the pull spins for a moment and settles by itself.
+            LaunchedEffect(refreshing) {
+                if (refreshing) {
+                    delay(DEMO_REFRESH_MILLIS)
+                    refreshing = false
+                }
+            }
+            AppPullToRefresh(
+                refreshing = refreshing,
+                onRefresh = { refreshing = true },
+                modifier = Modifier.height(AppTheme.density.listRowHeight * 4),
+            ) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    repeat(8) { AppListItem("Row ${it + 1}") }
+                }
+            }
+        },
+        "Refreshing" to {
+            AppPullToRefresh(
+                refreshing = true,
+                onRefresh = {},
+                modifier = Modifier.height(AppTheme.density.listRowHeight * 3),
+            ) {
+                Column { repeat(3) { AppListItem("Row ${it + 1}") } }
+            }
+        },
+    ),
     // create_component.py appends a starter entry here; doctor.py fails on a component with none.
 )
 
@@ -1001,5 +1038,8 @@ fun galleryItems(): List<GalleryItem> = galleryCatalog.map {
 
 /** Tall enough that an overlay reads as an overlay rather than as a strip. */
 private const val CHROME_DEMO_ROWS = 3
+
+/** Long enough to see the indicator spin, short enough not to look stuck. */
+private const val DEMO_REFRESH_MILLIS = 1_200L
 
 fun galleryEntry(id: String): GalleryEntry? = galleryCatalog.firstOrNull { it.id == id }
