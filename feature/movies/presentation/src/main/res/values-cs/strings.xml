@@ -4,4 +4,7 @@
     <string name="movies_empty_title">Žádné filmy</string>
     <string name="movies_empty_message">Nic nepřišlo. Přetažením dolů to zkusíte znovu.</string>
     <string name="movies_stale">Zobrazuje se, co se načetlo minule.</string>
+    <string name="movie_detail_released">Premiéra</string>
+    <string name="movie_detail_runtime">Délka</string>
+    <string name="movie_detail_rating">Hodnocení</string>
 </resources>

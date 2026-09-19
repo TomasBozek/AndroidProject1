@@ -8,6 +8,7 @@ import com.example.androidproject1.feature.movies.data.source.DefaultRemoteMovie
 import com.example.androidproject1.feature.movies.data.source.LocalMoviesDataSource
 import com.example.androidproject1.feature.movies.data.source.RemoteMoviesDataSource
 import com.example.androidproject1.feature.movies.domain.MoviesRepository
+import com.example.androidproject1.feature.movies.presentation.moviedetail.MovieDetailViewModel
 import com.example.androidproject1.feature.movies.presentation.movies.MoviesViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -20,6 +21,7 @@ object MoviesModule {
 
     val module: Module = module {
         viewModelOf(::MoviesViewModel)
+        viewModelOf(::MovieDetailViewModel)
 
         single {
             Room.databaseBuilder(

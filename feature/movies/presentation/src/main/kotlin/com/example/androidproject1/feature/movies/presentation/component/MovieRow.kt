@@ -8,6 +8,7 @@ import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.component.AppImage
 import com.example.androidproject1.core.ui.component.AppListItem
+import com.example.androidproject1.core.ui.layout.appSharedElement
 import com.example.androidproject1.core.ui.theme.AppTheme
 import com.example.androidproject1.feature.movies.domain.Movie
 import com.example.androidproject1.service.core.ui.format.LocalFormats
@@ -43,9 +44,11 @@ fun MovieRow(
                 model = movie.posterUrl,
                 contentDescription = null,
                 shape = AppTheme.shapes.sm,
+                // Travels to the detail's poster (D76); a no-op wherever no transition runs.
                 modifier = posterModifier
                     .height(AppTheme.density.listRowHeight)
-                    .aspectRatio(POSTER_RATIO),
+                    .aspectRatio(POSTER_RATIO)
+                    .appSharedElement(moviePosterKey(movie.id)),
             )
         },
     )

@@ -4,4 +4,7 @@
     <string name="movies_empty_title">No movies</string>
     <string name="movies_empty_message">Nothing came back. Pull down to try again.</string>
     <string name="movies_stale">Showing what was loaded last time.</string>
+    <string name="movie_detail_released">Released</string>
+    <string name="movie_detail_runtime">Runtime</string>
+    <string name="movie_detail_rating">Rating</string>
 </resources>
