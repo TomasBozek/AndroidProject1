@@ -120,6 +120,23 @@ fun DevMenuScreen(
                     modifier = Modifier.testTag("devMenu_offlineSwitch"),
                 )
             }
+            if (state.realApiSupported) {
+                if (!state.offlineSupported) AppSectionHeader(title = stringResource(R.string.dev_menu_network))
+                AppSwitch(
+                    checked = state.realApi,
+                    onCheckedChange = { onEvent(DevMenuEvent.RealApiToggled(it)) },
+                    label = stringResource(R.string.dev_menu_real_api),
+                    supporting = stringResource(
+                        if (state.realApiKeyPresent) {
+                            R.string.dev_menu_real_api_supporting
+                        } else {
+                            R.string.dev_menu_real_api_no_key
+                        },
+                    ),
+                    enabled = state.realApiKeyPresent,
+                    modifier = Modifier.testTag("devMenu_realApiSwitch"),
+                )
+            }
 
             AppSectionHeader(title = stringResource(R.string.dev_menu_tools))
             // The component bench (F4U2): this feature's own screen, so a push rather than a jump.

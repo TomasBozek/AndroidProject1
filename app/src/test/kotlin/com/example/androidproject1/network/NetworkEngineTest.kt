@@ -4,9 +4,12 @@ import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -36,11 +39,25 @@ import org.robolectric.annotation.Config
 class NetworkEngineTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val client = HttpClient(networkEngine(context, cacheSizeBytes = 0))
+
+    /** What the real half saw, and a canned answer so the test never leaves the machine. */
+    private val forwarded = mutableListOf<String>()
+    private val realClient = lazy {
+        HttpClient(
+            MockEngine { request ->
+                forwarded += request.url.toString()
+                respond(content = REAL_BODY, status = HttpStatusCode.OK, headers = headersOf("X-Real", "yes"))
+            },
+        )
+    }
+
+    private fun client(hasKey: Boolean = false) = HttpClient(networkEngine(context, realClient, hasKey = hasKey))
+    private val client = client()
 
     @After
     fun tearDown() {
         FixtureNetwork.failingOverride = false
+        FixtureNetwork.realApiOverride = false
         client.close()
     }
 
@@ -115,6 +132,43 @@ class NetworkEngineTest {
     }
 
     @Test
+    fun `with the switch on and a key, a TMDB request leaves the process and its answer comes back`() = runBlocking {
+        FixtureNetwork.realApiOverride = true
+        val client = client(hasKey = true)
+
+        val response = client.get("$TMDB/movie/popular?page=1&api_key=k")
+
+        assertEquals(listOf("$TMDB/movie/popular?page=1&api_key=k"), forwarded)
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(REAL_BODY, response.bodyAsText())
+        assertEquals("the real headers ride along", "yes", response.headers["X-Real"])
+        client.close()
+    }
+
+    @Test
+    fun `with the switch on, the catalog host still gets its fixture`() = runBlocking {
+        FixtureNetwork.realApiOverride = true
+        val client = client(hasKey = true)
+
+        val response = client.get("https://dev.example.com/categories")
+
+        assertTrue(forwarded.isEmpty())
+        assertEquals(HttpStatusCode.OK, response.status)
+        client.close()
+    }
+
+    @Test
+    fun `with the switch on and no key, TMDB stays on fixtures`() = runBlocking {
+        FixtureNetwork.realApiOverride = true
+
+        val body = Json.parseToJsonElement(client.get("$TMDB/movie/popular?page=2").bodyAsText()).jsonObject
+
+        assertTrue("nothing left the process", forwarded.isEmpty())
+        assertEquals(2, body.getValue("page").jsonPrimitive.content.toInt())
+        assertTrue("the real client was never even built", !realClient.isInitialized())
+    }
+
+    @Test
     fun `the failing switch breaks every host`() = runBlocking {
         FixtureNetwork.failingOverride = true
 
@@ -125,6 +179,7 @@ class NetworkEngineTest {
     private companion object {
 
         const val TMDB = "https://api.themoviedb.org/3"
+        const val REAL_BODY = """{"page":1,"results":[],"total_pages":500,"total_results":10000}"""
         const val PAGES = 3
         const val PAGE_SIZE = 20
     }

@@ -18,7 +18,7 @@ off (D73), so the gate is `/check pr` on the machine that merges. The rules are
 - [x] G1U1 `AppPullToRefresh` in `:core:ui` · 6 → 6
 - [x] G1U2 The movies list pages, pulls and reads its cache · 12 → 12 · after G1H1, G1U1
 - [x] G1U3 A movie detail from a row · 12 → 6 · after G1H1
-- [ ] G1P2 The dev build reaches the real host · 12 · decides D81 · after G1P1
+- [x] G1P2 The dev build reaches the real host · 12 → 6 · decides D81 · after G1P1
 - [ ] G1H2 Two Maestro flows through the movies · 6 · after G1U3
 
 ## Drafts

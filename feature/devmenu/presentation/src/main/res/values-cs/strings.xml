@@ -13,6 +13,9 @@
     <string name="dev_menu_session_none">Odhlášeno</string>
     <string name="dev_menu_network">Síť</string>
     <string name="dev_menu_offline">Simulovat výpadek serveru</string>
+    <string name="dev_menu_real_api">Mluvit se skutečným TMDB</string>
+    <string name="dev_menu_real_api_supporting">Filmy jdou z api.themoviedb.org místo z fixtures; katalog zůstává na fixtures.</string>
+    <string name="dev_menu_real_api_no_key">Při sestavení chyběl tmdb.apiKey v local.properties, filmy tedy zůstávají na fixtures.</string>
     <string name="dev_menu_offline_supporting">Každý požadavek selže s 503, takže si lze projít uložené obrazovky ručně.</string>
     <string name="dev_menu_tools">Nástroje</string>
     <string name="dev_menu_jumps">Skok na obrazovku</string>

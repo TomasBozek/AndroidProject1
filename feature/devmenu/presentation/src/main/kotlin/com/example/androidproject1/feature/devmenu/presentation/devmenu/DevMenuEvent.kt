@@ -8,6 +8,9 @@ sealed interface DevMenuEvent : UiEvent {
     /** The fixture engine's "server is down" switch — see `OfflineSwitch`. */
     data class OfflineToggled(val offline: Boolean) : DevMenuEvent
 
+    /** The fixture engine's "send TMDB requests to the real host" switch — see `ApiSwitch`. */
+    data class RealApiToggled(val realApi: Boolean) : DevMenuEvent
+
     /** Sends a handled exception to whatever `ErrorTracker` this build binds. */
     data object CrashClicked : DevMenuEvent
 

@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.devmenu.presentation.devmenu
 
 import com.example.androidproject1.feature.auth.domain.test.FakeAuthService
+import com.example.androidproject1.feature.devmenu.presentation.ApiSwitch
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
@@ -24,6 +25,7 @@ class DevMenuViewModelTest {
 
     private val authService = FakeAuthService()
     private val offlineSwitch = RecordingOfflineSwitch()
+    private val apiSwitch = RecordingApiSwitch()
     private val recorded = mutableListOf<Throwable>()
 
     private val errorTracker = object : ErrorTracker {
@@ -40,11 +42,13 @@ class DevMenuViewModelTest {
 
     private fun viewModel(
         switch: OfflineSwitch = offlineSwitch,
+        api: ApiSwitch = apiSwitch,
         tester: NotificationTester = notificationTester,
     ) = DevMenuViewModel(
         logger = FakeLogger(),
         buildInfo = BuildInfo.PREVIEW,
         offlineSwitch = switch,
+        apiSwitch = api,
         notificationTester = tester,
         authService = authService,
         errorTracker = errorTracker,
@@ -79,6 +83,27 @@ class DevMenuViewModelTest {
         authService.login("ada@example.com")
 
         assertEquals("ada@example.com", viewModel.state.value.data?.session)
+    }
+
+    @Test
+    fun `toggling the real API writes the switch and reads it back`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onUiEvent(DevMenuEvent.RealApiToggled(true))
+
+        assertTrue(apiSwitch.isRealApi())
+        assertTrue(viewModel.state.value.data?.realApi == true)
+    }
+
+    @Test
+    fun `a build without a key says so and a build with a real host has no switch`() = runTest {
+        assertFalse(
+            viewModel(api = RecordingApiSwitch(isKeyPresent = false)).state.value.data?.realApiKeyPresent == true,
+        )
+
+        val state = viewModel(api = ApiSwitch.Unsupported).state.value
+        assertFalse(state.data?.realApiSupported == true)
+        assertFalse(state.data?.realApi == true)
     }
 
     @Test
@@ -140,6 +165,19 @@ private class RecordingNotificationTester : NotificationTester {
     override fun post(): Boolean {
         postCount++
         return true
+    }
+}
+
+private class RecordingApiSwitch(override val isKeyPresent: Boolean = true) : ApiSwitch {
+
+    override val isSupported: Boolean = true
+
+    private var realApi = false
+
+    override fun isRealApi(): Boolean = realApi
+
+    override fun setRealApi(realApi: Boolean) {
+        this.realApi = realApi
     }
 }
 

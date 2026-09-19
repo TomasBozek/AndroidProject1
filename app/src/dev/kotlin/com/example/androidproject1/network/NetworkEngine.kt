@@ -1,15 +1,22 @@
 package com.example.androidproject1.network
 
 import android.content.Context
+import com.example.androidproject1.BuildConfig
 import com.example.androidproject1.R
 import com.example.androidproject1.service.core.domain.coroutines.DispatcherProvider
 import com.example.androidproject1.service.network.ConnectivityMonitor
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
+import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
@@ -23,6 +30,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.File
 
 /**
  * The `dev` flavor talks to fixtures, not a server (D20).
@@ -32,10 +40,28 @@ import kotlinx.serialization.json.jsonPrimitive
  * go offline on its own — the engine is in-process — which is what [FixtureNetwork.failing] is
  * for: flip it and every request fails, so the cache-then-network path can be seen by hand.
  *
- * @param cacheSizeBytes unused — a fixture is not worth caching, and this parameter exists only
- * so the one call site in `ApplicationModule` compiles against every flavor's `networkEngine`.
+ * @param cacheSizeBytes the real engine's cache, for the requests that leave the process (D81); a
+ * fixture is never cached.
  */
-fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine {
+fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine = networkEngine(
+    context = context,
+    realClient = lazy {
+        HttpClient(cachedOkHttpEngine(cacheDirectory = File(context.cacheDir, "http"), cacheSizeBytes = cacheSizeBytes))
+    },
+    hasKey = BuildConfig.TMDB_API_KEY.isNotBlank(),
+)
+
+/**
+ * The engine with its real half injected, for the test: [realClient] is what a TMDB request goes
+ * to while [FixtureNetwork.realApi] is set and [hasKey] — and is never created otherwise, so a
+ * fixtures-only build opens no cache directory. A bare client over the real engine, because the
+ * client above this engine already retries, logs and parses: the request arrives here finished.
+ */
+internal fun networkEngine(
+    context: Context,
+    realClient: Lazy<HttpClient>,
+    hasKey: Boolean,
+): HttpClientEngine {
     val categories = context.readRaw(R.raw.fixture_categories)
     val products = context.readRaw(R.raw.fixture_products)
     val movies = TmdbFixtures(context)
@@ -49,8 +75,15 @@ fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine {
         }
 
         // The host first: TMDB is a second server with paths of its own (D80), and `movie/550`
-        // and `product?id=` must not be told apart by their last segment alone.
-        if (request.url.host == TMDB_HOST) return@MockEngine movies.handle(this, request.url)
+        // and `product?id=` must not be told apart by their last segment alone. With the switch
+        // on and a key to show, the request leaves the process (D81); the catalog's never does.
+        if (request.url.host == TMDB_HOST) {
+            return@MockEngine if (FixtureNetwork.realApi && hasKey) {
+                forward(realClient.value, request)
+            } else {
+                movies.handle(this, request.url)
+            }
+        }
 
         val path = request.url.encodedPath.trimEnd('/').substringAfterLast('/')
         val body = when (path) {
@@ -66,6 +99,17 @@ fun networkEngine(context: Context, cacheSizeBytes: Long): HttpClientEngine {
 }
 
 private const val TMDB_HOST = "api.themoviedb.org"
+
+/** One request through the real client, answered as if the mock had: status, headers and body. */
+private suspend fun MockRequestHandleScope.forward(client: HttpClient, request: HttpRequestData): HttpResponseData {
+    val response = client.request {
+        url(request.url)
+        method = request.method
+        headers.appendAll(request.headers)
+        setBody(request.body)
+    }
+    return respond(content = response.bodyAsChannel(), status = response.status, headers = response.headers)
+}
 
 private fun MockRequestHandleScope.respondJson(body: String, status: HttpStatusCode = HttpStatusCode.OK) = respond(
     content = body,
@@ -158,8 +202,23 @@ fun connectivityMonitor(context: Context, dispatchers: DispatcherProvider): Conn
 object FixtureNetwork : ConnectivityMonitor {
 
     private const val MARKER = "fail_network"
+    private const val REAL_API_MARKER = "real_api"
 
     private var filesDir: java.io.File? = null
+
+    /** Set from a var too, so a test can flip it without touching the filesystem. */
+    @Volatile
+    var realApiOverride: Boolean = false
+
+    /** Whether TMDB requests leave the process (D81). Read per request, like [failing]. */
+    val realApi: Boolean
+        get() = realApiOverride || filesDir?.let { java.io.File(it, REAL_API_MARKER).exists() } == true
+
+    /** Writes the marker, so the choice survives the process it was made in. */
+    fun setRealApi(context: Context, realApi: Boolean) {
+        val marker = java.io.File(context.filesDir, REAL_API_MARKER)
+        if (realApi) marker.createNewFile() else marker.delete()
+    }
 
     /** Set from a var too, so a test can flip it without touching the filesystem. */
     @Volatile
