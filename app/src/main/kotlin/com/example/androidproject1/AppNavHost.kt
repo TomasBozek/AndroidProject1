@@ -68,6 +68,8 @@ import com.example.androidproject1.feature.inventory.presentation.inventorydetai
 import com.example.androidproject1.feature.inventory.presentation.inventorydetail.inventoryDetailDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.inventoryEditorDestination
+import com.example.androidproject1.feature.movies.presentation.moviedetail.MovieDetailDestination
+import com.example.androidproject1.feature.movies.presentation.moviedetail.movieDetailDestination
 import com.example.androidproject1.feature.movies.presentation.movies.MoviesDestination
 import com.example.androidproject1.feature.movies.presentation.movies.moviesDestination
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
@@ -326,6 +328,7 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     productPickerDestination(backStack = backStack)
     tripsEntries(backStack)
     inventoryEntries(backStack)
+    movieDetailDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKey>) {
@@ -419,7 +422,11 @@ private fun devMenuJumps(backStack: NavBackStack<NavKey>): List<DevMenuJump> = l
     jump(backStack, "inventoryDetail", "InventoryDetailScreen", InventoryDetailDestination(itemId = "drill")),
     jump(backStack, "inventoryEditor", "InventoryEditorScreen", InventoryEditorDestination(itemId = "drill")),
     jump(backStack, "movies", "MoviesScreen", MoviesDestination),
+    jump(backStack, "movieDetail", "MovieDetailScreen", MovieDetailDestination(movieId = FIXTURE_MOVIE_ID)),
 )
+
+/** Fight Club, the first row of the `dev` flavor's first page fixture. */
+private const val FIXTURE_MOVIE_ID = 550
 
 private fun jump(
     backStack: NavBackStack<NavKey>,
