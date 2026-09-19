@@ -1,24 +1,30 @@
 # Status
 
-**No sprint is open; release G is open with one draft under it.** Release F shipped as `v1.3.0`
-on 2026-09-19 (`175 → 123`, four sprints). Next is `/sprint open`, which takes **G1 · Movies,
-paged and offline** — 79 points, seven tasks, the owner's lines of 2026-09-19: a movies feature
-over TMDB that pages, pulls to refresh, reads its cache offline, opens a detail, and reaches the
-real host from the dev menu. § DevOps of [BACKLOG.md](BACKLOG.md) holds 15 of the 50 points at
-which an improvement sprint is due. CI is off (D73), so the gate is `/check pr` on the machine
-that merges. The rules are [ai/PROCESS.md](ai/PROCESS.md); `/board` publishes this page to the
-board artifact.
+**G1 · Movies, paged and offline is open** — 79 points, 2026-09-21 09:00 → 18:00: a `movies`
+feature over TMDB that pages as it scrolls, pulls to refresh, reads its Room cache offline, opens
+a detail from a row, and reaches the real host from the dev menu; three decisions (D79–D81) open,
+each with a task. Release G is open with no done sprint under it. § DevOps of
+[BACKLOG.md](BACKLOG.md) holds 15 of the 50 points at which an improvement sprint is due. CI is
+off (D73), so the gate is `/check pr` on the machine that merges. The rules are
+[ai/PROCESS.md](ai/PROCESS.md); `/board` publishes this page to the board artifact.
 
 ## Board
 
-No sprint is open. The first draft is the next sprint by default: G1.
+**G1 · Movies, paged and offline** — open · 2026-09-21 09:00 → 2026-09-21 18:00 · 79 points ·
+[ai/plans/G1-movies-paged-and-offline.md](ai/plans/G1-movies-paged-and-offline.md)
+
+- [x] G1P1 TMDB fixtures on `dev`, and the key in `BuildConfig` · 6 → 6 · decides D80
+- [ ] G1H1 The movies data layer: a page is a cache entry · 25 · decides D79 · after G1P1
+- [ ] G1U1 `AppPullToRefresh` in `:core:ui` · 6
+- [ ] G1U2 The movies list pages, pulls and reads its cache · 12 · after G1H1, G1U1
+- [ ] G1U3 A movie detail from a row · 12 · after G1H1
+- [ ] G1P2 The dev build reaches the real host · 12 · decides D81 · after G1P1
+- [ ] G1H2 Two Maestro flows through the movies · 6 · after G1U3
 
 ## Drafts
 
-In queue order; the first is the next sprint, and `/sprint open` takes it.
-
-1. **G1 · Movies, paged and offline** — draft · 2026-09-21 09:00 → 18:00 · 79 points · decides
-   D79–D81 · [ai/plans/G1-movies-paged-and-offline.md](ai/plans/G1-movies-paged-and-offline.md)
+None. The first draft is the next sprint by default; `/sprint draft <name>` writes one from
+[BACKLOG.md](BACKLOG.md) § Next, or § DevOps for an improvement sprint.
 
 ## Release G · A real API
 

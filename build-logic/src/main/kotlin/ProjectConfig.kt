@@ -57,6 +57,18 @@ object ProjectConfig {
         STAGING("staging", ".staging", "%s Staging", "https://staging.example.com/"),
         PROD("prod", null, "%s", "https://api.example.com/"),
     }
+
+    /**
+     * The one host that is not [Flavor.baseUrl]: TMDB, which the movies feature reads on every
+     * flavor (D80). The key is not here — it is `tmdb.apiKey` in `local.properties`, untracked,
+     * and [TMDB_API_KEY_PROPERTY] is only its name.
+     */
+    object Tmdb {
+
+        const val API_BASE_URL = "https://api.themoviedb.org/3/"
+        const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w342"
+        const val TMDB_API_KEY_PROPERTY = "tmdb.apiKey"
+    }
 }
 
 /**

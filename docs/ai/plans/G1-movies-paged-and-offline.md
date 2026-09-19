@@ -1,7 +1,7 @@
 # Sprint G1 · Movies, paged and offline
 
 Sprint: G1 · Movies, paged and offline
-Status: draft
+Status: open
 When: 2026-09-21 09:00 → 2026-09-21 18:00
 Goal: A movies feature over TMDB — a list that pages as it scrolls, pulls to refresh, reads its cache offline, opens a detail, and can be pointed at the real host from the dev menu
 Release: G
@@ -50,18 +50,6 @@ and G1U3, the Home card's lambda and the jump in G1U2 — and `ApplicationModule
 is fine with one agent and is why `Agents:` says 1. `build-logic/` and `core/` are touched, so T1
 runs the whole `./gradlew test`; `feature/movies/presentation` and `core/ui` are, so
 `verifyRoborazziDebug` rides in the same invocation.
-
-## Board
-
-Stays here while the sprint is a draft; `/sprint open` lifts it into `docs/STATUS.md`.
-
-- [ ] G1P1 TMDB fixtures on `dev`, and the key in `BuildConfig` · 6 · decides D80
-- [ ] G1H1 The movies data layer: a page is a cache entry · 25 · decides D79 · after G1P1
-- [ ] G1U1 `AppPullToRefresh` in `:core:ui` · 6
-- [ ] G1U2 The movies list pages, pulls and reads its cache · 12 · after G1H1, G1U1
-- [ ] G1U3 A movie detail from a row · 12 · after G1H1
-- [ ] G1P2 The dev build reaches the real host · 12 · decides D81 · after G1P1
-- [ ] G1H2 Two Maestro flows through the movies · 6 · after G1U3
 
 ## Tasks
 
