@@ -60,6 +60,15 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `the movies card opens the movies`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onUiEvent(HomeEvent.MoviesClicked)
+
+        assertEquals(HomeNavigation.OpenMovies, viewModel.navigation.first())
+    }
+
+    @Test
     fun `shows the favourites it observes`() = runTest {
         val state = viewModel().state.value
 

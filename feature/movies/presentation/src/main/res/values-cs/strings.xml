@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Czech. The word "Movies" is left in the values on purpose: create_feature.py and
-    create_screen.py rewrite it to the generated screen's name, in this file as in values/.
--->
 <resources>
-    <string name="movies_title">Obrazovka Movies</string>
-    <string name="movies_counter">Počítadlo: %1$d</string>
-    <string name="movies_increment">Zvýšit</string>
+    <string name="movies_title">Populární filmy</string>
+    <string name="movies_empty_title">Žádné filmy</string>
+    <string name="movies_empty_message">Nic nepřišlo. Přetažením dolů to zkusíte znovu.</string>
+    <string name="movies_stale">Zobrazuje se, co se načetlo minule.</string>
 </resources>

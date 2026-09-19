@@ -75,6 +75,16 @@ class HomeScreenTest {
     }
 
     @Test
+    fun `the movies card is there, and its button reports the event`() {
+        render(HomeState.PREVIEW)
+
+        compose.onNodeWithTag("home_moviesCard").assertIsDisplayed()
+        compose.onNodeWithTag("home_moviesButton").performClick()
+
+        assertEquals(listOf(HomeEvent.MoviesClicked), events)
+    }
+
+    @Test
     fun `removing a favourite reports it as an event`() {
         render(HomeState.PREVIEW)
 

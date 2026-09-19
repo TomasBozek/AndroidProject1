@@ -2,8 +2,11 @@ package com.example.androidproject1.feature.home.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,29 +45,54 @@ fun HomeScreen(
         ) {
             AppText(text = state.greeting.resolve(), role = TextRole.Display)
 
-            // The way into Inventory: it has no tab of its own (D59), so the count is the door.
-            AppCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("home_inventoryCard"),
+            // The ways into Inventory and Movies: neither has a tab of its own (D59), so a card is
+            // the door — side by side, so the favourites below stay on the first screen.
+            Row(
+                // The taller card sets the height, so the two read as a pair.
+                modifier = Modifier.height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.inline.md),
             ) {
-                AppText(text = stringResource(R.string.home_inventory_title), role = TextRole.Title)
-                AppText(
-                    text = pluralStringResource(
-                        R.plurals.home_inventory_count,
-                        state.inventoryCount,
-                        state.inventoryCount,
-                    ),
-                    role = TextRole.Secondary,
-                )
-                AppButton(
-                    label = stringResource(R.string.home_inventory_open),
-                    onClick = { onEvent(HomeEvent.InventoryClicked) },
-                    kind = ButtonKind.Outline,
+                AppCard(
                     modifier = Modifier
-                        .padding(top = AppTheme.spacing.stack.sm)
-                        .testTag("home_inventoryButton"),
-                )
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .testTag("home_inventoryCard"),
+                ) {
+                    AppText(text = stringResource(R.string.home_inventory_title), role = TextRole.Title)
+                    AppText(
+                        text = pluralStringResource(
+                            R.plurals.home_inventory_count,
+                            state.inventoryCount,
+                            state.inventoryCount,
+                        ),
+                        role = TextRole.Secondary,
+                    )
+                    AppButton(
+                        label = stringResource(R.string.home_inventory_open),
+                        onClick = { onEvent(HomeEvent.InventoryClicked) },
+                        kind = ButtonKind.Outline,
+                        modifier = Modifier
+                            .padding(top = AppTheme.spacing.stack.sm)
+                            .testTag("home_inventoryButton"),
+                    )
+                }
+                AppCard(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .testTag("home_moviesCard"),
+                ) {
+                    AppText(text = stringResource(R.string.home_movies_title), role = TextRole.Title)
+                    AppText(text = stringResource(R.string.home_movies_subtitle), role = TextRole.Secondary)
+                    AppButton(
+                        label = stringResource(R.string.home_movies_open),
+                        onClick = { onEvent(HomeEvent.MoviesClicked) },
+                        kind = ButtonKind.Outline,
+                        modifier = Modifier
+                            .padding(top = AppTheme.spacing.stack.sm)
+                            .testTag("home_moviesButton"),
+                    )
+                }
             }
 
             AppSectionHeader(title = stringResource(R.string.home_favourites_title))

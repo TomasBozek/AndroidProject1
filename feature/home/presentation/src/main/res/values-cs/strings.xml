@@ -9,6 +9,9 @@
     <string name="home_favourite_undo">Zpět</string>
     <string name="home_inventory_title">Inventář</string>
     <string name="home_inventory_open">Otevřít</string>
+    <string name="home_movies_title">Filmy</string>
+    <string name="home_movies_subtitle">Co je populární, i offline</string>
+    <string name="home_movies_open">Otevřít</string>
     <plurals name="home_inventory_count">
         <item quantity="one">%d položka</item>
         <item quantity="few">%d položky</item>

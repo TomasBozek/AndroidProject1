@@ -8,4 +8,6 @@ sealed interface HomeEvent : UiEvent {
     data class FavouriteRemoved(val productId: String) : HomeEvent
 
     data object InventoryClicked : HomeEvent
+
+    data object MoviesClicked : HomeEvent
 }

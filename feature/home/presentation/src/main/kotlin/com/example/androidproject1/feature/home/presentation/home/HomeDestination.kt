@@ -10,10 +10,14 @@ import org.koin.androidx.compose.koinViewModel
 @Serializable
 data object HomeDestination : NavKey
 
-/** @param navigateToInventory another feature's screen, so the host wires it — see AppNavHost. */
+/**
+ * @param navigateToInventory another feature's screen, so the host wires it — see AppNavHost.
+ * @param navigateToMovies the same, for the movies card.
+ */
 fun EntryProviderScope<NavKey>.homeDestination(
     backStack: NavBackStack<NavKey>,
     navigateToInventory: () -> Unit,
+    navigateToMovies: () -> Unit,
 ) {
     entry<HomeDestination> {
         val viewModel: HomeViewModel = koinViewModel()
@@ -23,6 +27,7 @@ fun EntryProviderScope<NavKey>.homeDestination(
             onNavigation = { navigation ->
                 when (navigation) {
                     HomeNavigation.OpenInventory -> navigateToInventory()
+                    HomeNavigation.OpenMovies -> navigateToMovies()
                 }
             },
         ) { state, onEvent ->

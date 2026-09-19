@@ -68,6 +68,7 @@ import com.example.androidproject1.feature.inventory.presentation.inventorydetai
 import com.example.androidproject1.feature.inventory.presentation.inventorydetail.inventoryDetailDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.inventoryEditorDestination
+import com.example.androidproject1.feature.movies.presentation.movies.MoviesDestination
 import com.example.androidproject1.feature.movies.presentation.movies.moviesDestination
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileDestination
@@ -333,6 +334,7 @@ private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKe
         // Inventory has no tab (D59); the card on Home is its door, and this is the one place that
         // knows both features.
         navigateToInventory = { backStack.add(InventoryDestination) },
+        navigateToMovies = { backStack.add(MoviesDestination) },
     )
     moviesDestination(backStack = backStack)
 }
@@ -416,6 +418,7 @@ private fun devMenuJumps(backStack: NavBackStack<NavKey>): List<DevMenuJump> = l
     jump(backStack, "settingsPermissions", "SettingsPermissionsScreen", SettingsPermissionsDestination),
     jump(backStack, "inventoryDetail", "InventoryDetailScreen", InventoryDetailDestination(itemId = "drill")),
     jump(backStack, "inventoryEditor", "InventoryEditorScreen", InventoryEditorDestination(itemId = "drill")),
+    jump(backStack, "movies", "MoviesScreen", MoviesDestination),
 )
 
 private fun jump(
