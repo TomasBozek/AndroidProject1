@@ -36,7 +36,7 @@ Logging is WARN and above in a release build.
 | Holds | What it is |
 |---|---|
 | `MainActivity` | the single activity — an `AppCompatActivity`, for the one thing AppCompat does here: apply the stored per-app language before the first frame on API 29–32 (D75) — edge to edge, with the splash screen. Remembers the back stack unconditionally on the first frame and gates the display instead. Draws `AppBanner` above the display while `MainViewModel.online` is false, spending the status-bar inset there and consuming it for the screens |
-| `AppNavHost` | every destination, in three groups: onboarding, auth and main. The only place a cross-feature navigation lambda is wired, and the place `ProvideNavResultStore` and `ProvideAnalytics` wrap everything below |
+| `AppNavHost` | every destination, in three groups: onboarding, auth and main. The only place a cross-feature navigation lambda is wired, and the place `ProvideNavResultStore` and `ProvideAnalytics` wrap everything below. Wraps `NavDisplay` in `SharedTransitionLayout` and provides `:core:ui`'s two shared-element locals — the scope on a compact width only, the entry's visibility inside every entry — so `Modifier.appSharedElement` works on a screen and is a no-op everywhere else (D76) |
 | `MainViewModel` | a plain `ViewModel`, the owner of `SessionState` and the only thing that switches flows; exposes `online` for the banner |
 | `SessionState` | `Unknown`, `Onboarding`, `SignedIn`, `SignedOut` |
 | `TopLevelDestination` | the five tabs — Home, Catalog, Cart, Trips, Settings: route key, label, icon and test id each. The id is `tabs_<name>Tab`, carried on the entry so a tab cannot be added without one. Five is Material's ceiling for a bottom bar, so a sixth is a decision, not an entry (D59) |

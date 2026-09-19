@@ -25,6 +25,29 @@ with its board cut out and its briefs intact. The ratio sets the next release's 
 
 <!-- Blocks go below this line, newest first. -->
 
+## v1.3.0 · release F · 2026-09-19
+
+- Settings has a Language row: English, Čeština or the device's own, applied the moment it is
+  picked — the whole app repaints, no restart — and remembered across launches.
+- "You're offline" appears above the screen while there is no connection, and goes away by
+  itself when there is one.
+- Opening a product from a list, its name and price travel into the detail and back, rather than
+  the page sliding in over them.
+- Messages have colours of their own: a banner, a toast or a status dot in the green, amber, red
+  or blue of what it says, no longer the colour of a button; a neutral dot is a visible grey mark
+  instead of the same white as the page.
+- At a large font size a detail row's label no longer breaks into one letter per line —
+  "Application id" stays whole and the value beside it wraps.
+- For testers, on `dev` and `staging`: the debug menu jumps straight to any deep screen with a
+  fixture on its route, a switch pretends the server is down, and a component playground lets
+  you pick a component, turn its knobs and watch it change.
+- For operators: work runs in sprints under a release, read from a board on any device; the
+  repository is public; CI is switched off and the local gate — now with lint — is what a pull
+  request merges on; a launch config starts the app on the emulator; the branches are gitflow.
+
+Tasks: F0P1–F0P4 · F1P1, F1X1, F1H1 · F2P1–F2P5 · F3P1–F3P9, F3X1, F3X2 · F4P1, F4X1, F4U1, F4S1, F4U2, F4U3
+Estimate 175 · Actual 123 · Ratio 0.70
+
 ## v1.2.0 · release E · 2026-09-13
 
 - Inventory: the things you own, reached from a card on Home. Search, filter and sort the list;
