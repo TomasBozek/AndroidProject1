@@ -19,6 +19,7 @@ What the sample app contains. The layer rules and the module list are
 | `template` | domain · data · presentation · di | What the generators clone. Compiled by the build so it cannot rot |
 | `trips` | domain · data · presentation · di | A trip list, a three-step wizard, a detail with tabs, a destination picker and a dashboard — the showcase for the components only the gallery reached before (B3S1) |
 | `inventory` | domain · data · presentation · di | Things you own: a searchable, filterable, sortable list with selection mode, a four-step editor and a detail whose sections switch by width. Reached from Home (D59); the showcase that homed the last thirteen components (E3S1–E3S6, D65) |
+| `movies` | domain · data · presentation · di | TMDB's popular list, paged as it scrolls, pulled to refresh, cached per page in Room (D79) so it reads offline, and a detail per row. The one feature over a host that is not `BASE_URL` (D80). Reached from Home once G1U2 lands |
 
 ## Screens
 
@@ -58,6 +59,7 @@ through its constructor.
 | `Inventory` | inventory | — | the list: search by name, a row per item with the owner's avatar and the condition tag, a FAB to a new item. Reached from Home once E3S6 lands; a row opens the detail |
 | `InventoryEditor` | inventory | `itemId` | Inventory (a new id, minted by the list, or an existing item's). Create and edit are one screen — a loaded item fills the form and `isDirty` compares against it, so opening and leaving asks nothing; save keeps the id: four steps behind `AppStepProgress` — basics, quantity and price, tags and owner, review — every kind of control the design system has, `DiscardBackHandler` on a dirty first step, save through `saveItem` and pop |
 | `InventoryDetail` | inventory | `itemId` | Inventory, a row. Observes the item, so an edit shows up without a reload; picture, owner with a condition-toned status dot, tags, and three sections — Overview, Notes, History (derived) — switched by `AppBottomNav` on a compact width and `AppNavRail` otherwise, from `SizeClass`. A top-bar menu offers Edit (the editor on this id) and Delete, confirmed through an `AlertPayload` |
+| `Movies` | movies | — | Home, once G1U2 lands; the generator's stub until then |
 <!-- create_screen.py appends a starter row here -->
 
 ## Tabs

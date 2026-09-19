@@ -5,6 +5,7 @@ import com.example.androidproject1.debug.TestNotification
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
+import com.example.androidproject1.feature.movies.domain.TmdbConfig
 import com.example.androidproject1.feature.settings.domain.LanguageRepository
 import com.example.androidproject1.locale.AppCompatLanguageRepository
 import com.example.androidproject1.network.connectivityMonitor
@@ -32,6 +33,16 @@ object ApplicationModule {
                 baseUrl = BuildConfig.BASE_URL,
                 // Headers and bodies carry the bearer token and whatever the user typed.
                 logBodies = BuildConfig.DEBUG,
+            )
+        }
+
+        // The second host (D80): the constants from ProjectConfig through BuildConfig, and the key
+        // from local.properties — `""` on a clone without one, which is a fixtures-only build.
+        single {
+            TmdbConfig(
+                apiBaseUrl = BuildConfig.TMDB_API_BASE_URL,
+                imageBaseUrl = BuildConfig.TMDB_IMAGE_BASE_URL,
+                apiKey = BuildConfig.TMDB_API_KEY,
             )
         }
 

@@ -14,7 +14,7 @@ off (D73), so the gate is `/check pr` on the machine that merges. The rules are
 [ai/plans/G1-movies-paged-and-offline.md](ai/plans/G1-movies-paged-and-offline.md)
 
 - [x] G1P1 TMDB fixtures on `dev`, and the key in `BuildConfig` · 6 → 6 · decides D80
-- [ ] G1H1 The movies data layer: a page is a cache entry · 25 · decides D79 · after G1P1
+- [x] G1H1 The movies data layer: a page is a cache entry · 25 → 12 · decides D79 · after G1P1
 - [ ] G1U1 `AppPullToRefresh` in `:core:ui` · 6
 - [ ] G1U2 The movies list pages, pulls and reads its cache · 12 · after G1H1, G1U1
 - [ ] G1U3 A movie detail from a row · 12 · after G1H1
