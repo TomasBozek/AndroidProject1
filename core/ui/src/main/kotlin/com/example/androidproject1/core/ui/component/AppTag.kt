@@ -9,10 +9,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.androidproject1.core.ui.common.ComponentPreview
 import com.example.androidproject1.core.ui.common.ThemedComponentPreview
+import com.example.androidproject1.core.ui.theme.AppColors
 import com.example.androidproject1.core.ui.theme.AppTheme
+import com.example.androidproject1.core.ui.theme.FeedbackColors
 
 /** What a tag is saying. Colour never carries this on its own — the text always does too. */
 enum class TagTone { Neutral, Positive, Warning, Negative, Info }
+
+/**
+ * The feedback role a tone draws in (D78) — the one mapping a tag, a status dot and an avatar's
+ * status share, so the three cannot drift apart. `Neutral` is not feedback: it borrows the
+ * neutral action's soft pair, and takes the secondary text colour as its accent, so a neutral dot
+ * is a grey mark rather than the neutral button's white face.
+ */
+fun TagTone.feedback(colors: AppColors): FeedbackColors = when (this) {
+    TagTone.Neutral -> FeedbackColors(colors.neutral.container, colors.neutral.onContainer, colors.textSecondary)
+    TagTone.Positive -> colors.feedback.success
+    TagTone.Warning -> colors.feedback.warning
+    TagTone.Negative -> colors.feedback.error
+    TagTone.Info -> colors.feedback.info
+}
 
 /**
  * A state or a property that cannot be pressed.
@@ -27,14 +43,7 @@ fun AppTag(
     modifier: Modifier = Modifier,
     tone: TagTone = TagTone.Neutral,
 ) {
-    val colors = AppTheme.colors
-    val family = when (tone) {
-        TagTone.Neutral -> colors.neutral
-        TagTone.Positive -> colors.statusPositive
-        TagTone.Warning -> colors.statusWarning
-        TagTone.Negative -> colors.statusNegative
-        TagTone.Info -> colors.info
-    }
+    val family = tone.feedback(AppTheme.colors)
     Box(
         modifier = modifier
             .clip(AppTheme.shapes.pill)

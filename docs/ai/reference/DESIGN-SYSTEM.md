@@ -20,7 +20,7 @@ Read the semantic layer through `AppTheme`.
 
 | Accessor | Holds |
 |---|---|
-| `AppTheme.colors` | surface, content, accent and status roles — `statusPositive`, `statusWarning`, `statusNegative`, aliases of `confirm`, `warning` and `destructive` so a status row and a button cannot drift apart. `TagTone` names the same five states a tag, a status dot or an avatar can be in: `Neutral`, `Positive`, `Warning`, `Negative`, `Info` — states, never transactions (E3U1). Also populates Material's own scheme, so `:service:core:ui` picks the theme up without depending on `:core:ui` |
+| `AppTheme.colors` | surface, content, action and feedback roles. An action role (`confirm`, `destructive`, `info`, `warning`, `neutral`) is an `ActionColors` with an `edge`, because it is pressed; a feedback role (`feedback.success`, `.warning`, `.error`, `.info`) is a `FeedbackColors` — `container`, `onContainer`, `accent` — because a message never is (D78). `ContrastTest` holds the text at 4.5:1 on its container and the accent at 3:1 on the surfaces, both themes. `TagTone` names the five states a tag, a status dot or an avatar can be in — `Neutral`, `Positive`, `Warning`, `Negative`, `Info`, states never transactions (E3U1) — and `TagTone.feedback()` is the one mapping onto the feedback roles; `BannerTone` and `ToastTone` read the same roles. Also populates Material's own scheme, so `:service:core:ui` picks the theme up without depending on `:core:ui` |
 | `AppTheme.typography` | text roles including `Numeric`, which is tabular and the one figures use |
 | `AppTheme.shapes` | corner roles |
 | `AppTheme.elevation` | elevation roles. A pressable surface uses `Modifier.keySurface(…)`, a hard bottom edge that shortens on press, not `Modifier.shadow` |

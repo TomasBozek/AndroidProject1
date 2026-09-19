@@ -52,13 +52,7 @@ fun AppAvatar(
             AppText(text = initials, role = TextRole.Label, color = family.onContainer)
         }
         if (status != null) {
-            val tone = when (status) {
-                TagTone.Neutral -> colors.neutral
-                TagTone.Positive -> colors.statusPositive
-                TagTone.Warning -> colors.statusWarning
-                TagTone.Negative -> colors.statusNegative
-                TagTone.Info -> colors.info
-            }
+            val tone = status.feedback(colors)
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -73,7 +67,7 @@ fun AppAvatar(
                     modifier = Modifier
                         .size(size / 4)
                         .clip(AppTheme.shapes.pill)
-                        .background(tone.bg)
+                        .background(tone.accent)
                         .semantics {
                             if (statusDescription != null) contentDescription = statusDescription
                         },

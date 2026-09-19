@@ -83,6 +83,7 @@ import com.example.androidproject1.core.ui.component.AppToolbar
 import com.example.androidproject1.core.ui.component.AppTooltip
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.AppVerticalDivider
+import com.example.androidproject1.core.ui.component.BannerTone
 import com.example.androidproject1.core.ui.component.ButtonKind
 import com.example.androidproject1.core.ui.component.CheckState
 import com.example.androidproject1.core.ui.component.ControlSize
@@ -679,6 +680,8 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "Success" to { AppToast("Order placed", tone = ToastTone.Success) },
         "With an action" to { AppToast("Item moved to your wishlist", actionLabel = "Undo", onAction = {}) },
         "Error" to { AppToast("Printer not responding", tone = ToastTone.Error) },
+        "Info" to { AppToast("Syncing in the background", tone = ToastTone.Info) },
+        "Warning" to { AppToast("Two items are low on stock", tone = ToastTone.Warning) },
     ),
     entry(
         "tooltip",
@@ -959,9 +962,12 @@ val galleryCatalog: List<GalleryEntry> = listOf(
         "banner",
         "AppBanner",
         "Status",
-        "One line above the screen, in the warning role, for a fact that stays true until it stops: " +
+        "One line above the screen, in a feedback role, for a fact that stays true until it stops: " +
             "the device is offline. Not a toast — nothing happened, something is so.",
-        "Offline" to { AppBanner(text = "You're offline") },
+        "Warning — offline" to { AppBanner(text = "You're offline") },
+        "Info" to { AppBanner(text = "Synced a minute ago", tone = BannerTone.Info) },
+        "Success" to { AppBanner(text = "All receipts printed", tone = BannerTone.Success) },
+        "Error" to { AppBanner(text = "The printer is out of paper", tone = BannerTone.Error) },
     ),
     // create_component.py appends a starter entry here; doctor.py fails on a component with none.
 )
