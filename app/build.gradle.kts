@@ -21,6 +21,8 @@ dependencies {
     implementation(projects.feature.settings.domain)
     // The stored `seen` flag decides whether the app opens on the tour.
     implementation(projects.feature.onboarding.domain)
+    // ApplicationModule binds TmdbConfig from BuildConfig: the second host and its key (D80).
+    implementation(projects.feature.movies.domain)
 
     // The HttpClient's engine is chosen per flavor: fixtures on dev (D20), OkHttp elsewhere —
     // both engines come from `convention.android.application`, which owns the flavors.

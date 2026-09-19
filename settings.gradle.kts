@@ -170,6 +170,14 @@ includeFeatureModule(
     ModuleSuffix.Di,
 )
 
+includeFeatureModule(
+    "movies",
+    ModuleSuffix.Domain,
+    ModuleSuffix.Data,
+    ModuleSuffix.Presentation,
+    ModuleSuffix.Di,
+)
+
 // Cloned by scripts/create_feature.py. Included so `./gradlew test` keeps the template compiling:
 // nothing depends on it, so its own module tests are what prove the generators' source still builds.
 includeFeatureModule(

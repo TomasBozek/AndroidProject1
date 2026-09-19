@@ -19,6 +19,7 @@ dependencies {
     api(projects.feature.onboarding.di)
     api(projects.feature.trips.di)
     api(projects.feature.inventory.di)
+    api(projects.feature.movies.di)
 
     implementation(projects.service.core.data)
     implementation(projects.service.core.domain)

@@ -68,6 +68,7 @@ import com.example.androidproject1.feature.inventory.presentation.inventorydetai
 import com.example.androidproject1.feature.inventory.presentation.inventorydetail.inventoryDetailDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.InventoryEditorDestination
 import com.example.androidproject1.feature.inventory.presentation.inventoryeditor.inventoryEditorDestination
+import com.example.androidproject1.feature.movies.presentation.movies.moviesDestination
 import com.example.androidproject1.feature.onboarding.presentation.onboarding.onboardingDestination
 import com.example.androidproject1.feature.profile.presentation.profile.ProfileDestination
 import com.example.androidproject1.feature.profile.presentation.profile.profileDestination
@@ -333,6 +334,7 @@ private fun EntryProviderScope<NavKey>.homeEntries(backStack: NavBackStack<NavKe
         // knows both features.
         navigateToInventory = { backStack.add(InventoryDestination) },
     )
+    moviesDestination(backStack = backStack)
 }
 
 private fun EntryProviderScope<NavKey>.catalogEntries(backStack: NavBackStack<NavKey>) {

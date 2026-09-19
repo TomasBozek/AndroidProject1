@@ -61,6 +61,20 @@ erDiagram
         long budgetMaxMinor
         string notes
     }
+    MOVIE ||--o| MOVIE_DETAIL : "id"
+    MOVIE {
+        int id
+        string title
+        string posterUrl
+        date releaseDate
+        double rating
+    }
+    MOVIE_DETAIL {
+        int id
+        duration runtime
+        string tagline
+        string genres
+    }
 ```
 
 | Type | Module | Notes |
@@ -76,6 +90,10 @@ erDiagram
 | `Destination` | `feature/trips/domain` | `id`, `name`, `country`, `description`; fixture data, seeded once |
 | `Trip` | `feature/trips/domain` | `destinationId`/`destinationName` denormalized so a renamed destination cannot orphan a trip; `budgetMinMinor`/`budgetMaxMinor` follow `Product.price`'s convention; `status(today)` is derived, never stored |
 | `Item` | `feature/inventory/domain` | something the user owns — `category`, `condition`, `quantity`, `priceMinor` (minor units, like `Product.price`), a nullable `acquiredOn`, `insured`, a `tags` set, `owner` (a name `AppAvatar` draws from), a nullable `imageUrl` the offline `dev` build never loads, `notes`. `ItemCategory`, `ItemCondition` and `ItemTag` are the closed sets a picker offers |
+| `Movie` | `feature/movies/domain` | one row of TMDB's popular list: `posterUrl` is already a full URL — the domain never learns TMDB hands out a path and a base separately; `rating` is `vote_average`, 0–10 |
+| `MovieDetail` | `feature/movies/domain` | a `Movie` plus `runtime` (`kotlin.time.Duration?`), `tagline`, `genres` as names, `backdropUrl` |
+| `MoviePage` | `feature/movies/domain` | `page`, `movies`, `totalPages`, `isLast` — the unit the cache stores and the list appends (D79) |
+| `TmdbConfig` | `feature/movies/domain` | `apiBaseUrl`, `imageBaseUrl`, `apiKey`; bound by `:app` from `BuildConfig` (D80), `hasKey` false on a clone without `tmdb.apiKey` |
 
 ## Results and failures
 
@@ -104,6 +122,7 @@ Every method returns `Outcome`, and every observation is a `Flow<Outcome<T>>`.
 | `TripsRepository` | `feature/trips/domain` | `observeTrips`, `getTrip`, `saveTrip`, `deleteTrip` |
 | `DestinationsRepository` | `feature/trips/domain` | `observeDestinations`, `getDestination` |
 | `InventoryRepository` | `feature/inventory/domain` | `observeItems`, `observeItem(id)`, `getItem`, `saveItem`, `deleteItems(ids)` |
+| `MoviesRepository` | `feature/movies/domain` | `observePage(page)` — cache-then-network for one page (D79); `refresh()` — page 1 fetched and made the whole cache, or nothing changed; `getMovie(id)` — cached detail or one round trip then cached |
 
 ## Use cases
 
@@ -137,6 +156,8 @@ store below swappable.
 | `LocalTripsDataSource` | Room · `TripsDatabase` · `trips`; `type` and the dates are `TEXT` through `Converters`, and an unknown type reads as `Leisure` rather than failing the list |
 | `LocalDestinationsDataSource` | Room · `TripsDatabase` · `destinations`; seeded from a fixture list on first read, not a network fetch — no new dependency, D20 still stands |
 | `LocalInventoryDataSource` | Room · `InventoryDatabase` · `items`; twelve fixture items seeded on first read, the way destinations are; the three enum columns, the date and the tag set are `TEXT` through `Converters`, an unknown name reading as a fallback |
+| `LocalMoviesDataSource` | Room · `MoviesDatabase` · `movies` (with `page`, `position`), `movie_details`, `movie_pages` — the page marker plays the part `catalog_fetches` does and carries `totalPages`; `replacePage` and `replaceAll` are one transaction each |
+| `RemoteMoviesDataSource` | Ktor, against `TmdbConfig.apiBaseUrl` with absolute URLs (D80), `api_key` as a query parameter; `MockEngine` fixtures on `dev` — three pages of twenty |
 
 Every database exports its schema under the module's `schemas/`, and a `version` bump ships its
 migration and its migration test in the same commit. `fallbackToDestructiveMigration` is never used:

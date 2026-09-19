@@ -8,6 +8,7 @@ import com.example.androidproject1.feature.devmenu.di.DevMenuModule
 import com.example.androidproject1.feature.gallery.di.GalleryModule
 import com.example.androidproject1.feature.home.di.HomeModule
 import com.example.androidproject1.feature.inventory.di.InventoryModule
+import com.example.androidproject1.feature.movies.di.MoviesModule
 import com.example.androidproject1.feature.onboarding.di.OnboardingModule
 import com.example.androidproject1.feature.profile.di.ProfileModule
 import com.example.androidproject1.feature.settings.di.SettingsModule
@@ -106,6 +107,7 @@ fun appModules(isDebug: Boolean): List<Module> = listOf(
     OnboardingModule.module,
     TripsModule.module,
     InventoryModule.module,
+    MoviesModule.module,
 )
 
 /**
