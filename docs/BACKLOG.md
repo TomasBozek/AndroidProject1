@@ -45,8 +45,14 @@ honest: a line lands here whenever the process is caught not doing what its docs
 
 - The hook note reads only the literal `.githooks` · 3 · templates · P · `doctor.py` prints
   "the pre-commit hook is not installed" on a clone whose `core.hooksPath` is the same directory
-  as an absolute path — which is what a worktree sees — while the hook runs on every commit there.
-  Compare resolved paths, or check `git rev-parse --git-path hooks`. Seen in F4U1.
+  as an absolute path — which is what a worktree sees — while the hook runs on every commit there,
+  and `/sprint close`'s hook audit makes the same literal comparison, so F4's close reports a
+  miss on a hook that ran. Compare resolved paths, or check `git rev-parse --git-path hooks`, in
+  both. Seen in F4U1.
+- A device screenshot in the pull request · 3 · process · P · `gh` cannot attach an image, so the
+  three device proofs of F4 are files the owner saw once in the session and a sentence in each
+  body. Decide where a screenshot is pushed — a `docs/ai/proof/` directory the ship prunes, a
+  release asset, a gist with a data URL — and have `/task` link it from the body.
 - CI comes back · 3 · ci · P · `build.yml` is disabled (D73) because Actions is paid for this
   account. When the owner wants it: `gh workflow enable build.yml`, put `required_status_checks`
   (`changes`, `conventions`, `build`) back into the `main` ruleset, flip `CLAUDE.md` § Checks and
