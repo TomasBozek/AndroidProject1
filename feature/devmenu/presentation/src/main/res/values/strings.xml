@@ -13,6 +13,9 @@
     <string name="dev_menu_session_none">Signed out</string>
     <string name="dev_menu_network">Network</string>
     <string name="dev_menu_offline">Pretend the server is down</string>
+    <string name="dev_menu_real_api">Talk to the real TMDB</string>
+    <string name="dev_menu_real_api_supporting">Movies come from api.themoviedb.org instead of the fixtures; the catalog stays on fixtures.</string>
+    <string name="dev_menu_real_api_no_key">No tmdb.apiKey in local.properties when this build was made, so the movies stay on fixtures.</string>
     <string name="dev_menu_offline_supporting">Every request fails with 503, so the cached screens can be seen by hand.</string>
     <string name="dev_menu_tools">Tools</string>
     <string name="dev_menu_jumps">Jump to a screen</string>

@@ -16,7 +16,7 @@ A multi-module Android template: Kotlin, Jetpack Compose, Koin, single activity,
 | JDK | 25 | pinned in `gradle/gradle-daemon-jvm.properties`; Gradle provisions it via foojay on first run, so it needs network once |
 | Android SDK | API 37 | `compileSdk` and `targetSdk`; `minSdk` is 29. Gradle finds it through `ANDROID_HOME` or a `sdk.dir` line in `local.properties`, which is untracked — Android Studio writes it on first open |
 | Python | 3.10+ | the scripts in `scripts/`; standard library only, nothing to install |
-| TMDB key | optional | `tmdb.apiKey=<key>` in `local.properties`, beside `sdk.dir` — a free key from themoviedb.org. Without it every build still compiles and the movies feature reads fixtures; with it, `staging`/`prod` read the real host and the dev menu's Real API switch can too |
+| TMDB key | optional | `tmdb.apiKey=<key>` in `local.properties`, beside `sdk.dir` — a free key from themoviedb.org. Without it every build still compiles and the movies feature reads fixtures; with it, `staging`/`prod` read the real host, and on `dev` the debug menu's **Talk to the real TMDB** switch sends the movies there while the catalog stays on fixtures (D81) |
 
 Gradle 9.6 comes from the wrapper. Android Studio is optional — everything below runs from the
 command line.

@@ -1,6 +1,8 @@
 package com.example.androidproject1.debug
 
 import android.content.Context
+import com.example.androidproject1.BuildConfig
+import com.example.androidproject1.feature.devmenu.presentation.ApiSwitch
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
 import com.example.androidproject1.network.FixtureNetwork
 
@@ -16,6 +18,8 @@ object DebugMenu {
     const val ENABLED = true
 
     fun offlineSwitch(context: Context): OfflineSwitch = FixtureOfflineSwitch(context)
+
+    fun apiSwitch(context: Context): ApiSwitch = FixtureApiSwitch(context)
 }
 
 /**
@@ -30,4 +34,16 @@ private class FixtureOfflineSwitch(private val context: Context) : OfflineSwitch
     override fun isOffline(): Boolean = FixtureNetwork.failing
 
     override fun setOffline(offline: Boolean) = FixtureNetwork.setFailing(context, offline)
+}
+
+/** The other switch on the same engine (D81): TMDB requests leave the process while it is on. */
+private class FixtureApiSwitch(private val context: Context) : ApiSwitch {
+
+    override val isSupported: Boolean = true
+
+    override val isKeyPresent: Boolean = BuildConfig.TMDB_API_KEY.isNotBlank()
+
+    override fun isRealApi(): Boolean = FixtureNetwork.realApi
+
+    override fun setRealApi(realApi: Boolean) = FixtureNetwork.setRealApi(context, realApi)
 }

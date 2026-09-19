@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.devmenu.presentation.devmenu
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -48,6 +49,32 @@ class DevMenuScreenTest {
         render(DevMenuState.PREVIEW.copy(offlineSupported = false))
 
         compose.onNodeWithTag("devMenu_offlineSwitch").assertDoesNotExist()
+    }
+
+    @Test
+    fun `toggling the real API reports it as an event, and re-reads`() {
+        render(DevMenuState.PREVIEW)
+
+        compose.onNodeWithTag("devMenu_realApiSwitch").performScrollTo().assertIsOff().performClick()
+
+        assertEquals(listOf(DevMenuEvent.RealApiToggled(true)), events)
+    }
+
+    @Test
+    fun `without a key the real API switch is there but disabled`() {
+        render(DevMenuState.PREVIEW.copy(realApiKeyPresent = false))
+
+        compose.onNodeWithTag("devMenu_realApiSwitch").performScrollTo().assertIsDisplayed().assertIsNotEnabled()
+        compose.onNodeWithTag("devMenu_realApiSwitch").performClick()
+
+        assertEquals(emptyList<DevMenuEvent>(), events)
+    }
+
+    @Test
+    fun `a build on the real host has no real API switch`() {
+        render(DevMenuState.PREVIEW.copy(offlineSupported = false, realApiSupported = false))
+
+        compose.onNodeWithTag("devMenu_realApiSwitch").assertDoesNotExist()
     }
 
     @Test

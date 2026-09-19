@@ -2,6 +2,7 @@ package com.example.androidproject1
 
 import com.example.androidproject1.debug.DebugMenu
 import com.example.androidproject1.debug.TestNotification
+import com.example.androidproject1.feature.devmenu.presentation.ApiSwitch
 import com.example.androidproject1.feature.devmenu.presentation.BuildInfo
 import com.example.androidproject1.feature.devmenu.presentation.NotificationTester
 import com.example.androidproject1.feature.devmenu.presentation.OfflineSwitch
@@ -83,6 +84,7 @@ private fun Module.debugMenuBindings() {
         )
     }
     single<OfflineSwitch> { DebugMenu.offlineSwitch(androidContext()) }
+    single<ApiSwitch> { DebugMenu.apiSwitch(androidContext()) }
     single<NotificationTester> { TestNotification(androidContext()) }
 }
 
