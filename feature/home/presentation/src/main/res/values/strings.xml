@@ -9,6 +9,9 @@
     <string name="home_favourite_undo">Undo</string>
     <string name="home_inventory_title">Inventory</string>
     <string name="home_inventory_open">Open</string>
+    <string name="home_movies_title">Movies</string>
+    <string name="home_movies_subtitle">Popular now, kept for offline</string>
+    <string name="home_movies_open">Open</string>
     <plurals name="home_inventory_count">
         <item quantity="one">%d item kept</item>
         <item quantity="other">%d items kept</item>

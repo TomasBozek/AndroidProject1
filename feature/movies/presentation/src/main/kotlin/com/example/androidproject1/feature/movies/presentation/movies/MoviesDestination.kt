@@ -16,10 +16,12 @@ fun EntryProviderScope<NavKey>.moviesDestination(backStack: NavBackStack<NavKey>
 
         Screen(
             viewModel = viewModel,
-            // Turn each MoviesNavigation case into a backStack call here — `backStack.add(Key)`
-            // to push, `backStack.removeLastOrNull()` to pop. To reach another feature, take a
-            // lambda parameter instead and wire it in AppNavHost.
             onNavigation = { navigation ->
+                when (navigation) {
+                    // The detail arrives with G1U3; until then a row is a tap that goes nowhere.
+                    is MoviesNavigation.MovieDetail -> Unit
+                    MoviesNavigation.NavigateUp -> backStack.removeLastOrNull()
+                }
             },
         ) { state, onEvent ->
             MoviesScreen(

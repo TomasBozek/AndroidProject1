@@ -42,6 +42,7 @@ class HomeViewModel(
     override fun onUiEvent(event: HomeEvent) = when (event) {
         is HomeEvent.FavouriteRemoved -> removeFavourite(event.productId)
         HomeEvent.InventoryClicked -> navigate(HomeNavigation.OpenInventory)
+        HomeEvent.MoviesClicked -> navigate(HomeNavigation.OpenMovies)
     }
 
     override fun onSystemEvent(event: SystemEvent) {

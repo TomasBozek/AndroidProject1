@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="movies_title">Movies screen</string>
-    <string name="movies_counter">Counter: %1$d</string>
-    <string name="movies_increment">Increment</string>
+    <string name="movies_title">Popular movies</string>
+    <string name="movies_empty_title">No movies</string>
+    <string name="movies_empty_message">Nothing came back. Pull down to try again.</string>
+    <string name="movies_stale">Showing what was loaded last time.</string>
 </resources>
