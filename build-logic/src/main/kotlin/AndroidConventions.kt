@@ -48,6 +48,20 @@ internal fun Project.releaseKeystore(): java.util.Properties? {
 }
 
 /**
+ * The TMDB key from `local.properties`, or `""` when the file or the line is absent (D80).
+ *
+ * `local.properties` rather than `gradle.properties`: it is the file that is already untracked
+ * and already per machine, so a key can never be committed by accident. Read as text rather
+ * than through the Android plugin, which does not expose it.
+ */
+internal fun Project.tmdbApiKey(): String {
+    val file = rootProject.file("local.properties")
+    if (!file.exists()) return ""
+    val properties = java.util.Properties().apply { file.inputStream().use(::load) }
+    return properties.getProperty(ProjectConfig.Tmdb.TMDB_API_KEY_PROPERTY).orEmpty().trim()
+}
+
+/**
  * The launcher label, from `appName` in gradle.properties. The flavors decorate it rather than
  * each shipping a `app_name` string of their own.
  */

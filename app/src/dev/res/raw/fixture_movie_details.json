@@ -1,0 +1,1178 @@
+[
+  {
+    "id": 550,
+    "runtime": 139,
+    "tagline": "Mischief. Mayhem. Soap.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 27205,
+    "runtime": 148,
+    "tagline": "Your mind is the scene of the crime.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 157336,
+    "runtime": 169,
+    "tagline": "Mankind was born on Earth. It was never meant to die here.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 155,
+    "runtime": 152,
+    "tagline": "Welcome to a world without rules.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 680,
+    "runtime": 154,
+    "tagline": "Just because you are a character doesn't mean you have character.",
+    "genres": [
+      {
+        "id": 53,
+        "name": "Thriller"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 278,
+    "runtime": 142,
+    "tagline": "Fear can hold you prisoner. Hope can set you free.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 238,
+    "runtime": 175,
+    "tagline": "An offer you can't refuse.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 240,
+    "runtime": 202,
+    "tagline": "The rise and fall of the Corleone empire.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 13,
+    "runtime": 142,
+    "tagline": "The world will never be the same once you've seen it through the eyes of Forrest Gump.",
+    "genres": [
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 10749,
+        "name": "Romance"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 603,
+    "runtime": 136,
+    "tagline": "Welcome to the Real World.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 122,
+    "runtime": 201,
+    "tagline": "The eye of the enemy is moving.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 120,
+    "runtime": 179,
+    "tagline": "One ring to rule them all.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 121,
+    "runtime": 179,
+    "tagline": "A new power is rising.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 11,
+    "runtime": 121,
+    "tagline": "A long time ago in a galaxy far, far away...",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 1891,
+    "runtime": 124,
+    "tagline": "The Adventure Continues...",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 424,
+    "runtime": 195,
+    "tagline": "Whoever saves one life, saves the world entire.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 36,
+        "name": "History"
+      },
+      {
+        "id": 10752,
+        "name": "War"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 129,
+    "runtime": 125,
+    "tagline": "The tunnel led Chihiro to a mysterious town...",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 497,
+    "runtime": 189,
+    "tagline": "Miracles do happen.",
+    "genres": [
+      {
+        "id": 14,
+        "name": "Fantasy"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 637,
+    "runtime": 116,
+    "tagline": "An unforgettable fable that proves love, family and imagination conquer all.",
+    "genres": [
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 496243,
+    "runtime": 133,
+    "tagline": "Act like you own the place.",
+    "genres": [
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 324857,
+    "runtime": 117,
+    "tagline": "More than one wears the mask.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 299534,
+    "runtime": 181,
+    "tagline": "Part of the journey is the end.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 299536,
+    "runtime": 149,
+    "tagline": "An entire universe. Once and for all.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 24428,
+    "runtime": 143,
+    "tagline": "Some assembly required.",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 1726,
+    "runtime": 126,
+    "tagline": "Heroes aren't born. They're built.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 271110,
+    "runtime": 147,
+    "tagline": "Divided we fall.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 284054,
+    "runtime": 134,
+    "tagline": "Long live the king.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 118340,
+    "runtime": 121,
+    "tagline": "All heroes start somewhere.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 293660,
+    "runtime": 108,
+    "tagline": "Witness the beginning of a happy ending.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 76341,
+    "runtime": 121,
+    "tagline": "What a lovely day.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 335984,
+    "runtime": 164,
+    "tagline": "The key to the future is finally unearthed.",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 78,
+    "runtime": 118,
+    "tagline": "Man has made his match... now it's his problem.",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 62,
+    "runtime": 149,
+    "tagline": "An epic drama of adventure and exploration.",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 9648,
+        "name": "Mystery"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 11216,
+    "runtime": 124,
+    "tagline": "A celebration of youth, friendship, and the everlasting magic of the movies.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 10749,
+        "name": "Romance"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 807,
+    "runtime": 127,
+    "tagline": "Seven deadly sins. Seven ways to die.",
+    "genres": [
+      {
+        "id": 80,
+        "name": "Crime"
+      },
+      {
+        "id": 9648,
+        "name": "Mystery"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 275,
+    "runtime": 98,
+    "tagline": "A lot can happen in the middle of nowhere.",
+    "genres": [
+      {
+        "id": 80,
+        "name": "Crime"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 769,
+    "runtime": 145,
+    "tagline": "Three decades of life in the mafia.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 429,
+    "runtime": 161,
+    "tagline": "For three men the Civil War wasn't hell. It was practice.",
+    "genres": [
+      {
+        "id": 37,
+        "name": "Western"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 389,
+    "runtime": 97,
+    "tagline": "Life is in their hands. Death is on their minds.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 346,
+    "runtime": 207,
+    "tagline": "The Mighty Warriors Who Became the Seven National Heroes of a Small Town",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 1422,
+    "runtime": 151,
+    "tagline": "Lies. Betrayal. Sacrifice. How far will you take it?",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      },
+      {
+        "id": 80,
+        "name": "Crime"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 274,
+    "runtime": 119,
+    "tagline": "To enter the mind of a killer she must challenge the mind of a madman.",
+    "genres": [
+      {
+        "id": 80,
+        "name": "Crime"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      },
+      {
+        "id": 27,
+        "name": "Horror"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 73,
+    "runtime": 119,
+    "tagline": "Some legacies must end.",
+    "genres": [
+      {
+        "id": 18,
+        "name": "Drama"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 105,
+    "runtime": 116,
+    "tagline": "He's the only kid ever to get into trouble before he was born.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 85,
+    "runtime": 115,
+    "tagline": "Indiana Jones - the new hero from the creators of JAWS and STAR WARS.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 601,
+    "runtime": 115,
+    "tagline": "He is afraid. He is alone. He is three million light years from home.",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 329,
+    "runtime": 127,
+    "tagline": "An adventure 65 million years in the making.",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 578,
+    "runtime": 124,
+    "tagline": "Don't go in the water.",
+    "genres": [
+      {
+        "id": 27,
+        "name": "Horror"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 862,
+    "runtime": 81,
+    "tagline": "Hang on for the comedy that goes to infinity and beyond!",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 863,
+    "runtime": 92,
+    "tagline": "The toys are back!",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 10193,
+    "runtime": 103,
+    "tagline": "No toy gets left behind.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 12,
+    "runtime": 100,
+    "tagline": "There are 3.7 trillion fish in the ocean. They're looking for one.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 14160,
+    "runtime": 96,
+    "tagline": "Not all who wander are lost.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 10681,
+    "runtime": 98,
+    "tagline": "After 700 years of doing what he was built for, he'll discover what he was meant for.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 878,
+        "name": "Science Fiction"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 585,
+    "runtime": 92,
+    "tagline": "We scare because we care.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 9806,
+    "runtime": 115,
+    "tagline": "Save the day.",
+    "genres": [
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 2062,
+    "runtime": 111,
+    "tagline": "He's dying to become a chef.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 14,
+        "name": "Fantasy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 150540,
+    "runtime": 95,
+    "tagline": "Meet the little voices inside your head.",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 354912,
+    "runtime": 105,
+    "tagline": "The celebration of a lifetime.",
+    "genres": [
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10402,
+        "name": "Music"
+      },
+      {
+        "id": 12,
+        "name": "Adventure"
+      }
+    ],
+    "backdrop_path": null
+  },
+  {
+    "id": 508442,
+    "runtime": 101,
+    "tagline": "Is all this living really worth dying for?",
+    "genres": [
+      {
+        "id": 10751,
+        "name": "Family"
+      },
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 35,
+        "name": "Comedy"
+      },
+      {
+        "id": 18,
+        "name": "Drama"
+      },
+      {
+        "id": 10402,
+        "name": "Music"
+      }
+    ],
+    "backdrop_path": null
+  }
+]

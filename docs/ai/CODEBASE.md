@@ -124,7 +124,7 @@ Read this before writing something that exists. A plan holds only open work, so 
 | `SessionState` | `app/SessionState.kt` | `Unknown` / `Onboarding` / `SignedIn` / `SignedOut`, owned by `MainViewModel`; nothing else switches flows. `Onboarding` outranks the other two — someone who has not finished the tour is shown it whether or not a session is stored |
 | `appModules(isDebug)` / `coreModule(isDebug)` | `core/di/Koin.kt` | The one module list; `initKoin` starts it, `KoinGraphTest` verifies it. WARN-and-above logging in release |
 | `MainDispatcherRule`, `FakeLogger`, `TestDispatchers`, `FakeAuthService` | `testFixtures` of `:service:core:ui`, `:service:core:domain` (both middle two), `:feature:auth:domain` | One `testFixtures(projects.service.core.ui)` line brings the first three; the convention plugin adds it, and `convention.feature.data` takes `:service:core:domain`'s directly |
-| `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, flavors. One edit each; the version comes from the tag |
+| `ProjectConfig`, `convention.*` | `build-logic/src/main/kotlin/` | SDK levels, Java target, flavors, and `Tmdb` — the one host that is not `BASE_URL` (D80). One edit each; the version comes from the tag. The TMDB key is `tmdb.apiKey` in `local.properties`, never in git; absent, `BuildConfig.TMDB_API_KEY` is `""` and the build sees fixtures only |
 
 ## Known constraints
 

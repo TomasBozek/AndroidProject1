@@ -43,6 +43,14 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 }
             }
 
+            // The second host, the same on every flavor (D80). The key comes from
+            // `local.properties` and is `""` on a fresh clone, which builds and sees fixtures only.
+            defaultConfig {
+                buildConfigField("String", "TMDB_API_BASE_URL", "\"${ProjectConfig.Tmdb.API_BASE_URL}\"")
+                buildConfigField("String", "TMDB_IMAGE_BASE_URL", "\"${ProjectConfig.Tmdb.IMAGE_BASE_URL}\"")
+                buildConfigField("String", "TMDB_API_KEY", "\"${tmdbApiKey()}\"")
+            }
+
             // Release signing, when there is something to sign with. `keystore.properties` is
             // gitignored and absent on a fresh clone, so this is a no-op there and `assembleRelease`
             // still produces an APK — signed with the debug key, which is the honest outcome: it

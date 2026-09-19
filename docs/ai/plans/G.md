@@ -1,7 +1,7 @@
 # Release G · A real API
 
 Status: open
-Sprints:
+Sprints: G1
 Decisions pre-assigned: D79–D81
 
 The release that gives the sample a list built from data nobody in this repository wrote. Every

@@ -43,6 +43,12 @@ How the project is built, checked, shipped and planned — with Claude. An impro
 from this section the way a feature sprint drafts from § Next, and the reviewer's job is to keep it
 honest: a line lands here whenever the process is caught not doing what its docs say.
 
+- The previous-sprint card is empty after a ship · 3 · templates · X · seen on `develop` at
+  `d153927`, expected `board.py`'s `previous` to carry F4's seven tasks, steps 1 — `/release close`
+  cuts § Release F out of `STATUS.md` (boards gone, D48), so `tasks_of(F4)` finds no board line and
+  returns `[]`; `test_scripts.py`'s board test fails on every clone until the next sprint closes.
+  Fall back to the sprint file's `### <id> <title> · <pts>` briefs when no line exists. Seen in
+  G1P1's `test_scripts.py` run.
 - The hook note reads only the literal `.githooks` · 3 · templates · P · `doctor.py` prints
   "the pre-commit hook is not installed" on a clone whose `core.hooksPath` is the same directory
   as an absolute path — which is what a worktree sees — while the hook runs on every commit there,
