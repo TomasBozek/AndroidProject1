@@ -4,6 +4,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import com.example.androidproject1.feature.settings.presentation.language.SettingsLanguageDestination
 import com.example.androidproject1.feature.settings.presentation.permissions.SettingsPermissionsDestination
 import com.example.androidproject1.service.core.ui.component.Screen
 import kotlinx.serialization.Serializable
@@ -33,6 +34,7 @@ fun EntryProviderScope<NavKey>.settingsDestination(
                 when (navigation) {
                     SettingsNavigation.Profile -> navigateToProfile()
                     SettingsNavigation.Permissions -> backStack.add(SettingsPermissionsDestination)
+                    SettingsNavigation.Language -> backStack.add(SettingsLanguageDestination)
                     SettingsNavigation.DebugMenu -> navigateToDebugMenu?.invoke()
                 }
             },

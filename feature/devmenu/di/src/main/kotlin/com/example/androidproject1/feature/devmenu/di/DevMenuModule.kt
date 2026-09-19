@@ -1,6 +1,7 @@
 package com.example.androidproject1.feature.devmenu.di
 
 import com.example.androidproject1.feature.devmenu.presentation.devmenu.DevMenuViewModel
+import com.example.androidproject1.feature.devmenu.presentation.playground.DevMenuPlaygroundViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -13,5 +14,6 @@ object DevMenuModule {
 
     val module: Module = module {
         viewModelOf(::DevMenuViewModel)
+        viewModelOf(::DevMenuPlaygroundViewModel)
     }
 }

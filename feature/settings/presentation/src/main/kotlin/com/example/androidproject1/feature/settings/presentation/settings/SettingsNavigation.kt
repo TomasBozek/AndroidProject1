@@ -8,6 +8,9 @@ sealed interface SettingsNavigation {
 
     data object Permissions : SettingsNavigation
 
+    /** This feature's own, so the destination pushes it directly. */
+    data object Language : SettingsNavigation
+
     /** The debug menu, which is where the component gallery now lives. Another feature. */
     data object DebugMenu : SettingsNavigation
 }

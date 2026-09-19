@@ -11,11 +11,11 @@ What the sample app contains. The layer rules and the module list are
 | `catalog` | domain · data · presentation · di | Categories, products, product detail, search, a product picker. Holds the Catalog tab |
 | `cart` | domain · data · presentation · di | The cart and its badge count. Holds the Cart tab |
 | `profile` | domain · data · presentation · di | Name, email and an avatar taken from the photo picker |
-| `settings` | domain · data · presentation · di | Theme, permissions, the way into profile and the debug menu. Holds the Settings tab. Reads `feature/auth/domain` to sign out |
+| `settings` | domain · data · presentation · di | Theme, language, permissions, the way into profile and the debug menu. Holds the Settings tab. Reads `feature/auth/domain` to sign out; `LanguageRepository` is declared here and implemented in `:app` (D75) |
 | `onboarding` | domain · data · presentation · di | The first-run flow, behind one stored flag |
 | `home` | presentation · di | The landing tab: favourites, and the card that opens Inventory. Reads `feature/inventory/domain` for the count |
 | `gallery` | presentation · di | Every component in `:core:ui`, with its states. Reached from the debug menu |
-| `devmenu` | presentation · di | Build information, a jump straight to any deep screen with a fixture on its route, the gallery and the test tools. Debug builds only |
+| `devmenu` | presentation · di | Build information, a jump straight to any deep screen with a fixture on its route, the gallery, the component playground and the test tools. Debug builds only |
 | `template` | domain · data · presentation · di | What the generators clone. Compiled by the build so it cannot rot |
 | `trips` | domain · data · presentation · di | A trip list, a three-step wizard, a detail with tabs, a destination picker and a dashboard — the showcase for the components only the gallery reached before (B3S1) |
 | `inventory` | domain · data · presentation · di | Things you own: a searchable, filterable, sortable list with selection mode, a four-step editor and a detail whose sections switch by width. Reached from Home (D59); the showcase that homed the last thirteen components (E3S1–E3S6, D65) |
@@ -42,10 +42,12 @@ through its constructor.
 | `Cart` | cart | — | the Cart tab |
 | `Settings` | settings | — | the Settings tab |
 | `SettingsPermissions` | settings | — | Settings |
+| `SettingsLanguage` | settings | — | Settings. The per-app language: one radio per `AppLanguage` — the device's own, English, Čeština — stored through `LanguageRepository` and applied by the platform at once (D75); the ring follows the store, never the tap |
 | `Profile` | profile | — | Settings |
 | `DevMenu` | devmenu | — | Settings, when the debug menu is enabled |
 | `Gallery` | gallery | — | DevMenu |
 | `GalleryDetail` | gallery | `componentId` | Gallery |
+| `DevMenuPlayground` | devmenu | — | DevMenu, the Tools section. A component picked from `playgroundCatalog`, its knobs as controls generated from their shapes, the stage drawn from their values (D77) |
 | `Template` | template | — | not reachable; the generators clone it |
 | `TemplateArgs` | template | `templateId` | not reachable; cloned by `--with-args` |
 | `Trips` | trips | — | the Trips tab |
@@ -79,6 +81,12 @@ flows itself.
 result and pops, and the cart's registered callback fires once. The key travels as a route argument,
 so one picker can serve several callers and knows nothing about any of them.
 
+**Opening a product.** The row-to-detail push in the catalog is the shared-element showcase
+(F4S1, D76): the product's name and price carry `Modifier.appSharedElement` on both screens, keyed
+by the product id, so on a phone they travel from the row to the detail's title and figure and
+back. On a wide window the list and the detail are one scene and nothing travels — the modifier is
+a no-op there, as it is in every preview and test.
+
 **Keeping an inventory.** Inventory has no tab (D59); the card on Home is its door, wired as a
 lambda in `AppNavHost.homeEntries` the way Settings reaches Profile. From the list, the FAB mints
 a new id and opens the editor on it; the four steps end in `saveItem` and a pop; a row opens the
@@ -87,8 +95,8 @@ detail, which observes the item; the detail's menu opens the editor on the same 
 `.maestro/inventory.yaml` drives the whole loop by id, sign-in to empty list.
 
 **Debug menu.** Present on `dev` and `staging` only. Settings shows the entry, the entries
-themselves are registered only when it is enabled, and the gallery sits behind it — so no release
-build contains a route to either.
+themselves are registered only when it is enabled, and the gallery and the component playground
+sit behind it — so no release build contains a route to any of the three.
 
 **Planning a trip.** `Trips` is the dashboard: a next-trip card and a way into `TripsList`. Either
 one's "new trip" opens `TripWizard`, whose three steps are one screen with a `step` in its state.

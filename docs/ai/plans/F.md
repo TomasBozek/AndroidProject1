@@ -1,8 +1,8 @@
 # Release F · Sprints
 
-Status: open
-Sprints: F1 · F2 · F3
-Decisions pre-assigned: D66–D73
+Status: shipped as v1.3.0 on 2026-09-19
+Sprints: F1 · F2 · F3 · F4
+Decisions pre-assigned: D66–D78
 
 The release that introduces sprints (D66, D67), and whatever the sprints under it finish before the
 owner says ship. Its first sprint takes the two lines ranked first in the grooming of 2026-09-13:

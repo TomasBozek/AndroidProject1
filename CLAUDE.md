@@ -236,12 +236,12 @@ and a pull request merges on its pasted `/check pr` tail, never on a GitHub run.
 | | When | Run |
 |---|---|---|
 | **T0** | once or twice while working — `/check` | `python3 scripts/doctor.py && ./gradlew ktlintCheck`, then the touched module's own `test` (~45 s). A `[note]` about the hook is fixed first: `git config core.hooksPath .githooks` |
-| **T1** | once, after `git rebase origin/main`, before the pull request — `/check pr` | doctor · `ktlintCheck` · `:app:assembleDevDebug` · `test` for every module whose `src/main` changed · plus the three conditionals below (2–6 min) |
+| **T1** | once, after `git rebase origin/develop`, before the pull request — `/check pr` | doctor · `ktlintCheck` · `:app:assembleDevDebug` · `:app:lintDevDebug` · `test` for every module whose `src/main` changed · plus the three conditionals below (3–7 min). Lint is always on: it is the one check CI ran that the local gate did not, and it caught F3X2 |
 | **T2** | every non-draft pull request | conventions always; the build only when the diff is not documentation-only; goldens only when a UI path moved |
 | **T3** | every push to `main` | T2 with nothing skipped, plus coverage |
 | **T4** | a `v*` tag, and weekly | the release build, the generator compile, the end-to-end flows on `devDebug` and a launch of `prodRelease` |
 
-T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
+T1's conditionals, decided from `git diff --name-only origin/develop...HEAD`:
 
 - a path under `*/presentation/src/main`, `core/ui` or `service/core/ui` → add
   `verifyRoborazziDebug` **to the same `./gradlew` invocation as `test`**, never a second one:
@@ -251,8 +251,7 @@ T1's conditionals, decided from `git diff --name-only origin/main...HEAD`:
 - a path under `build-logic/`, `gradle/`, `service/` or `core/` → the whole `./gradlew test`
 
 There is no CI to wait for. Open the pull request with the `/check pr` tail in its body, merge
-it yourself when the tail is green and the owner has said the sprint merges, and start the next
-task. While `build.yml` is off, `gh pr checks` reports nothing and is not consulted; when it comes
+it yourself when the tail is green, and start the next task. While `build.yml` is off, `gh pr checks` reports nothing and is not consulted; when it comes
 back (a § DevOps line), a run GitHub refused before a job started is `not started: <reason>`,
 never `fail` and never green.
 
@@ -260,8 +259,10 @@ never `fail` and never green.
 
 - **One agent works a sprint**, top to bottom. A second or third only when the sprint's `Agents:`
   line says so, and no subagents or workflow scripts inside a session unless the owner asks (D61).
-- `/task <id>` takes the first `[ ]` line on the board; the branch is the sprint's,
-  `<letter><n>-<slug>`, and every task of the sprint is one commit on it.
+- `/task <id>` takes the first `[ ]` line on the board; the branch is the task's,
+  `feature/<id>-<slug>` from `origin/develop`, and the task is one commit on it — gitflow (D74):
+  `main` is shipped code, `develop` is where sprints land, `release/` and `hotfix/` branches are
+  `docs/ai/PROCESS.md` § Branches.
 - A `Decide first` line is settled before the code, as a row in `docs/DECISIONS.md`.
 - With more than one agent, touch only the files your task owns (the sprint's § Files). Alone,
   there is nothing to arbitrate.
@@ -269,9 +270,10 @@ never `fail` and never green.
   changes when.
 - **One commit** per task, titled `<id> <title>`, carrying the code, the docs and the board line
   flipped to `[x]` with `· est → act`.
-- One pull request per sprint, opened with the template on its first task;
-  `gh pr merge --rebase --delete-branch` once the sprint is done and green, so `main` stays one
-  commit per task (D17). Then `/sprint close`, and the owner ships or drafts the next sprint.
+- One pull request per task, against `develop`, with the template and the `/check pr` tail;
+  `gh pr merge --merge --delete-branch` when the tail is green — a merge commit, never a rebase or
+  a squash. When the board is all `[x]`, `/sprint close`, and the owner ships or drafts the next
+  sprint.
 - `/board` after a board line changes: the board artifact is how the sprint is read from a phone
   or another machine (D67).
 

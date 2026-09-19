@@ -68,12 +68,14 @@ class SettingsScreenTest {
     fun `each entry reports its own event`() {
         render(SettingsState.PREVIEW)
 
+        compose.onNodeWithTag("settings_languageButton").performScrollTo().performClick()
         compose.onNodeWithTag("settings_profileButton").performScrollTo().performClick()
         compose.onNodeWithTag("settings_permissionsButton").performScrollTo().performClick()
         compose.onNodeWithTag("settings_logoutButton").performScrollTo().performClick()
 
         assertEquals(
             listOf(
+                SettingsEvent.LanguageClicked,
                 SettingsEvent.ProfileClicked,
                 SettingsEvent.PermissionsClicked,
                 SettingsEvent.LogoutClicked,

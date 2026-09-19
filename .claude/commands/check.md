@@ -19,14 +19,16 @@ if one is there; the committed hook is the one that runs `doctor.py` before ever
 
 Then the touched module's own tests, e.g. `./gradlew :feature:cart:presentation:test`.
 
-**`pr` — T1, once, after rebasing on `origin/main`.** Derive what to run from the diff:
+**`pr` — T1, once, after rebasing on `origin/develop`** (`origin/main` for a `release/` or `hotfix/` branch). Derive what to run from the diff:
 
 ```bash
-git diff --name-only origin/main...HEAD
+git diff --name-only origin/develop...HEAD
 ```
 
-- Always: `python3 scripts/doctor.py`, `./gradlew ktlintCheck :app:assembleDevDebug`, and `test` for
-  every module whose `src/main` changed.
+- Always: `python3 scripts/doctor.py`, `./gradlew ktlintCheck :app:assembleDevDebug :app:lintDevDebug`,
+  and `test` for every module whose `src/main` changed. Lint rides the same invocation as the
+  build — one variant, under a minute on a warm daemon (19 s with every lint task cached) — and is never skipped: with CI off (D73) it is
+  the only lint that runs anywhere, and it is what found F3X2's missing permission.
 - A path under `*/presentation/src/main`, `core/ui` or `service/core/ui` also means
   `./gradlew verifyRoborazziDebug`. If a preview changed on purpose, `recordRoborazziDebug` first
   and **open the images it wrote** — a golden nobody looked at is a test that passes forever.

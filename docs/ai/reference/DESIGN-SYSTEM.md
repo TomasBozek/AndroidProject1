@@ -20,11 +20,11 @@ Read the semantic layer through `AppTheme`.
 
 | Accessor | Holds |
 |---|---|
-| `AppTheme.colors` | surface, content, accent and status roles — `statusPositive`, `statusWarning`, `statusNegative`, aliases of `confirm`, `warning` and `destructive` so a status row and a button cannot drift apart. `TagTone` names the same five states a tag, a status dot or an avatar can be in: `Neutral`, `Positive`, `Warning`, `Negative`, `Info` — states, never transactions (E3U1). Also populates Material's own scheme, so `:service:core:ui` picks the theme up without depending on `:core:ui` |
+| `AppTheme.colors` | surface, content, action and feedback roles. An action role (`confirm`, `destructive`, `info`, `warning`, `neutral`) is an `ActionColors` with an `edge`, because it is pressed; a feedback role (`feedback.success`, `.warning`, `.error`, `.info`) is a `FeedbackColors` — `container`, `onContainer`, `accent` — because a message never is (D78). `ContrastTest` holds the text at 4.5:1 on its container and the accent at 3:1 on the surfaces, both themes. `TagTone` names the five states a tag, a status dot or an avatar can be in — `Neutral`, `Positive`, `Warning`, `Negative`, `Info`, states never transactions (E3U1) — and `TagTone.feedback()` is the one mapping onto the feedback roles; `BannerTone` and `ToastTone` read the same roles. Also populates Material's own scheme, so `:service:core:ui` picks the theme up without depending on `:core:ui` |
 | `AppTheme.typography` | text roles including `Numeric`, which is tabular and the one figures use |
 | `AppTheme.shapes` | corner roles |
 | `AppTheme.elevation` | elevation roles. A pressable surface uses `Modifier.keySurface(…)`, a hard bottom edge that shortens on press, not `Modifier.shadow` |
-| `AppTheme.motion` | durations and easings |
+| `AppTheme.motion` | durations and easings. `screenMillis` is also what a shared element travels in: `Modifier.appSharedElement(key)` in `core.ui.layout` marks the same thing on two screens, a no-op unless `AppNavHost` has provided the transition scope — so previews, tests and the gallery draw it as if it were not there (D76, the catalog's row-to-detail showcase) |
 | `AppTheme.density` | `minTouchTarget`, and the compactness the layout adapts to |
 | `AppTheme.spacing` | spacing roles, the only source of a gap |
 | `AppTheme.icons` | `sm` 18 in a row, `md` 24 for a control, `lg` 32 where the icon is the thing being looked at. Three sizes, and only three |
@@ -125,6 +125,12 @@ overlay means adding a case there.
 `feature/gallery` renders every component with the states worth looking at, reached from the debug
 menu and present in debug builds only. Its catalog lists each entry's id, name, group and variants
 by hand, which is the one place in the design system with no check that it matches reality.
+
+The playground (`DevMenuPlaygroundScreen`, F4U2, D77) is the bench the gallery is not: pick a
+component, turn its knobs, watch the stage. It is not a second gallery — eight entries, the
+controls with the most states — and it knows no component by name: an entry is its knobs as data
+plus a `render` lambda, and the controls are generated from the knobs' shapes. Behind the debug
+menu, like the gallery.
 
 ## Adding one
 

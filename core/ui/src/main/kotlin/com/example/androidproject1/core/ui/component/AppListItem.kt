@@ -35,6 +35,9 @@ import com.example.androidproject1.core.ui.theme.AppTheme
  * [onLongClick] is how a list enters selection mode. It needs [onClick] too: a row that can only
  * be long-pressed is a row a screen reader cannot reach, so the long press is an addition to a
  * tap, never a replacement.
+ *
+ * [headlineModifier] reaches the headline's own text — for `Modifier.appSharedElement`, so the
+ * name can travel to the screen the row opens (D76). The row does not know why.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -45,6 +48,7 @@ fun AppListItem(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     selected: Boolean = false,
+    headlineModifier: Modifier = Modifier,
     leading: @Composable (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
@@ -83,7 +87,7 @@ fun AppListItem(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.stack.xs),
         ) {
-            AppText(text = headline, role = TextRole.Body)
+            AppText(text = headline, role = TextRole.Body, modifier = headlineModifier)
             if (supporting != null) {
                 AppText(text = supporting, role = TextRole.Secondary)
             }

@@ -638,10 +638,37 @@ class ScaffoldingTest(unittest.TestCase):
 
     # -- board.py -----------------------------------------------------------------------------
 
+    def open_a_sprint_if_none_is(self) -> None:
+        """Between a ship and the next draft nothing is `Status: open`, and that is a state of the
+        repository, not a fact about the script — F0P4's gate failed on it. So the test opens one
+        itself when it has to: the newest done sprint copied as Z8 under a release Z, with a board
+        of its own tasks, which is exactly a draft the moment `/sprint open` flips it."""
+        import re
+        plans = self.repo / "docs/ai/plans"
+        texts = {f: f.read_text() for f in plans.glob("[A-Z][0-9]-*.md")}
+        if any(re.search(r"^Status: open\s*$", t, re.M) for t in texts.values()):
+            return
+        done = {f: t for f, t in texts.items() if re.search(r"^Status: done ", t, re.M)}
+        source, text = max(done.items(), key=lambda ft: re.search(r"^Status: done (\S+)", ft[1], re.M).group(1))
+        sprint_id = re.search(r"^Sprint: ([A-Z][0-9])", text, re.M).group(1)
+        tasks = re.findall(r"^### ([A-Z][0-9][UXTHPS][1-9]) (.+?) · (\d+)", text, re.M)
+        board = "## Board\n\n" + "\n".join(f"- [ ] {i} {title} · {pts}" for i, title, pts in tasks) + "\n\n"
+        text = re.sub(r"^Status: done .*$", "Status: open", text, count=1, flags=re.M)
+        text = text.replace(f"# Sprint {sprint_id}", "# Sprint Z8").replace(f"Sprint: {sprint_id}", "Sprint: Z8")
+        text = re.sub(r"^Release: [A-Z]$", "Release: Z", text, count=1, flags=re.M)
+        text = re.sub(r"^Decisions pre-assigned: .*$", "Decisions pre-assigned: D1–D1", text, count=1, flags=re.M)
+        text = text.replace("## Tasks\n", board + "## Tasks\n", 1)
+        (plans / "Z8-open.md").write_text(text)
+        (plans / "Z.md").write_text(
+            "# Release Z · Sprints\n\nStatus: open\nSprints: Z8\nDecisions pre-assigned: D1–D1\n\n"
+            "The release the board test opens when the repository has none.\n"
+        )
+
     def test_board_reads_the_open_sprint_and_refuses_a_second(self) -> None:
         """One JSON document from docs/: the open sprint with its briefs joined onto the board lines,
         the grouped backlog, what shipped — and a loud failure rather than half a board."""
         import json
+        self.open_a_sprint_if_none_is()
         result = self.run_script("board.py")
         board = json.loads(result.stdout)
         self.assertIsNotNone(board["sprint"], "no sprint is Status: open")
@@ -692,14 +719,21 @@ class ScaffoldingTest(unittest.TestCase):
         # one line into one idea per line is.
         someday = good.split("## Someday", 1)[1].split("## ", 1)[0]
         self.assertGreaterEqual(someday.count("\n- "), 5, "§ Someday is one idea per line")
+        def with_next(*lines: str) -> None:
+            backlog.write_text(good.replace("## Next\n", "## Next\n\n" + "\n".join(lines) + "\n", 1))
+
+        # Derivation is asserted on lines this test writes, never on a real one: a draft takes
+        # whichever real line it likes, and F4's took the `core:ui · X` this used to look for.
+        with_next(
+            "- A data-layer line · 6 · feature:auth:data · H · the layer is the last segment",
+            "- A fix in the design system · 3 · core:ui · X · seen on dev 1.0, expected nothing, steps 1",
+            "- A release chore · 3 · release · P · a process area has no feature and no layer",
+        )
         derived = {(i["group"], i["kind"], i["area"], i["feature"], i["layer"])
                    for items in json.loads(self.run_script("board.py").stdout)["backlog"].values() for i in items}
         self.assertIn(("feature:auth:data", "H", "feature", "auth", "data"), derived)
         self.assertIn(("core:ui", "X", "core", None, None), derived)
         self.assertIn(("release", "P", "release", None, None), derived)
-
-        def with_next(line: str) -> None:
-            backlog.write_text(good.replace("## Next\n", f"## Next\n\n{line}\n", 1))
 
         def doctor_says(line: str, *fragments: str) -> None:
             with_next(line)

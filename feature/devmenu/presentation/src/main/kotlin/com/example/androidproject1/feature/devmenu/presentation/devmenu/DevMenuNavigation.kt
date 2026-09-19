@@ -7,6 +7,9 @@ sealed interface DevMenuNavigation {
 
     data object NavigateUp : DevMenuNavigation
 
+    /** This feature's own, so the destination pushes it directly. */
+    data object Playground : DevMenuNavigation
+
     /** A screen from the jump list — another feature's, so the jump carries the call itself. */
     data class Jump(val jump: DevMenuJump) : DevMenuNavigation
 }

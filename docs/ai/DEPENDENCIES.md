@@ -20,6 +20,7 @@ kept for symmetry.
 | Navigation 3 runtime and UI, the lifecycle ViewModel decorator | the back stack and its entries | `convention.service.core.ui`; the adaptive scenes by `convention.core.ui` |
 | Lifecycle runtime, ViewModel, saved state, runtime-compose | view models and lifecycle-aware collection | `convention.service.core.ui`, `convention.feature.presentation` |
 | Activity Compose, core-ktx, splashscreen | the single activity and its splash | `convention.android.application` |
+| AppCompat | the per-app language below API 33 — `AppCompatActivity` applies it, `AppCompatDelegate` stores it (D75); nothing else of it is used | `convention.android.application` |
 | Koin (BOM, core, android, androidx-compose) | the object graph | `convention.feature.di`, `convention.feature.presentation` |
 | Coroutines core | everything asynchronous | `convention.kotlin.jvm`, `convention.feature.data` |
 | kotlinx.serialization JSON | route keys and network payloads | `convention.feature.presentation`, `convention.service.network` |

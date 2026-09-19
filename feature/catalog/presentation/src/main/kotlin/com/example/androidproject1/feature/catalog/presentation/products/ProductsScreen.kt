@@ -14,6 +14,9 @@ import com.example.androidproject1.core.ui.component.AppScaffold
 import com.example.androidproject1.core.ui.component.AppText
 import com.example.androidproject1.core.ui.component.AppTopBar
 import com.example.androidproject1.core.ui.component.TextRole
+import com.example.androidproject1.core.ui.layout.appSharedElement
+import com.example.androidproject1.feature.catalog.presentation.component.sharedNameKey
+import com.example.androidproject1.feature.catalog.presentation.component.sharedPriceKey
 import com.example.androidproject1.service.core.ui.format.LocalFormats
 
 @Composable
@@ -39,12 +42,22 @@ fun ProductsScreen(
                 .testTag("products_list"),
         ) {
             items(state.products, key = { it.id }) { product ->
+                // The name and the price travel to the detail (F4S1): the same keys are on the
+                // detail's title and figure, and the modifier is a no-op wherever no transition
+                // is running — in this preview, in a test, on a wide window.
                 AppListItem(
                     headline = product.name,
                     onClick = { onEvent(ProductsEvent.ProductClicked(product)) },
                     modifier = Modifier.testTag("products_item"),
+                    headlineModifier = Modifier.appSharedElement(product.sharedNameKey()),
                     // A price is numeric, so it gets tabular figures and lines up down the column.
-                    trailing = { AppText(text = formats.money(product.price), role = TextRole.Numeric) },
+                    trailing = {
+                        AppText(
+                            text = formats.money(product.price),
+                            role = TextRole.Numeric,
+                            modifier = Modifier.appSharedElement(product.sharedPriceKey()),
+                        )
+                    },
                 )
                 AppDivider()
             }

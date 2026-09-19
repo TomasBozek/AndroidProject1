@@ -24,13 +24,36 @@ data class ActionColors(
 )
 
 /**
+ * One feedback family: a message, a state, a mark — never something pressed, so no edge (D78).
+ *
+ * [container] and [onContainer] are the surface and the text of a banner, a toast or a tag;
+ * [accent] is the one strong colour a status dot or an icon in the message takes. Held by
+ * `ContrastTest`: the text at 4.5:1 on its container, the accent at 3:1 on the surfaces.
+ */
+@Immutable
+data class FeedbackColors(
+    val container: Color,
+    val onContainer: Color,
+    val accent: Color,
+)
+
+/** The four things feedback can say. Read as `colors.feedback.success.container`. */
+@Immutable
+data class FeedbackRoles(
+    val success: FeedbackColors,
+    val warning: FeedbackColors,
+    val error: FeedbackColors,
+    val info: FeedbackColors,
+)
+
+/**
  * Layer 2 — semantic. Roles, not values: this is the only layer that differs between light and
  * dark, and the names stay identical across the two.
  *
  * Read it through [AppTheme.colors]. A screen asks for `colors.confirm.bg`, never for a ramp step
  * and never for a hex — so a re-brand is a change to [Ramp] and to the two factories below, and no
- * screen is touched. Status is the one place where colour carries meaning on its own, which is why
- * a status colour is always accompanied by text.
+ * screen is touched. Feedback is the one place where colour carries meaning on its own, which is
+ * why a feedback colour is always accompanied by text.
  */
 @Immutable
 data class AppColors(
@@ -67,6 +90,8 @@ data class AppColors(
     val warning: ActionColors,
     /** Number keys and secondary actions. */
     val neutral: ActionColors,
+    /** A message or a state — success, warning, error, info — and never a button (D78). */
+    val feedback: FeedbackRoles,
     /** Hairline between rows — decorative, so it is allowed to be quiet. */
     val border: Color,
     /**
@@ -90,12 +115,7 @@ data class AppColors(
      */
     val textOnScrim: Color,
     val isLight: Boolean,
-) {
-    /** Status. The three are aliases, so a status row and a button cannot drift apart. */
-    val statusPositive: ActionColors get() = confirm
-    val statusWarning: ActionColors get() = warning
-    val statusNegative: ActionColors get() = destructive
-}
+)
 
 /**
  * Light. A solid action is `bg` at ramp step 500 with a 700 edge on a white label; the soft pair is
@@ -116,6 +136,15 @@ fun lightAppColors(): AppColors = AppColors(
     info = ActionColors(Ramp.Blue500, Ramp.Blue700, Ramp.White, Ramp.Blue100, Ramp.Blue700),
     warning = ActionColors(Ramp.Amber500, Ramp.Amber700, Ramp.White, Ramp.Amber100, Ramp.Amber700),
     neutral = ActionColors(Ramp.White, Ramp.Gray300, Ramp.Gray900, Ramp.Gray100, Ramp.Gray600),
+    // The soft pair the action roles already use — 100 on 700 — with the 600 as the accent: the
+    // 500 the buttons wear measured 2.99:1 (green) and 2.38:1 (amber) on the base surface, and a
+    // dot has to clear 3:1 with no text beside it to help. ContrastTest is what said so.
+    feedback = FeedbackRoles(
+        success = FeedbackColors(Ramp.Green100, Ramp.Green700, Ramp.Green600),
+        warning = FeedbackColors(Ramp.Amber100, Ramp.Amber700, Ramp.Amber600),
+        error = FeedbackColors(Ramp.Red100, Ramp.Red700, Ramp.Red600),
+        info = FeedbackColors(Ramp.Blue100, Ramp.Blue700, Ramp.Blue600),
+    ),
     border = Ramp.Gray200,
     borderStrong = Ramp.Gray500,
     focusRing = Ramp.Blue500,
@@ -150,6 +179,13 @@ fun darkAppColors(): AppColors = AppColors(
     info = ActionColors(Ramp.Blue400, Ramp.Blue600, Ramp.Blue900, Ramp.Blue800, Ramp.Blue200),
     warning = ActionColors(Ramp.Amber400, Ramp.Amber600, Ramp.Amber900, Ramp.Amber800, Ramp.Amber200),
     neutral = ActionColors(Ramp.DarkRaised, Ramp.Gray950, Ramp.Gray50, Ramp.Gray800, Ramp.Gray300),
+    // 800 on 200 with the 400 as the accent — the mirror of the light steps, along the ramp.
+    feedback = FeedbackRoles(
+        success = FeedbackColors(Ramp.Green800, Ramp.Green200, Ramp.Green400),
+        warning = FeedbackColors(Ramp.Amber800, Ramp.Amber200, Ramp.Amber400),
+        error = FeedbackColors(Ramp.Red800, Ramp.Red200, Ramp.Red400),
+        info = FeedbackColors(Ramp.Blue800, Ramp.Blue200, Ramp.Blue400),
+    ),
     border = Ramp.Gray700,
     borderStrong = Ramp.Gray400,
     focusRing = Ramp.Blue400,

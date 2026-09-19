@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.example.androidproject1.feature.devmenu.presentation.DevMenuJump
+import com.example.androidproject1.feature.devmenu.presentation.playground.DevMenuPlaygroundDestination
 import com.example.androidproject1.service.core.ui.component.Screen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
@@ -30,6 +31,7 @@ fun EntryProviderScope<NavKey>.devMenuDestination(
             onNavigation = { navigation ->
                 when (navigation) {
                     DevMenuNavigation.NavigateUp -> backStack.removeLastOrNull()
+                    DevMenuNavigation.Playground -> backStack.add(DevMenuPlaygroundDestination)
                     is DevMenuNavigation.Jump -> navigation.jump.navigate()
                 }
             },

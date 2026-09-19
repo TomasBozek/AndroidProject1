@@ -72,6 +72,7 @@ erDiagram
 | `Tokens` | `feature/auth/domain` | the shape a real token pair would take; nothing issues one yet |
 | `Profile` | `feature/profile/domain` | `avatarUri` is nullable; `Profile.EMPTY` is the blank one |
 | `ThemePreference` | `feature/settings/domain` | `System`, `Light`, `Dark` |
+| `AppLanguage` | `feature/settings/domain` | `System`, `English`, `Czech`, each with the BCP 47 `tag` the platform stores (`""` for the device's own); `fromTag` reads one back, an unknown tag being the default (D75) |
 | `Destination` | `feature/trips/domain` | `id`, `name`, `country`, `description`; fixture data, seeded once |
 | `Trip` | `feature/trips/domain` | `destinationId`/`destinationName` denormalized so a renamed destination cannot orphan a trip; `budgetMinMinor`/`budgetMaxMinor` follow `Product.price`'s convention; `status(today)` is derived, never stored |
 | `Item` | `feature/inventory/domain` | something the user owns — `category`, `condition`, `quantity`, `priceMinor` (minor units, like `Product.price`), a nullable `acquiredOn`, `insured`, a `tags` set, `owner` (a name `AppAvatar` draws from), a nullable `imageUrl` the offline `dev` build never loads, `notes`. `ItemCategory`, `ItemCondition` and `ItemTag` are the closed sets a picker offers |
@@ -99,6 +100,7 @@ Every method returns `Outcome`, and every observation is a `Flow<Outcome<T>>`.
 | `OnboardingRepository` | `feature/onboarding/domain` | `observeSeen`, `markSeen` |
 | `ProfileRepository` | `feature/profile/domain` | `get`, `save`, `setAvatar` |
 | `ThemeRepository` | `feature/settings/domain` | `observeTheme`, `setTheme` |
+| `LanguageRepository` | `feature/settings/domain` | `observeLanguage`, `setLanguage`; implemented in `:app`, not in the feature's data module (D75) |
 | `TripsRepository` | `feature/trips/domain` | `observeTrips`, `getTrip`, `saveTrip`, `deleteTrip` |
 | `DestinationsRepository` | `feature/trips/domain` | `observeDestinations`, `getDestination` |
 | `InventoryRepository` | `feature/inventory/domain` | `observeItems`, `observeItem(id)`, `getItem`, `saveItem`, `deleteItems(ids)` |
@@ -131,6 +133,7 @@ store below swappable.
 | `LocalProfileDataSource` | DataStore |
 | `AvatarDataSource` | the content resolver for reading, `filesDir` for the copy the app keeps |
 | `LocalThemeDataSource` | DataStore |
+| `AppCompatLanguageRepository` | AppCompat's per-app locale — `AppCompatDelegate` stores it below API 33, the platform's `LocaleManager` above; nothing in DataStore. In `:app`, beside the connectivity monitor |
 | `LocalTripsDataSource` | Room · `TripsDatabase` · `trips`; `type` and the dates are `TEXT` through `Converters`, and an unknown type reads as `Leisure` rather than failing the list |
 | `LocalDestinationsDataSource` | Room · `TripsDatabase` · `destinations`; seeded from a fixture list on first read, not a network fetch — no new dependency, D20 still stands |
 | `LocalInventoryDataSource` | Room · `InventoryDatabase` · `items`; twelve fixture items seeded on first read, the way destinations are; the three enum columns, the date and the tag set are `TEXT` through `Converters`, an unknown name reading as a fallback |

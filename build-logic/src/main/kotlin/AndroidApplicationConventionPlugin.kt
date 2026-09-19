@@ -95,6 +95,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             // The system splash screen, which the app owns: it is installed by MainActivity
             // and themed in app/src/main/res.
             add("implementation", libs.findLibrary("androidx-core-splashscreen").get())
+            // Per-app language below API 33 (D75): `AppCompatActivity` applies the stored locale in
+            // `attachBaseContext`, and `AppCompatDelegate` is the store. Only :app needs it.
+            add("implementation", libs.findLibrary("androidx-appcompat").get())
 
             add("implementation", platform(libs.findLibrary("koin-bom").get()))
             add("implementation", libs.findBundle("koin-android").get())

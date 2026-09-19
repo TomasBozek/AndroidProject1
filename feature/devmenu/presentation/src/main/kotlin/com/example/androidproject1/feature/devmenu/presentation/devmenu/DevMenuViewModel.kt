@@ -79,6 +79,7 @@ class DevMenuViewModel(
 
             is DevMenuEvent.JumpClicked -> navigate(DevMenuNavigation.Jump(event.jump))
 
+            DevMenuEvent.PlaygroundClicked -> navigate(DevMenuNavigation.Playground)
             DevMenuEvent.NavigateUpClicked -> navigate(DevMenuNavigation.NavigateUp)
         }
     }
