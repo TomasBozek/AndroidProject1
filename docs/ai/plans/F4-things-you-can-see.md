@@ -1,7 +1,7 @@
 # Sprint F4 · Things you can see
 
 Sprint: F4 · Things you can see
-Status: open
+Status: done 2026-09-19
 When: 2026-09-17 09:00 → 2026-09-18 18:00
 Goal: A UI sprint — one bug, two screens, a showcase and two palette additions, each of them something a person can look at on the device
 Release: F
@@ -360,3 +360,32 @@ pair is short, then the values. 4. The two tones. 5. The aliases, one way or the
 gallery variants. 7. Goldens, opened. 8. The reference row.
 **Checks** T1 + `verifyRoborazziDebug` in the same invocation as `test`, and the whole `./gradlew
 test` (a `core/` path). **Depends** —
+
+## Retrospective
+
+- **What the briefs got wrong.** One pair outside 0.7–1.3: F4U2 at `25 → 6`. The playground was
+  estimated as a feature slice and built in forty minutes, because the brief had already decided
+  the shape — the knob model, the one `when`, the eight entries — and the generator wrote the eight
+  files; a 25 is three screens sharing a data layer, and this was one screen and one data class.
+  The other five landed on their number, and the rewritten 6 band held on both of its tasks. Two
+  briefs asked for something the code could not give and the task said so: F4S1's navigation3
+  local throws outside an entry, so `:core:ui` owns a second nullable local the host re-provides;
+  F4U1's `LocaleManager` alternative was the right thing to reject and the row says why. One
+  brief was wrong in a way the task fixed in passing: F4P1's test suite asserted a real backlog
+  line the draft had just taken — the same class of miss F2P1's line count was.
+- **What the checks missed.** Nothing green went wrong on the device — every screen was looked
+  at on the emulator and the two mid-flight frames are in the session. `ContrastTest` caught the
+  feedback accents at 2.99:1 and 2.38:1 before they shipped, which is what it is for. What no
+  check catches: a legacy-graphics Robolectric test measures a pixel per glyph, so
+  `AppDescriptionListTest` had to opt into `NATIVE` to see the bug at all — a component test that
+  asserts a width without it passes on anything. And the hook audit and doctor's note compare
+  `core.hooksPath` to the literal `.githooks`, so on this worktree both report the hook unset
+  while it runs on every commit (the § DevOps line from F4U1).
+- **One thing to change.** A screenshot from the device belongs in the pull request, not in the
+  session: `gh` cannot attach an image, so the three device proofs this sprint are files the
+  owner saw once and a sentence in each body. A § DevOps line for the next improvement sprint:
+  a place a device screenshot can be pushed to and linked from a pull-request body. The audit:
+  the hook runs and reports as unset (the literal comparison — the existing line); every merged
+  pull request carries a tail that says `pass` and names doctor's 42 and the Gradle tasks; every
+  changelog block has its tag; the board was republished at `03f4636`, after the last merge.
+  DevOps holds 15 points; an improvement sprint is due at 50.

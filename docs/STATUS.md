@@ -1,23 +1,15 @@
 # Status
 
-**F4 · Things you can see is open** — a UI sprint of 64 points, 2026-09-17 09:00 → 2026-09-18
-18:00: `/check pr` gains lint, then the description-list bug, a language picker, a shared-element
-showcase, the component playground and feedback roles. Release F is open with three done sprints
-under it. CI is off (D73), so the gate is `/check pr` on the machine that merges. The rules are
-[ai/PROCESS.md](ai/PROCESS.md); `/board` publishes this page to the board artifact. § DevOps holds 6
-of the 50 points at which an improvement sprint is due.
+**No sprint is open.** F4 · Things you can see closed on 2026-09-19 (`64 → 45`); release F is open with
+four done sprints and nothing drafted. CI is off (D73), so the gate is `/check pr` on the machine
+that merges. Next is the owner's word: `/release close` ships F as `v1.3.0`, or `/sprint draft
+<name>` writes F5 from [BACKLOG.md](BACKLOG.md) § Next — § DevOps holds 15 of the 50 points at
+which an improvement sprint is due. The rules are [ai/PROCESS.md](ai/PROCESS.md); `/board`
+publishes this page to the board artifact.
 
 ## Board
 
-**F4 · Things you can see** — open · 2026-09-17 09:00 → 2026-09-18 18:00 · 64 points ·
-[ai/plans/F4-things-you-can-see.md](ai/plans/F4-things-you-can-see.md)
-
-- [x] F4P1 `/check pr` runs lint · 3 → 3
-- [x] F4X1 The description list wraps its value, not its label · 6 → 6
-- [x] F4U1 A language picker in Settings · 12 → 12 · decides D75
-- [x] F4S1 A shared-element transition from a product row to its detail · 12 → 12 · decides D76
-- [x] F4U2 A component playground behind the dev menu (was C1U6) · 25 → 6 · decides D77
-- [x] F4U3 Feedback roles in the palette · 6 → 6 · decides D78
+No sprint is open. The first draft is the next sprint by default — there is none.
 
 ## Drafts
 
@@ -28,6 +20,16 @@ None. The first draft is the next sprint by default; `/sprint draft <name>` writ
 
 Open — [ai/plans/F.md](ai/plans/F.md). Collects sprints until `/release close` ships them as
 `v1.3.0`; a done sprint's lines move here from § Board.
+
+**F4 · Things you can see** — done 2026-09-19 · 64 → 45 ·
+[ai/plans/F4-things-you-can-see.md](ai/plans/F4-things-you-can-see.md)
+
+- [x] F4P1 `/check pr` runs lint · 3 → 3
+- [x] F4X1 The description list wraps its value, not its label · 6 → 6
+- [x] F4U1 A language picker in Settings · 12 → 12 · decides D75
+- [x] F4S1 A shared-element transition from a product row to its detail · 12 → 12 · decides D76
+- [x] F4U2 A component playground behind the dev menu (was C1U6) · 25 → 6 · decides D77
+- [x] F4U3 Feedback roles in the palette · 6 → 6 · decides D78
 
 **F3 · Green again** — done 2026-09-17 · 48 → 33 ·
 [ai/plans/F3-green-again.md](ai/plans/F3-green-again.md)
