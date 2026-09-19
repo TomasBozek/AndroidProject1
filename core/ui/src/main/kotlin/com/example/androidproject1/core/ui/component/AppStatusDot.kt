@@ -26,14 +26,7 @@ fun AppStatusDot(
     modifier: Modifier = Modifier,
     tone: TagTone = TagTone.Neutral,
 ) {
-    val colors = AppTheme.colors
-    val family = when (tone) {
-        TagTone.Neutral -> colors.neutral
-        TagTone.Positive -> colors.statusPositive
-        TagTone.Warning -> colors.statusWarning
-        TagTone.Negative -> colors.statusNegative
-        TagTone.Info -> colors.info
-    }
+    val family = tone.feedback(AppTheme.colors)
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -43,7 +36,7 @@ fun AppStatusDot(
             modifier = Modifier
                 .size(8.dp)
                 .clip(AppTheme.shapes.pill)
-                .background(family.bg),
+                .background(family.accent),
         )
         AppText(text = label, role = TextRole.Label)
     }

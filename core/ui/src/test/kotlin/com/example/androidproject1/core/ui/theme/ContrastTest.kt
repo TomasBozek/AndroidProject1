@@ -40,8 +40,16 @@ class ContrastTest {
     }
 
     @Test
+    fun `every feedback role's text reads on its container, and its accent on the surfaces`() {
+        assertPairs(feedbackTextPairs(), TEXT_MINIMUM)
+        assertPairs(feedbackAccentPairs(), NON_TEXT_MINIMUM)
+    }
+
+    @Test
     fun `every accepted exception is still a pair that exists`() {
-        val known = (textPairs() + borderPairs()).map { Triple(it.theme, it.foreground, it.background) }.toSet()
+        val known = (textPairs() + borderPairs() + feedbackTextPairs() + feedbackAccentPairs())
+            .map { Triple(it.theme, it.foreground, it.background) }
+            .toSet()
         val stale = ACCEPTED.filterNot { Triple(it.theme, it.foreground, it.background) in known }
         assertTrue(
             "Accepted exceptions that no longer name a pair this test checks — delete them:\n" +
@@ -139,6 +147,32 @@ private fun borderPairs(): List<Pair> = palettes.flatMap { (theme, c) ->
     )
     borders.flatMap { (name, color) ->
         surfaces(c).map { (surface, surfaceColor) -> Pair(theme, name, surface, color, surfaceColor) }
+    }
+}
+
+private fun feedbackRoles(c: AppColors) = listOf(
+    "feedback.success" to c.feedback.success,
+    "feedback.warning" to c.feedback.warning,
+    "feedback.error" to c.feedback.error,
+    "feedback.info" to c.feedback.info,
+)
+
+/** A message's text on its own container (D78): the pair a banner, a toast and a tag draw. */
+private fun feedbackTextPairs(): List<Pair> = palettes.flatMap { (theme, c) ->
+    feedbackRoles(c).map { (name, role) ->
+        Pair(theme, "$name.onContainer", "$name.container", role.onContainer, role.container)
+    }
+}
+
+/**
+ * The accent — a status dot, an icon in a message — on the two surfaces a dot sits on. Not the
+ * sunken one: nothing draws a dot on the ground under a list.
+ */
+private fun feedbackAccentPairs(): List<Pair> = palettes.flatMap { (theme, c) ->
+    feedbackRoles(c).flatMap { (name, role) ->
+        listOf("surfaceBase" to c.surfaceBase, "surfaceRaised" to c.surfaceRaised).map { (surface, surfaceColor) ->
+            Pair(theme, "$name.accent", surface, role.accent, surfaceColor)
+        }
     }
 }
 

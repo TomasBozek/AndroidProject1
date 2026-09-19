@@ -17,7 +17,7 @@ import com.example.androidproject1.core.ui.common.ThemedComponentPreview
 import com.example.androidproject1.core.ui.theme.AppTheme
 
 /** What a toast is reporting. An error is the only one that does not dismiss itself. */
-enum class ToastTone { Neutral, Success, Error }
+enum class ToastTone { Neutral, Success, Error, Info, Warning }
 
 /**
  * Confirmation of something that has already happened.
@@ -34,17 +34,19 @@ fun AppToast(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
 ) {
+    // A toast is a message, so a toned one draws in a feedback role (D78) — the soft pair, never
+    // the solid face of the button whose colour it used to borrow. Neutral stays the inverse
+    // surface: it is the one that has nothing to say about how things went.
     val colors = AppTheme.colors
-    val background = when (tone) {
-        ToastTone.Neutral -> colors.surfaceInverse
-        ToastTone.Success -> colors.confirm.bg
-        ToastTone.Error -> colors.destructive.bg
+    val family = when (tone) {
+        ToastTone.Neutral -> null
+        ToastTone.Success -> colors.feedback.success
+        ToastTone.Error -> colors.feedback.error
+        ToastTone.Info -> colors.feedback.info
+        ToastTone.Warning -> colors.feedback.warning
     }
-    val foreground = when (tone) {
-        ToastTone.Neutral -> colors.textOnInverse
-        ToastTone.Success -> colors.confirm.label
-        ToastTone.Error -> colors.destructive.label
-    }
+    val background = family?.container ?: colors.surfaceInverse
+    val foreground = family?.onContainer ?: colors.textOnInverse
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -86,4 +88,6 @@ private fun Preview() = ThemedComponentPreview {
     AppToast(message = "Order placed", tone = ToastTone.Success)
     AppToast(message = "Item moved to your wishlist", actionLabel = "Undo", onAction = {})
     AppToast(message = "Printer not responding", tone = ToastTone.Error)
+    AppToast(message = "Syncing in the background", tone = ToastTone.Info)
+    AppToast(message = "Two items are low on stock", tone = ToastTone.Warning)
 }

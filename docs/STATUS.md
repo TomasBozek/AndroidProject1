@@ -17,7 +17,7 @@ of the 50 points at which an improvement sprint is due.
 - [x] F4U1 A language picker in Settings · 12 → 12 · decides D75
 - [x] F4S1 A shared-element transition from a product row to its detail · 12 → 12 · decides D76
 - [x] F4U2 A component playground behind the dev menu (was C1U6) · 25 → 6 · decides D77
-- [ ] F4U3 Feedback roles in the palette · 6 · decides D78
+- [x] F4U3 Feedback roles in the palette · 6 → 6 · decides D78
 
 ## Drafts
 
